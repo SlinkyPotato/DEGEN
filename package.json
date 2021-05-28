@@ -1,0 +1,29 @@
+{
+  "name": "banklessbot",
+  "version": "1.0.0",
+  "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nonsensecodes/BanklessBot.git"
+  },
+  "keywords": [
+    "bankless",
+    "discord",
+    "bot",
+    "crypto"
+  ],
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/nonsensecodes/BanklessBot/issues"
+  },
+  "homepage": "https://github.com/nonsensecodes/BanklessBot#readme",
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "discord.js-commando": "^0.12.3"
+  }
+}

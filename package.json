@@ -24,7 +24,8 @@
   "homepage": "https://github.com/nonsensecodes/BanklessBot#readme",
   "dependencies": {
     "discord.js": "^12.5.3",
-    "discord.js-commando": "^0.12.3"
+    "discord.js-commando": "^0.12.3",
+    "mongodb": "^3.6.9"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.26.0",

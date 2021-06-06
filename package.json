@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/nonsensecodes/BanklessBot#readme",
   "dependencies": {
+    "@notionhq/client": "^0.1.8",
     "discord.js": "^12.5.3",
     "discord.js-commando": "^0.12.3",
     "dotenv": "^10.0.0"

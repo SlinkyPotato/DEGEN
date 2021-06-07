@@ -1,11 +1,16 @@
+const dotenv = require('dotenv');
+
 const path = require('path');
 const db = require('./db.js');
 const { MessageEmbed } = require('discord.js');
 const { CommandoClient } = require('discord.js-commando');
 
+dotenv.config();
+
+console.log(process.env.DISCORD_COMMANDO_ID);
 const client = new CommandoClient({
   commandPrefix: '$',
-  owner: ownerID
+  owner: process.env.DISCORD_COMMANDO_ID
 });
 
 client.registry

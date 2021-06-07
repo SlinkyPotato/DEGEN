@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nonsensecodes/BanklessBot.git"
+    "url": "git+https://github.com/BanklessDAO/discord-bots"
   },
   "keywords": [
     "bankless",
@@ -19,13 +19,14 @@
   "author": "",
   "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
-    "url": "https://github.com/nonsensecodes/BanklessBot/issues"
+    "url": "https://github.com/BanklessDAO/discord-bots/issues"
   },
-  "homepage": "https://github.com/nonsensecodes/BanklessBot#readme",
+  "homepage": "https://github.com/BanklessDAO/discord-bots/blob/main/README.md",
   "dependencies": {
     "@notionhq/client": "^0.1.8",
     "discord.js": "^12.5.3",
     "discord.js-commando": "^0.12.3",
+    "dotenv": "^10.0.0",
     "mongodb": "^3.6.9"
   },
   "devDependencies": {

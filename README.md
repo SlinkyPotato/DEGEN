@@ -11,7 +11,7 @@ please connect with any package maintainer for details on workflow.
 
 ## Getting Started
 
-If you're interested in helping with development, follow the steps outlined
-in CONTRIBUTE.md. This consists of setting up your own bot, having it added
+If you're interested in helping with development, follow the steps outlined under docs/
+in [CONTRIBUTE.md](docs/CONTRIBUTE.md). This consists of setting up your own bot, having it added
 to the test server, and acquiring the tokens to connect with the test Notion
 and database.

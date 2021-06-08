@@ -24,6 +24,7 @@
   "homepage": "https://github.com/BanklessDAO/discord-bots/blob/main/README.md",
   "dependencies": {
     "@notionhq/client": "^0.1.8",
+    "axios": "^0.21.1",
     "discord.js": "^12.5.3",
     "discord.js-commando": "^0.12.3",
     "dotenv": "^10.0.0",

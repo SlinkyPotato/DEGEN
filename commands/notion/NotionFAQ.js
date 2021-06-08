@@ -22,19 +22,41 @@ module.exports = class NotionCommand extends Command {
         });
     }
 
-    run(msg, { faqQuestion }) {
-        const blocks = retrieveFAQ();
-        return msg.say('PASSING IT BACK: ' + faqQuestion);
+    async run(msg, { faqQuestion }){
+        const faqs = await retrieveFAQsPromise();
+        console.log(faqs);
+        return msg.say('');
     }
 }
 
-function retrieveFAQ() {
+async function retrieveFAQsPromise() {
     console.log("calling notion APIs");
-    const blocks = notionAPI.get(notionAPI.defaults.baseUrl + `blocks/${FAQ_PAGE_ID}/children`);
-    blocks.catch(errors => {
-        console.log(errors);
-    }).then(response => {
-        console.log(response);
+    const faqs = [];
+    const numberRegex = /^[0-9]./;
+    const response = await notionAPI.get(notionAPI.defaults.baseUrl + `blocks/${FAQ_PAGE_ID}/children`);
+    response.data.results.forEach(obj => {
+        if (obj.type === 'paragraph' && obj.paragraph.text.length > 0) {
+            // Check and add question to list
+            if (numberRegex.test(obj.paragraph.text[0].plain_text)) {
+                faqs.push({
+                    'question': obj.paragraph.text[0].plain_text,
+                    'answer': ''
+                });
+                return;
+            } else {
+                // This is an answer
+                const paragraphContent = obj.paragraph.text.map(element => {
+                    return element.plain_text;
+                }).join(" ");
+                faqs[faqs.length - 1].answer += ' ' + paragraphContent;
+            }
+        } else if (obj.type === 'bulleted_list_item' && obj.bulleted_list_item.text.length > 0) {
+            // Bulleted answers
+            const bulletedContent = obj.bulleted_list_item.text.map(element => {
+                return element.plain_text;
+            }).join(" ");
+            faqs[faqs.length - 1].answer += '\n - ' + bulletedContent;
+        }
     });
-    return blocks;
+    return faqs;
 }

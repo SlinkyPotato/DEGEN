@@ -3,6 +3,7 @@ const { Command } = require('discord.js-commando');
 const notionAPI = require('../../notion/NotionAPI.js');
 
 const FAQ_PAGE_ID = '6a2ba0a4-fd1e-4381-b365-6ad5afd418fa';
+const FAQ_URL = 'https://www.notion.so/FAQs-6a2ba0a4fd1e4381b3656ad5afd418fa';
 
 module.exports = class NotionCommand extends Command {
     constructor(client) {
@@ -15,17 +16,25 @@ module.exports = class NotionCommand extends Command {
             args: [
                 {
                     key: 'faqQuestion',
-                    prompt: 'Send your question and see if we can find an answer!',
-                    type: 'string'
+                    prompt: 'Do you have a specific question? (default: no)',
+                    type: 'string',
+                    default: 'no'
                 }
             ]
         });
     }
 
     async run(msg, { faqQuestion }){
-        const faqs = await retrieveFAQsPromise();
-        console.log(faqs);
-        return msg.say('');
+        if (faqQuestion == 'n' || faqQuestion == 'no' || faqQuestion == 'nah' || faqQuestion == '') {
+            const faqs = await retrieveFAQsPromise();
+            let faqsStr = '**Frequently Asked Questions: ' + FAQ_URL + ' **\n';
+            faqs.forEach(faq => {
+                const question = '**' + faq.question + '**';
+                const answer = '\n' + faq.answer.trim() + '\n';
+                faqsStr = faqsStr + question + answer + '\n'
+            });
+            return msg.say(faqsStr.substring(0, 2000));
+        }
     }
 }
 

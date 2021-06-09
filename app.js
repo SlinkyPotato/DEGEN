@@ -9,8 +9,7 @@ const { CommandoClient } = require('discord.js-commando');
 dotenv.config();
 
 const client = new CommandoClient({
-  commandPrefix: '$',
-  owner: process.env.DISCORD_COMMANDO_ID
+  commandPrefix: '$'
 });
 
 client.registry

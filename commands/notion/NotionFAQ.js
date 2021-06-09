@@ -1,5 +1,4 @@
 const { Command } = require('discord.js-commando');
-// const notion = require('../../notion/Notion.js');
 const notionAPI = require('../../notion/NotionAPI.js');
 
 const FAQ_PAGE_ID = '6a2ba0a4-fd1e-4381-b365-6ad5afd418fa';
@@ -25,21 +24,59 @@ module.exports = class NotionCommand extends Command {
     }
 
     async run(msg, { faqQuestion }){
+        const faqs = await retrieveFAQsPromise();
+        let replyStr = '**Frequently Asked Questions**: ' + FAQ_URL + ' \n\n';
         if (faqQuestion == 'n' || faqQuestion == 'no' || faqQuestion == 'nah' || faqQuestion == '') {
-            const faqs = await retrieveFAQsPromise();
-            let faqsStr = '**Frequently Asked Questions: ' + FAQ_URL + ' **\n';
+            // No question asked, return a few FAQs
             faqs.forEach(faq => {
                 const question = '**' + faq.question + '**';
                 const answer = '\n' + faq.answer.trim() + '\n';
-                faqsStr = faqsStr + question + answer + '\n'
+                replyStr = replyStr + question + answer + '\n'
             });
-            return msg.say(faqsStr.substring(0, 2000));
+            return msg.say(replyStr.substring(0, 2000));
+        } else {
+            // Try to find the answer to the given question
+            const validQuestion = faqQuestion.replace(/[^\w\s]/gi, '');
+
+            // Prepare answer
+            replyStr += "Question: " + validQuestion + '\n' + 'Answer: ';
+
+            // Search for existing question
+            faqs.forEach((faq, i) => {
+                const cleanQuestion = faq.question.substring(3, faq.question.length - 1);
+                if (cleanQuestion === validQuestion) {
+                    replyStr += faq.answer + '\n';
+                    return msg.say(replyStr);
+                }
+            });
+
+            // Search for close enough answer
+            const words = validQuestion.split(' ');
+            let highestMatchingIndex = 0;
+            let highestMatchingNum = 0;
+            faqs.forEach((faq, i) => {
+                const cleanQuestion = faq.question.substring(3, faq.question.length - 1).toLowerCase();
+                let numberOfMatches = 0;
+                words.forEach(word => {
+                    const cleanWord = word.toLowerCase();
+                    const n = cleanQuestion.search(cleanWord);
+                    if (n > 0) {
+                        numberOfMatches += 1;
+                    }
+                });
+                faq.numberOfMatches = numberOfMatches;
+                if (numberOfMatches > highestMatchingNum) {
+                    highestMatchingNum = numberOfMatches;
+                    highestMatchingIndex = i;
+                }
+            });
+            replyStr += faqs[highestMatchingIndex].answer + '\n';
+            return msg.say(replyStr);
         }
     }
 }
 
 async function retrieveFAQsPromise() {
-    console.log("calling notion APIs");
     const faqs = [];
     const numberRegex = /^[0-9]./;
     const response = await notionAPI.get(notionAPI.defaults.baseUrl + `blocks/${FAQ_PAGE_ID}/children`);

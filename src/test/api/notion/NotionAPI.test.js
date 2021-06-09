@@ -2,7 +2,7 @@
 
 const chai = require('chai');
 const assert = chai.assert;
-const notionAPI = require( "./NotionAPI.js");
+const notionAPI = require("../../../app/api/notion/NotionAPI.js");
 
 describe( "NotionAPI", () => {
   before( () => {

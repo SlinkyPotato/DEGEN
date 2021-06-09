@@ -4,11 +4,11 @@
   "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
   "main": "app.js",
   "scripts": {
-    "test": "mocha -r dotenv/config src/**/*.test.js",
-    "qa": "node -r dotenv/config src/app.js dotenv_config_path=.env.qa",
-    "start": "node -r dotenv/config src/app.js"
+    "test": "mocha -r dotenv/config src/test/**/*.test.js",
+    "qa": "node -r dotenv/config src/app/app.js dotenv_config_path=.env.qa",
+    "start": "node -r dotenv/config src/app/app.js"
   },
-  "repository": {                                                                           
+  "repository": {
     "type": "git",
     "url": "git+https://github.com/BanklessDAO/discord-bots"
   },
@@ -18,8 +18,8 @@
     "bot",
     "crypto"
   ],
-  "author": "",
-  "license": "LICENSE.md",
+  "author": "BANKLESS DAO",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/BanklessDAO/discord-bots/issues"
   },
@@ -40,6 +40,7 @@
     "eslint-config-prettier": "^8.3.0",
     "jest": "^27.0.3",
     "mocha": "^9.0.0",
+    "nock": "^13.1.0",
     "prettier": "2.3.0"
   },
   "engines": {

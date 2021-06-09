@@ -7,10 +7,10 @@ const FAQ_URL = 'https://www.notion.so/FAQs-6a2ba0a4fd1e4381b3656ad5afd418fa';
 module.exports = class NotionCommand extends Command {
     constructor(client) {
         super(client, {
-            name: 'notion-faq',
-            aliases: ['notionfaq'],
+            name: 'notion-faqs',
+            aliases: ['notionfaqs'],
             group: 'notion',
-            memberName: 'notion-faq',
+            memberName: 'notion-faqs',
             description: 'Get answers to commonly asked questions.',
             args: [
                 {
@@ -24,9 +24,9 @@ module.exports = class NotionCommand extends Command {
     }
 
     async run(msg, { faqQuestion }){
-        const faqs = await retrieveFAQsPromise();
+        const faqs = await module.exports.retrieveFAQsPromise();
         let replyStr = '**Frequently Asked Questions**: ' + FAQ_URL + ' \n\n';
-        if (faqQuestion == 'n' || faqQuestion == 'no' || faqQuestion == 'nah' || faqQuestion == '') {
+        if (faqQuestion === 'n' || faqQuestion === 'no' || faqQuestion === 'nah' || faqQuestion === '' || faqQuestion === 'help') {
             // No question asked, return a few FAQs
             faqs.forEach(faq => {
                 const question = '**' + faq.question + '**';
@@ -42,14 +42,14 @@ module.exports = class NotionCommand extends Command {
             replyStr += "Question: " + validQuestion + '\n' + 'Answer: ';
 
             // Search for existing question
-            faqs.forEach((faq, i) => {
+            for (let i = 0; i++; i < faq.length) {
                 const cleanQuestion = faq.question.substring(3, faq.question.length - 1);
                 if (cleanQuestion === validQuestion) {
                     replyStr += faq.answer + '\n';
+                    exactQuestionFound = true;
                     return msg.say(replyStr);
                 }
-            });
-
+            }
             // Search for close enough answer
             const words = validQuestion.split(' ');
             let highestMatchingIndex = 0;
@@ -76,7 +76,7 @@ module.exports = class NotionCommand extends Command {
     }
 }
 
-async function retrieveFAQsPromise() {
+module.exports.retrieveFAQsPromise = async function() {
     const faqs = [];
     const numberRegex = /^[0-9]./;
     const response = await notionAPI.get(notionAPI.defaults.baseUrl + `blocks/${FAQ_PAGE_ID}/children`);

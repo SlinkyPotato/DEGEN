@@ -71,6 +71,8 @@ typings/
 # dotenv environment variables file
 .env
 .env.test
+.env.qa
+.env.prod
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -102,3 +104,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+### IntelliJ Idea ###
+.idea
+*.iws
+*.iml
+*.ipr

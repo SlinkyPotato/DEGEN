@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const notionAPI = require('../../notion/NotionAPI.js');
+const notionAPI = require('../../api/notion/NotionAPI.js');
 
 const FAQ_PAGE_ID = '6a2ba0a4-fd1e-4381-b365-6ad5afd418fa';
 const FAQ_URL = 'https://www.notion.so/FAQs-6a2ba0a4fd1e4381b3656ad5afd418fa';

@@ -1,10 +1,11 @@
 {
   "name": "banklessbot",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node -r dotenv/config src/app.js"
   },
   "repository": {
     "type": "git",

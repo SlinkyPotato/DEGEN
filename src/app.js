@@ -5,7 +5,7 @@ const { CommandoClient } = require('discord.js-commando');
 
 const client = new CommandoClient({
   commandPrefix: '$',
-  owner: ownerID
+  owner: process.env.DISCORD_OWNER_ID
 });
 
 client.registry

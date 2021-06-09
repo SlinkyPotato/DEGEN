@@ -8,7 +8,7 @@
     "qa": "node -r dotenv/config src/app.js dotenv_config_path=.env.qa",
     "start": "node -r dotenv/config src/app.js"
   },
-  "repository": {
+  "repository": {                                                                           
     "type": "git",
     "url": "git+https://github.com/BanklessDAO/discord-bots"
   },
@@ -19,7 +19,7 @@
     "crypto"
   ],
   "author": "",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "LICENSE.md",
   "bugs": {
     "url": "https://github.com/BanklessDAO/discord-bots/issues"
   },

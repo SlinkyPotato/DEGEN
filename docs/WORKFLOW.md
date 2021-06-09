@@ -1,18 +1,26 @@
 # Git Branches
-
-1. main  
- - stable  
- - production  
- - user are using  
- - impact if something is wrong  
- - any change causes prod deployment  
-2. develop  
-3. feature branches  
-
-4. Release  
- - feature 1  
- - feature 2  
- - feature 3  
+These are the major branches
+1. main
+ - contains production ready code
+ - code that users are using  
+ - possible DAO impact if something is wrong
+ - any new commit causes auto deployment
+2. develop
+ - contains multiple new features
+ - auto deployment to shared environments like servers, databases, discords
+ - has code that is approved by reviewers
+3. feature/
+ - new feature based on issue or request
+ - this branch is created from develop branch
+ - can be deleted 
+4. release/x.x.x
+ - contains code ready for production
+ - can be deployed to QA/UAT server
+ - beta testers from DAO can be given access to test
+5. hotfix/x.x.x
+ - in case a bug is found in production this is forked from main
+ - very small changes
+ - should be merged quickly directly to main once approval is done
 
 ## Contributor Workflow  
 

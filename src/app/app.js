@@ -5,7 +5,7 @@ const { CommandoClient } = require('discord.js-commando');
 
 const client = new CommandoClient({
   commandPrefix: '$',
-  owner: ownerID
+  owner: process.env.DISCORD_OWNER_ID
 });
 
 client.registry
@@ -17,7 +17,7 @@ client.registry
   .registerDefaultGroups()
   .registerDefaultCommands()
   .registerCommandsIn(path.join(__dirname, 'commands'));
-  
+
 // Open database connection
 db.connect(process.env.MONGODB_URI, (err) => {
   if (err) {
@@ -44,7 +44,7 @@ db.connect(process.env.MONGODB_URI, (err) => {
     member.send(embed);
     member.guild.channels.find(c => c.name === 'welcome').send(`Welcome to the DAO, <@${member.user.id}>`);
   });
-  
+
   // filter raw packet data for reactions
   client.on('raw', packet => {
     if (!['MESSAGE_REACTION_ADD', 'MESSAGE_REACTION_REMOVE'].includes(packet.t)) return;
@@ -62,16 +62,16 @@ db.connect(process.env.MONGODB_URI, (err) => {
       }
     });
   });
-    
+
   client.on('messageReactionAdd', (reaction, user) => {
     console.log('a reaction has been added');
     // client.registry.commands.get('starboard').run(reaction, user);
   });
-    
+
   client.on('messageReactionRemove', (reaction, user) => {
       console.log('a reaction has been removed');
   });
-    
+
   client.login(process.env.DISCORD_BOT_TOKEN);
 
 });

@@ -21,4 +21,4 @@ jobs:
           heroku_api_key: ${{secrets.QA_HEROKU_API_KEY}}
           heroku_app_name: "banklessbot"
           heroku_email: "bankless@nonsensecodes.io"
-          env_file: ".env.qa"
+          env_file: ".env.qa" 

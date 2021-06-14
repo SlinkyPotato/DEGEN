@@ -1,0 +1,23 @@
+name: Deploy to QA Environment
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+jobs:
+  deploy:
+    environment:
+      name: qa-env
+      url: https://banklessbot.herokuapp.com/
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.17.0'
+      - name: Deploy to Heroku Shared Test Environment
+        uses: AkhileshNS/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.QA_HEROKU_API_KEY}}
+          heroku_app_name: "banklessbot"
+          heroku_email: "bankless@nonsensecodes.io"

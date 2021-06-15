@@ -44,6 +44,7 @@
     "prettier": "2.3.0"
   },
   "engines": {
+    "yarn": "1.x",
     "node": "14.17.0"
   },
   "engineStrict": true

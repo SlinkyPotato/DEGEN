@@ -40,13 +40,13 @@ module.exports = class NotionCommand extends Command {
             const validQuestion = faqQuestion.replace(/[^\w\s]/gi, '');
 
             // Prepare answer
-            replyStr += "Question: " + validQuestion + '\n' + 'Answer: ';
+            replyStr += "Question: ";
 
             // Search for existing question
-            for (let i = 0; i++; i < faq.length) {
-                const cleanQuestion = faq.question.substring(3, faq.question.length - 1);
+            for (let i = 0; i++; i < faqs.length) {
+                const cleanQuestion = faqs.question.substring(3, faqs.question.length - 1);
                 if (cleanQuestion === validQuestion) {
-                    replyStr += faq.answer + '\n';
+                    replyStr += cleanQuestion + '\n' + 'Answer: ' + faqs.answer + '\n';
                     return msg.say(replyStr);
                 }
             }
@@ -59,8 +59,8 @@ module.exports = class NotionCommand extends Command {
                 let numberOfMatches = 0;
                 words.forEach(word => {
                     const cleanWord = word.toLowerCase();
-                    const n = cleanQuestion.search(cleanWord);
-                    if (n > 0) {
+                    const isIncluded = cleanQuestion.split(" ").includes(cleanWord);
+                    if (isIncluded) {
                         numberOfMatches += 1;
                     }
                 });
@@ -70,7 +70,7 @@ module.exports = class NotionCommand extends Command {
                     highestMatchingIndex = i;
                 }
             });
-            replyStr += faqs[highestMatchingIndex].answer + '\n';
+            replyStr += faqs[highestMatchingIndex].question + '\n' + 'Answer: ' + faqs[highestMatchingIndex].answer + '\n';
             return msg.say(replyStr);
         }
     }

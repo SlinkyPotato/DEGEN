@@ -21,7 +21,6 @@ jobs:
           heroku_api_key: ${{secrets.QA_HEROKU_API_KEY}}
           heroku_app_name: "serendipity-mk1"
           heroku_email: "bankless@nonsensecodes.io"
-          procfile: "web: yarn qa"
         env:
           HD_DISCORD_BOT_TOKEN: ${{secrets.QA_DISCORD_TOKEN}}
           HD_DISCORD_OWNER_ID: ${{secrets.QA_DISCORD_OWNER_ID}}

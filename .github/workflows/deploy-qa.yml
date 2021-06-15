@@ -21,4 +21,6 @@ jobs:
           heroku_api_key: ${{secrets.QA_HEROKU_API_KEY}}
           heroku_app_name: "banklessbot"
           heroku_email: "bankless@nonsensecodes.io"
-          env_file: ".env.qa" 
+          justlogin: true
+      - name: Run QA Deployment
+        run: heroku run:detached -a banklessbot yarn qa

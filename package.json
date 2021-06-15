@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha -r dotenv/config src/test/**/*.test.js",
     "qa": "node --trace-warnings src/app/app.js",
-    "start": "node -r dotenv/config src/app/app.js"
+    "start": "node --trace-warnings -r dotenv/config src/app/app.js"
   },
   "repository": {
     "type": "git",

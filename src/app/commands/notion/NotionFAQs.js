@@ -1,8 +1,8 @@
 const { Command } = require('discord.js-commando');
 const notionAPI = require('../../api/notion/NotionAPI.js');
 
-const trimURLtoken = (process.env.FAQ_PAGE_ID).replaceAll('-');
-const FAQ_URL = `https://www.notion.so/FAQs-${trimURLtoken}`;
+const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
+const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
 
 module.exports = class NotionCommand extends Command {
     constructor(client) {
@@ -46,7 +46,6 @@ module.exports = class NotionCommand extends Command {
                 const cleanQuestion = faq.question.substring(3, faq.question.length - 1);
                 if (cleanQuestion === validQuestion) {
                     replyStr += faq.answer + '\n';
-                    exactQuestionFound = true;
                     return msg.say(replyStr);
                 }
             }
@@ -79,7 +78,7 @@ module.exports = class NotionCommand extends Command {
 module.exports.retrieveFAQsPromise = async function() {
     const faqs = [];
     const numberRegex = /^[0-9]./;
-    const response = await notionAPI.get(notionAPI.defaults.baseUrl + `blocks/${process.env.FAQ_PAGE_ID}/children`);
+    const response = await notionAPI.get(notionAPI.defaults.baseUrl + `blocks/${process.env.FAQS_PAGE_ID}/children`);
     response.data.results.forEach(obj => {
         if (obj.type === 'paragraph' && obj.paragraph.text.length > 0) {
             // Check and add question to list

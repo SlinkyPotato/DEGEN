@@ -26,5 +26,6 @@ jobs:
           HD_DISCORD_BOT_TOKEN: ${{secrets.QA_DISCORD_TOKEN}}
           HD_DISCORD_OWNER_ID: ${{secrets.QA_DISCORD_OWNER_ID}}
           HD_MONGODB_URI: ${{secrets.QA_MONGODB_URI}}
-          NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
+          HD_NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
+          HD_FAQ_PAGE_ID: ${{secrets.QA_FAQ_PAGE_ID}}
 

@@ -1,8 +1,7 @@
 const { Command } = require('discord.js-commando');
 const notionAPI = require('../../api/notion/NotionAPI.js');
 
-const FAQ_PAGE_ID = '6a2ba0a4-fd1e-4381-b365-6ad5afd418fa';
-const FAQ_URL = 'https://www.notion.so/FAQs-6a2ba0a4fd1e4381b3656ad5afd418fa';
+const FAQ_URL = `https://www.notion.so/${process.env.FAQ_PAGE_ID}`;
 
 module.exports = class NotionCommand extends Command {
     constructor(client) {
@@ -79,7 +78,7 @@ module.exports = class NotionCommand extends Command {
 module.exports.retrieveFAQsPromise = async function() {
     const faqs = [];
     const numberRegex = /^[0-9]./;
-    const response = await notionAPI.get(notionAPI.defaults.baseUrl + `blocks/${FAQ_PAGE_ID}/children`);
+    const response = await notionAPI.get(notionAPI.defaults.baseUrl + `blocks/${process.env.FAQ_PAGE_ID}/children`);
     response.data.results.forEach(obj => {
         if (obj.type === 'paragraph' && obj.paragraph.text.length > 0) {
             // Check and add question to list

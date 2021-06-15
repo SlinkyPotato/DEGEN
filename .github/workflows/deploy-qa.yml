@@ -27,5 +27,5 @@ jobs:
           HD_DISCORD_OWNER_ID: ${{secrets.QA_DISCORD_OWNER_ID}}
           HD_MONGODB_URI: ${{secrets.QA_MONGODB_URI}}
           HD_NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
-          HD_FAQ_PAGE_ID: ${{secrets.QA_FAQ_PAGE_ID}}
+          HD_FAQ_PAGE_ID: "f99e764c-9eb7-4d87-bfc7-fcd93fa93df5"
 

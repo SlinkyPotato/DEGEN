@@ -1,7 +1,8 @@
 const { Command } = require('discord.js-commando');
 const notionAPI = require('../../api/notion/NotionAPI.js');
 
-const FAQ_URL = `https://www.notion.so/${process.env.FAQ_PAGE_ID}`;
+const trimURLtoken = (process.env.FAQ_PAGE_ID).replaceAll('-');
+const FAQ_URL = `https://www.notion.so/FAQs-${trimURLtoken}`;
 
 module.exports = class NotionCommand extends Command {
     constructor(client) {

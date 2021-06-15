@@ -34,7 +34,7 @@ db.connect(process.env.MONGODB_URI, (err) => {
   // basic error monitoring
   client.on('error', console.error);
 
-  new member onboarding
+  // new member onboarding
   client.on('guildMemberAdd', (member) => {
     let embed = new MessageEmbed()
       .setTitle('Welcome!')

@@ -26,14 +26,15 @@ module.exports = class NotionCommand extends Command {
     async run(msg, { faqQuestion }){
         const faqs = await module.exports.retrieveFAQsPromise();
         let replyStr = '**Frequently Asked Questions**: ' + FAQ_URL + ' \n\n';
-        if (faqQuestion === 'n' || faqQuestion === 'no' || faqQuestion === 'nah' || faqQuestion === '' || faqQuestion === 'help') {
+        if (faqQuestion === 'n' || faqQuestion === 'no' || faqQuestion === 'nah' || faqQuestion === '') {
             // No question asked, return a few FAQs
             faqs.forEach(faq => {
                 const question = '**' + faq.question + '**';
                 const answer = '\n' + faq.answer.trim() + '\n';
                 replyStr = replyStr + question + answer + '\n'
             });
-            return msg.say(replyStr.substring(0, 2000));
+            msg.reply('Please check your DMs');
+            return msg.author.send(replyStr.substring(0, 1950));
         } else {
             // Try to find the answer to the given question
             const validQuestion = faqQuestion.replace(/[^\w\s]/gi, '');

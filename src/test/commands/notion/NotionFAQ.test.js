@@ -10,9 +10,9 @@ const mockFAQsJsonResponse = require('./retrieve_faqs_mock.json');
 describe( "NotionFAQs", () => {
   before(() => {
     var env = process.env;
-    process.env = { FAQ_PAGE_ID: '6a2ba0a4-fd1e-4381-b365-6ad5afd418fa' };
+    process.env = { FAQS_PAGE_ID: '6a2ba0a4-fd1e-4381-b365-6ad5afd418fa' };
     const scope = nock(notionAPI.defaults.baseUrl)
-      .get(`/blocks/${process.env.FAQ_PAGE_ID}/children`)
+      .get(`/blocks/${process.env.FAQS_PAGE_ID}/children`)
       .reply(200, mockFAQsJsonResponse)
       .persist();
   } );

@@ -8,7 +8,7 @@ jobs:
   deploy:
     environment:
       name: qa-env
-      url: https://banklessbot.herokuapp.com/
+      url: https://serendipity-mk1.herokuapp.com/
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -19,12 +19,8 @@ jobs:
         uses: AkhileshNS/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.QA_HEROKU_API_KEY}}
-          heroku_app_name: "banklessbot"
+          heroku_app_name: "serendipity-mk1"
           heroku_email: "bankless@nonsensecodes.io"
           justlogin: true
-      - name: Set Heroku Remote
-        run: heroku git:remote -a banklessbot
-      - name: Deploy Code to Heroku
-        run: git push heroku develop:main
-      - name: Run QA Deployment
-        run: heroku run:detached -a banklessbot yarn qa
+      - name: Run QA build
+        run: heroku run:detached -a serendipity-mk1 yarn qa

@@ -33,7 +33,7 @@ module.exports = class NotionCommand extends Command {
                 const answer = '\n' + faq.answer.trim() + '\n';
                 replyStr = replyStr + question + answer + '\n'
             });
-            msg.reply('Please check your DMs');
+            msg.reply('Sent you a DM with information.');
             return msg.author.send(replyStr.substring(0, 1950));
         } else {
             // Try to find the answer to the given question

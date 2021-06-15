@@ -22,5 +22,9 @@ jobs:
           heroku_app_name: "banklessbot"
           heroku_email: "bankless@nonsensecodes.io"
           justlogin: true
+      - name: Set Heroku Remote
+        run: heroku git:remote -a banklessbot
+      - name: Deploy Code to Heroku
+        run: git push heroku develop:main
       - name: Run QA Deployment
-        run: heroku run:detached -a banklessbot npm run qa
+        run: heroku run:detached -a banklessbot yarn qa

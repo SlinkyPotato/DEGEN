@@ -21,6 +21,3 @@ jobs:
           heroku_api_key: ${{secrets.QA_HEROKU_API_KEY}}
           heroku_app_name: "serendipity-mk1"
           heroku_email: "bankless@nonsensecodes.io"
-          justlogin: true
-      - name: Run QA build
-        run: heroku run:detached -a serendipity-mk1 yarn qa

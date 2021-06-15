@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "mocha -r dotenv/config src/test/**/*.test.js",
-    "qa": "node -r dotenv/config src/app/app.js dotenv_config_path=.env.qa",
+    "qa": "node --trace-warnings -r dotenv/config src/app/app.js dotenv_config_path=.env.qa",
     "start": "node -r dotenv/config src/app/app.js"
   },
   "repository": {

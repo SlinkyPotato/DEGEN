@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 const notionAPI = axios.create({
     baseUrl: 'https://api.notion.com/v1/',
@@ -9,4 +9,4 @@ const notionAPI = axios.create({
     }
 });
 
-module.exports = notionAPI;
+export default { notionAPI };

@@ -1,4 +1,5 @@
-const MongoClient = require('mongodb').MongoClient;
+import mongodb from 'mongodb';
+const MongoClient = mongodb.MongoClient;
 
 const state = {
     db: null,
@@ -37,4 +38,4 @@ let db = {
   }
 }
 
-module.exports = db;
+export default { db };

@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "mocha -r dotenv/config src/test/**/*.test.js",
-    "qa": "node -r dotenv/config src/app/app.js dotenv_config_path=.env.qa",
-    "start": "node -r dotenv/config src/app/app.js"
+    "qa": "node --trace-warnings src/app/app.js",
+    "start": "node --trace-warnings -r dotenv/config src/app/app.js"
   },
   "repository": {
     "type": "git",
@@ -44,6 +44,7 @@
     "prettier": "2.3.0"
   },
   "engines": {
+    "yarn": "1.x",
     "node": "14.17.0"
   },
   "engineStrict": true

@@ -1,8 +1,8 @@
 const { Command } = require('discord.js-commando');
 const notionAPI = require('../../api/notion/NotionAPI.js');
 
-const FAQ_PAGE_ID = '6a2ba0a4-fd1e-4381-b365-6ad5afd418fa';
-const FAQ_URL = 'https://www.notion.so/FAQs-6a2ba0a4fd1e4381b3656ad5afd418fa';
+const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
+const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
 
 module.exports = class NotionCommand extends Command {
     constructor(client) {
@@ -26,27 +26,27 @@ module.exports = class NotionCommand extends Command {
     async run(msg, { faqQuestion }){
         const faqs = await module.exports.retrieveFAQsPromise();
         let replyStr = '**Frequently Asked Questions**: ' + FAQ_URL + ' \n\n';
-        if (faqQuestion === 'n' || faqQuestion === 'no' || faqQuestion === 'nah' || faqQuestion === '' || faqQuestion === 'help') {
+        if (faqQuestion === 'n' || faqQuestion === 'no' || faqQuestion === 'nah' || faqQuestion === '') {
             // No question asked, return a few FAQs
             faqs.forEach(faq => {
                 const question = '**' + faq.question + '**';
                 const answer = '\n' + faq.answer.trim() + '\n';
                 replyStr = replyStr + question + answer + '\n'
             });
-            return msg.say(replyStr.substring(0, 2000));
+            msg.reply('Sent you a DM with information.');
+            return msg.author.send(replyStr.substring(0, 1950));
         } else {
             // Try to find the answer to the given question
             const validQuestion = faqQuestion.replace(/[^\w\s]/gi, '');
 
             // Prepare answer
-            replyStr += "Question: " + validQuestion + '\n' + 'Answer: ';
+            replyStr += "Question: ";
 
             // Search for existing question
-            for (let i = 0; i++; i < faq.length) {
-                const cleanQuestion = faq.question.substring(3, faq.question.length - 1);
+            for (let i = 0; i++; i < faqs.length) {
+                const cleanQuestion = faqs.question.substring(3, faqs.question.length - 1);
                 if (cleanQuestion === validQuestion) {
-                    replyStr += faq.answer + '\n';
-                    exactQuestionFound = true;
+                    replyStr += cleanQuestion + '\n' + 'Answer: ' + faqs.answer + '\n';
                     return msg.say(replyStr);
                 }
             }
@@ -59,8 +59,8 @@ module.exports = class NotionCommand extends Command {
                 let numberOfMatches = 0;
                 words.forEach(word => {
                     const cleanWord = word.toLowerCase();
-                    const n = cleanQuestion.search(cleanWord);
-                    if (n > 0) {
+                    const isIncluded = cleanQuestion.split(" ").includes(cleanWord);
+                    if (isIncluded) {
                         numberOfMatches += 1;
                     }
                 });
@@ -70,7 +70,7 @@ module.exports = class NotionCommand extends Command {
                     highestMatchingIndex = i;
                 }
             });
-            replyStr += faqs[highestMatchingIndex].answer + '\n';
+            replyStr += faqs[highestMatchingIndex].question + '\n' + 'Answer: ' + faqs[highestMatchingIndex].answer + '\n';
             return msg.say(replyStr);
         }
     }
@@ -79,7 +79,7 @@ module.exports = class NotionCommand extends Command {
 module.exports.retrieveFAQsPromise = async function() {
     const faqs = [];
     const numberRegex = /^[0-9]./;
-    const response = await notionAPI.get(notionAPI.defaults.baseUrl + `blocks/${FAQ_PAGE_ID}/children`);
+    const response = await notionAPI.get(notionAPI.defaults.baseUrl + `blocks/${process.env.FAQS_PAGE_ID}/children`);
     response.data.results.forEach(obj => {
         if (obj.type === 'paragraph' && obj.paragraph.text.length > 0) {
             // Check and add question to list

@@ -18,13 +18,13 @@ client.registry
 	.registerDefaultCommands()
 	.registerCommandsIn(path.join(__dirname, 'commands'));
 
-// Open database connection
-// db.connect(process.env.MONGODB_URI, (err) => {
-// if (err) {
-//   console.error('ERROR:', err);
-// } else {
-//   console.log("We are connected!");
-// }
+Open database connection
+db.connect(process.env.MONGODB_URI, (err) => {
+if (err) {
+  console.error('ERROR:', err);
+} else {
+  console.log("We are connected!");
+}
 
 client.once('ready', () => {
 	console.log('Ready!');
@@ -94,4 +94,4 @@ client.on('messageReactionRemove', (reaction, user) => {
 
 client.login(process.env.DISCORD_BOT_TOKEN);
 
-// });
+});

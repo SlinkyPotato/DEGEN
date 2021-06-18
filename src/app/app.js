@@ -18,7 +18,7 @@ client.registry
 	.registerDefaultCommands()
 	.registerCommandsIn(path.join(__dirname, 'commands'));
 
-Open database connection
+// Open database connection
 db.connect(process.env.MONGODB_URI, (err) => {
 if (err) {
   console.error('ERROR:', err);

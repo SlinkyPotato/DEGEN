@@ -5,8 +5,8 @@ const notionAPI = axios.create({
     timeout: 5000,
     headers: {
         'Notion-Version': '2021-05-13',
-        'Authorization': process.env.NOTION_TOKEN
-    }
+        Authorization: process.env.NOTION_TOKEN,
+    },
 });
 
 module.exports = notionAPI;

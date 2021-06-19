@@ -85,6 +85,7 @@ client.on('raw', (packet) => {
 	});
 });
 
+/*
 client.on('messageReactionAdd', (reaction, user) => {
 	console.log('a reaction has been added');
 	// client.registry.commands.get('starboard').run(reaction, user);
@@ -93,6 +94,7 @@ client.on('messageReactionAdd', (reaction, user) => {
 client.on('messageReactionRemove', (reaction, user) => {
 	console.log('a reaction has been removed');
 });
+*/
 
 client.login(process.env.DISCORD_BOT_TOKEN);
 

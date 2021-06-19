@@ -53,9 +53,11 @@ client.on('guildMemberAdd', (member) => {
 
 // filter raw packet data for reactions
 client.on('raw', (packet) => {
-	if (!['MESSAGE_REACTION_ADD', 'MESSAGE_REACTION_REMOVE'].includes(packet.t)) {return;}
-	const channel = client.channels.cache.get(packet.d.channel_id); // Grab the channel to check the message from
-	if (channel.messages.cache.has(packet.d.message_id)) return; // don't emit if the message is cached
+	if (!['MESSAGE_REACTION_ADD', 'MESSAGE_REACTION_REMOVE'].includes(packet.t)) { return; }
+	// Grab the channel to check the message from
+	const channel = client.channels.cache.get(packet.d.channel_id);
+	// don't emit if the message is cached
+	if (channel.messages.cache.has(packet.d.message_id)) return;
 	channel.messages.fetch(packet.d.message_id).then((message) => {
 		// Since we have confirmed the message is not cached, let's fetch it
 		const emoji = packet.d.emoji.id

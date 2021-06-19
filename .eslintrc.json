@@ -54,6 +54,9 @@
         "yoda": "error"
     },
     "overrides": [
-    { "excludedFiles": "*.test.js" }
+        {
+          "files": [ "src/*.js" ],
+          "excludedFiles": "*.test.js",
+        }
     ]
 }

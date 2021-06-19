@@ -11,6 +11,7 @@
         "sourceType": "commonjs"
     },
     "plugins": ["@typescript-eslint"],
+    "ignorePatterns": "*.test.js",
     "rules": {
         "brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
         "comma-dangle": ["error", "always-multiline"],
@@ -52,11 +53,5 @@
         "space-unary-ops": "error",
         "spaced-comment": "error",
         "yoda": "error"
-    },
-    "overrides": [
-        {
-          "files": [ "src/*.js" ],
-          "excludedFiles": "*.test.js",
-        }
-    ]
+    }
 }

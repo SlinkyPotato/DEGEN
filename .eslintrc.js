@@ -15,6 +15,7 @@ module.exports = {
     "plugins": [
         "@typescript-eslint"
     ],
+    "ignorePatterns": "*.test.js",
     "rules": {
         "brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
         "comma-dangle": ["error", "always-multiline"],

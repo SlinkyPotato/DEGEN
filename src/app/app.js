@@ -1,5 +1,5 @@
 const path = require('path');
-const db = require('./db.js');
+// const db = require('./db.js');
 const { MessageEmbed } = require('discord.js');
 const { CommandoClient } = require('discord.js-commando');
 

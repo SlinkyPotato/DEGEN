@@ -6,7 +6,9 @@
     "scripts": {
         "test": "mocha -r dotenv/config src/test/**/*.test.js",
         "qa": "node --trace-warnings src/app/app.js",
-        "start": "node --trace-warnings -r dotenv/config src/app/app.js"
+        "start": "node --trace-warnings -r dotenv/config src/app/app.js",
+        "lint": "eslint . --ext js",
+        "format": "prettier --write ."
     },
     "repository": {
         "type": "git",

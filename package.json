@@ -1,50 +1,49 @@
 {
-  "name": "banklessbot",
-  "version": "0.1.0",
-  "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
-  "main": "app.js",
-  "scripts": {
-    "test": "mocha -r dotenv/config src/test/**/*.test.js",
-    "qa": "node -r dotenv/config src/app/app.js dotenv_config_path=.env.qa",
-    "start": "node -r dotenv/config src/app/app.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/BanklessDAO/discord-bots"
-  },
-  "keywords": [
-    "bankless",
-    "discord",
-    "bot",
-    "crypto"
-  ],
-  "author": "BANKLESS DAO",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/BanklessDAO/discord-bots/issues"
-  },
-  "homepage": "https://github.com/BanklessDAO/discord-bots/blob/main/README.md",
-  "dependencies": {
-    "@notionhq/client": "^0.1.8",
-    "axios": "^0.21.1",
-    "discord.js": "^12.5.3",
-    "discord.js-commando": "^0.12.3",
-    "dotenv": "^10.0.0",
-    "mongodb": "^3.6.9"
-  },
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.26.0",
-    "@typescript-eslint/parser": "^4.26.0",
-    "chai": "^4.3.4",
-    "eslint": "^7.27.0",
-    "eslint-config-prettier": "^8.3.0",
-    "jest": "^27.0.3",
-    "mocha": "^9.0.0",
-    "nock": "^13.1.0",
-    "prettier": "2.3.0"
-  },
-  "engines": {
-    "node": "14.17.0"
-  },
-  "engineStrict": true
+    "name": "DEGEN",
+    "version": "0.1.0",
+    "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
+    "main": "app.js",
+    "scripts": {
+        "test": "mocha -r dotenv/config src/test/**/*.test.js",
+        "qa": "node --trace-warnings src/app/app.js",
+        "start": "node --trace-warnings -r dotenv/config src/app/app.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/BanklessDAO/discord-bots"
+    },
+    "keywords": [
+        "bankless",
+        "discord",
+        "bot",
+        "crypto"
+    ],
+    "author": "BANKLESS DAO",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/BanklessDAO/discord-bots/issues"
+    },
+    "homepage": "https://github.com/BanklessDAO/discord-bots/blob/main/README.md",
+    "dependencies": {
+        "axios": "^0.21.1",
+        "discord.js": "^12.5.3",
+        "discord.js-commando": "^0.12.3",
+        "dotenv": "^10.0.0",
+        "mongodb": "^3.6.9"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^4.26.0",
+        "@typescript-eslint/parser": "^4.26.0",
+        "chai": "^4.3.4",
+        "eslint": "^7.27.0",
+        "eslint-config-prettier": "^8.3.0",
+        "mocha": "^9.0.0",
+        "nock": "^13.1.0",
+        "prettier": "2.3.0"
+    },
+    "engines": {
+        "yarn": "1.x",
+        "node": ">=14.17.0"
+    },
+    "engineStrict": true
 }

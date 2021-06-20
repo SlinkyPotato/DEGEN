@@ -4,8 +4,8 @@
     "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
     "main": "app.js",
     "scripts": {
-        "test": "mocha -r dotenv/config src/test/**/*.test.js",
-        "qa": "node --trace-warnings src/app/app.js",
+        "test": "mocha -r dotenv/config src/test/**/*.test.js dotenv_config_path=.env.qa",
+        "qa": "node -r dotenv/config --trace-warnings src/app/app.js dotenv_config_path=.env.qa",
         "start": "node --trace-warnings -r dotenv/config src/app/app.js",
         "lint": "eslint src/**/*.js --fix",
         "format": "prettier --write src/**/*"

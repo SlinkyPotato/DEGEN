@@ -5,24 +5,24 @@ const assert = chai.assert;
 const notionAPI = require('../../../app/api/notion/NotionAPI.js');
 
 describe('NotionAPI', () => {
-	before(() => {
-		console.log('initiating tests on notion APIs');
-	});
+    before(() => {
+        console.log('initiating tests on notion APIs');
+    });
 
-	after(() => {
-		console.log('finished testing notion APIs');
-	});
+    after(() => {
+        console.log('finished testing notion APIs');
+    });
 
-	describe('Headers validation', () => {
-		it('should return 2021-05-13 when getting notion version', () => {
-			assert.strictEqual(
-				notionAPI.defaults.headers['Notion-Version'],
-				'2021-05-13',
-			);
-		});
+    describe('Headers validation', () => {
+        it('should return 2021-05-13 when getting notion version', () => {
+            assert.strictEqual(
+                notionAPI.defaults.headers['Notion-Version'],
+                '2021-05-13'
+            );
+        });
 
-		it('should not be empty when getting token', () => {
-			assert.typeOf(notionAPI.defaults.headers.Authorization, 'string');
-		});
-	});
+        it('should not be empty when getting token', () => {
+            assert.typeOf(notionAPI.defaults.headers.Authorization, 'string');
+        });
+    });
 });

@@ -2,6 +2,7 @@
 
 const chai = require('chai');
 const assert = chai.assert;
+const expect = chai.expect;
 const notionAPI = require('../../../app/api/notion/NotionAPI.js');
 const notionFaqsCommand = require('../../../app/commands/notion/NotionFAQs.js');
 const nock = require('nock');
@@ -77,19 +78,22 @@ describe('Discord client $notion-faq', () => {
 
 	const command = client.registry.groups.get('notion').commands.get('notion-faqs').run;
 
-	before(() => {
-		console.log(client.registry.groups.get('notion').commands.get('notion-faqs').run);
-	});
+	before(() => {});
 
 	after(() => {
 		client.destroy();
 	});
 
-	it('should reply', async () => {
+	it('reply with the answer if I query a specific question', async () => {
 
-		await command(new Message('$help', channel, testUser), { faqQuestion: ''});
-		assert.equal(channel.lastMessage.content, 'help');
+		await command(new Message('$notion-faq', channel, testUser), { faqQuestion: 'how can I contribute?'});
+		expect(channel.lastMessage.content).contains("Share your skills and step up");
 
+	});
+
+	it('The bot will send a DM if I just call the command', async () => {
+		await command(new Message('$notion-faq', channel, testUser), { faqQuestion: ''});
+		expect(channel.lastMessage.content).contains("Share your skills and step up")
 	});
 
 });

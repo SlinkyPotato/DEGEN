@@ -86,6 +86,14 @@ class MockMessage extends Discord.Message {
       mention_everyone: false
     }, channel)
   }
+
+  async say(msg) {
+    this.channel.send(msg);
+  }
+
+  async reply(msg) {
+    this.channel.send(msg);
+  }
 }
 
 class MockClientUser extends Discord.ClientUser {

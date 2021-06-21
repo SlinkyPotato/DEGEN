@@ -34,7 +34,7 @@ const db = {
 	close(done) {
 		if (state.db) {
 			state.db.close((err) => {
-			// state.db.close((err, result) => {
+				// state.db.close((err, result) => {
 				state.db = null;
 				state.mode = null;
 				done(err);

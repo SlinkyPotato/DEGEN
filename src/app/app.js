@@ -53,7 +53,11 @@ client.on('guildMemberAdd', (member) => {
 
 // filter raw packet data for reactions
 client.on('raw', (packet) => {
-	if (!['MESSAGE_REACTION_ADD', 'MESSAGE_REACTION_REMOVE'].includes(packet.t)) { return; }
+	if (
+		!['MESSAGE_REACTION_ADD', 'MESSAGE_REACTION_REMOVE'].includes(packet.t)
+	) {
+		return;
+	}
 	// Grab the channel to check the message from
 	const channel = client.channels.cache.get(packet.d.channel_id);
 	// don't emit if the message is cached

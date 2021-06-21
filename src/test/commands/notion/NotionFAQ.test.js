@@ -6,6 +6,17 @@ const notionAPI = require('../../../app/api/notion/NotionAPI.js');
 const notionFaqsCommand = require('../../../app/commands/notion/NotionFAQs.js');
 const nock = require('nock');
 const mockFAQsJsonResponse = require('./retrieve_faqs_mock.json');
+const path = require('path');
+
+// Discord mocks
+const {
+	Message,
+	Guild,
+	TextChannel
+} = require('../../utils/discord-mocks');
+
+const Discord = require('discord.js');
+const { CommandoClient } = require('discord.js-commando');
 
 describe('NotionFAQs', () => {
 	before(() => {
@@ -37,4 +48,48 @@ describe('NotionFAQs', () => {
 			);
 		});
 	});
+});
+
+describe('Discord client $notion-faq', () => {
+
+	const client = new CommandoClient({
+		commandPrefix: '$',
+		owner: process.env.DISCORD_OWNER_ID,
+	});
+	const guild = new Guild(client);
+	const channel = new TextChannel(guild);
+
+	client.registry
+	.registerDefaultTypes()
+	.registerGroups([
+		['admin', 'Commands for admin automation'],
+		['notion', 'Commands for interacting with the Notion API'],
+	])
+	.registerDefaultGroups()
+	.registerDefaultCommands()
+	.registerCommandsIn(path.join(__dirname, '../../../app/commands'));
+
+	const testUser = {
+		id: Discord.SnowflakeUtil.generate(),
+		username: 'username',
+		discriminator: '123'
+	}
+
+	const command = client.registry.groups.get('notion').commands.get('notion-faqs').run;
+
+	before(() => {
+		console.log(client.registry.groups.get('notion').commands.get('notion-faqs').run);
+	});
+
+	after(() => {
+		client.destroy();
+	});
+
+	it('should reply', async () => {
+
+		await command(new Message('$help', channel, testUser), { faqQuestion: ''});
+		assert.equal(channel.lastMessage.content, 'help');
+
+	});
+
 });

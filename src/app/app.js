@@ -1,5 +1,4 @@
 const path = require('path');
-// const db = require('./db.js');
 const { MessageEmbed } = require('discord.js');
 const { CommandoClient } = require('discord.js-commando');
 
@@ -13,20 +12,11 @@ client.registry
 	.registerGroups([
 		['admin', 'Commands for admin automation'],
 		['notion', 'Commands for interacting with the Notion API'],
+		['roles', 'Command for managing user options'],
 	])
 	.registerDefaultGroups()
 	.registerDefaultCommands()
 	.registerCommandsIn(path.join(__dirname, 'commands'));
-
-// Open database connection
-/*
-db.connect(process.env.MONGODB_URI, (err) => {
-if (err) {
-  console.error('ERROR:', err);
-} else {
-  console.log("We are connected!");
-}
-*/
 
 client.once('ready', () => {
 	console.log('Ready!');
@@ -91,17 +81,10 @@ client.on('raw', (packet) => {
 	});
 });
 
-/*
-client.on('messageReactionAdd', (reaction, user) => {
-	console.log('a reaction has been added');
-	// client.registry.commands.get('starboard').run(reaction, user);
+client.on('guildMemberUpdate', function(oldMember, newMember) {
+	// console.log(oldMember);
+	// console.log(newMember);
+	console.error('guild member updated!');
 });
-
-client.on('messageReactionRemove', (reaction, user) => {
-	console.log('a reaction has been removed');
-});
-*/
 
 client.login(process.env.DISCORD_BOT_TOKEN);
-
-// });

@@ -6,3 +6,4 @@
 2. Add github qa deployment integration
 3. Add eslint and prettier configurations
 4. Add status checked for github actions on linting and prettier
+5. Add server roles

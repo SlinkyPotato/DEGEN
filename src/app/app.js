@@ -1,6 +1,11 @@
-const path = require('path');
+// Libs
 const { MessageEmbed } = require('discord.js');
 const { CommandoClient } = require('discord.js-commando');
+
+// Background services
+const GuestPassService = require('./service/GuestPassService.js');
+
+const path = require('path');
 
 const client = new CommandoClient({
 	commandPrefix: '$',
@@ -21,6 +26,7 @@ client.registry
 client.once('ready', () => {
 	console.log('Ready!');
 	client.user.setActivity('Going Bankless, Doing the DAO');
+	GuestPassService(client);
 });
 
 // basic error monitoring
@@ -83,4 +89,3 @@ client.on('raw', (packet) => {
 
 client.login(process.env.DISCORD_BOT_TOKEN);
 
-module.exports = client;

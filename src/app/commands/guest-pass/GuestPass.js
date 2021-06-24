@@ -29,7 +29,7 @@ module.exports = class GuestPassCommand extends Command {
 			const guestRole = msg.guild.roles.cache.find((role) => {
 				return role.name === constants.DISCORD_ROLE_GUEST_PASS;
 			});
-			
+
 			// Open database connection
 			db.connect(process.env.MONGODB_URI, async (err) => {
 				if (err) {
@@ -41,12 +41,13 @@ module.exports = class GuestPassCommand extends Command {
 				const queryOptions = {
 					upsert: true,
 				};
+				const currentTimestamp = Date.now();
 				const guestDbUser = {
 					_id: guildMember.user.id,
-					startTimestamp: Date.now(),
-					expiresInHours: expiresInHours,
+					startTimestamp: currentTimestamp,
+					expiresTimestamp: currentTimestamp + (expiresInHours * 1000 * 60 * 60),
 				};
-				
+
 				// Find and update guest user in mongodb
 				const dbUpdateResult = await dbGuestUsers.findOneAndReplace({}, guestDbUser, queryOptions);
 				if (dbUpdateResult == null) {
@@ -64,7 +65,7 @@ module.exports = class GuestPassCommand extends Command {
 			// Send out notification on timer
 			this.client.setTimeout(() => {
 				msg.author.send(`Hey <@${guildMember.user.id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!`);
-			}, (expiresInHours * 1000 * 60) - (1000 * 60 * 15));
+			}, (expiresInHours * 1000 * 60 * 60) - (1000 * 60 * 15));
 
 			// Handle removal of guest pass
 			this.client.setTimeout(() => {
@@ -83,15 +84,15 @@ module.exports = class GuestPassCommand extends Command {
 						return;
 					}
 					console.log(`guest pass removed for ${guildMember.user.id} in db`);
-					
+
 					// Remove guest pass role
 					guildMember.roles.remove(guestRole).catch(console.error);
 
 					console.log(`guest pass removed for ${guildMember.user.id} in discord`);
-					
+
 					return msg.author.send(`Sorry to see you go <@${guildMember.user.id}>. We hope you enjoyed Bankless DAO.`);
 				});
-			}, expiresInHours * 1000 * 60);
+			}, expiresInHours * 1000 * 60 * 60);
 		}
 	}
 };

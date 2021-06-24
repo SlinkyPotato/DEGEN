@@ -2,7 +2,7 @@ const { Command } = require('discord.js-commando');
 const db = require('../../db.js');
 const constants = require('../../constants.js');
 
-const expiresInHours = 0.10;
+const expiresInHours = 0.05;
 
 module.exports = class GuestPassCommand extends Command {
 	constructor(client) {
@@ -80,7 +80,7 @@ module.exports = class GuestPassCommand extends Command {
 					};
 					const dbDeleteResult = await dbGuestUsers.findOneAndDelete(guestDBQuery);
 					if (dbDeleteResult == null) {
-						console.error('Failed to insert into DB');
+						console.error('Failed to remove from DB');
 						return;
 					}
 					console.log(`guest pass removed for ${guildMember.user.id} in db`);
@@ -90,7 +90,7 @@ module.exports = class GuestPassCommand extends Command {
 
 					console.log(`guest pass removed for ${guildMember.user.id} in discord`);
 
-					return msg.author.send(`Sorry to see you go <@${guildMember.user.id}>. We hope you enjoyed Bankless DAO.`);
+					return msg.author.send(`Hi <@${guildMember.user.id}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!`);
 				});
 			}, expiresInHours * 1000 * 60 * 60);
 		}

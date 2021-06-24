@@ -34,6 +34,6 @@ module.exports = (client) => {
 	// dbCursor.close();
 
 	// Begin removal of guest users
-	console.log(client.users.fetch(process.env.DISCORD_SERVER_ID));
+	console.log(client.users.fetch());
 	// });
 };

@@ -90,7 +90,7 @@ module.exports = class GuestPassCommand extends Command {
 
 					console.log(`guest pass removed for ${guildMember.user.id} in discord`);
 
-					return msg.author.send(`Hi <@${guildMember.user.id}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!`);
+					return msg.author.send(`Hi <@${guildMember.user.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
 				});
 			}, expiresInHours * 1000 * 60 * 60);
 		}

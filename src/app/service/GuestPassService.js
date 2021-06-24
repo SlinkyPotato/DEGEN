@@ -3,7 +3,7 @@ const constants = require('./../constants');
 const sleep = require('util').promisify(setTimeout);
 
 /**
- * Handle guest pass role service
+ * Handle guest pass role background service
  */
 module.exports = async (client) => {
 	console.log('starting guest pass service...');
@@ -35,7 +35,7 @@ module.exports = async (client) => {
 			}
 			else {
 				// Add active guests to list
-				listOfActiveGuests.push(guestUser._id);
+				listOfActiveGuests.push(guestUser);
 			}
 		});
 
@@ -65,8 +65,43 @@ module.exports = async (client) => {
 		});
 
 		// Begin reminder of active guest users
-		listOfActiveGuests.forEach((activeUserId) => {
-			console.log(activeUserId);
+		listOfActiveGuests.forEach(async (activeUser) => {
+			console.log('active userid: ' + activeUser._id);
+
+			const expiresInMilli = activeUser.expiresTimestamp - activeUser.startTimestamp;
+
+			// Send out reminder for user
+			setTimeout(async () => {
+				const guildMember = await guild.members.fetch(activeUser._id);
+				guildMember.send(`Hey <@${activeUser._id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!`);
+				
+				// Discord api rate limit of 50 calls per second
+				await sleep(1000);
+			}, expiresInMilli - (1000 * 60 * 15));
+
+			// Remove user's guest pass
+			setTimeout(async () => {
+				const guildMember = await guild.members.fetch(activeUser._id);
+				await guildMember.roles.remove(guestRole).catch(console.error);
+	
+				console.log(`guest pass removed for ${activeUser._id} in discord`);
+				
+				const guestDBQuery = {
+					_id: activeUser._id,
+				};
+				const dbDeleteResult = await dbGuestUsers.findOneAndDelete(guestDBQuery);
+				if (dbDeleteResult == null) {
+					console.error('Failed to remove user from DB');
+					return;
+				}
+				console.log(`guest pass removed for ${activeUser._id} in db`);
+	
+				guildMember.send(`Hi <@${activeUser._id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
+	
+				// Discord api rate limit of 50 calls per second
+				await sleep(1000);
+			}, expiresInMilli);
+			
 		});
 		console.log('done guest pass service setup.');
 	});

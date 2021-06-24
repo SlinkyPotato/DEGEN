@@ -81,10 +81,6 @@ client.on('raw', (packet) => {
 	});
 });
 
-client.on('guildMemberUpdate', function(oldMember, newMember) {
-	// console.log(oldMember);
-	// console.log(newMember);
-	console.error('guild member updated!');
-});
-
 client.login(process.env.DISCORD_BOT_TOKEN);
+
+module.exports = client;

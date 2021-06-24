@@ -1,7 +1,8 @@
 const { Command } = require('discord.js-commando');
 const db = require('../../db.js');
+const constants = require('../../constants.js');
 
-const GUEST_PASS_ROLE_NAME = 'Guest Pass';
+const expiresInHours = 0.10;
 
 module.exports = class GuestPassCommand extends Command {
 	constructor(client) {
@@ -23,6 +24,12 @@ module.exports = class GuestPassCommand extends Command {
 
 	async run(msg, { guildMember }) {
 		if (!guildMember.user.bot) {
+
+			// Retrieve Guest Pass Role
+			const guestRole = msg.guild.roles.cache.find((role) => {
+				return role.name === constants.DISCORD_ROLE_GUEST_PASS;
+			});
+			
 			// Open database connection
 			db.connect(process.env.MONGODB_URI, async (err) => {
 				if (err) {
@@ -30,26 +37,61 @@ module.exports = class GuestPassCommand extends Command {
 					return;
 				}
 				// DB Connected
-				const dbGuestUsers = db.get().collection('guestUsers');
-				const queryOption = { upsert: true };
+				const dbGuestUsers = db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
+				const queryOptions = {
+					upsert: true,
+				};
 				const guestDbUser = {
 					_id: guildMember.user.id,
 					startTimestamp: Date.now(),
+					expiresInHours: expiresInHours,
 				};
-				const dbUpdateResult = await dbGuestUsers.insertOne(guestDbUser, queryOption);
-				if (dbUpdateResult.insertedCount !== 1) {
+				
+				// Find and update guest user in mongodb
+				const dbUpdateResult = await dbGuestUsers.findOneAndReplace({}, guestDbUser, queryOptions);
+				if (dbUpdateResult == null) {
 					console.error('Failed to insert into DB');
 					return;
 				}
 				console.log(`user ${guildMember.user.id} inserted into guestUsers`);
-				// Add guest pass role to user
-				const guestRole = msg.guild.roles.cache.find((role) => {
-					return role.name === GUEST_PASS_ROLE_NAME;
-				});
+
+				// Add role to member
 				guildMember.roles.add(guestRole).catch(console.error);
-				console.log(`user ${guildMember.user.id} given ${GUEST_PASS_ROLE_NAME} role`);
+				console.log(`user ${guildMember.user.id} given ${constants.DISCORD_ROLE_GUEST_PASS} role`);
 				return msg.say(`Hey <@${guildMember.user.id}>! You now has access for 24 hours.`);
 			});
+
+			// Send out notification on timer
+			this.client.setTimeout(() => {
+				msg.author.send(`Hey <@${guildMember.user.id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!`);
+			}, (expiresInHours * 1000 * 60) - (1000 * 60 * 15));
+
+			// Handle removal of guest pass
+			this.client.setTimeout(() => {
+				db.connect(process.env.MONGODB_URI, async (err) => {
+					if (err) {
+						console.error('ERROR:', err);
+						return;
+					}
+					const dbGuestUsers = db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
+					const guestDBQuery = {
+						_id: guildMember.user.id,
+					};
+					const dbDeleteResult = await dbGuestUsers.findOneAndDelete(guestDBQuery);
+					if (dbDeleteResult == null) {
+						console.error('Failed to insert into DB');
+						return;
+					}
+					console.log(`guest pass removed for ${guildMember.user.id} in db`);
+					
+					// Remove guest pass role
+					guildMember.roles.remove(guestRole).catch(console.error);
+
+					console.log(`guest pass removed for ${guildMember.user.id} in discord`);
+					
+					return msg.author.send(`Sorry to see you go <@${guildMember.user.id}>. We hope you enjoyed Bankless DAO.`);
+				});
+			}, expiresInHours * 1000 * 60);
 		}
 	}
 };

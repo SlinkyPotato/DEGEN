@@ -3,7 +3,7 @@ const db = require('../../db.js');
 const constants = require('../../constants.js');
 const GuestPassService = require('../../service/GuestPassService.js');
 
-const expiresInHours = 0.5;
+const expiresInHours = 168;
 
 module.exports = class GuestPassCommand extends Command {
 	constructor(client) {
@@ -60,7 +60,7 @@ module.exports = class GuestPassCommand extends Command {
 				// Add role to member
 				guildMember.roles.add(guestRole).catch(console.error);
 				console.log(`user ${guildMember.user.id} given ${constants.DISCORD_ROLE_GUEST_PASS} role`);
-				return msg.say(`Hey <@${guildMember.user.id}>! You now has access for ${expiresInHours * 60} minutes.`);
+				return msg.say(`Hey <@${guildMember.user.id}>! You now has access for ${expiresInHours / 24} days.`);
 			});
 
 			// Send out notification on timer

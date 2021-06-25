@@ -67,7 +67,7 @@ module.exports = async (client) => {
 		for (const activeUser of listOfActiveGuests) {
 			console.log('active userid: ' + activeUser._id);
 
-			const expiresInMilli = activeUser.expiresTimestamp - activeUser.startTimestamp;
+			const expiresInMilli = Math.max(activeUser.expiresTimestamp - Date.now(), 0);
 
 			// Send out reminder for user
 			setTimeout(async () => {
@@ -76,7 +76,7 @@ module.exports = async (client) => {
 				
 				// Discord api rate limit of 50 calls per second
 				await sleep(1000);
-			}, expiresInMilli - (1000 * 60 * 15));
+			}, Math.max(expiresInMilli - (1000 * 60 * 15), 0));
 
 			// Remove user's guest pass
 			setTimeout(async () => {

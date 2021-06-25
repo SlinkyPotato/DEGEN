@@ -3,7 +3,7 @@ const db = require('../../db.js');
 const constants = require('../../constants.js');
 const GuestPassService = require('../../service/GuestPassService.js');
 
-const expiresInHours = 168;
+const expiresInHours = 0.5;
 
 module.exports = class GuestPassCommand extends Command {
 	constructor(client) {
@@ -48,7 +48,9 @@ module.exports = class GuestPassCommand extends Command {
 				};
 
 				// Find and update guest user in mongodb
-				const dbUpdateResult = await dbGuestUsers.findOneAndReplace({}, guestDbUser, queryOptions);
+				const dbUpdateResult = await dbGuestUsers.findOneAndReplace({
+					_id: guildMember.user.id,
+				}, guestDbUser, queryOptions);
 				if (dbUpdateResult == null) {
 					console.error('Failed to insert into DB');
 					return;
@@ -58,12 +60,12 @@ module.exports = class GuestPassCommand extends Command {
 				// Add role to member
 				guildMember.roles.add(guestRole).catch(console.error);
 				console.log(`user ${guildMember.user.id} given ${constants.DISCORD_ROLE_GUEST_PASS} role`);
-				return msg.say(`Hey <@${guildMember.user.id}>! You now has access for ${expiresInHours / 24} days.`);
+				return msg.say(`Hey <@${guildMember.user.id}>! You now has access for ${expiresInHours * 60} minutes.`);
 			});
 
 			// Send out notification on timer
 			this.client.setTimeout(() => {
-				msg.author.send(`Hey <@${guildMember.user.id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!`);
+				guildMember.send(`Hey <@${guildMember.user.id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!`);
 			}, (expiresInHours * 1000 * 60 * 60) - (1000 * 60 * 15));
 
 			// Handle removal of guest pass
@@ -89,7 +91,7 @@ module.exports = class GuestPassCommand extends Command {
 
 					console.log(`guest pass removed for ${guildMember.user.id} in discord`);
 
-					return msg.author.send(`Hi <@${guildMember.user.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
+					return guildMember.send(`Hi <@${guildMember.user.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
 				});
 			}, expiresInHours * 1000 * 60 * 60);
 		}

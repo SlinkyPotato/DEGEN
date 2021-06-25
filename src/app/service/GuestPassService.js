@@ -8,19 +8,18 @@ const sleep = require('util').promisify(setTimeout);
 module.exports = async (client) => {
 	console.log('starting guest pass service...');
 
-	// Retrive guild
+	// Retrieve guild
 	const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID);
 	
 	// Retrieve Guest Pass Role
-	const guestRole = guild.roles.cache.find((role) => {
-		return role.name === constants.DISCORD_ROLE_GUEST_PASS;
-	});
+	const guestRole = await module.exports.retrieveGuestRole(guild.roles);
 	
 	db.connect(process.env.MONGODB_URI, async (err) => {
 		if (err) {
 			console.error('ERROR:', err);
 			return;
 		}
+		
 		const dbGuestUsers = db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
 		
 		// Query all guest pass users from db
@@ -40,7 +39,7 @@ module.exports = async (client) => {
 		});
 
 		// Begin removal of guest users
-		listOfExpiredGuests.forEach(async (expiredUserId) => {
+		for (const expiredUserId of listOfExpiredGuests) {
 			console.log('expired userid: ' + expiredUserId);
 			
 			const guildMember = await guild.members.fetch(expiredUserId);
@@ -54,7 +53,7 @@ module.exports = async (client) => {
 			const dbDeleteResult = await dbGuestUsers.findOneAndDelete(guestDBQuery);
 			if (dbDeleteResult == null) {
 				console.error('Failed to remove user from DB');
-				return;
+				continue;
 			}
 			console.log(`guest pass removed for ${expiredUserId} in db`);
 
@@ -62,10 +61,10 @@ module.exports = async (client) => {
 
 			// discord api rate limit of 50 calls per second
 			await sleep(1000);
-		});
+		}
 
 		// Begin reminder of active guest users
-		listOfActiveGuests.forEach(async (activeUser) => {
+		for (const activeUser of listOfActiveGuests) {
 			console.log('active userid: ' + activeUser._id);
 
 			const expiresInMilli = activeUser.expiresTimestamp - activeUser.startTimestamp;
@@ -102,7 +101,14 @@ module.exports = async (client) => {
 				await sleep(1000);
 			}, expiresInMilli);
 			
-		});
+		}
 		console.log('done guest pass service setup.');
+	});
+};
+
+// Retrieve the Guest Pass Role from guild
+module.exports.retrieveGuestRole = (roles) => {
+	return roles.cache.find((role) => {
+		return role.name === constants.DISCORD_ROLE_GUEST_PASS;
 	});
 };

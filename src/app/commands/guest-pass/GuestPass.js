@@ -1,8 +1,9 @@
 const { Command } = require('discord.js-commando');
 const db = require('../../db.js');
 const constants = require('../../constants.js');
+const GuestPassService = require('../../service/GuestPassService.js');
 
-const expiresInHours = 0.05;
+const expiresInHours = 168;
 
 module.exports = class GuestPassCommand extends Command {
 	constructor(client) {
@@ -26,9 +27,7 @@ module.exports = class GuestPassCommand extends Command {
 		if (!guildMember.user.bot) {
 
 			// Retrieve Guest Pass Role
-			const guestRole = msg.guild.roles.cache.find((role) => {
-				return role.name === constants.DISCORD_ROLE_GUEST_PASS;
-			});
+			const guestRole = GuestPassService.retrieveGuestRole(msg.guild.roles);
 
 			// Open database connection
 			db.connect(process.env.MONGODB_URI, async (err) => {
@@ -59,7 +58,7 @@ module.exports = class GuestPassCommand extends Command {
 				// Add role to member
 				guildMember.roles.add(guestRole).catch(console.error);
 				console.log(`user ${guildMember.user.id} given ${constants.DISCORD_ROLE_GUEST_PASS} role`);
-				return msg.say(`Hey <@${guildMember.user.id}>! You now has access for 24 hours.`);
+				return msg.say(`Hey <@${guildMember.user.id}>! You now has access for ${expiresInHours / 24} days.`);
 			});
 
 			// Send out notification on timer

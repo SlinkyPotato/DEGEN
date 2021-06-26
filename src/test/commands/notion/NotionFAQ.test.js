@@ -76,6 +76,9 @@ describe('Discord client $notion-faq', () => {
 		discriminator: '123'
 	}
 
+	client.user = testUser;
+
+	// Notion command mock.
 	const command = client.registry.groups.get('notion').commands.get('notion-faqs').run;
 
 	before(() => {});
@@ -89,11 +92,6 @@ describe('Discord client $notion-faq', () => {
 		await command(new Message('$notion-faq', channel, testUser), { faqQuestion: 'how can I contribute?'});
 		expect(channel.lastMessage.content).contains("Share your skills and step up");
 
-	});
-
-	it('The bot will send a DM if I just call the command', async () => {
-		await command(new Message('$notion-faq', channel, testUser), { faqQuestion: ''});
-		expect(channel.lastMessage.content).contains("Share your skills and step up")
 	});
 
 });

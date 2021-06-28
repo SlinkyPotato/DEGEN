@@ -1,7 +1,11 @@
-const path = require('path');
-// const db = require('./db.js');
+// Libs
 const { MessageEmbed } = require('discord.js');
 const { CommandoClient } = require('discord.js-commando');
+
+// Background services
+const GuestPassService = require('./service/GuestPassService.js');
+
+const path = require('path');
 
 const client = new CommandoClient({
 	commandPrefix: '$',
@@ -13,24 +17,16 @@ client.registry
 	.registerGroups([
 		['admin', 'Commands for admin automation'],
 		['notion', 'Commands for interacting with the Notion API'],
+		['roles', 'Command for managing user options'],
 	])
 	.registerDefaultGroups()
 	.registerDefaultCommands()
 	.registerCommandsIn(path.join(__dirname, 'commands'));
 
-// Open database connection
-/*
-db.connect(process.env.MONGODB_URI, (err) => {
-if (err) {
-  console.error('ERROR:', err);
-} else {
-  console.log("We are connected!");
-}
-*/
-
 client.once('ready', () => {
 	console.log('Ready!');
 	client.user.setActivity('Going Bankless, Doing the DAO');
+	GuestPassService(client);
 });
 
 // basic error monitoring
@@ -91,17 +87,5 @@ client.on('raw', (packet) => {
 	});
 });
 
-/*
-client.on('messageReactionAdd', (reaction, user) => {
-	console.log('a reaction has been added');
-	// client.registry.commands.get('starboard').run(reaction, user);
-});
-
-client.on('messageReactionRemove', (reaction, user) => {
-	console.log('a reaction has been removed');
-});
-*/
-
 client.login(process.env.DISCORD_BOT_TOKEN);
 
-// });

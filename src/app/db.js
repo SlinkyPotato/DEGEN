@@ -18,7 +18,6 @@ const db = {
 						return console.error(err);
 					}
 					else {
-						// console.log(client);
 						state.db = client.db('bankless');
 						done();
 					}

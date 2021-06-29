@@ -17,7 +17,8 @@ client.registry
 	.registerGroups([
 		['admin', 'Commands for admin automation'],
 		['notion', 'Commands for interacting with the Notion API'],
-		['bounty board', 'Command for Bounty Board Workflow Management'],
+		['bounty board', 'Commands for Bounty Board Workflow Management'],
+		['governance', 'Commands for governance integrations'],
 	])
 	.registerDefaultGroups()
 	.registerDefaultCommands()

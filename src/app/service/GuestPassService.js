@@ -103,6 +103,7 @@ module.exports = async (client) => {
 				// Discord api rate limit of 50 calls per second
 				await sleep(1000);
 			}, expiresInMilli);
+			
 		}
 		console.log('done guest pass service ready.');
 	});
@@ -123,7 +124,7 @@ module.exports.retrieveGuestRole = (roles) => {
  */
 module.exports.updateNotionGuestPassDatabase = async (tag, activeGuestPass) => {
     // Check if page exists
-    page = await module.exports.findGuestPassPageByDiscordHandle(tag);
+    page = await module.exports.findGuestPassPageByDiscordTag(tag);
 
     // Update page if exists, otherwise create new page
     if (page) {
@@ -168,7 +169,7 @@ module.exports.updateNotionGuestPassDatabase = async (tag, activeGuestPass) => {
  *
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  */
-module.exports.findGuestPassPageByDiscordHandle = async (tag) => {
+module.exports.findGuestPassPageByDiscordTag = async (tag) => {
     const response = await notion.databases.query({
         database_id: process.env.GUEST_PASS_DATABASE_ID,
         filter: {

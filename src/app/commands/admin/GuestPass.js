@@ -9,7 +9,7 @@ module.exports = class GuestPassCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'guest-pass',
-			group: 'roles',
+			group: 'admin',
 			memberName: 'guest-pass',
 			description: 'Give guest pass access to user for x amount of time',
 			guildOnly: true,

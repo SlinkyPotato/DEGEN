@@ -2,6 +2,8 @@
  * Handler for Discord event `guildMemberAdd`.
  */
 
+const { MessageEmbed } = require('discord.js');
+
 module.exports = async(member) => {
     const embed = new MessageEmbed()
         .setTitle('Welcome!')

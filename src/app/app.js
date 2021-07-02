@@ -1,7 +1,5 @@
 // Libs
-const { MessageEmbed } = require('discord.js');
 const { CommandoClient } = require('discord.js-commando');
-const constants = require('./constants');
 
 // Background services
 const GuestPassService = require('./service/GuestPassService.js');

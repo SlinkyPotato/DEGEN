@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const db = require('../../db.js');
+const db = require('../../db/db.js');
 const constants = require('../../constants.js');
 const GuestPassService = require('../../service/GuestPassService.js');
 

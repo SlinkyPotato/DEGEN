@@ -41,7 +41,7 @@ To get setup, please follow these guidelines:
    maintainers, copy your bot's token (found under the bot tab in the
    developer's portal) and replace the relevant values in your copied .env
    file, making sure to update the file name where it is required in `app.js`
-4. `npm install`
+4. `docker-compose up`
 5. Run your bot and test your connections
 
 ## Develop!

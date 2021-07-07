@@ -20,7 +20,6 @@ client.registry
 		['governance', 'Commands for governance integrations'],
 	])
 	.registerDefaultGroups()
-	.registerDefaultCommands()
 	.registerCommandsIn(path.join(__dirname, 'commands'));
 
 client.once('ready', () => {

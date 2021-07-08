@@ -23,6 +23,10 @@ module.exports = class GuestPassCommand extends Command {
 		});
 	}
 
+	hasPermission(message) {
+        return message.member.roles.cache.some(role => role.name === 'Contributors (Lvl 2)');
+    }
+
 	async run(msg, { guildMember }) {
 		if (!guildMember.user.bot) {
 

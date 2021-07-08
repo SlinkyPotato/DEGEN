@@ -9,6 +9,7 @@ These tools can make development quick and are recommended:
 -   [nodejs v14.17.0](https://nodejs.org/en/) - js runtime built on chrome's v8 engine
 -   [nvm](https://github.com/nvm-sh/nvm) - easily change node versions
 -   [yarn v1.x](https://yarnpkg.com/) - dependency management system
+-   [Docker](https://docs.docker.com/desktop/) - for local development
 -   [iterm2](https://iterm2.com/) - enhanced terminal for macOS
 -   [discord](https://discord.com/) - popular chat application used for gaming and organized communities
 
@@ -55,7 +56,7 @@ There should be a small cog near your icon photo labeled "User Settings". Hittin
 developer mode
 ![](images/discord_developer_mode.png)
 
-### 5. Create Mongo DB
+ ### 5. Create Mongo DB
 
 A free cloud hosted mongodb solution can be created at [https://www.mongodb.com/cloud](https://www.mongodb.com/cloud).
 Alternatively a locally hosted mongodb can also be used.
@@ -63,24 +64,22 @@ Alternatively a locally hosted mongodb can also be used.
 Once created, the url should be passed which has the username:password combination.
 ![](images/mongodb_url.png)
 
+If using Docker, a local instance of mongo is included when using `docker-compose`
+
 ### 6. Create Notion Integration
 
 [https://developers.notion.com/docs/getting-started](https://developers.notion.com/docs/getting-started)
 
 ![](images/notion_integration.png)
 
-## Gather dependencies
+### 7. Run application
 
-To download all dependencies and prepare the app for run
-
-```bash
-yarn install
-```
-
-## Run Bot
-
-Running the bot is as simple as
-
+If not using docker:
 ```bash
 yarn start
+```
+
+If using docker:
+```bash
+docker-compose up
 ```

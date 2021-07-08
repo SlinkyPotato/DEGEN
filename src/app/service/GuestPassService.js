@@ -1,4 +1,4 @@
-const db = require('./../db.js');
+const db = require('../db/db.js');
 const constants = require('./../constants');
 const sleep = require('util').promisify(setTimeout);
 const { Client } = require('@notionhq/client');

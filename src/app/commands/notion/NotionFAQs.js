@@ -40,8 +40,7 @@ module.exports = class NotionCommand extends Command {
 			});
 			msg.reply('Sent you a DM with information.');
 			return msg.author.send(replyStr.substring(0, 1950));
-		}
-		else {
+		} else {
 			// Try to find the answer to the given question
 			const validQuestion = faqQuestion.replace(/[^\w\s]/gi, '');
 
@@ -111,8 +110,7 @@ module.exports.retrieveFAQsPromise = async function() {
 					answer: '',
 				});
 				return;
-			}
-			else {
+			} else {
 				// This is an answer
 				const paragraphContent = obj.paragraph.text
 					.map((element) => {
@@ -121,8 +119,7 @@ module.exports.retrieveFAQsPromise = async function() {
 					.join(' ');
 				faqs[faqs.length - 1].answer += ' ' + paragraphContent;
 			}
-		}
-		else if (
+		} else if (
 			obj.type === 'bulleted_list_item' &&
             obj.bulleted_list_item.text.length > 0
 		) {

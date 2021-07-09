@@ -1,4 +1,4 @@
-name: Deploy to QA Environment
+name: Deploy to Production Environment
 on:
     push:
         branches: [degen]

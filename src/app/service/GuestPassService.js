@@ -117,51 +117,51 @@ module.exports.retrieveGuestRole = (roles) => {
 };
 
 /**
- * Creates or updates page in guest pass database.
+ * Creates or updates page in Notion guest pass database.
  *
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  * @param {boolean} activeGuestPass	Indicates if user has active guest pass
  */
 module.exports.updateNotionGuestPassDatabase = async (tag, activeGuestPass) => {
-    // Check if page exists
-    page = await module.exports.findGuestPassPageByDiscordTag(tag);
+	// Check if page exists
+	const page = await module.exports.findGuestPassPageByDiscordTag(tag);
 
-    // Update page if exists, otherwise create new page
-    if (page) {
-        const response = await notion.pages.update({
-            page_id: page.id,
-            properties: {
-                'Guest Pass': {
-                    checkbox: activeGuestPass,
-                },
-            },
-        });
-    } else {
-        const response = await notion.pages.create({
-            parent: {
-                database_id: process.env.GUEST_PASS_DATABASE_ID,
-            },
-            properties: {
-                'Discord Tag': {
-                    title: [
-                        {
-                            text: {
-                                content: tag,
-                            },
-                        },
-                    ],
-                },
-                Date: {
-                    date: {
-                        start: new Date().toISOString().split('T')[0],
-                    },
-                },
-                'Guest Pass': {
-                    checkbox: activeGuestPass,
-                },
-            },
-        });
-    }
+	// Update page if exists, otherwise create new page
+	if (page) {
+		await notion.pages.update({
+			page_id: page.id,
+			properties: {
+				'Guest Pass': {
+					checkbox: activeGuestPass,
+				},
+			},
+		});
+	} else {
+		await notion.pages.create({
+			parent: {
+				database_id: process.env.GUEST_PASS_DATABASE_ID,
+			},
+			properties: {
+				'Discord Tag': {
+					title: [
+						{
+							text: {
+								content: tag,
+							},
+						},
+					],
+				},
+				Date: {
+					date: {
+						start: new Date().toISOString().split('T')[0],
+					},
+				},
+				'Guest Pass': {
+					checkbox: activeGuestPass,
+				},
+			},
+		});
+	}
 };
 
 /**
@@ -170,15 +170,15 @@ module.exports.updateNotionGuestPassDatabase = async (tag, activeGuestPass) => {
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  */
 module.exports.findGuestPassPageByDiscordTag = async (tag) => {
-    const response = await notion.databases.query({
-        database_id: process.env.GUEST_PASS_DATABASE_ID,
-        filter: {
-            property: 'Discord Tag',
-            text: {
-                equals: tag,
-            },
-        },
-    });
+	const response = await notion.databases.query({
+		database_id: process.env.GUEST_PASS_DATABASE_ID,
+		filter: {
+			property: 'Discord Tag',
+			text: {
+				equals: tag,
+			},
+		},
+	});
 
-    return response.results[0];
+	return response.results[0];
 };

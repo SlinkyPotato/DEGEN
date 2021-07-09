@@ -3,7 +3,7 @@
  */
 
 module.exports = async(client, packet) => {
-    if (
+	if (
 		!['MESSAGE_REACTION_ADD', 'MESSAGE_REACTION_REMOVE'].includes(packet.t)
 	) {
 		return;

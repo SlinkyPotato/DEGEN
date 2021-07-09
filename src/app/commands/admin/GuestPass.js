@@ -24,8 +24,8 @@ module.exports = class GuestPassCommand extends Command {
 	}
 
 	hasPermission(message) {
-        return message.member.roles.cache.some(role => role.name === 'Contributors (Lvl 2)');
-    }
+		return message.member.roles.cache.some(role => role.name === 'Contributors (Lvl 2)');
+	}
 
 	async run(msg, { guildMember }) {
 		if (!guildMember.user.bot) {
@@ -64,10 +64,14 @@ module.exports = class GuestPassCommand extends Command {
 				// Add role to member
 				guildMember.roles.add(guestRole).catch(console.error);
 				console.log(`user ${guildMember.user.id} given ${constants.DISCORD_ROLE_GUEST_PASS} role`);
-				return msg.say(`Hey <@${guildMember.user.id}>! You now has access for ${expiresInHours / 24} days.`);
+				return msg.say(`Hey <@${guildMember.user.id}>! You now have access for ${expiresInHours / 24} days.`);
 			});
 
 			// Send out notification on timer
+			this.client.setTimeout(() => {
+				guildMember.send(`Hey <@${guildMember.user.id}>, your guest pass is set to expire in 1 day. Let us know if you have any questions!`);
+			}, (expiresInHours * 1000 * 60 * 60) - (1000 * 60 * 60 * 24));
+
 			this.client.setTimeout(() => {
 				guildMember.send(`Hey <@${guildMember.user.id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!`);
 			}, (expiresInHours * 1000 * 60 * 60) - (1000 * 60 * 15));

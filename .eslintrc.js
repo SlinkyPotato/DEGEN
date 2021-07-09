@@ -14,7 +14,7 @@ module.exports = {
 	ignorePatterns: '*.test.js',
 	rules: {
 		'@typescript-eslint/no-var-requires': 0,
-		'brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
+		'brace-style': ['error', '1tbs', { allowSingleLine: true }],
 		'comma-dangle': ['error', 'always-multiline'],
 		'comma-spacing': 'error',
 		'comma-style': 'error',

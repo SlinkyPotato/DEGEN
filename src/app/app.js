@@ -1,5 +1,8 @@
 // Libs
 const { CommandoClient } = require('discord.js-commando');
+const guildMemberAdd = require('./events/GuildMemberAdd');
+const guildMemberUpdate = require('./events/GuildMemberUpdate');
+const rawPacketData = require('./events/Raw');
 
 // Background services
 const GuestPassService = require('./service/GuestPassService.js');
@@ -28,23 +31,21 @@ client.once('ready', () => {
 	GuestPassService(client);
 });
 
-client.login(process.env.DISCORD_BOT_TOKEN);
-
 // basic error monitoring
 client.on('error', console.error);
 
 // new member onboarding
 client.on('guildMemberAdd', (member) => {
-	require("./events/GuildMemberAdd")(member)
+	guildMemberAdd(member);
 });
 
 client.on('guildMemberUpdate', (oldMember, newMember) => {
-	require("./events/GuildMemberUpdate")(oldMember, newMember)
+	guildMemberUpdate(oldMember, newMember);
 });
 
 // filter raw packet data for reactions
 client.on('raw', (packet) => {
-	require("./events/Raw")(client, packet)
+	rawPacketData(client, packet);
 });
 
-
+client.login(process.env.DISCORD_BOT_TOKEN);

@@ -1,9 +1,9 @@
 name: Deploy to Production Environment
 on:
     push:
-        branches: [degen]
+        branches: [DEGEN]
     pull_request:
-        branches: [degen]
+        branches: [DEGEN]
 jobs:
     deploy:
         environment:
@@ -37,3 +37,4 @@ jobs:
                   HD_NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
                   HD_FAQS_PAGE_ID: '29353e63-e864-411a-abc0-061d04906c16'
                   HD_DISCORD_SERVER_ID: '834499078434979890'
+                  HD_GUEST_PASS_DATABASE_ID: '15fae33760724cf7b696a981d53e50cb'

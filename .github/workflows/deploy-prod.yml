@@ -1,9 +1,9 @@
 name: Deploy to Production Environment
 on:
     push:
-        branches: [degen]
+        branches: [DEGEN]
     pull_request:
-        branches: [degen]
+        branches: [DEGEN]
 jobs:
     deploy:
         environment:

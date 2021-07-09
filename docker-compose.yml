@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    restart: always
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: yarn start
+    working_dir: /app
+    ports:
+      - 80:3000
+
+  mongo:
+    image: mongo:4.4.6
+    environment:
+      MONGO_INITDB_DATABASE: bankless
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb:/data/db
+      - ./src/app/db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      
+volumes:
+  mongodb:

@@ -1,13 +1,8 @@
 // Libs
 const { CommandoClient } = require('discord.js-commando');
-const guildMemberAdd = require('./events/GuildMemberAdd');
-const guildMemberUpdate = require('./events/GuildMemberUpdate');
-const rawPacketData = require('./events/Raw');
-
-// Background services
-const GuestPassService = require('./service/GuestPassService.js');
 
 const path = require('path');
+const fs = require('fs');
 
 const client = new CommandoClient({
 	commandPrefix: '$',
@@ -25,27 +20,22 @@ client.registry
 	.registerDefaultGroups()
 	.registerCommandsIn(path.join(__dirname, 'commands'));
 
-client.once('ready', () => {
-	console.log('Ready!');
-	client.user.setActivity('Going Bankless, Doing the DAO');
-	GuestPassService(client);
-});
-
 // basic error monitoring
 client.on('error', console.error);
 
-// new member onboarding
-client.on('guildMemberAdd', (member) => {
-	guildMemberAdd(member);
-});
-
-client.on('guildMemberUpdate', (oldMember, newMember) => {
-	guildMemberUpdate(oldMember, newMember);
-});
-
-// filter raw packet data for reactions
-client.on('raw', (packet) => {
-	rawPacketData(client, packet);
+// Register event handlers
+fs.readdir(path.join(__dirname, 'events'), (err, files) => {
+	if (err) return console.error(err);
+	files.forEach(file => {
+		if (!file.endsWith(".js")) return;
+		const event = require(`./events/${file}`);
+		let eventName = file.split(".")[0];
+		if (event.once) {
+			client.once(eventName, (...args) => event.execute(...args, client));
+		} else {
+			client.on(eventName, (...args) => event.execute(...args, client));
+		}
+	});
 });
 
 client.login(process.env.DISCORD_BOT_TOKEN);

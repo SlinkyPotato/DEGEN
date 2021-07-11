@@ -14,11 +14,9 @@ const creator = new SlashCreator({
   
 // Register command handlers
 creator
-	.withServer(
-		new GatewayServer(
-			(handler) => client.ws.on('INTERACTION_CREATE', handler),
-		),
-	)
+	.withServer(new GatewayServer((handler) => {
+		client.ws.on('INTERACTION_CREATE', handler),
+	}))
 	.registerCommands(fs.readdirSync(path.join(__dirname, 'commands'))
 		.map(file => {
 			return new (require(`./commands/${file}`))(creator, client);

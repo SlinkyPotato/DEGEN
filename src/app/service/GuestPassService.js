@@ -112,7 +112,7 @@ module.exports = async (client) => {
 // Retrieve the Guest Pass Role from guild
 module.exports.retrieveGuestRole = (roles) => {
 	return roles.cache.find((role) => {
-		return role.name === constants.DISCORD_ROLE_GUEST_PASS;
+		return role.id === process.env.DISCORD_ROLE_GUEST_PASS;
 	});
 };
 

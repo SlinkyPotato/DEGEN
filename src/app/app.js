@@ -1,27 +1,30 @@
 // Libs
-const { CommandoClient } = require('discord.js-commando');
-
+const { SlashCreator, GatewayServer } = require('slash-create');
+const Discord = require('discord.js');
 const path = require('path');
 const fs = require('fs');
 
-const client = new CommandoClient({
-	commandPrefix: '$',
-	owner: process.env.DISCORD_OWNER_ID,
+const client = new Discord.Client()
+
+const creator = new SlashCreator({
+	applicationID: process.env.DISCORD_BOT_APPLICATION_ID,
+	publicKey: process.env.DISCORD_BOT_PUBLIC_KEY,
+	token: process.env.DISCORD_BOT_TOKEN
 });
-
-client.registry
-	.registerDefaultTypes()
-	.registerGroups([
-		['admin', 'Commands for admin automation'],
-		['notion', 'Commands for interacting with the Notion API'],
-		['bounty board', 'Commands for Bounty Board Workflow Management'],
-		['governance', 'Commands for governance integrations'],
-	])
-	.registerDefaultGroups()
-	.registerCommandsIn(path.join(__dirname, 'commands'));
-
-// basic error monitoring
-client.on('error', console.error);
+  
+// Register command handlers
+creator
+	.withServer(
+		new GatewayServer(
+			(handler) => client.ws.on('INTERACTION_CREATE', handler)
+		)
+	)
+	.registerCommands(fs.readdirSync(path.join(__dirname, 'commands'))
+		.map(file => {
+			return new (require(`./commands/${file}`))(creator, client)
+		})
+	)
+	.syncCommands()
 
 // Register event handlers
 fs.readdir(path.join(__dirname, 'events'), (err, files) => {
@@ -37,5 +40,16 @@ fs.readdir(path.join(__dirname, 'events'), (err, files) => {
 		}
 	});
 });
+
+// Handle command errors
+creator.on('commandError', async (cmd, err, ctx) => {
+	console.error(err);
+	if (!ctx.expired && !ctx.initiallyResponded) {
+		return ctx.send('An error occurred while running the command.', { ephemeral: true });
+	}
+});
+
+// Log client errors
+client.on('error', console.error);
 
 client.login(process.env.DISCORD_BOT_TOKEN);

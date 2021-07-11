@@ -1,36 +1,48 @@
-const { Command } = require('discord.js-commando');
-const notionAPI = require('../../api/notion/NotionAPI.js');
-
+const { SlashCommand, CommandOptionType } = require('slash-create');
+const notionAPI = require('../api/notion/NotionAPI.js');
 const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
 
-module.exports = class NotionCommand extends Command {
-	constructor(client) {
-		super(client, {
-			name: 'notion-faqs',
-			aliases: ['notionfaqs'],
-			group: 'notion',
-			memberName: 'notion-faqs',
-			description: 'Get answers to commonly asked questions.',
-			args: [
-				{
-					key: 'faqQuestion',
-					prompt: 'Do you have a specific question? (default: no)',
-					type: 'string',
-					default: 'no',
-				},
-			],
-		});
-	}
+module.exports = class NotionFAQs extends SlashCommand {
+    constructor(creator, client) {
+        super(creator, {
+            name: "faqs",
+            description: "Get frequently asked questions",
+            guildIDs: process.env.DISCORD_SERVER_ID,
+            options: [
+                {
+                    type: CommandOptionType.STRING,
+                    name: "question",
+                    description: "Do you have a specific question?"
+                }
+            ], 
+			throttling: {
+				usages: 2,
+				duration: 1
+			}
+        });
 
-	async run(msg, { faqQuestion }) {
+		this.client = client;
+        this.filePath = __filename;
+    }
+
+    async run(ctx) {
+		// Ignores commands from bots
+		if (ctx.user.bot) return;
+
+		const guildMember = this.client.guilds.cache
+			.get(ctx.guildID).members.cache
+			.get(ctx.user.id)
+			
 		const faqs = await module.exports.retrieveFAQsPromise();
+        const faqQuestion = String(ctx.options.question)
 		let replyStr = '**Frequently Asked Questions**: ' + FAQ_URL + ' \n\n';
 		if (
 			faqQuestion === 'n' ||
             faqQuestion === 'no' ||
             faqQuestion === 'nah' ||
-            faqQuestion === ''
+            faqQuestion === '' ||
+            faqQuestion === 'undefined'
 		) {
 			// No question asked, return a few FAQs
 			faqs.forEach((faq) => {
@@ -38,8 +50,8 @@ module.exports = class NotionCommand extends Command {
 				const answer = '\n' + faq.answer.trim() + '\n';
 				replyStr = replyStr + question + answer + '\n';
 			});
-			msg.reply('Sent you a DM with information.');
-			return msg.author.send(replyStr.substring(0, 1950));
+			ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+			return guildMember.send(replyStr.substring(0, 1950));
 		} else {
 			// Try to find the answer to the given question
 			const validQuestion = faqQuestion.replace(/[^\w\s]/gi, '');
@@ -56,7 +68,7 @@ module.exports = class NotionCommand extends Command {
 				if (cleanQuestion === validQuestion) {
 					replyStr +=
                         cleanQuestion + '\n' + 'Answer: ' + faqs.answer + '\n';
-					return msg.say(replyStr);
+					return ctx.send(replyStr);
 				}
 			}
 			// Search for close enough answer
@@ -89,12 +101,13 @@ module.exports = class NotionCommand extends Command {
                 'Answer: ' +
                 faqs[highestMatchingIndex].answer +
                 '\n';
-			return msg.say(replyStr);
+			ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+			return guildMember.send(replyStr.substring(0, 1950));
 		}
 	}
 };
 
-module.exports.retrieveFAQsPromise = async function() {
+module.exports.retrieveFAQsPromise = async () => {
 	const faqs = [];
 	const numberRegex = /^[0-9]./;
 	const response = await notionAPI.get(

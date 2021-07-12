@@ -1,6 +1,6 @@
 // Libs
 const { SlashCreator, GatewayServer } = require('slash-create');
-const { getFiles } = require('./util/Utility')
+const { getFiles } = require('./util/Utility');
 const Discord = require('discord.js');
 const path = require('path');
 
@@ -19,15 +19,15 @@ creator
 		),
 	)
 	.registerCommands(getFiles(path.join(__dirname, 'commands')).map(file => {
-			return new (require(file))(creator, client);
-		}),
+		return new (require(file))(creator, client);
+	}),
 	)
 	.syncCommands();
 
 // Register event handlers
 getFiles(path.join(__dirname, 'events')).forEach(file => {
 	const event = require(file);
-	const eventName = file.substr(file.lastIndexOf('/')).replace('/','').split('.')[0];
+	const eventName = file.substr(file.lastIndexOf('/')).replace('/', '').split('.')[0];
 	if (event.once) {
 		client.once(eventName, (...args) => event.execute(...args, client));
 	} else {

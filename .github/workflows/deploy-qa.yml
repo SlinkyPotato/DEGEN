@@ -32,6 +32,8 @@ jobs:
                   procfile: 'worker: yarn qa'
               env:
                   HD_DISCORD_BOT_TOKEN: ${{secrets.QA_DISCORD_TOKEN}}
+                  HD_DISCORD_BOT_PUBLIC_KEY: ${{secrets.QA_BOT_PUBLIC_KEY}}
+                  HD_DISCORD_BOT_APPLICATION_ID: ${{secrets.QA_BOT_APPLICATION_ID}}
                   HD_DISCORD_OWNER_ID: ${{secrets.QA_DISCORD_OWNER_ID}}
                   HD_MONGODB_URI: ${{secrets.QA_MONGODB_URI}}
                   HD_NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}

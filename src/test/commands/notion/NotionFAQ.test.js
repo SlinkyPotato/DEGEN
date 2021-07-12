@@ -3,7 +3,7 @@
 const chai = require('chai');
 const assert = chai.assert;
 const notionAPI = require('../../../app/api/notion/NotionAPI.js');
-const notionFaqsCommand = require('../../../app/commands/NotionFAQs.js');
+const notionFaqsCommand = require('../../../app/commands/notion/NotionFAQs.js');
 const nock = require('nock');
 const mockFAQsJsonResponse = require('./retrieve_faqs_mock.json');
 

@@ -1,8 +1,8 @@
 // Libs
 const { SlashCreator, GatewayServer } = require('slash-create');
+const { getFiles } = require('./util/Utility')
 const Discord = require('discord.js');
 const path = require('path');
-const fs = require('fs');
 
 const client = new Discord.Client();
 
@@ -11,7 +11,7 @@ const creator = new SlashCreator({
 	publicKey: process.env.DISCORD_BOT_PUBLIC_KEY,
 	token: process.env.DISCORD_BOT_TOKEN,
 });
-  
+
 // Register command handlers
 creator
 	.withServer(
@@ -19,26 +19,21 @@ creator
 			(handler) => client.ws.on('INTERACTION_CREATE', handler),
 		),
 	)
-	.registerCommands(fs.readdirSync(path.join(__dirname, 'commands'))
-		.map(file => {
-			return new (require(`./commands/${file}`))(creator, client);
+	.registerCommands(getFiles(path.join(__dirname, 'commands')).map(file => {
+			return new (require(file))(creator, client);
 		}),
 	)
 	.syncCommands();
 
 // Register event handlers
-fs.readdir(path.join(__dirname, 'events'), (err, files) => {
-	if (err) return console.error(err);
-	files.forEach(file => {
-		if (!file.endsWith('.js')) return;
-		const event = require(`./events/${file}`);
-		const eventName = file.split('.')[0];
-		if (event.once) {
-			client.once(eventName, (...args) => event.execute(...args, client));
-		} else {
-			client.on(eventName, (...args) => event.execute(...args, client));
-		}
-	});
+getFiles(path.join(__dirname, 'events')).forEach(file => {
+	const event = require(file);
+	const eventName = file.substr(file.lastIndexOf('/')).replace('/','').split('.')[0];
+	if (event.once) {
+		client.once(eventName, (...args) => event.execute(...args, client));
+	} else {
+		client.on(eventName, (...args) => event.execute(...args, client));
+	}
 });
 
 // Handle command errors

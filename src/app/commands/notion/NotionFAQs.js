@@ -1,5 +1,5 @@
 const { SlashCommand, CommandOptionType } = require('slash-create');
-const notionAPI = require('../api/notion/NotionAPI.js');
+const notionAPI = require('../../api/notion/NotionAPI.js');
 const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
 

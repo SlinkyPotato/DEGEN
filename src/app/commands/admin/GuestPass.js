@@ -1,7 +1,7 @@
 const { SlashCommand, CommandOptionType } = require('slash-create');
-const db = require('../db/db.js');
-const constants = require('../constants.js');
-const GuestPassService = require('../service/GuestPassService.js');
+const db = require('../../db/db.js');
+const constants = require('../../constants.js');
+const GuestPassService = require('../../service/GuestPassService.js');
 const expiresInHours = 168;
 
 module.exports = class GuestPass extends SlashCommand {

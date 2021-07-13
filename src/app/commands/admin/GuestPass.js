@@ -28,7 +28,6 @@ module.exports = class GuestPass extends SlashCommand {
 					{
 						type: ApplicationCommandPermissionType.ROLE,
 						id: process.env.DISCORD_ROLE_LEVEL_2,
-						// id: '858064540393275413',
 						permission: true,
 					},
 				],
@@ -39,22 +38,13 @@ module.exports = class GuestPass extends SlashCommand {
 		this.filePath = __filename;
 	}
 
-	/*
-	hasPermission(ctx) {
-		return this.client.guilds.cache
-			.get(ctx.guildID).members.cache
-			.get(ctx.user.id).roles.cache
-			.some(role => role.id === process.env.DISCORD_ROLE_LEVEL_2);
-	}
-	*/
-
 	async run(ctx) {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
 
 		const guild = this.client.guilds.cache.get(ctx.guildID);
 		// Guild member to assign guest pass role
-		const guildMember = guild.members.cache.get(ctx.options.user);
+		const guildMember = await guild.members.cache.get(ctx.options.user);
 
 		if (guildMember.user.bot) {
 			ctx.send('Bots don\'t need a guest pass!');

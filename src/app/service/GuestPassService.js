@@ -23,10 +23,10 @@ module.exports = async (client) => {
 			return;
 		}
 		
-		const dbGuestUsers = db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
+		const dbGuestUsers = await db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
 		
 		// Query all guest pass users from db
-		const dbCursor = dbGuestUsers.find({});
+		const dbCursor = await dbGuestUsers.find({});
 		const currentTimestamp = Date.now();
 		const listOfExpiredGuests = [];
 		const listOfActiveGuests = [];
@@ -112,7 +112,7 @@ module.exports = async (client) => {
 // Retrieve the Guest Pass Role from guild
 module.exports.retrieveGuestRole = (roles) => {
 	return roles.cache.find((role) => {
-		return role.name === constants.DISCORD_ROLE_GUEST_PASS;
+		return role.id === process.env.DISCORD_ROLE_GUEST_PASS;
 	});
 };
 

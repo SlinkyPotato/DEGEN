@@ -3,14 +3,14 @@
  */
 
 module.exports = { 
-	async execute (packet, client) {
+	async execute(packet, client) {
 		if (
 			!['MESSAGE_REACTION_ADD', 'MESSAGE_REACTION_REMOVE'].includes(packet.t)
 		) {
 			return;
 		}
 		// Grab the channel to check the message from
-		const channel = client.channels.cache.get(packet.d.channel_id);
+		const channel = await client.channels.fetch(packet.d.channel_id);
 		// don't emit if the message is cached
 		if (channel.messages.cache.has(packet.d.message_id)) return;
 		channel.messages.fetch(packet.d.message_id).then((message) => {
@@ -40,5 +40,5 @@ module.exports = {
 				);
 			}
 		});
-	}
-}
+	},
+};

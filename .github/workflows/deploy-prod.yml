@@ -32,9 +32,13 @@ jobs:
                   procfile: 'worker: yarn prod'
               env:
                   HD_DISCORD_BOT_TOKEN: ${{secrets.PROD_DISCORD_TOKEN}}
+                  HD_DISCORD_BOT_PUBLIC_KEY: ${{secrets.PROD_BOT_PUBLIC_KEY}}
+                  HD_DISCORD_BOT_APPLICATION_ID: ${{secrets.PROD_BOT_APPLICATION_ID}}
                   HD_DISCORD_OWNER_ID: ${{secrets.PROD_DISCORD_OWNER_ID}}
                   HD_MONGODB_URI: ${{secrets.PROD_MONGODB_URI}}
                   HD_NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
                   HD_FAQS_PAGE_ID: '29353e63-e864-411a-abc0-061d04906c16'
                   HD_DISCORD_SERVER_ID: '834499078434979890'
                   HD_GUEST_PASS_DATABASE_ID: '15fae33760724cf7b696a981d53e50cb'
+                  HD_DISCORD_ROLE_GUEST_PASS: '848369657281773599'
+                  HD_DISCORD_ROLE_LEVEL_2: '839005084016312360'

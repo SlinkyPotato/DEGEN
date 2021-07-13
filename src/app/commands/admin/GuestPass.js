@@ -28,6 +28,7 @@ module.exports = class GuestPass extends SlashCommand {
 					{
 						type: ApplicationCommandPermissionType.ROLE,
 						id: process.env.DISCORD_ROLE_LEVEL_2,
+						// id: '858064540393275413',
 						permission: true,
 					},
 				],

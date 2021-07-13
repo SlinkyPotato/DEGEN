@@ -42,9 +42,10 @@ module.exports = class GuestPass extends SlashCommand {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
 
-		const guild = await this.client.guilds.cache.get(ctx.guildID);
+		const guild = await this.client.guilds.fetch(ctx.guildID);
 		// Guild member to assign guest pass role
-		const guildMember = await guild.members.cache.get(ctx.options.user);
+		// const guildMember = await guild.members.cache.get(ctx.options.user);
+		const guildMember = await guild.members.fetch(ctx.options.user);
 
 		if (guildMember.user.bot) {
 			ctx.send('Bots don\'t need a guest pass!');

@@ -24,7 +24,7 @@ module.exports = class GuestPass extends SlashCommand {
 			},
 			defaultPermission: false,
 			permissions: {
-				'851552281249972254': [
+				[process.env.DISCORD_SERVER_ID]: [
 					{
 						type: ApplicationCommandPermissionType.ROLE,
 						id: process.env.DISCORD_ROLE_LEVEL_2,
@@ -57,7 +57,7 @@ module.exports = class GuestPass extends SlashCommand {
 		const guildMember = guild.members.cache.get(ctx.options.user);
 
 		if (guildMember.user.bot) {
-			ctx.send('Bots don\'t need a guest pass!')
+			ctx.send('Bots don\'t need a guest pass!');
 			return;
 		}
 

@@ -1,4 +1,4 @@
-const { SlashCommand, CommandOptionType } = require('slash-create');
+const { SlashCommand, CommandOptionType, ApplicationCommandPermissionType } = require('slash-create');
 const db = require('../../db/db.js');
 const constants = require('../../constants.js');
 const GuestPassService = require('../../service/GuestPassService.js');
@@ -9,31 +9,42 @@ module.exports = class GuestPass extends SlashCommand {
 		super(creator, {
 			name: 'guest-pass',
 			description: 'Grant a temporary guest pass to a user',
-            guildIDs: process.env.DISCORD_SERVER_ID,
+			guildIDs: process.env.DISCORD_SERVER_ID,
 			options: [
 				{
 					type: CommandOptionType.USER,
-                    name: 'user',
-                    description: "User to grant guest pass to",
-                    required: true
-				}
+					name: 'user',
+					description: 'User to grant guest pass to',
+					required: true,
+				},
 			],
 			throttling: {
 				usages: 2,
-				duration: 1
-			}
+				duration: 1,
+			},
+			permissions: {
+				'<guild_id>': [
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: process.env.DISCORD_ROLE_LEVEL_2,
+						permission: true,
+					},
+				],
+			},
 		});
 
 		this.client = client;
 		this.filePath = __filename;
 	}
 
+	/*
 	hasPermission(ctx) {
 		return this.client.guilds.cache
 			.get(ctx.guildID).members.cache
 			.get(ctx.user.id).roles.cache
 			.some(role => role.id === process.env.DISCORD_ROLE_LEVEL_2);
 	}
+	*/
 
 	async run(ctx) {
 		// Ignores commands from bots

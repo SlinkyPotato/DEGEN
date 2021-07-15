@@ -6,7 +6,7 @@ const { MessageEmbed } = require('discord.js');
 
 module.exports = {
 	name: 'guildMemberAdd',
-	once: true,
+	once: false,
 
 	async execute(member) {
 		const embed = new MessageEmbed()

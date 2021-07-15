@@ -4,7 +4,7 @@
 
 module.exports = {
 	name: 'message',
-	once: true,
+	once: false,
 
 	execute(message) {
 		if(message.author.bot) return;

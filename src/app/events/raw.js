@@ -4,8 +4,8 @@
 
 module.exports = {
 	name: 'raw',
-	once: true,
-	
+	once: false,
+
 	async execute(packet, client) {
 		if (
 			!['MESSAGE_REACTION_ADD', 'MESSAGE_REACTION_REMOVE'].includes(packet.t)

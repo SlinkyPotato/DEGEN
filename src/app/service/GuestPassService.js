@@ -105,7 +105,7 @@ module.exports = async (client) => {
 			}, expiresInMilli);
 			
 		}
-		console.log('done guest pass service ready.');
+		console.log('guest pass service ready.');
 	});
 };
 

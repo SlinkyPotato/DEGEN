@@ -1,6 +1,5 @@
 // Libs
 const { SlashCreator, GatewayServer } = require('slash-create');
-const { getFiles } = require('./util/Utility');
 const Discord = require('discord.js');
 const path = require('path');
 const fs = require('fs');

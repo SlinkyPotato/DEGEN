@@ -7,7 +7,7 @@ const constants = require('../constants');
 
 module.exports = {
 	name: 'guildMemberUpdate',
-	once: true,
+	once: false,
 
 	async execute(oldMember, newMember) {
 		// Check if member roles were updated

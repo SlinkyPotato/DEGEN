@@ -23,6 +23,8 @@ jobs:
               run: yarn lint
             - name: Run test cases
               run: yarn test --watchAll=false
+            - name: Build and Compile Typescript
+              run: yarn build
             - name: Deploy to Heroku Shared Test Environment
               uses: AkhileshNS/heroku-deploy@v3.12.12
               with:

@@ -1,21 +1,22 @@
 {
   "compilerOptions": {
-	"module": "commonJS",
-	"target": "es2020",
-	"lib": [
-	  "es2020"
-	],
-	"sourceMap":  true,
-	"outDir": "build",
-	"allowJs": true,
-	"skipLibCheck": true,
-	"noEmitOnError": true
+	  "module": "es6",
+	  "target": "es6",
+	  "lib": [
+		  "es2020"
+	  ],
+	  "sourceMap":  true,
+	  "outDir": "./dist/",
+	  "allowJs": true,
+	  "allowSyntheticDefaultImports": true,
+	  "esModuleInterop": true,
+	  "noEmitOnError": true,
+	  "moduleResolution": "node"
   },
   "include": [
 	"./src/**/*",
   ],
   "exclude": [
-	"node_modules",
-	"./.env.template"
+	"node_modules"
   ]
 }

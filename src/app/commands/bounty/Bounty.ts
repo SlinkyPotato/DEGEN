@@ -12,6 +12,16 @@ module.exports = class Bounty extends SlashCommand {
 					name: 'operation',
 					description: '(list|create|claim)',
 				},
+				{
+					type: CommandOptionType.STRING,
+					name: 'create-summary',
+					description: 'What would you like to be worked on?',
+				},
+				{
+					type: CommandOptionType.STRING,
+					name: 'create-reward',
+					description: 'What is the reward? (i.e 100 BANK)',
+				},
 			],
 			throttling: {
 				usages: 2,
@@ -27,12 +37,11 @@ module.exports = class Bounty extends SlashCommand {
 		case 'list':
 			return ctx.send('there are zero bounties...');
 		case 'create':
-			break;
+			return ctx.send('bounty created with id: ');
 		case 'claim':
-			break;
+			return ctx.send('bounty claimed for id: ');
 		default:
 			return ctx.send('no bounty for you! go away');
-
 		}
 	}
 };

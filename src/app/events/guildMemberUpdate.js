@@ -6,6 +6,9 @@ const GuestPassService = require('../service/GuestPassService.js');
 const constants = require('../constants');
 
 module.exports = {
+	name: 'guildMemberUpdate',
+	once: true,
+
 	async execute(oldMember, newMember) {
 		// Check if member roles were updated
 		if (oldMember.roles !== newMember.roles) {

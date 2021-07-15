@@ -6,9 +6,9 @@
     "private": true,
     "scripts": {
         "build": "tsc -p tsconfig.json",
-        "test": "mocha -r dotenv/config src/test/**/*.test.js dotenv_config_path=.env.qa",
-        "qa": "node -r dotenv/config --trace-warnings src/app/app.js dotenv_config_path=.env.qa",
-        "prod": "node -r dotenv/config --trace-warnings src/app/app.js dotenv_config_path=.env.prod",
+        "test": "mocha -r dotenv/config dist/test/**/*.test.js dotenv_config_path=.env.qa",
+        "qa": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa",
+        "prod": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.prod",
         "start": "node --trace-warnings -r dotenv/config dist/app/app.js",
         "lint": "eslint src/**/*.js --fix",
         "format": "prettier --write src/**/*",

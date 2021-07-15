@@ -3,8 +3,10 @@ const { SlashCreator, GatewayServer } = require('slash-create');
 const { getFiles } = require('./util/Utility');
 const Discord = require('discord.js');
 const path = require('path');
+const fs = require('fs');
 
 const client = new Discord.Client();
+initializeEvents();
 
 const creator = new SlashCreator({
 	applicationID: process.env.DISCORD_BOT_APPLICATION_ID,
@@ -18,22 +20,8 @@ creator
 		new GatewayServer((handler) => client.ws.on('INTERACTION_CREATE', handler),
 		),
 	)
-	.registerCommands(getFiles(path.join(__dirname, 'commands')).map(file => {
-		return new (require(file))(creator, client);
-	}),
-	)
+	.registerCommandsIn(path.join(__dirname, 'commands'))
 	.syncCommands();
-
-// Register event handlers
-getFiles(path.join(__dirname, 'events')).forEach(file => {
-	const event = require(file);
-	const eventName = file.substr(file.lastIndexOf('/')).replace('/', '').split('.')[0];
-	if (event.once) {
-		client.once(eventName, (...args) => event.execute(...args, client));
-	} else {
-		client.on(eventName, (...args) => event.execute(...args, client));
-	}
-});
 
 // Handle command errors
 creator.on('commandError', async (cmd, err, ctx) => {
@@ -47,3 +35,16 @@ creator.on('commandError', async (cmd, err, ctx) => {
 client.on('error', console.error);
 
 client.login(process.env.DISCORD_BOT_TOKEN);
+
+function initializeEvents() {
+	const eventFiles = fs.readdirSync(path.join(__dirname, '/events')).filter(file => file.endsWith('.js'));
+
+	for (const file of eventFiles) {
+		const event = require(`./events/${file}`);
+		if (event.once) {
+			client.once(event.name, (...args) => event.execute(...args, client));
+		} else {
+			client.on(event.name, (...args) => event.execute(...args, client));
+		}
+	}
+}

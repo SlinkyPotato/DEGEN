@@ -2,7 +2,7 @@
 
 ## 1.1.0-SNAPSHOT
 
-1. Add bounty board command integration
+1. Add typescript integration
 
 ## 1.0.0-RELEASE (2021-07-09)
 

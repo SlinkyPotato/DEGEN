@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 module.exports = {
 	/**
@@ -11,7 +11,7 @@ module.exports = {
    * @returns Files under directory and sub-directories ending with `.js`
    */
 	getFiles: (directory, fileArray) => {
-		files = fs.readdirSync(directory);
+		const files = fs.readdirSync(directory);
 		fileArray = fileArray || [];
 		files.forEach((file) => {
 			if (fs.statSync(path.join(directory, file)).isDirectory()) {

@@ -2,7 +2,7 @@
  * Handler for Discord event `ready`.
  */
 
-const GuestPassService = require('../service/GuestPassService.js');
+import GuestPassService from '../service/GuestPassService';
 
 module.exports = {
 	name: 'ready',

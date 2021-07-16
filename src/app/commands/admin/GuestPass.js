@@ -1,7 +1,7 @@
 const { SlashCommand, CommandOptionType, ApplicationCommandPermissionType } = require('slash-create');
 const db = require('../../db/db.js');
 const constants = require('../../constants.js');
-const GuestPassService = require('../../service/GuestPassService.js');
+const GuestPassService = require('../../service/GuestPassService');
 const expiresInHours = 168;
 const app = require('../../app.js');
 

@@ -2,7 +2,7 @@ const { SlashCommand, CommandOptionType } = require('slash-create');
 const notionAPI = require('../../api/notion/NotionAPI.js');
 const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
-const app = require('../../app.js');
+const app = require('../../app');
 
 module.exports = class NotionFAQs extends SlashCommand {
 	constructor(creator) {

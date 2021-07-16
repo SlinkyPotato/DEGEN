@@ -1,9 +1,10 @@
 import { SlashCommand, CommandOptionType } from 'slash-create';
-import notionAPI from '../../api/notion/NotionAPI';
 import { Client } from 'discord.js';
+import { Client as NotionClient } from '@notionhq/client';
 const app = require('../../app');
 const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
+const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
 
 module.exports = class NotionFAQs extends SlashCommand {
 	constructor(creator) {
@@ -106,11 +107,10 @@ module.exports = class NotionFAQs extends SlashCommand {
 module.exports.retrieveFAQsPromise = async () => {
 	const faqs = [];
 	const numberRegex = /^[0-9]./;
-	const response = await notionAPI.get(
-		notionAPI.defaults.baseUrl +
-            `blocks/${process.env.FAQS_PAGE_ID}/children`,
-	);
-	response.data.results.forEach((obj) => {
+	const response = await notion.blocks.children.list({
+		block_id: process.env.FAQS_PAGE_ID
+	})
+	response.results.forEach((obj) => {
 		if (obj.type === 'paragraph' && obj.paragraph.text.length > 0) {
 			// Check and add question to list
 			if (numberRegex.test(obj.paragraph.text[0].plain_text)) {

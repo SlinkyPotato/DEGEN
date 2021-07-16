@@ -17,7 +17,7 @@ const creator = new SlashCreator({
 creator
 	.withServer(
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-expect-error
+		// @ts-ignore
 		new GatewayServer((handler) => client.ws.on('INTERACTION_CREATE', handler)),
 	)
 	.registerCommandsIn(path.join(__dirname, 'commands'))

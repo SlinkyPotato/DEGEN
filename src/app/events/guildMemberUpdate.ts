@@ -2,7 +2,7 @@
  * Handler for Discord event `guildMemberUpdate`.
  */
 
-import GuestPassService, { updateNotionGuestPassDatabase } from '../service/GuestPassService';
+import { updateNotionGuestPassDatabase } from '../service/GuestPassService';
 import constants from '../constants';
 
 module.exports = {
@@ -24,5 +24,5 @@ module.exports = {
 				updateNotionGuestPassDatabase(newMember.user.tag, false);
 			}
 		}
-	}
-}
+	},
+};

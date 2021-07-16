@@ -1,5 +1,5 @@
 import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType, CommandContext } from 'slash-create';
-import db from '../../db/db.js';
+import db from '../../db/db';
 import constants from '../../constants';
 import { retrieveGuestRole } from '../../service/GuestPassService';
 import { Client } from 'discord.js';

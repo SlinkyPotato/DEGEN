@@ -1,4 +1,7 @@
-const MongoClient = require('mongodb').MongoClient;
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
+import mongodb from 'mongodb';
+const MongoClient = mongodb.MongoClient;
 
 const state = {
 	db: null,
@@ -8,16 +11,14 @@ const db = {
 	connect(url, done) {
 		if (state.db) {
 			return done();
-		}
-		else {
+		} else {
 			MongoClient.connect(
 				url,
 				{ useUnifiedTopology: true },
 				(err, client) => {
 					if (err) {
 						return console.error(err);
-					}
-					else {
+					} else {
 						state.db = client.db('bankless');
 						done();
 					}
@@ -42,4 +43,4 @@ const db = {
 	},
 };
 
-module.exports = db;
+export default db;

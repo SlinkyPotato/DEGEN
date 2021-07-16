@@ -3,9 +3,10 @@ const db = require('../../db/db.js');
 const constants = require('../../constants.js');
 const GuestPassService = require('../../service/GuestPassService.js');
 const expiresInHours = 168;
+const app = require('../../app.js');
 
 module.exports = class GuestPass extends SlashCommand {
-	constructor(creator, client) {
+	constructor(creator) {
 		super(creator, {
 			name: 'guest-pass',
 			description: 'Grant a temporary guest pass to a user',
@@ -33,19 +34,18 @@ module.exports = class GuestPass extends SlashCommand {
 				],
 			},
 		});
-
-		this.client = client;
 		this.filePath = __filename;
 	}
 
 	async run(ctx) {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
+		this.client = app.client;
 
 		const guild = await this.client.guilds.fetch(ctx.guildID);
+
 		// Guild member to assign guest pass role
-		// const guildMember = await guild.members.cache.get(ctx.options.user);
-		const guildMember = await guild.members.fetch(ctx.options.user);
+		const guildMember = await guild.members.fetch(ctx.user.id);
 
 		if (guildMember.user.bot) {
 			ctx.send('Bots don\'t need a guest pass!');

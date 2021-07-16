@@ -16,8 +16,7 @@ const creator = new SlashCreator({
 // Register command handlers
 creator
 	.withServer(
-		new GatewayServer((handler) => client.ws.on('INTERACTION_CREATE', handler),
-		),
+		new GatewayServer((handler) => client.ws.on('INTERACTION_CREATE', handler)),
 	)
 	.registerCommandsIn(path.join(__dirname, 'commands'))
 	.syncCommands();
@@ -47,3 +46,5 @@ function initializeEvents() {
 		}
 	}
 }
+
+module.exports.client = client;

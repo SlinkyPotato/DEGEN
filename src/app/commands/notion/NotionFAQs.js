@@ -2,40 +2,40 @@ const { SlashCommand, CommandOptionType } = require('slash-create');
 const notionAPI = require('../../api/notion/NotionAPI.js');
 const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
+const app = require('../../app.js');
 
 module.exports = class NotionFAQs extends SlashCommand {
-    constructor(creator, client) {
-        super(creator, {
-            name: "faqs",
-            description: "Get frequently asked questions",
-            guildIDs: process.env.DISCORD_SERVER_ID,
-            options: [
-                {
-                    type: CommandOptionType.STRING,
-                    name: "question",
-                    description: "Do you have a specific question?"
-                }
-            ], 
+	constructor(creator) {
+		super(creator, {
+			name: 'faqs',
+			description: 'Get frequently asked questions',
+			guildIDs: process.env.DISCORD_SERVER_ID,
+			options: [
+				{
+					type: CommandOptionType.STRING,
+					name: 'question',
+					description: 'Do you have a specific question?',
+				},
+			],
 			throttling: {
 				usages: 2,
-				duration: 1
-			}
-        });
+				duration: 1,
+			},
+		});
 
-		this.client = client;
-        this.filePath = __filename;
-    }
+		this.filePath = __filename;
+	}
 
-    async run(ctx) {
+	async run(ctx) {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
+		this.client = app.client;
 
-		const guildMember = this.client.guilds.cache
-			.get(ctx.guildID).members.cache
-			.get(ctx.user.id)
+		const guild = await this.client.guilds.fetch(ctx.guildID);
+		const guildMember = await guild.members.fetch(ctx.user.id);
 			
 		const faqs = await module.exports.retrieveFAQsPromise();
-        const faqQuestion = String(ctx.options.question)
+		const faqQuestion = String(ctx.options.question);
 		let replyStr = '**Frequently Asked Questions**: ' + FAQ_URL + ' \n\n';
 		if (
 			faqQuestion === 'n' ||
@@ -61,13 +61,9 @@ module.exports = class NotionFAQs extends SlashCommand {
 
 			// Search for existing question
 			for (let i = 0; i++; i < faqs.length) {
-				const cleanQuestion = faqs.question.substring(
-					3,
-					faqs.question.length - 1,
-				);
+				const cleanQuestion = faqs.question.substring(3, faqs.question.length - 1);
 				if (cleanQuestion === validQuestion) {
-					replyStr +=
-                        cleanQuestion + '\n' + 'Answer: ' + faqs.answer + '\n';
+					replyStr += cleanQuestion + '\n' + 'Answer: ' + faqs.answer + '\n';
 					return ctx.send(replyStr);
 				}
 			}
@@ -101,8 +97,7 @@ module.exports = class NotionFAQs extends SlashCommand {
                 'Answer: ' +
                 faqs[highestMatchingIndex].answer +
                 '\n';
-			ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
-			return guildMember.send(replyStr.substring(0, 1950));
+			return ctx.send(replyStr.substring(0, 1950));
 		}
 	}
 };

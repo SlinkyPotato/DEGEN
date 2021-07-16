@@ -1,7 +1,9 @@
+import { CommandContext, SlashCreator } from 'slash-create';
+
 const { SlashCommand, CommandOptionType } = require('slash-create');
 
 module.exports = class Bounty extends SlashCommand {
-	constructor(creator, client) {
+	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'bounty',
 			description: 'List, create, and claim bounties',
@@ -30,7 +32,7 @@ module.exports = class Bounty extends SlashCommand {
 		});
 	}
 
-	async run(ctx) {
+	async run(ctx: CommandContext) {
 		if (ctx.user.bot) return;
 
 		switch (ctx.options.operation) {

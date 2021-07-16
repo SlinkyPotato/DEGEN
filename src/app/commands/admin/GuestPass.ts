@@ -1,9 +1,9 @@
-import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType } from 'slash-create';
+import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType, CommandContext } from 'slash-create';
 import db from '../../db/db.js';
 import constants from '../../constants';
 import { retrieveGuestRole } from '../../service/GuestPassService';
 import { Client } from 'discord.js';
-const client: Client = require('../../app.js');
+const app = require('../../app.js');
 
 const expiresInHours = 168;
 
@@ -39,9 +39,11 @@ module.exports = class GuestPass extends SlashCommand {
 		this.filePath = __filename;
 	}
 
-	async run(ctx) {
+	async run(ctx: CommandContext) {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
+
+		const client: Client = app.client;
 
 		const guild = await client.guilds.fetch(ctx.guildID);
 

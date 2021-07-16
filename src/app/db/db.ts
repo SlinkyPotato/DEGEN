@@ -1,21 +1,19 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import mongodb from 'mongodb';
-const MongoClient = mongodb.MongoClient;
+import { Db, MongoClient, MongoError } from 'mongodb';
 
-const state = {
+const state: {db: Db, mode} = {
 	db: null,
+	mode: null,
 };
 
 const db = {
-	connect(url, done) {
+	connect(url: string, done: (error?: MongoError) => void): void {
 		if (state.db) {
 			return done();
 		} else {
 			MongoClient.connect(
 				url,
 				{ useUnifiedTopology: true },
-				(err, client) => {
+				(err: MongoError, client: MongoClient) => {
 					if (err) {
 						return console.error(err);
 					} else {
@@ -27,19 +25,8 @@ const db = {
 		}
 	},
 
-	get() {
+	get(): Db {
 		return state.db;
-	},
-
-	close(done) {
-		if (state.db) {
-			state.db.close((err) => {
-				// state.db.close((err, result) => {
-				state.db = null;
-				state.mode = null;
-				done(err);
-			});
-		}
 	},
 };
 

@@ -1,10 +1,10 @@
-// Local database user
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-db.createUser(
-	{
-		user: 'dev',
-		pwd: 'pass',
-		roles: [{ role: 'readWrite', db: 'bankless' }],
-	},
-);
+// // Local database user
+// import db from './db';
+//
+// db.createUser(
+// 	{
+// 		user: 'dev',
+// 		pwd: 'pass',
+// 		roles: [{ role: 'readWrite', db: 'bankless' }],
+// 	},
+// );

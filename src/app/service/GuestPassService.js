@@ -34,8 +34,7 @@ module.exports = async (client) => {
 			if (guestUser.expiresTimestamp <= currentTimestamp) {
 				// Add expired guests to list
 				listOfExpiredGuests.push(guestUser._id);
-			}
-			else {
+			} else {
 				// Add active guests to list
 				listOfActiveGuests.push(guestUser);
 			}

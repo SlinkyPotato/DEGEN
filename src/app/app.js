@@ -1,6 +1,5 @@
 // Libs
 const { SlashCreator, GatewayServer } = require('slash-create');
-const { getFiles } = require('./util/Utility');
 const Discord = require('discord.js');
 const path = require('path');
 const fs = require('fs');
@@ -17,8 +16,7 @@ const creator = new SlashCreator({
 // Register command handlers
 creator
 	.withServer(
-		new GatewayServer((handler) => client.ws.on('INTERACTION_CREATE', handler),
-		),
+		new GatewayServer((handler) => client.ws.on('INTERACTION_CREATE', handler)),
 	)
 	.registerCommandsIn(path.join(__dirname, 'commands'))
 	.syncCommands();
@@ -48,3 +46,5 @@ function initializeEvents() {
 		}
 	}
 }
+
+module.exports.client = client;

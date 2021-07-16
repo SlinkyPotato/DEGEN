@@ -3,7 +3,7 @@ import db from '../../db/db.js';
 import constants from '../../constants';
 import { retrieveGuestRole } from '../../service/GuestPassService';
 import { Client } from 'discord.js';
-const app = require('../../app.js');
+const app = require('../../app');
 
 const expiresInHours = 168;
 

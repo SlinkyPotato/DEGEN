@@ -1,5 +1,5 @@
-const { SlashCommand, CommandOptionType } = require('slash-create');
-const notionPageRefs = require('../../api/notion/NotionGuildPages.js');
+import { SlashCommand, CommandOptionType } from 'slash-create';
+import notionPageRefs from '../../api/notion/NotionGuildPages';
 
 module.exports = class NotionGuildPage extends SlashCommand {
 	constructor(creator) {

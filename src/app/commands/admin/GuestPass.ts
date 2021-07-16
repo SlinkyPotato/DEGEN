@@ -2,7 +2,8 @@ import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType } fro
 import db from '../../db/db.js';
 import constants from '../../constants';
 import { retrieveGuestRole } from '../../service/GuestPassService';
-import client from '../../app';
+import { Client } from 'discord.js';
+const client: Client = require('../../app.js');
 
 const expiresInHours = 168;
 

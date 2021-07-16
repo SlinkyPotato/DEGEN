@@ -1,10 +1,10 @@
 // Libs
 import { SlashCreator, GatewayServer } from 'slash-create';
-import Discord from 'discord.js';
+import Discord, { Client } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
 
-const client = new Discord.Client();
+const client: Client = new Discord.Client();
 initializeEvents();
 
 const creator = new SlashCreator({
@@ -48,4 +48,4 @@ function initializeEvents() {
 	});
 }
 
-export default { client };
+module.exports.client = client;

@@ -1,6 +1,6 @@
 // Libs
 import { SlashCreator, GatewayServer } from 'slash-create';
-import Discord, { Client } from 'discord.js';
+import Discord, { Client, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -16,9 +16,7 @@ const creator = new SlashCreator({
 // Register command handlers
 creator
 	.withServer(
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-expect-error
-		new GatewayServer((handler) => client.ws.on('INTERACTION_CREATE', handler)),
+		new GatewayServer((handler) => client.ws.on(<WSEventType>'INTERACTION_CREATE', handler)),
 	)
 	.registerCommandsIn(path.join(__dirname, 'commands'))
 	.syncCommands();

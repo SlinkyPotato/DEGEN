@@ -2,16 +2,18 @@
 
 const chai = require('chai');
 const assert = chai.assert;
-const notionAPI = require('../../../app/api/notion/NotionAPI.js');
+const { Client } = require('@notionhq/client');
 const notionFaqsCommand = require('../../../app/commands/notion/NotionFAQs.js');
 const nock = require('nock');
 const mockFAQsJsonResponse = require('./retrieve_faqs_mock.json');
+const NotionClient = Client;
+const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
 
 describe('NotionFAQs', () => {
     before(() => {
-        const env = process.env;
+        // const env = process.env;
         process.env = { FAQS_PAGE_ID: '6a2ba0a4-fd1e-4381-b365-6ad5afd418fa' };
-        const scope = nock(notionAPI.defaults.baseUrl)
+        const scope = nock('https://notion.so')
             .get(`/blocks/${process.env.FAQS_PAGE_ID}/children`)
             .reply(200, mockFAQsJsonResponse)
             .persist();

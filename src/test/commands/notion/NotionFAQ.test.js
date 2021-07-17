@@ -13,7 +13,7 @@ describe('NotionFAQs', () => {
     before(() => {
         // const env = process.env;
         process.env = { FAQS_PAGE_ID: '6a2ba0a4-fd1e-4381-b365-6ad5afd418fa' };
-        const scope = nock('https://notion.so')
+        const scope = nock('https://api.notion.com/v1')
             .get(`/blocks/${process.env.FAQS_PAGE_ID}/children`)
             .reply(200, mockFAQsJsonResponse)
             .persist();

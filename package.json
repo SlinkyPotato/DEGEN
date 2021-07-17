@@ -10,7 +10,7 @@
         "qa": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa",
         "prod": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.prod",
         "start": "node --trace-warnings -r dotenv/config dist/app/app.js",
-        "lint": "eslint src/**/*.js --fix",
+        "lint": "eslint src/**/*.ts --fix",
         "format": "prettier --write src/**/*",
         "watch": "tsc -p tsconfig.json -w"
     },

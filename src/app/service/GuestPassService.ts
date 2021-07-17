@@ -19,7 +19,7 @@ export default async (client: DiscordClient): Promise<any> => {
 	// Retrieve Guest Pass Role
 	const guestRole = await module.exports.retrieveGuestRole(guild.roles);
 
-	db.connect(process.env.MONGODB_URI, constants.DB_NAME_DEGEN, async (err) => {
+	db.connect(constants.DB_NAME_DEGEN, async (err) => {
 		if (err) {
 			console.error('ERROR:', err);
 			return;
@@ -59,6 +59,7 @@ export default async (client: DiscordClient): Promise<any> => {
 				console.error('Failed to remove user from DB');
 				continue;
 			}
+			await db.close();
 			console.log(`guest pass removed for ${expiredUserId} in db`);
 
 			guildMember.send(`Hi <@${expiredUserId}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!`);

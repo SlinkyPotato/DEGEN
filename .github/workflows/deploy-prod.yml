@@ -37,7 +37,9 @@ jobs:
                   HD_DISCORD_BOT_PUBLIC_KEY: ${{secrets.PROD_BOT_PUBLIC_KEY}}
                   HD_DISCORD_BOT_APPLICATION_ID: ${{secrets.PROD_BOT_APPLICATION_ID}}
                   HD_DISCORD_OWNER_ID: ${{secrets.PROD_DISCORD_OWNER_ID}}
-                  HD_MONGODB_URI: ${{secrets.PROD_MONGODB_URI}}
+                  HD_MONGODB_USERNAME: ${{secrets.PROD_MONGODB_USERNAME}}
+                  HD_MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}
+                  HD_MONGODB_CLUSTER: ${{secrets.PROD_MONGODB_CLUSTER}}
                   HD_NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
                   HD_FAQS_PAGE_ID: '29353e63-e864-411a-abc0-061d04906c16'
                   HD_DISCORD_SERVER_ID: '834499078434979890'

@@ -1,7 +1,9 @@
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 import db from '../../db/db';
-import { MongoError } from 'mongodb';
+import { MongoClient, MongoError } from 'mongodb';
 import constants from '../../constants';
+
+const BOUNTY_BOARD_URL = 'https://bankless.community';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -81,17 +83,23 @@ module.exports.handleCreateBounty = async (ctx: CommandContext) => {
 			'- accepted currencies: ETH, BANK');
 	}
 
-	// db.connect(process.env.MONGODB_URI, constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
-	// 	if (error) {
-	// 		console.log('ERROR', error);
-	// 		return;
-	// 	}
-	//
-	// 	const dbBounty = db.get().collection(constants.DB_COLLECTION_BOUNTY_BOARD);
-	// 	const newBounty = module.exports.generateBountyRecord(summary, rewardNumber, rewardSymbol, ctx.user.username);
-	//
-	// });
-	return ctx.send('.');
+	db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
+		if (error) {
+			console.log('ERROR', error);
+			return;
+		}
+		const dbBounty = db.get().collection(constants.DB_COLLECTION_BOUNTY_BOARD);
+		const newBounty = module.exports.generateBountyRecord(summary, rewardNumber, rewardSymbol, ctx.user.username);
+		console.log(newBounty);
+		const dbInsertResult = await dbBounty.insertOne(newBounty);
+		if (dbInsertResult == null) {
+			console.error('failed to insert bounty into DB');
+			return;
+		}
+		await db.close();
+		console.log(`user ${ctx.user.username} inserted into db`);
+		return ctx.send(`Bounty is now drafted! Check out the bounty at: ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}`);
+	});
 };
 
 module.exports.validateSummary = (summary: string): {isSummaryValid: boolean, summary: string} => {

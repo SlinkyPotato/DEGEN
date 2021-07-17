@@ -59,7 +59,7 @@ module.exports = class GuestPass extends SlashCommand {
 		const guestRole = await retrieveGuestRole(guild.roles);
 
 		// Open database connection
-		db.connect(process.env.MONGODB_URI, constants.DB_NAME_DEGEN, async (err) => {
+		db.connect(constants.DB_NAME_DEGEN, async (err) => {
 			if (err) {
 				console.error('ERROR:', err);
 				return;
@@ -84,6 +84,8 @@ module.exports = class GuestPass extends SlashCommand {
 				console.error('Failed to insert into DB');
 				return;
 			}
+
+			await db.close();
 			console.log(`user ${guildMember.id} inserted into guestUsers`);
 
 			// Add role to member
@@ -103,7 +105,7 @@ module.exports = class GuestPass extends SlashCommand {
 
 		// Handle removal of guest pass
 		client.setTimeout(() => {
-			db.connect(process.env.MONGODB_URI, constants.DB_NAME_DEGEN, async (err) => {
+			db.connect(constants.DB_NAME_DEGEN, async (err) => {
 				if (err) {
 					console.error('ERROR:', err);
 					return;
@@ -117,6 +119,7 @@ module.exports = class GuestPass extends SlashCommand {
 					console.error('Failed to remove from DB');
 					return;
 				}
+				await db.close();
 				console.log(`guest pass removed for ${guildMember.id} in db`);
 
 				// Remove guest pass role

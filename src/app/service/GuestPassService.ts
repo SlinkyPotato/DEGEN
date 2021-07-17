@@ -1,30 +1,34 @@
-const db = require('../db/db.js');
-const constants = require('./../constants');
-const sleep = require('util').promisify(setTimeout);
-const { Client } = require('@notionhq/client');
+import db from '../db/db';
+import constants from './../constants';
+import sleepTimer from 'util';
+import { Client } from '@notionhq/client';
+import { Client as DiscordClient, Role, RoleManager } from 'discord.js';
+import { MongoError } from 'mongodb';
+import { Page } from '@notionhq/client/build/src/api-types';
 
+const sleep = sleepTimer.promisify(setTimeout);
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
 /**
  * Handle guest pass role background service
  */
-module.exports = async (client) => {
+export default async (client: DiscordClient): Promise<void> => {
 	console.log('starting guest pass service...');
 
 	// Retrieve guild
 	const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID);
-	
+
 	// Retrieve Guest Pass Role
 	const guestRole = await module.exports.retrieveGuestRole(guild.roles);
-	
-	db.connect(process.env.MONGODB_URI, async (err) => {
+
+	db.connect(process.env.MONGODB_URI, async (err: MongoError) => {
 		if (err) {
 			console.error('ERROR:', err);
 			return;
 		}
-		
+
 		const dbGuestUsers = await db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
-		
+
 		// Query all guest pass users from db
 		const dbCursor = await dbGuestUsers.find({});
 		const currentTimestamp = Date.now();
@@ -34,8 +38,7 @@ module.exports = async (client) => {
 			if (guestUser.expiresTimestamp <= currentTimestamp) {
 				// Add expired guests to list
 				listOfExpiredGuests.push(guestUser._id);
-			}
-			else {
+			} else {
 				// Add active guests to list
 				listOfActiveGuests.push(guestUser);
 			}
@@ -44,12 +47,12 @@ module.exports = async (client) => {
 		// Begin removal of guest users
 		for (const expiredUserId of listOfExpiredGuests) {
 			console.log('expired userid: ' + expiredUserId);
-			
+
 			const guildMember = await guild.members.fetch(expiredUserId);
 			await guildMember.roles.remove(guestRole).catch(console.error);
 
 			console.log(`guest pass removed for ${expiredUserId} in discord`);
-			
+
 			const guestDBQuery = {
 				_id: expiredUserId,
 			};
@@ -76,7 +79,7 @@ module.exports = async (client) => {
 			setTimeout(async () => {
 				const guildMember = await guild.members.fetch(activeUser._id);
 				guildMember.send(`Hey <@${activeUser._id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!`);
-				
+
 				// Discord api rate limit of 50 calls per second
 				await sleep(1000);
 			}, Math.max(expiresInMilli - (1000 * 60 * 15), 0));
@@ -85,9 +88,9 @@ module.exports = async (client) => {
 			setTimeout(async () => {
 				const guildMember = await guild.members.fetch(activeUser._id);
 				await guildMember.roles.remove(guestRole).catch(console.error);
-	
+
 				console.log(`guest pass removed for ${activeUser._id} in discord`);
-				
+
 				const guestDBQuery = {
 					_id: activeUser._id,
 				};
@@ -97,24 +100,24 @@ module.exports = async (client) => {
 					return;
 				}
 				console.log(`guest pass removed for ${activeUser._id} in db`);
-	
+
 				guildMember.send(`Hi <@${activeUser._id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
-	
+
 				// Discord api rate limit of 50 calls per second
 				await sleep(1000);
 			}, expiresInMilli);
-			
+
 		}
-		console.log('done guest pass service ready.');
+		console.log('guest pass service ready.');
 	});
 };
 
 // Retrieve the Guest Pass Role from guild
-module.exports.retrieveGuestRole = (roles) => {
+export function retrieveGuestRole(roles: RoleManager): Role {
 	return roles.cache.find((role) => {
 		return role.id === process.env.DISCORD_ROLE_GUEST_PASS;
 	});
-};
+}
 
 /**
  * Creates or updates page in Notion guest pass database.
@@ -122,7 +125,7 @@ module.exports.retrieveGuestRole = (roles) => {
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  * @param {boolean} activeGuestPass	Indicates if user has active guest pass
  */
-module.exports.updateNotionGuestPassDatabase = async (tag, activeGuestPass) => {
+export async function updateNotionGuestPassDatabase(tag: string, activeGuestPass: boolean): Promise<void> {
 	// Check if page exists
 	const page = await module.exports.findGuestPassPageByDiscordTag(tag);
 
@@ -133,13 +136,14 @@ module.exports.updateNotionGuestPassDatabase = async (tag, activeGuestPass) => {
 			properties: {
 				'Guest Pass': {
 					checkbox: activeGuestPass,
+					type: 'checkbox',
 				},
 			},
 		});
 	} else {
 		await notion.pages.create({
 			parent: {
-				database_id: process.env.GUEST_PASS_DATABASE_ID,
+				database_id: process.env.NOTION_GUEST_PASS_DATABASE_ID,
 			},
 			properties: {
 				'Discord Tag': {
@@ -148,30 +152,34 @@ module.exports.updateNotionGuestPassDatabase = async (tag, activeGuestPass) => {
 							text: {
 								content: tag,
 							},
+							type: 'text',
 						},
 					],
+					type: 'title',
 				},
 				Date: {
 					date: {
 						start: new Date().toISOString().split('T')[0],
 					},
+					type: 'date',
 				},
 				'Guest Pass': {
 					checkbox: activeGuestPass,
+					type: 'checkbox',
 				},
 			},
 		});
 	}
-};
+}
 
 /**
  * Return notion page from Guest Pass database for Discord tag
  *
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  */
-module.exports.findGuestPassPageByDiscordTag = async (tag) => {
+export async function findGuestPassPageByDiscordTag(tag: string): Promise<Page> {
 	const response = await notion.databases.query({
-		database_id: process.env.GUEST_PASS_DATABASE_ID,
+		database_id: process.env.NOTION_GUEST_PASS_DATABASE_ID,
 		filter: {
 			property: 'Discord Tag',
 			text: {
@@ -181,4 +189,4 @@ module.exports.findGuestPassPageByDiscordTag = async (tag) => {
 	});
 
 	return response.results[0];
-};
+}

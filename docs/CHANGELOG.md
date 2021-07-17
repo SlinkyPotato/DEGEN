@@ -1,4 +1,8 @@
-# Changlog
+# Changelog
+
+## 1.1.0-SNAPSHOT
+
+1. Add typescript integration and reorder events initialization
 
 ## 1.0.0-RELEASE (2021-07-09)
 

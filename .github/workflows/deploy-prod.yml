@@ -21,6 +21,8 @@ jobs:
               run: yarn format
             - name: Lint Code
               run: yarn lint
+            - name: Build and Compile Typescript
+              run: yarn build
             - name: Run test cases
               run: yarn test --watchAll=false
             - name: Deploy to Heroku Shared Test Environment
@@ -39,6 +41,6 @@ jobs:
                   HD_NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
                   HD_FAQS_PAGE_ID: '29353e63-e864-411a-abc0-061d04906c16'
                   HD_DISCORD_SERVER_ID: '834499078434979890'
-                  HD_GUEST_PASS_DATABASE_ID: '15fae33760724cf7b696a981d53e50cb'
+                  HD_NOTION_GUEST_PASS_DATABASE_ID: '15fae33760724cf7b696a981d53e50cb'
                   HD_DISCORD_ROLE_GUEST_PASS: '848369657281773599'
                   HD_DISCORD_ROLE_LEVEL_2: '839005084016312360'

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	analytics: 'https://www.notion.so/bankless/Analytics-Guild-485d4a2ede91460cac2262af5cca9ae1',
 	av: 'https://www.notion.so/bankless/A-V-Guild-64f9d5b6e62a45dc93391e4d075b40a9',
 	bizdev: 'https://www.notion.so/bankless/BizDev-Guild-c40dfc00a21a436bb7d2d97d47cb2b6b',

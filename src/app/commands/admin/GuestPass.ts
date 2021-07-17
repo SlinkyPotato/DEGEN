@@ -1,9 +1,11 @@
-const { SlashCommand, CommandOptionType, ApplicationCommandPermissionType } = require('slash-create');
-const db = require('../../db/db.js');
-const constants = require('../../constants.js');
-const GuestPassService = require('../../service/GuestPassService.js');
+import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType, CommandContext } from 'slash-create';
+import db from '../../db/db';
+import constants from '../../constants';
+import { retrieveGuestRole } from '../../service/GuestPassService';
+import { Client } from 'discord.js';
+const app = require('../../app');
+
 const expiresInHours = 168;
-const app = require('../../app.js');
 
 module.exports = class GuestPass extends SlashCommand {
 	constructor(creator) {
@@ -37,12 +39,13 @@ module.exports = class GuestPass extends SlashCommand {
 		this.filePath = __filename;
 	}
 
-	async run(ctx) {
+	async run(ctx: CommandContext) {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
-		this.client = app.client;
 
-		const guild = await this.client.guilds.fetch(ctx.guildID);
+		const client: Client = app.client;
+
+		const guild = await client.guilds.fetch(ctx.guildID);
 
 		// Guild member to assign guest pass role
 		const guildMember = await guild.members.fetch(ctx.options.user);
@@ -53,7 +56,7 @@ module.exports = class GuestPass extends SlashCommand {
 		}
 
 		// Retrieve Guest Pass Role
-		const guestRole = await GuestPassService.retrieveGuestRole(guild.roles);
+		const guestRole = await retrieveGuestRole(guild.roles);
 
 		// Open database connection
 		db.connect(process.env.MONGODB_URI, async (err) => {
@@ -90,16 +93,16 @@ module.exports = class GuestPass extends SlashCommand {
 		});
 
 		// Send out notification on timer
-		this.client.setTimeout(() => {
+		client.setTimeout(() => {
 			guildMember.send(`Hey <@${guildMember.id}>, your guest pass is set to expire in 1 day. Let us know if you have any questions!`);
 		}, (expiresInHours * 1000 * 60 * 60) - (1000 * 60 * 60 * 24));
 
-		this.client.setTimeout(() => {
+		client.setTimeout(() => {
 			guildMember.send(`Hey <@${guildMember.id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!`);
 		}, (expiresInHours * 1000 * 60 * 60) - (1000 * 60 * 15));
 
 		// Handle removal of guest pass
-		this.client.setTimeout(() => {
+		client.setTimeout(() => {
 			db.connect(process.env.MONGODB_URI, async (err) => {
 				if (err) {
 					console.error('ERROR:', err);

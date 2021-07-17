@@ -2,7 +2,7 @@
  * Handler for Discord event `guildMemberAdd`.
  */
 
-const { MessageEmbed } = require('discord.js');
+import { MessageEmbed } from 'discord.js';
 
 module.exports = {
 	name: 'guildMemberAdd',

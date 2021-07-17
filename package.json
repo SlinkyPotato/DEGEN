@@ -41,6 +41,7 @@
         "typescript": "^4.3.5"
     },
     "devDependencies": {
+        "@types/mongodb": "^3.6.20",
         "@typescript-eslint/eslint-plugin": "^4.26.0",
         "@typescript-eslint/parser": "^4.26.0",
         "chai": "^4.3.4",

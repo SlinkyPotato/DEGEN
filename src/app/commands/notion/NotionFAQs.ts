@@ -1,8 +1,9 @@
-const { SlashCommand, CommandOptionType } = require('slash-create');
-const notionAPI = require('../../api/notion/NotionAPI.js');
+import { SlashCommand, CommandOptionType } from 'slash-create';
+import notionAPI from '../../api/notion/NotionAPI';
+import { Client } from 'discord.js';
+const app = require('../../app');
 const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
-const app = require('../../app.js');
 
 module.exports = class NotionFAQs extends SlashCommand {
 	constructor(creator) {
@@ -29,9 +30,9 @@ module.exports = class NotionFAQs extends SlashCommand {
 	async run(ctx) {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
-		this.client = app.client;
+		const client: Client = app.client;
 
-		const guild = await this.client.guilds.fetch(ctx.guildID);
+		const guild = await client.guilds.fetch(ctx.guildID);
 		const guildMember = await guild.members.fetch(ctx.user.id);
 			
 		const faqs = await module.exports.retrieveFAQsPromise();

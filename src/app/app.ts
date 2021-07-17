@@ -1,10 +1,10 @@
 // Libs
-const { SlashCreator, GatewayServer } = require('slash-create');
-const Discord = require('discord.js');
-const path = require('path');
-const fs = require('fs');
+import { SlashCreator, GatewayServer } from 'slash-create';
+import Discord, { Client, WSEventType } from 'discord.js';
+import path from 'path';
+import fs from 'fs';
 
-const client = new Discord.Client();
+const client: Client = new Discord.Client();
 initializeEvents();
 
 const creator = new SlashCreator({
@@ -16,7 +16,7 @@ const creator = new SlashCreator({
 // Register command handlers
 creator
 	.withServer(
-		new GatewayServer((handler) => client.ws.on('INTERACTION_CREATE', handler)),
+		new GatewayServer((handler) => client.ws.on(<WSEventType>'INTERACTION_CREATE', handler)),
 	)
 	.registerCommandsIn(path.join(__dirname, 'commands'))
 	.syncCommands();
@@ -36,15 +36,14 @@ client.login(process.env.DISCORD_BOT_TOKEN);
 
 function initializeEvents() {
 	const eventFiles = fs.readdirSync(path.join(__dirname, '/events')).filter(file => file.endsWith('.js'));
-
-	for (const file of eventFiles) {
+	eventFiles.forEach(file => {
 		const event = require(`./events/${file}`);
 		if (event.once) {
 			client.once(event.name, (...args) => event.execute(...args, client));
 		} else {
 			client.on(event.name, (...args) => event.execute(...args, client));
 		}
-	}
+	});
 }
 
 module.exports.client = client;

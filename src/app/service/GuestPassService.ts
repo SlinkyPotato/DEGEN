@@ -1,14 +1,17 @@
-const db = require('../db/db.js');
-const constants = require('./../constants');
-const sleep = require('util').promisify(setTimeout);
-const { Client } = require('@notionhq/client');
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+import db from '../db/db';
+import constants from './../constants';
+import sleepTimer from 'util';
+import { Client } from '@notionhq/client';
 
+const sleep = sleepTimer.promisify(setTimeout);
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
 /**
  * Handle guest pass role background service
  */
-module.exports = async (client) => {
+export default async (client) => {
 	console.log('starting guest pass service...');
 
 	// Retrieve guild
@@ -109,11 +112,11 @@ module.exports = async (client) => {
 };
 
 // Retrieve the Guest Pass Role from guild
-module.exports.retrieveGuestRole = (roles) => {
+export function retrieveGuestRole(roles) {
 	return roles.cache.find((role) => {
 		return role.id === process.env.DISCORD_ROLE_GUEST_PASS;
 	});
-};
+}
 
 /**
  * Creates or updates page in Notion guest pass database.
@@ -121,7 +124,7 @@ module.exports.retrieveGuestRole = (roles) => {
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  * @param {boolean} activeGuestPass	Indicates if user has active guest pass
  */
-module.exports.updateNotionGuestPassDatabase = async (tag, activeGuestPass) => {
+export async function updateNotionGuestPassDatabase(tag, activeGuestPass) {
 	// Check if page exists
 	const page = await module.exports.findGuestPassPageByDiscordTag(tag);
 
@@ -161,14 +164,14 @@ module.exports.updateNotionGuestPassDatabase = async (tag, activeGuestPass) => {
 			},
 		});
 	}
-};
+}
 
 /**
  * Return notion page from Guest Pass database for Discord tag
  *
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  */
-module.exports.findGuestPassPageByDiscordTag = async (tag) => {
+export async function findGuestPassPageByDiscordTag(tag) {
 	const response = await notion.databases.query({
 		database_id: process.env.GUEST_PASS_DATABASE_ID,
 		filter: {
@@ -180,4 +183,4 @@ module.exports.findGuestPassPageByDiscordTag = async (tag) => {
 	});
 
 	return response.results[0];
-};
+}

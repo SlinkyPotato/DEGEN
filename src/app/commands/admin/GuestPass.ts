@@ -59,7 +59,7 @@ module.exports = class GuestPass extends SlashCommand {
 		const guestRole = await retrieveGuestRole(guild.roles);
 
 		// Open database connection
-		db.connect(process.env.MONGODB_URI, async (err) => {
+		db.connect(process.env.MONGODB_URI, constants.DB_NAME_DEGEN, async (err) => {
 			if (err) {
 				console.error('ERROR:', err);
 				return;
@@ -103,7 +103,7 @@ module.exports = class GuestPass extends SlashCommand {
 
 		// Handle removal of guest pass
 		client.setTimeout(() => {
-			db.connect(process.env.MONGODB_URI, async (err) => {
+			db.connect(process.env.MONGODB_URI, constants.DB_NAME_DEGEN, async (err) => {
 				if (err) {
 					console.error('ERROR:', err);
 					return;

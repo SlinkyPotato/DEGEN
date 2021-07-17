@@ -1,10 +1,7 @@
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 import db from '../../db/db';
 import { MongoError } from 'mongodb';
-
-const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,250}$/;
-const ALLOWED_CURRENCIES = ['ETH', 'BANK'];
-const MAXIMUM_REWARD = 100000000;
+import constants from '../../constants';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -16,16 +13,26 @@ module.exports = class Bounty extends SlashCommand {
 				{
 					type: CommandOptionType.STRING,
 					name: 'operation',
-					description: '(list|create|claim)',
+					description: 'Easily view, create, and claim bounties from the bounty board',
 					required: true,
+					choices: [{
+						name: 'list',
+						value: 'list',
+					}, {
+						name: 'create',
+						value: 'create',
+					}, {
+						name: 'claim',
+						value: 'claim',
+					}],
 				},
 				{
-					type: CommandOptionType.SUB_COMMAND,
+					type: CommandOptionType.STRING,
 					name: 'create-summary',
 					description: 'What would you like to be worked on?',
 				},
 				{
-					type: CommandOptionType.SUB_COMMAND,
+					type: CommandOptionType.STRING,
 					name: 'create-reward',
 					description: 'What is the reward? (i.e 100 BANK)',
 				},
@@ -54,9 +61,10 @@ module.exports = class Bounty extends SlashCommand {
 };
 
 module.exports.handleCreateBounty = async (ctx: CommandContext) => {
-	const summary = ctx.options['create-summary'];
+	if (ctx.user.bot) return;
 
-	if (summary == null || !CREATE_SUMMARY_REGEX.test(summary)) {
+	const { isSummaryValid, summary } = module.exports.validateSummary(ctx.options['create-summary']);
+	if (!isSummaryValid) {
 		return ctx.send('' +
 			'Please enter a valid create-summary value: \n ' +
 			'- 250 characters maximum\n ' +
@@ -65,26 +73,70 @@ module.exports.handleCreateBounty = async (ctx: CommandContext) => {
 
 	}
 
-	const createReward = ctx.options['create-reward'];
-	const [reward, rewardSymbol] = (createReward != null) ? createReward.split(' ') : [null, null];
-	const rewardNumber = Number(reward);
-
-	if (rewardNumber != Number.NaN || rewardNumber <= 0 || rewardNumber > MAXIMUM_REWARD
-		|| !ALLOWED_CURRENCIES.includes(rewardSymbol)) {
+	const { isRewardValid, rewardNumber, rewardSymbol } = module.exports.validateReward(ctx.options['create-reward']);
+	if (!isRewardValid) {
 		return ctx.send('' +
 			'Please enter a valid create-reward value: \n ' +
 			'- 100 million maximum currency\n ' +
 			'- accepted currencies: ETH, BANK');
 	}
 
-	// db.connect(process.env.MONGODB_URI, async (error: MongoError) => {
+	// db.connect(process.env.MONGODB_URI, constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
 	// 	if (error) {
 	// 		console.log('ERROR', error);
 	// 		return;
 	// 	}
 	//
-	//
+	// 	const dbBounty = db.get().collection(constants.DB_COLLECTION_BOUNTY_BOARD);
+	// 	const newBounty = module.exports.generateBountyRecord(summary, rewardNumber, rewardSymbol, ctx.user.username);
 	//
 	// });
 	return ctx.send('.');
+};
+
+module.exports.validateSummary = (summary: string): {isSummaryValid: boolean, summary: string} => {
+	const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,250}$/;
+	return {
+		isSummaryValid: !(summary == null || !CREATE_SUMMARY_REGEX.test(summary)),
+		summary: summary,
+	};
+};
+
+module.exports.validateReward = (createReward: string): {isRewardValid: boolean, rewardNumber: number, rewardSymbol: string} => {
+	const ALLOWED_CURRENCIES = ['ETH', 'BANK'];
+	const MAXIMUM_REWARD = 100000000;
+
+	const [reward, symbol] = (createReward != null) ? createReward.split(' ') : [null, null];
+	const rewardNumber = Number(reward);
+
+	return {
+		isRewardValid: !(rewardNumber === Number.NaN || rewardNumber <= 0 || rewardNumber > MAXIMUM_REWARD || !ALLOWED_CURRENCIES.includes(symbol)),
+		rewardNumber: rewardNumber,
+		rewardSymbol: symbol,
+	};
+};
+
+module.exports.generateBountyRecord = (
+	summary: string, rewardAmount: number, currencySymbol: string, discordHandle: string
+) => {
+	const currentTimestamp = Date.now();
+	return {
+		season: process.env.DAO_CURRENT_SEASON,
+		description: summary,
+		reward: {
+			currency: currencySymbol,
+			amount: rewardAmount,
+		},
+		createdBy: {
+			discordHandle: discordHandle,
+		},
+		createdAt: currentTimestamp,
+		statusHistory: [
+			{
+				status: 'Draft',
+				setAt: currentTimestamp,
+			},
+		],
+		idDiscordBotGenerated: true,
+	};
 };

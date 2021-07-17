@@ -6,7 +6,7 @@ const state: {db: Db, mode} = {
 };
 
 const db = {
-	connect(url: string, done: (error?: MongoError) => void): void {
+	connect(url: string, database: string, done: (error?: MongoError) => void): void {
 		if (state.db) {
 			return done();
 		} else {
@@ -17,7 +17,7 @@ const db = {
 					if (err) {
 						return console.error(err);
 					} else {
-						state.db = client.db('bankless');
+						state.db = client.db(database);
 						done();
 					}
 				},

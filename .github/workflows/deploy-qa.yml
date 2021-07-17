@@ -41,5 +41,6 @@ jobs:
                   HD_NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
                   HD_FAQS_PAGE_ID: 'f99e764c-9eb7-4d87-bfc7-fcd93fa93df5'
                   HD_DISCORD_SERVER_ID: '851552281249972254'
+                  HD_NOTION_GUEST_PASS_DATABASE_ID: ''
                   HD_DISCORD_ROLE_GUEST_PASS: '857683488131907624'
                   HD_DISCORD_ROLE_LEVEL_2: '858064540393275413'

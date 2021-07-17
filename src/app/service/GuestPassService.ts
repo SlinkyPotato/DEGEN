@@ -3,6 +3,8 @@ import constants from './../constants';
 import sleepTimer from 'util';
 import { Client } from '@notionhq/client';
 import { Client as DiscordClient, Role, RoleManager } from 'discord.js';
+import { MongoError } from 'mongodb';
+import { Page } from '@notionhq/client/build/src/api-types';
 
 const sleep = sleepTimer.promisify(setTimeout);
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
@@ -10,7 +12,7 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
 /**
  * Handle guest pass role background service
  */
-export default async (client: DiscordClient): Promise<any> => {
+export default async (client: DiscordClient): Promise<void> => {
 	console.log('starting guest pass service...');
 
 	// Retrieve guild
@@ -19,7 +21,7 @@ export default async (client: DiscordClient): Promise<any> => {
 	// Retrieve Guest Pass Role
 	const guestRole = await module.exports.retrieveGuestRole(guild.roles);
 
-	db.connect(constants.DB_NAME_DEGEN, async (err) => {
+	db.connect(constants.DB_NAME_DEGEN, async (err: MongoError) => {
 		if (err) {
 			console.error('ERROR:', err);
 			return;
@@ -124,7 +126,7 @@ export function retrieveGuestRole(roles: RoleManager): Role {
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  * @param {boolean} activeGuestPass	Indicates if user has active guest pass
  */
-export async function updateNotionGuestPassDatabase(tag: string, activeGuestPass: boolean): Promise<any> {
+export async function updateNotionGuestPassDatabase(tag: string, activeGuestPass: boolean): Promise<void> {
 	// Check if page exists
 	const page = await module.exports.findGuestPassPageByDiscordTag(tag);
 
@@ -176,7 +178,7 @@ export async function updateNotionGuestPassDatabase(tag: string, activeGuestPass
  *
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  */
-export async function findGuestPassPageByDiscordTag(tag: string): Promise<any> {
+export async function findGuestPassPageByDiscordTag(tag: string): Promise<Page> {
 	const response = await notion.databases.query({
 		database_id: process.env.NOTION_GUEST_PASS_DATABASE_ID,
 		filter: {

@@ -1,6 +1,6 @@
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 import db from '../../db/db';
-import { MongoClient, MongoError } from 'mongodb';
+import { MongoError } from 'mongodb';
 import constants from '../../constants';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';

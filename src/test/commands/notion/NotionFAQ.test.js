@@ -2,12 +2,9 @@
 
 const chai = require('chai');
 const assert = chai.assert;
-const { Client } = require('@notionhq/client');
 const notionFaqsCommand = require('../../../app/commands/notion/NotionFAQs.js');
 const nock = require('nock');
 const mockFAQsJsonResponse = require('./retrieve_faqs_mock.json');
-const NotionClient = Client;
-const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
 
 describe('NotionFAQs', () => {
     before(() => {

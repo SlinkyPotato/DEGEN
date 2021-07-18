@@ -1,5 +1,7 @@
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 import create from '../../service/bounty/create';
+import list from '../../service/bounty/list';
+import claim from '../../service/bounty/claim';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -79,11 +81,11 @@ module.exports = class Bounty extends SlashCommand {
 		if (ctx.user.bot) return;
 		switch (ctx.subcommands[0]) {
 		case 'list':
-			return ctx.send('there are zero bounties...');
+			return list(ctx);
 		case 'create':
 			return create(ctx);
 		case 'claim':
-			return ctx.send('bounty claimed for id: ');
+			return claim(ctx);
 		default:
 			return ctx.send('no bounty for you! go away');
 		}

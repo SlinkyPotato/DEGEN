@@ -7,8 +7,8 @@ const BOUNTY_BOARD_URL = 'https://bankless.community';
 
 export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
-
-	const { isSummaryValid, summary } = module.exports.validateSummary(ctx.options['create-summary']);
+	console.log(ctx.options.create.summary);
+	const { isSummaryValid, summary } = module.exports.validateSummary(ctx.options.create.summary);
 	if (!isSummaryValid) {
 		return ctx.send('' +
 			'Please enter a valid create-summary value: \n ' +
@@ -18,7 +18,8 @@ export default async (ctx: CommandContext): Promise<any> => {
 
 	}
 
-	const { isRewardValid, rewardNumber, rewardSymbol } = module.exports.validateReward(ctx.options['create-reward']);
+	console.log(ctx.options.create.reward);
+	const { isRewardValid, rewardNumber, rewardSymbol } = module.exports.validateReward(ctx.options.create.reward);
 	if (!isRewardValid) {
 		return ctx.send('' +
 			'Please enter a valid create-reward value: \n ' +

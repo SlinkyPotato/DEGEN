@@ -9,30 +9,63 @@ module.exports = class Bounty extends SlashCommand {
 			guildIDs: process.env.DISCORD_SERVER_ID,
 			options: [
 				{
-					type: CommandOptionType.STRING,
-					name: 'operation',
-					description: 'Easily view, create, and claim bounties from the bounty board',
-					required: true,
-					choices: [{
-						name: 'list',
-						value: 'list',
-					}, {
-						name: 'create',
-						value: 'create',
-					}, {
-						name: 'claim',
-						value: 'claim',
-					}],
+					name: 'claim',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Claim a bounty to work on',
+					options: [
+						{
+							name: 'bounty-id',
+							type: CommandOptionType.STRING,
+							description: 'Hash ID of the bounty',
+							required: true,
+						},
+					],
 				},
 				{
-					type: CommandOptionType.STRING,
-					name: 'create-summary',
-					description: 'What would you like to be worked on?',
+					name: 'create',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Create a bounty for the bounty board',
+					options: [
+						{
+							name: 'summary',
+							type: CommandOptionType.STRING,
+							description: 'What would you like to be worked on?',
+							required: true,
+						},
+						{
+							name: 'reward',
+							type: CommandOptionType.STRING,
+							description: 'What is the reward? (i.e 100 BANK)',
+							required: true,
+						},
+					],
 				},
 				{
-					type: CommandOptionType.STRING,
-					name: 'create-reward',
-					description: 'What is the reward? (i.e 100 BANK)',
+					name: 'list',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'View list of bounties you created or are claimed',
+					options: [
+						{
+							name: 'bounty-type',
+							type: CommandOptionType.STRING,
+							description: 'Which bounties should be displayed?',
+							choices: [
+								{
+									name: 'claimed by me',
+									value: '1',
+								},
+								{
+									name: 'created by me',
+									value: '2',
+								},
+								{
+									name: 'all',
+									value: '3',
+								},
+							],
+							required: true,
+						},
+					],
 				},
 			],
 			throttling: {
@@ -44,8 +77,7 @@ module.exports = class Bounty extends SlashCommand {
 
 	async run(ctx: CommandContext) {
 		if (ctx.user.bot) return;
-
-		switch (ctx.options.operation) {
+		switch (ctx.subcommands[0]) {
 		case 'list':
 			return ctx.send('there are zero bounties...');
 		case 'create':

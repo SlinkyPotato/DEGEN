@@ -31,9 +31,9 @@ export default async (ctx: CommandContext): Promise<any> => {
 			console.log('ERROR', error);
 			return;
 		}
-		const dbBounty = db.get().collection(constants.DB_COLLECTION_BOUNTY_BOARD);
+		const dbBounty = db.get().collection(constants.DB_COLLECTION_BOUNTIES);
 		const newBounty = module.exports.generateBountyRecord(summary, rewardNumber, rewardSymbol, ctx.user.username, ctx.user.id);
-		console.log(newBounty);
+
 		const dbInsertResult = await dbBounty.insertOne(newBounty);
 		if (dbInsertResult == null) {
 			console.error('failed to insert bounty into DB');
@@ -41,7 +41,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 		}
 		await db.close();
 		console.log(`user ${ctx.user.username} inserted into db`);
-		return ctx.send(`<@${ctx.user.id}> Bounty is now drafted! Check out the bounty at: ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}`);
+		return ctx.send(`<@${ctx.user.id}> Bounty is drafted! Please finalize the bounty at ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}`);
 	});
 };
 

@@ -80,7 +80,7 @@ module.exports.generateBountyRecord = (
 		},
 		createdBy: {
 			discordHandle: discordHandle,
-			discordID: discordId
+			discordId: discordId,
 		},
 		createdAt: currentTimestamp,
 		statusHistory: [

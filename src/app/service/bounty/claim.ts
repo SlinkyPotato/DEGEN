@@ -1,7 +1,7 @@
 import { CommandContext } from 'slash-create';
 import db from '../../db/db';
 import constants from '../../constants';
-import { MongoError, UpdateWriteOpResult, WriteOpResult } from 'mongodb';
+import { MongoError, UpdateWriteOpResult } from 'mongodb';
 import mongo from 'mongodb';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
@@ -20,7 +20,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 	db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
 		if (error) {
 			console.log('ERROR', error);
-			return;
+			return ctx.send('Sorry something is not working, our devs are looking into it.');
 		}
 		const dbCollection = await db.get().collection(constants.DB_COLLECTION_BOUNTIES);
 		const dbBountyResult = await dbCollection.findOne({
@@ -33,9 +33,14 @@ export default async (ctx: CommandContext): Promise<any> => {
 			return ctx.send(`Sorry <@${ctx.user.id}>, we're not able to find an open bounty with ID \`${bountyId}\`.`);
 		}
 
-		if (dbBountyResult.claimedBy) {
+		if (dbBountyResult.claimedBy && dbBountyResult.status != 'Open') {
 			console.log(`${bountyId} bounty already claimed by ${dbBountyResult.claimedBy.discordHandle}`);
 			return ctx.send(`Sorry <@${ctx.user.id}>, bounty \`${bountyId}\` already claimed.`);
+		}
+
+		if (dbBountyResult.status != 'Open') {
+			console.log(`${bountyId} bounty is not open`);
+			return ctx.send(`Sorry bounty \`${bountyId}\` is not Open.`);
 		}
 
 		const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
@@ -54,7 +59,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 		}
 
 		await db.close();
-		return ctx.send(`Bounty is now claimed by <@${ctx.user.id}>! Please sign the bounty at ${BOUNTY_BOARD_URL}/${bountyId}`);
+		return ctx.send(`Bounty is now claimed by <@${ctx.user.id}>! Please sign the bounty to begin work at ${BOUNTY_BOARD_URL}/${bountyId}`);
 	});
 };
 

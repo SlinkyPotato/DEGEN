@@ -48,21 +48,21 @@ module.exports = class Bounty extends SlashCommand {
 					description: 'View list of bounties you created or are claimed',
 					options: [
 						{
-							name: 'bounty-type',
+							name: 'list-type',
 							type: CommandOptionType.STRING,
 							description: 'Which bounties should be displayed?',
 							choices: [
 								{
-									name: 'claimed by me',
-									value: '1',
-								},
-								{
 									name: 'created by me',
-									value: '2',
+									value: 'CREATED_BY_ME',
 								},
 								{
-									name: 'all',
-									value: '3',
+									name: 'claimed by me',
+									value: 'CLAIMED_BY_ME',
+								},
+								{
+									name: 'open',
+									value: 'OPEN',
 								},
 							],
 							required: true,

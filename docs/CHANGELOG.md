@@ -1,4 +1,4 @@
-# Changlog
+# Changelog
 
 ## 1.0.0-RELEASE (2021-07-09)
 

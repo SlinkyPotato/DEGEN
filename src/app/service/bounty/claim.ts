@@ -1,8 +1,7 @@
 import { CommandContext } from 'slash-create';
 import db from '../../db/db';
 import constants from '../../constants';
-import { MongoError, UpdateWriteOpResult } from 'mongodb';
-import mongo from 'mongodb';
+import mongo, { MongoError, UpdateWriteOpResult } from 'mongodb';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 
@@ -17,12 +16,13 @@ export default async (ctx: CommandContext): Promise<any> => {
 			` - ${BOUNTY_BOARD_URL}`);
 	}
 
-	db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
+	return db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError): Promise<any> => {
 		if (error) {
-			console.log('ERROR', error);
+			// console.log('ERROR', error);
+			return 'poop';
 			return ctx.send('Sorry something is not working, our devs are looking into it.');
 		}
-		const dbCollection = await db.get().collection(constants.DB_COLLECTION_BOUNTIES);
+		const dbCollection = db.get().collection(constants.DB_COLLECTION_BOUNTIES);
 		const dbBountyResult = await dbCollection.findOne({
 			_id: new mongo.ObjectId(bountyId),
 			status: 'Open',

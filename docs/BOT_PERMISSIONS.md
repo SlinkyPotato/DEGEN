@@ -6,7 +6,8 @@
 - Send Messages
 - Manage Messages
 - Add Reactions
+- Use Slash Commands
 
-Permission Integer: `1879059536`
+Permission Integer: `4026543168`
 
-Invite Link: `https://discord.com/oauth2/authorize?client_id=REPLACE_THIS_HERE&scope=bot&permissions=1879059536`
+Invite Link: `https://discord.com/api/oauth2/authorize?client_id=APP_ID_HERE&permissions=4026543168&scope=bot%20applications.commands`

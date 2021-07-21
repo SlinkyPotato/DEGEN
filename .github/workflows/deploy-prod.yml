@@ -1,14 +1,13 @@
 name: Deploy to Production Environment
 on:
     push:
-        branches: [DEGEN]
-    pull_request:
-        branches: [DEGEN]
+        branches:
+          - 'DEGEN'
 jobs:
     deploy:
         environment:
             name: production
-            url: https://degen-mk1.herokuapp.com/
+            url: https://bankless-dao-degen-bot.herokuapp.com/
         runs-on: ubuntu-20.04
         steps:
             - uses: actions/checkout@v2
@@ -21,20 +20,28 @@ jobs:
               run: yarn format
             - name: Lint Code
               run: yarn lint
+            - name: Build and Compile Typescript
+              run: yarn build
             - name: Run test cases
               run: yarn test --watchAll=false
             - name: Deploy to Heroku Shared Test Environment
               uses: AkhileshNS/heroku-deploy@v3.12.12
               with:
                   heroku_api_key: ${{secrets.PROD_HEROKU_API_KEY}}
-                  heroku_app_name: 'degen-mk1'
+                  heroku_app_name: 'bankless-dao-degen-bot'
                   heroku_email: 'bankless@nonsensecodes.io'
                   procfile: 'worker: yarn prod'
               env:
                   HD_DISCORD_BOT_TOKEN: ${{secrets.PROD_DISCORD_TOKEN}}
+                  HD_DISCORD_BOT_PUBLIC_KEY: ${{secrets.PROD_BOT_PUBLIC_KEY}}
+                  HD_DISCORD_BOT_APPLICATION_ID: ${{secrets.PROD_BOT_APPLICATION_ID}}
                   HD_DISCORD_OWNER_ID: ${{secrets.PROD_DISCORD_OWNER_ID}}
-                  HD_MONGODB_URI: ${{secrets.PROD_MONGODB_URI}}
+                  HD_MONGODB_USERNAME: ${{secrets.PROD_MONGODB_USERNAME}}
+                  HD_MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}
+                  HD_MONGODB_CLUSTER: ${{secrets.PROD_MONGODB_CLUSTER}}
                   HD_NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
                   HD_FAQS_PAGE_ID: '29353e63-e864-411a-abc0-061d04906c16'
                   HD_DISCORD_SERVER_ID: '834499078434979890'
-                  HD_GUEST_PASS_DATABASE_ID: '15fae33760724cf7b696a981d53e50cb'
+                  HD_NOTION_GUEST_PASS_DATABASE_ID: '15fae33760724cf7b696a981d53e50cb'
+                  HD_DISCORD_ROLE_GUEST_PASS: '848369657281773599'
+                  HD_DISCORD_ROLE_LEVEL_2: '839005084016312360'

@@ -15,12 +15,12 @@ services:
   mongo:
     image: mongo:4.4.6
     environment:
-      MONGO_INITDB_DATABASE: bankless
+      MONGO_INITDB_ROOT_USERNAME: dev
+      MONGO_INITDB_ROOT_PASSWORD: pass
     ports:
       - 27017:27017
     volumes:
       - mongodb:/data/db
-      - ./src/app/db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
       
 volumes:
   mongodb:

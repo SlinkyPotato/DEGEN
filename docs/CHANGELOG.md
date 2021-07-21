@@ -1,4 +1,9 @@
-# Changlog
+# Changelog
+
+## 1.1.0-RELEASE (2021-07-21)
+
+1. Add typescript integration and reorder events initialization
+2. Fix raw event failure, add support for multiple databases
 
 ## 1.0.0-RELEASE (2021-07-09)
 

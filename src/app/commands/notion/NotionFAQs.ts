@@ -1,36 +1,50 @@
-const { Command } = require('discord.js-commando');
-const notionAPI = require('../../api/notion/NotionAPI.js');
-
+import { SlashCommand, CommandOptionType } from 'slash-create';
+import { Client } from 'discord.js';
+import { Client as NotionClient } from '@notionhq/client';
+const app = require('../../app');
 const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
+const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
 
-module.exports = class NotionCommand extends Command {
-	constructor(client) {
-		super(client, {
-			name: 'notion-faqs',
-			aliases: ['notionfaqs'],
-			group: 'notion',
-			memberName: 'notion-faqs',
-			description: 'Get answers to commonly asked questions.',
-			args: [
+module.exports = class NotionFAQs extends SlashCommand {
+	constructor(creator) {
+		super(creator, {
+			name: 'faqs',
+			description: 'Get frequently asked questions',
+			guildIDs: process.env.DISCORD_SERVER_ID,
+			options: [
 				{
-					key: 'faqQuestion',
-					prompt: 'Do you have a specific question? (default: no)',
-					type: 'string',
-					default: 'no',
+					type: CommandOptionType.STRING,
+					name: 'question',
+					description: 'Do you have a specific question?',
 				},
 			],
+			throttling: {
+				usages: 2,
+				duration: 1,
+			},
 		});
+
+		this.filePath = __filename;
 	}
 
-	async run(msg, { faqQuestion }) {
+	async run(ctx) {
+		// Ignores commands from bots
+		if (ctx.user.bot) return;
+		const client: Client = app.client;
+
+		const guild = await client.guilds.fetch(ctx.guildID);
+		const guildMember = await guild.members.fetch(ctx.user.id);
+			
 		const faqs = await module.exports.retrieveFAQsPromise();
+		const faqQuestion = String(ctx.options.question);
 		let replyStr = '**Frequently Asked Questions**: ' + FAQ_URL + ' \n\n';
 		if (
 			faqQuestion === 'n' ||
             faqQuestion === 'no' ||
             faqQuestion === 'nah' ||
-            faqQuestion === ''
+            faqQuestion === '' ||
+            faqQuestion === 'undefined'
 		) {
 			// No question asked, return a few FAQs
 			faqs.forEach((faq) => {
@@ -38,10 +52,9 @@ module.exports = class NotionCommand extends Command {
 				const answer = '\n' + faq.answer.trim() + '\n';
 				replyStr = replyStr + question + answer + '\n';
 			});
-			msg.reply('Sent you a DM with information.');
-			return msg.author.send(replyStr.substring(0, 1950));
-		}
-		else {
+			ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+			return guildMember.send(replyStr.substring(0, 1950));
+		} else {
 			// Try to find the answer to the given question
 			const validQuestion = faqQuestion.replace(/[^\w\s]/gi, '');
 
@@ -50,14 +63,10 @@ module.exports = class NotionCommand extends Command {
 
 			// Search for existing question
 			for (let i = 0; i++; i < faqs.length) {
-				const cleanQuestion = faqs.question.substring(
-					3,
-					faqs.question.length - 1,
-				);
+				const cleanQuestion = faqs.question.substring(3, faqs.question.length - 1);
 				if (cleanQuestion === validQuestion) {
-					replyStr +=
-                        cleanQuestion + '\n' + 'Answer: ' + faqs.answer + '\n';
-					return msg.say(replyStr);
+					replyStr += cleanQuestion + '\n' + 'Answer: ' + faqs.answer + '\n';
+					return ctx.send(replyStr);
 				}
 			}
 			// Search for close enough answer
@@ -90,19 +99,18 @@ module.exports = class NotionCommand extends Command {
                 'Answer: ' +
                 faqs[highestMatchingIndex].answer +
                 '\n';
-			return msg.say(replyStr);
+			return ctx.send(replyStr.substring(0, 1950));
 		}
 	}
 };
 
-module.exports.retrieveFAQsPromise = async function() {
+module.exports.retrieveFAQsPromise = async () => {
 	const faqs = [];
 	const numberRegex = /^[0-9]./;
-	const response = await notionAPI.get(
-		notionAPI.defaults.baseUrl +
-            `blocks/${process.env.FAQS_PAGE_ID}/children`,
-	);
-	response.data.results.forEach((obj) => {
+	const response = await notion.blocks.children.list({
+		block_id: process.env.FAQS_PAGE_ID
+	})
+	response.results.forEach((obj) => {
 		if (obj.type === 'paragraph' && obj.paragraph.text.length > 0) {
 			// Check and add question to list
 			if (numberRegex.test(obj.paragraph.text[0].plain_text)) {
@@ -111,8 +119,7 @@ module.exports.retrieveFAQsPromise = async function() {
 					answer: '',
 				});
 				return;
-			}
-			else {
+			} else {
 				// This is an answer
 				const paragraphContent = obj.paragraph.text
 					.map((element) => {
@@ -121,8 +128,7 @@ module.exports.retrieveFAQsPromise = async function() {
 					.join(' ');
 				faqs[faqs.length - 1].answer += ' ' + paragraphContent;
 			}
-		}
-		else if (
+		} else if (
 			obj.type === 'bulleted_list_item' &&
             obj.bulleted_list_item.text.length > 0
 		) {

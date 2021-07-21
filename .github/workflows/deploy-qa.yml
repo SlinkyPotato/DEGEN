@@ -1,9 +1,13 @@
 name: Deploy to QA Environment
 on:
     push:
-        branches: [develop]
+        branches:
+          - 'develop'
     pull_request:
-        branches: [develop]
+        branches:
+          - 'develop'
+          - 'release/**'
+          - 'DEGEN'
 jobs:
     deploy:
         environment:
@@ -21,6 +25,8 @@ jobs:
               run: yarn format
             - name: Lint Code
               run: yarn lint
+            - name: Build and Compile Typescript
+              run: yarn build
             - name: Run test cases
               run: yarn test --watchAll=false
             - name: Deploy to Heroku Shared Test Environment
@@ -32,8 +38,15 @@ jobs:
                   procfile: 'worker: yarn qa'
               env:
                   HD_DISCORD_BOT_TOKEN: ${{secrets.QA_DISCORD_TOKEN}}
+                  HD_DISCORD_BOT_PUBLIC_KEY: ${{secrets.QA_BOT_PUBLIC_KEY}}
+                  HD_DISCORD_BOT_APPLICATION_ID: ${{secrets.QA_BOT_APPLICATION_ID}}
                   HD_DISCORD_OWNER_ID: ${{secrets.QA_DISCORD_OWNER_ID}}
-                  HD_MONGODB_URI: ${{secrets.QA_MONGODB_URI}}
+                  HD_MONGODB_USERNAME: ${{secrets.QA_MONGODB_USERNAME}}
+                  HD_MONGODB_PASS: ${{secrets.QA_MONGODB_PASS}}
+                  HD_MONGODB_CLUSTER: ${{secrets.QA_MONGODB_CLUSTER}}
                   HD_NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
                   HD_FAQS_PAGE_ID: 'f99e764c-9eb7-4d87-bfc7-fcd93fa93df5'
                   HD_DISCORD_SERVER_ID: '851552281249972254'
+                  HD_NOTION_GUEST_PASS_DATABASE_ID: '30087b23eab34e93a200ed3603eb5e95'
+                  HD_DISCORD_ROLE_GUEST_PASS: '857683488131907624'
+                  HD_DISCORD_ROLE_LEVEL_2: '858064540393275413'

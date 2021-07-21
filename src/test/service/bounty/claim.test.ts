@@ -43,7 +43,7 @@ describe('BountyTest', () => {
 			//
 			// sinon.replace(db, 'connect', sinon.fake.returns(console.error));
 
-			const result = await claim(ctx);
+			const result = await (await claim(ctx));
 
 			assert.equal(result, 'Sorry something is not working, our devs are looking into it.');
 

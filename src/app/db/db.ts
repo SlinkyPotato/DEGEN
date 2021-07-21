@@ -1,32 +1,39 @@
 import { Db, MongoClient, MongoError } from 'mongodb';
+import constants from '../constants';
 
-const state: {db: Db, mode} = {
+const state: {db: Db, client: MongoClient, mode} = {
 	db: null,
+	client: null,
 	mode: null,
 };
 
 const db = {
-	connect(url: string, done: (error?: MongoError) => void): void {
-		if (state.db) {
-			return done();
-		} else {
+	connect(database: string, done: (error?: MongoError) => Promise<any>): Promise<any> {
+		try {
 			MongoClient.connect(
-				url,
+				constants.MONGODB_URI_PARTIAL + database + constants.MONGODB_OPTIONS,
 				{ useUnifiedTopology: true },
-				(err: MongoError, client: MongoClient) => {
+				async (err: MongoError, client: MongoClient) => {
 					if (err) {
-						return console.error(err);
+						return done(err);
 					} else {
-						state.db = client.db('bankless');
-						done();
+						state.db = client.db(database);
+						state.client = client;
+						return done();
 					}
 				},
 			);
+		} catch (e) {
+			return done(e);
 		}
 	},
 
 	get(): Db {
 		return state.db;
+	},
+
+	close(): Promise<void> {
+		return state.client.close();
 	},
 };
 

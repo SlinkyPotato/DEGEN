@@ -1,7 +1,8 @@
 name: Deploy to Production Environment
 on:
     push:
-        branches: [DEGEN]
+        branches:
+          - 'DEGEN'
 jobs:
     deploy:
         environment:

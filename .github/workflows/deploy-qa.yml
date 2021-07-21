@@ -3,7 +3,7 @@ on:
     push:
         branches: [develop]
     pull_request:
-        branches: [develop, release/*]
+        branches: [develop, 'release/*']
 jobs:
     deploy:
         environment:

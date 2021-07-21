@@ -21,7 +21,7 @@ export default async (client: DiscordClient): Promise<void> => {
 	// Retrieve Guest Pass Role
 	const guestRole = await module.exports.retrieveGuestRole(guild.roles);
 
-	db.connect(process.env.MONGODB_URI, async (err: MongoError) => {
+	db.connect(constants.DB_NAME_DEGEN, async (err: MongoError) => {
 		if (err) {
 			console.error('ERROR:', err);
 			return;
@@ -61,9 +61,10 @@ export default async (client: DiscordClient): Promise<void> => {
 				console.error('Failed to remove user from DB');
 				continue;
 			}
+			await db.close();
 			console.log(`guest pass removed for ${expiredUserId} in db`);
 
-			guildMember.send(`Hi <@${expiredUserId}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!`);
+			await guildMember.send(`Hi <@${expiredUserId}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!`);
 
 			// discord api rate limit of 50 calls per second
 			await sleep(1000);
@@ -101,7 +102,7 @@ export default async (client: DiscordClient): Promise<void> => {
 				}
 				console.log(`guest pass removed for ${activeUser._id} in db`);
 
-				guildMember.send(`Hi <@${activeUser._id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
+				await guildMember.send(`Hi <@${activeUser._id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
 
 				// Discord api rate limit of 50 calls per second
 				await sleep(1000);
@@ -177,7 +178,7 @@ export async function updateNotionGuestPassDatabase(tag: string, activeGuestPass
  *
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  */
-export async function findGuestPassPageByDiscordTag(tag: string): Promise<Page> {
+module.exports.findGuestPassPageByDiscordTag = async (tag: string): Promise<Page> => {
 	const response = await notion.databases.query({
 		database_id: process.env.NOTION_GUEST_PASS_DATABASE_ID,
 		filter: {
@@ -189,4 +190,4 @@ export async function findGuestPassPageByDiscordTag(tag: string): Promise<Page> 
 	});
 
 	return response.results[0];
-}
+};

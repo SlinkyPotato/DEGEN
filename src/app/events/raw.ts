@@ -6,7 +6,7 @@ module.exports = {
 	name: 'raw',
 	once: false,
 
-	async execute(packet, client) {
+	async execute(packet, zeroValue, client) {
 		if (
 			!['MESSAGE_REACTION_ADD', 'MESSAGE_REACTION_REMOVE'].includes(packet.t)
 		) {

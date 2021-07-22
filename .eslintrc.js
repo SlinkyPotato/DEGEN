@@ -60,8 +60,8 @@ module.exports = {
 		'@typescript-eslint/no-unused-vars': [
 			2,
 			{
-				'argsIgnorePattern': '^_'
-			}
-		]
+				'argsIgnorePattern': '^_',
+			},
+		],
 	},
 };

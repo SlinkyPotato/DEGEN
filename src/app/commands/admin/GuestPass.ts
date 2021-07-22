@@ -2,8 +2,8 @@ import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType, Comm
 import db from '../../db/db';
 import constants from '../../constants';
 import { retrieveGuestRole } from '../../service/GuestPassService';
-import { Client } from 'discord.js';
-const app = require('../../app');
+import serviceUtils from '../../service/ServiceUtils';
+import client from '../../app';
 
 const expiresInHours = 168;
 
@@ -43,12 +43,8 @@ module.exports = class GuestPass extends SlashCommand {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
 
-		const client: Client = app.client;
-
 		const guild = await client.guilds.fetch(ctx.guildID);
-
-		// Guild member to assign guest pass role
-		const guildMember = await guild.members.fetch(ctx.options.user);
+		const guildMember = await serviceUtils.getGuildMember(ctx);
 
 		if (guildMember.user.bot) {
 			ctx.send('Bots don\'t need a guest pass!');

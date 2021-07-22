@@ -10,7 +10,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 
 	const listType: string = ctx.options.list['list-type'];
 
-	db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
+	return await db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
 		if (error) {
 			console.log('Error', error);
 			return ctx.send('Sorry something is not working, our devs are looking into it.');
@@ -37,10 +37,13 @@ export default async (ctx: CommandContext): Promise<any> => {
 			console.log('invalid list-type');
 			return ctx.send('please use a valid list-type');
 		}
+		if (!await dbRecords.hasNext()) {
+			await db.close();
+			return ctx.send('We couldn\'t find any bounties!');
+		}
+
 		const formattedBountiesReply = await module.exports.formatRecords(dbRecords);
-
 		await db.close();
-
 		return ctx.send(introStr + formattedBountiesReply);
 	});
 };

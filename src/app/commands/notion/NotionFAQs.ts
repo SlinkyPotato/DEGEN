@@ -1,7 +1,6 @@
 import { SlashCommand, CommandOptionType } from 'slash-create';
-import { Client } from 'discord.js';
 import { Client as NotionClient } from '@notionhq/client';
-const app = require('../../app');
+import client from '../../app';
 const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
 const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
@@ -31,7 +30,6 @@ module.exports = class NotionFAQs extends SlashCommand {
 	async run(ctx) {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
-		const client: Client = app.client;
 
 		const guild = await client.guilds.fetch(ctx.guildID);
 		const guildMember = await guild.members.fetch(ctx.user.id);
@@ -109,7 +107,7 @@ module.exports.retrieveFAQsPromise = async () => {
 	const numberRegex = /^[0-9]./;
 	const response = await notion.blocks.children.list({
 		block_id: process.env.FAQS_PAGE_ID
-	})
+	});
 	response.results.forEach((obj) => {
 		if (obj.type === 'paragraph' && obj.paragraph.text.length > 0) {
 			// Check and add question to list

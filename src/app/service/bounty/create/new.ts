@@ -1,26 +1,32 @@
 import { CommandContext } from 'slash-create';
-import db from '../../db/db';
-import constants from '../../constants';
+import db from '../../../db/db';
+import constants from '../../../constants';
 import { MongoError } from 'mongodb';
+import serviceUtils from '../../ServiceUtils';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
+const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
 
 export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
 
-	const { isSummaryValid, summary } = module.exports.validateSummary(ctx.options.create.summary);
+	const guildMember = await serviceUtils.getGuildMember(ctx);
+	const params = ctx.options.create.new;
+	const { isSummaryValid, summary } = module.exports.validateSummary(params.summary);
+
 	if (!isSummaryValid) {
-		return ctx.send(`<@${ctx.user.id}>\n` +
+		await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+		return guildMember.send(`<@${ctx.user.id}>\n` +
 			'Please enter a valid create-summary value: \n ' +
 			'- 250 characters maximum\n ' +
 			'- alphanumeric\n ' +
 			'- special characters: .!@#$%&,?');
-
 	}
 
-	const { isRewardValid, rewardNumber, rewardSymbol } = module.exports.validateReward(ctx.options.create.reward);
+	const { isRewardValid, rewardNumber, rewardSymbol } = module.exports.validateReward(params.reward);
 	if (!isRewardValid) {
-		return ctx.send(`<@${ctx.user.id}>\n` +
+		await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+		return guildMember.send(`<@${ctx.user.id}>\n` +
 			'Please enter a valid create-reward value: \n ' +
 			'- 100 million maximum currency\n ' +
 			'- accepted currencies: ETH, BANK');
@@ -36,12 +42,13 @@ export default async (ctx: CommandContext): Promise<any> => {
 
 		const dbInsertResult = await dbBounty.insertOne(newBounty);
 		if (dbInsertResult == null) {
-			console.error('failed to insert bounty into DB');
-			return;
+			console.error('failed to insert bounty into DB', error);
+			return ctx.send('Sorry something is not working, our devs are looking into it.');
 		}
 		await db.close();
 		console.log(`user ${ctx.user.username} inserted into db`);
-		return ctx.send(`<@${ctx.user.id}> Bounty is drafted! Please finalize the bounty at ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}`);
+		await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+		return guildMember.send(`<@${ctx.user.id}> Bounty drafted! Please finalize the bounty at ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}`);
 	});
 };
 
@@ -67,10 +74,9 @@ module.exports.validateReward = (createReward: string): {isRewardValid: boolean,
 	};
 };
 
-module.exports.generateBountyRecord = (
-	summary: string, rewardAmount: number, currencySymbol: string, discordHandle: string, discordId: string
-) => {
-	const currentTimestamp = Date.now();
+module.exports.generateBountyRecord = (summary: string, rewardAmount: number, currencySymbol: string, discordHandle: string,
+	discordId: string) => {
+	const currentDate = (new Date()).toISOString();
 	return {
 		season: process.env.DAO_CURRENT_SEASON,
 		description: summary,
@@ -82,14 +88,15 @@ module.exports.generateBountyRecord = (
 			discordHandle: discordHandle,
 			discordId: discordId,
 		},
-		createdAt: currentTimestamp,
+		createdAt: currentDate,
 		statusHistory: [
 			{
 				status: 'Draft',
-				setAt: currentTimestamp,
+				setAt: currentDate,
 			},
 		],
 		status: 'Draft',
+		dueDate: END_OF_SEASON,
 		idDiscordBotGenerated: true,
 	};
 };

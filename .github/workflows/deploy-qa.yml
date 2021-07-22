@@ -1,9 +1,13 @@
 name: Deploy to QA Environment
 on:
     push:
-        branches: [develop]
+        branches:
+          - 'develop'
     pull_request:
-        branches: [develop]
+        branches:
+          - 'develop'
+          - 'release/**'
+          - 'DEGEN'
 jobs:
     deploy:
         environment:

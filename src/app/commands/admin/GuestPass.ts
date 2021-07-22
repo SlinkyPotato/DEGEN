@@ -2,7 +2,6 @@ import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType, Comm
 import db from '../../db/db';
 import constants from '../../constants';
 import { retrieveGuestRole } from '../../service/GuestPassService';
-import serviceUtils from '../../service/ServiceUtils';
 import client from '../../app';
 
 const expiresInHours = 168;
@@ -44,7 +43,9 @@ module.exports = class GuestPass extends SlashCommand {
 		if (ctx.user.bot) return;
 
 		const guild = await client.guilds.fetch(ctx.guildID);
-		const guildMember = await serviceUtils.getGuildMember(ctx);
+
+		// Guild member to assign guest pass role
+		const guildMember = await guild.members.fetch(ctx.options.user);
 
 		if (guildMember.user.bot) {
 			ctx.send('Bots don\'t need a guest pass!');

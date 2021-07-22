@@ -4,6 +4,7 @@ import { Cursor, MongoError } from 'mongodb';
 import db from '../../db/db';
 import serviceUtils from '../ServiceUtils';
 import { GuildMember } from 'discord.js';
+import bountyUtils from './BountyUtils';
 
 const DB_RECORD_LIMIT = 10;
 
@@ -11,6 +12,8 @@ export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
 
 	const listType: string = ctx.options.list['list-type'];
+
+	bountyUtils.validateBountyType(listType);
 
 	return await db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
 		if (error) {
@@ -39,7 +42,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 			break;
 		default:
 			console.log('invalid list-type');
-			return ctx.send('please use a valid list-type');
+			return ctx.send(`<@${ctx.user.id}> Please use a valid list-type`);
 		}
 		if (!await dbRecords.hasNext()) {
 			await db.close();

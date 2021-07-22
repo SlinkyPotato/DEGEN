@@ -4,6 +4,8 @@ import list from '../../service/bounty/list';
 import claim from '../../service/bounty/claim';
 import validate from '../../service/bounty/create/validate';
 import serviceUtils from '../../service/ServiceUtils';
+import constants from '../../constants';
+import { GuildMember } from 'discord.js';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -102,20 +104,33 @@ module.exports = class Bounty extends SlashCommand {
 	async run(ctx: CommandContext) {
 		if (ctx.user.bot) return;
 
-		switch (ctx.subcommands[0]) {
-		case 'list':
-			return list(ctx);
-		case 'create':
-			if (ctx.subcommands[1] === 'new') {
-				return create(ctx);
-			} else if (ctx.subcommands[1] === 'validate') {
-				return validate(ctx);
+		try {
+			switch (ctx.subcommands[0]) {
+			case 'list':
+				return list(ctx);
+			case 'create':
+				if (ctx.subcommands[1] === 'new') {
+					return create(ctx);
+				} else if (ctx.subcommands[1] === 'validate') {
+					return validate(ctx);
+				}
+				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
+			case 'claim':
+				return claim(ctx);
+			default:
+				return ctx.send(`${ctx.user.mention} Please try again.`);
 			}
-			return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
-		case 'claim':
-			return claim(ctx);
-		default:
-			return ctx.send(`${ctx.user.mention} Please try again.`);
+		} catch (e) {
+			if (e instanceof ValidationError) {
+				const guildMember: GuildMember = await serviceUtils.getGuildMember(ctx);
+				await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+				return guildMember.send(`<@${ctx.user.id}>\n` +
+					'Please enter a valid bounty hash ID: \n' +
+					' - can be found on bountyboard website\n' +
+					` - ${constants.BOUNTY_BOARD_URL}`);
+			} else {
+				console.error('ERROR', e);
+			}
 		}
 	}
 };

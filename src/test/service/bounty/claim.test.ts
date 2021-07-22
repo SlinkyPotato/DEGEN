@@ -3,10 +3,11 @@ import claim from '../../../app/service/bounty/claim';
 import * as sinon from 'sinon';
 import db from '../../../app/db/db';
 import { MongoClient, MongoError } from 'mongodb';
+import serviceUtils from '../../../app/service/ServiceUtils';
 
 const assert = chai.assert;
 
-describe('BountyTest', () => {
+describe('BountyClaimTest', () => {
 	let ctx;
 
 	beforeEach(() => {
@@ -22,9 +23,16 @@ describe('BountyTest', () => {
 			},
 			send: (message: string) => { return message; },
 		};
+
+		const stub = sinon.stub(serviceUtils, 'getGuildMember');
+		stub.returns({ send: (message) => { return message; } });
 	});
 
-	describe('ClaimTest', () => {
+	afterEach(() => {
+		sinon.restore();
+	});
+
+	describe('Parameter Validation', () => {
 
 		it('should be invalid bountyId', async function() {
 			ctx.options.claim['bounty-id'] = null;
@@ -35,14 +43,17 @@ describe('BountyTest', () => {
 			' - https://bankless.community');
 		});
 
+	});
+
+	describe('Connection Errors', () => {
 		it('should be mongodb error', async () => {
 
 			const mock = sinon.mock(MongoClient);
 			mock.expects('connect').once().throws('bad connection');
+
 			const result = await (await claim(ctx));
 
 			assert.equal(result, 'Sorry something is not working, our devs are looking into it.');
-			sinon.restore();
 		});
 
 	});

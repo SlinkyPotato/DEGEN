@@ -2,7 +2,7 @@ import * as chai from 'chai';
 import claim from '../../../app/service/bounty/claim';
 import * as sinon from 'sinon';
 import db from '../../../app/db/db';
-import { MongoError } from 'mongodb';
+import { MongoClient, MongoError } from 'mongodb';
 
 const assert = chai.assert;
 
@@ -37,22 +37,13 @@ describe('BountyTest', () => {
 
 		it('should be mongodb error', async () => {
 
-			// const fakeDone = (error?: MongoError) => {
-			// 	return error;
-			// };
-			//
-			// sinon.replace(db, 'connect', sinon.fake.returns(console.error));
-
+			const mock = sinon.mock(MongoClient);
+			mock.expects('connect').once().throws('bad connection');
 			const result = await (await claim(ctx));
 
 			assert.equal(result, 'Sorry something is not working, our devs are looking into it.');
-
 			sinon.restore();
 		});
-
-		// after(() => {
-		// 	sinon.restore();
-		// });
 
 	});
 });

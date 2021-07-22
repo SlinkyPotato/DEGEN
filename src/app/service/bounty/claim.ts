@@ -16,10 +16,9 @@ export default async (ctx: CommandContext): Promise<any> => {
 			` - ${BOUNTY_BOARD_URL}`);
 	}
 
-	return db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError): Promise<any> => {
+	return await db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError): Promise<any> => {
 		if (error) {
-			// console.log('ERROR', error);
-			return 'poop';
+			console.log('ERROR', error);
 			return ctx.send('Sorry something is not working, our devs are looking into it.');
 		}
 		const dbCollection = db.get().collection(constants.DB_COLLECTION_BOUNTIES);

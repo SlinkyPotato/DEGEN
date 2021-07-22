@@ -26,10 +26,10 @@ export default async (ctx: CommandContext): Promise<any> => {
 			'- accepted currencies: ETH, BANK');
 	}
 
-	db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
+	await db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
 		if (error) {
 			console.log('ERROR', error);
-			return;
+			return ctx.send('Sorry something is not working, our devs are looking into it.');
 		}
 		const dbBounty = db.get().collection(constants.DB_COLLECTION_BOUNTIES);
 		const newBounty = module.exports.generateBountyRecord(summary, rewardNumber, rewardSymbol, ctx.user.username, ctx.user.id);

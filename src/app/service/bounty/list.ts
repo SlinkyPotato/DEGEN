@@ -2,6 +2,8 @@ import { CommandContext } from 'slash-create';
 import constants from '../../constants';
 import { Cursor, MongoError } from 'mongodb';
 import db from '../../db/db';
+import serviceUtils from '../ServiceUtils';
+import { GuildMember } from 'discord.js';
 
 const DB_RECORD_LIMIT = 10;
 
@@ -13,8 +15,10 @@ export default async (ctx: CommandContext): Promise<any> => {
 	return await db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
 		if (error) {
 			console.log('Error', error);
-			return ctx.send('Sorry something is not working, our devs are looking into it.');
+			return ctx.send(`<@${ctx.user.id}> Sorry something is not working, our devs are looking into it.`);
 		}
+
+		const guildMember: GuildMember = await serviceUtils.getGuildMember(ctx);
 		let dbRecords: Cursor;
 		const dbCollection = await db.get().collection(constants.DB_COLLECTION_BOUNTIES);
 
@@ -39,12 +43,14 @@ export default async (ctx: CommandContext): Promise<any> => {
 		}
 		if (!await dbRecords.hasNext()) {
 			await db.close();
-			return ctx.send('We couldn\'t find any bounties!');
+			return ctx.send(`<@${ctx.user.id}> We couldn't find any bounties!`);
 		}
 
 		const formattedBountiesReply = await module.exports.formatRecords(dbRecords);
 		await db.close();
-		return ctx.send(introStr + formattedBountiesReply);
+
+		await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+		return guildMember.send(introStr + formattedBountiesReply);
 	});
 };
 

@@ -97,6 +97,6 @@ module.exports.generateBountyRecord = (summary: string, rewardAmount: number, cu
 		],
 		status: 'Draft',
 		dueDate: END_OF_SEASON,
-		idDiscordBotGenerated: true,
+		isDiscordBotGenerated: true,
 	};
 };

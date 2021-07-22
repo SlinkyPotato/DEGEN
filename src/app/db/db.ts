@@ -9,7 +9,7 @@ const state: {db: Db, client: MongoClient, mode} = {
 
 const db = {
 	connect(database: string, done: (error?: MongoError) => Promise<any>): Promise<any> {
-		console.log('Connecting to DB');
+		console.log('connecting to DB');
 		try {
 			MongoClient.connect(
 				constants.MONGODB_URI_PARTIAL + database + constants.MONGODB_OPTIONS,

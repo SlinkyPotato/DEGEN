@@ -3,6 +3,7 @@ import create from '../../service/bounty/create/new';
 import list from '../../service/bounty/list';
 import claim from '../../service/bounty/claim';
 import validate from '../../service/bounty/create/validate';
+import serviceUtils from '../../service/ServiceUtils';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -100,6 +101,7 @@ module.exports = class Bounty extends SlashCommand {
 
 	async run(ctx: CommandContext) {
 		if (ctx.user.bot) return;
+
 		switch (ctx.subcommands[0]) {
 		case 'list':
 			return list(ctx);
@@ -109,11 +111,11 @@ module.exports = class Bounty extends SlashCommand {
 			} else if (ctx.subcommands[1] === 'validate') {
 				return validate(ctx);
 			}
-			return ctx.send('Sorry command not found, please try again');
+			return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
 		case 'claim':
 			return claim(ctx);
 		default:
-			return ctx.send('no bounty for you! go away');
+			return ctx.send(`${ctx.user.mention} Please try again.`);
 		}
 	}
 };

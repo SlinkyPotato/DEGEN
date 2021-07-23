@@ -8,7 +8,7 @@ import client from '../app';
 const serviceUtils = {
 	async getGuildMember(ctx: CommandContext): Promise<GuildMember> {
 		const guild = await client.guilds.fetch(ctx.guildID);
-		return await guild.members.fetch(ctx.user.id);
+		return guild.members.fetch(ctx.user.id);
 	},
 };
 

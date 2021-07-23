@@ -16,12 +16,12 @@ const db = {
 				{ useUnifiedTopology: true },
 				async (err: MongoError, client: MongoClient) => {
 					if (err) {
-						return await done(err);
+						return done(err);
 					} else {
 						console.log('connected to DB');
 						state.db = client.db(database);
 						state.client = client;
-						return await done();
+						return done();
 					}
 				},
 			);

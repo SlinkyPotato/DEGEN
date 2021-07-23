@@ -53,7 +53,7 @@ module.exports = class GuestPass extends SlashCommand {
 		}
 
 		// Retrieve Guest Pass Role
-		const guestRole = await retrieveGuestRole(guild.roles);
+		const guestRole = retrieveGuestRole(guild.roles);
 
 		// Open database connection
 		db.connect(constants.DB_NAME_DEGEN, async (err) => {
@@ -62,7 +62,7 @@ module.exports = class GuestPass extends SlashCommand {
 				return;
 			}
 			// DB Connected
-			const dbGuestUsers = await db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
+			const dbGuestUsers = db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
 			const queryOptions = {
 				upsert: true,
 			};

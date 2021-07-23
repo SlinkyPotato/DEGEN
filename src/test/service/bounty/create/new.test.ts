@@ -1,4 +1,4 @@
-describe('BountyNewTest', () => {
+describe('BountyNew', () => {
 	describe('todo', () => {
 		console.log('todo');
 	});

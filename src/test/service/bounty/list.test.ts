@@ -1,11 +1,13 @@
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 import list from '../../../app/service/bounty/list';
+import serviceUtils from '../../../app/service/ServiceUtils';
 
 const assert = chai.assert;
 
-describe('BountyListTest', () => {
+describe('BountyList', () => {
 	let ctx;
+	let serviceUtilsStub;
 
 	beforeEach(() => {
 		ctx = {
@@ -21,9 +23,12 @@ describe('BountyListTest', () => {
 			send: (message: string) => { return message; },
 		};
 
-		afterEach(() => {
-			sinon.restore();
-		});
+		serviceUtilsStub = sinon.stub(serviceUtils, 'getGuildMember');
+		serviceUtilsStub.returns({ send: (message) => { return message; } });
+	});
+
+	afterEach(() => {
+		sinon.restore();
 	});
 
 	describe('Parameter Validation', () => {

@@ -27,10 +27,10 @@ export default async (client: DiscordClient): Promise<void> => {
 			return;
 		}
 
-		const dbGuestUsers = await db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
+		const dbGuestUsers = db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
 
 		// Query all guest pass users from db
-		const dbCursor = await dbGuestUsers.find({});
+		const dbCursor = dbGuestUsers.find({});
 		const currentTimestamp = Date.now();
 		const listOfExpiredGuests = [];
 		const listOfActiveGuests = [];

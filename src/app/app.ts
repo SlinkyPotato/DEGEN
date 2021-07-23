@@ -46,4 +46,4 @@ function initializeEvents() {
 	});
 }
 
-module.exports.client = client;
+export default client;

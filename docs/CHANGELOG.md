@@ -2,6 +2,8 @@
 
 ## 1.2.0-SNAPSHOT
 
+1. Add Bounty slash command
+
 ## 1.1.0-RELEASE (2021-07-21)
 
 1. Integrate slash commands

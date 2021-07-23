@@ -1,4 +1,4 @@
-import BountyUtils from '../../../app/service/bounty/BountyUtils';
+import BountyUtils from '../../app/utils/BountyUtils';
 import assert from 'assert';
 
 describe('BountyUtils', () => {

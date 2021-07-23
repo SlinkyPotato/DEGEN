@@ -1,9 +1,9 @@
 import { CommandContext } from 'slash-create';
-import db from '../../db/db';
+import db from '../../utils/db';
 import constants from '../../constants';
 import mongo, { MongoError, UpdateWriteOpResult } from 'mongodb';
-import BountyUtils from './BountyUtils';
-import serviceUtils from '../ServiceUtils';
+import BountyUtils from '../../utils/BountyUtils';
+import serviceUtils from '../../utils/ServiceUtils';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 

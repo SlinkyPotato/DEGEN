@@ -2,7 +2,7 @@ import * as chai from 'chai';
 import claim from '../../../app/service/bounty/claim';
 import * as sinon from 'sinon';
 import { MongoClient } from 'mongodb';
-import serviceUtils from '../../../app/service/ServiceUtils';
+import serviceUtils from '../../../app/utils/ServiceUtils';
 import { DiscordAPIError } from 'discord.js';
 
 const assert = chai.assert;

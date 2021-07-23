@@ -1,8 +1,8 @@
 import assert from 'assert';
 
-const notionFaqsCommand = require('../../../app/commands/notion/NotionFAQs.js');
+const notionFaqsCommand = require('../../../app/commands/notion/NotionFAQs');
 const nock = require('nock');
-const mockFAQsJsonResponse = require('./retrieve_faqs_mock.json');
+import * as mockFAQsJsonResponse from './retrieve_faqs_mock.json';
 
 describe('NotionFAQs', () => {
 	before(() => {

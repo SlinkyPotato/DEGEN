@@ -1,8 +1,8 @@
-import constants from '../../constants';
+import constants from '../constants';
 import { CommandContext } from 'slash-create';
 import { GuildMember } from 'discord.js';
 
-const ValidationError = require('../../errors/ValidationError');
+const ValidationError = require('../errors/ValidationError');
 
 /**
  * Utilities file for bounty commands

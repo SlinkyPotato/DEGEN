@@ -1,4 +1,4 @@
-import db from '../db/db';
+import db from '../utils/db';
 import constants from './../constants';
 import sleepTimer from 'util';
 import { Client } from '@notionhq/client';

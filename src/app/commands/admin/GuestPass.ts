@@ -1,5 +1,5 @@
 import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType, CommandContext } from 'slash-create';
-import db from '../../db/db';
+import db from '../../utils/db';
 import constants from '../../constants';
 import { retrieveGuestRole } from '../../service/GuestPassService';
 import client from '../../app';

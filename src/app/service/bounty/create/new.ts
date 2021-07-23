@@ -1,8 +1,8 @@
 import { CommandContext } from 'slash-create';
-import db from '../../../db/db';
+import db from '../../../utils/db';
 import constants from '../../../constants';
 import { MongoError } from 'mongodb';
-import serviceUtils from '../../ServiceUtils';
+import serviceUtils from '../../../utils/ServiceUtils';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 const END_OF_SEASON = new Date(2021, 8, 31).toISOString();

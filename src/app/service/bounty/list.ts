@@ -1,9 +1,9 @@
 import { CommandContext } from 'slash-create';
 import constants from '../../constants';
 import { Cursor, MongoError } from 'mongodb';
-import db from '../../db/db';
-import serviceUtils from '../ServiceUtils';
-import BountyUtils from './BountyUtils';
+import db from '../../utils/db';
+import serviceUtils from '../../utils/ServiceUtils';
+import BountyUtils from '../../utils/BountyUtils';
 
 const DB_RECORD_LIMIT = 10;
 

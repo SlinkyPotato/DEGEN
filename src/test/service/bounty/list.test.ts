@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 import list from '../../../app/service/bounty/list';
-import serviceUtils from '../../../app/service/ServiceUtils';
+import serviceUtils from '../../../app/utils/ServiceUtils';
 
 const assert = chai.assert;
 

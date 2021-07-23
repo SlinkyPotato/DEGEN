@@ -1,9 +1,9 @@
 import { CommandContext } from 'slash-create';
 import constants from '../../../constants';
 import mongo, { MongoError, UpdateWriteOpResult } from 'mongodb';
-import db from '../../../db/db';
-import BountyUtils from '../BountyUtils';
-import serviceUtils from '../../ServiceUtils';
+import db from '../../../utils/db';
+import BountyUtils from '../../../utils/BountyUtils';
+import serviceUtils from '../../../utils/ServiceUtils';
 import { GuildMember } from 'discord.js';
 
 export default async (ctx: CommandContext): Promise<any> => {

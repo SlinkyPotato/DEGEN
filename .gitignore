@@ -110,3 +110,5 @@ dist
 *.ipr
 
 build
+
+.DS_Store

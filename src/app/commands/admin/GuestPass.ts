@@ -3,7 +3,6 @@ import db from '../../utils/db';
 import constants from '../../constants';
 import { retrieveGuestRole } from '../../service/GuestPassService';
 import client from '../../app';
-import ServiceUtils from '../../utils/ServiceUtils';
 
 const expiresInHours = 168;
 
@@ -47,7 +46,8 @@ module.exports = class GuestPass extends SlashCommand {
 };
 
 module.exports.grantGuestPass = async (ctx: CommandContext) => {
-	const { guild, guildMember } = await ServiceUtils.getGuildAndMember(ctx);
+	const guild = await client.guilds.fetch(ctx.guildID);
+	const guildMember = await guild.members.fetch(ctx.options.user);
 
 	if (guildMember.user.bot) {
 		return ctx.send('Bots don\'t need a guest pass!');

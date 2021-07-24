@@ -38,10 +38,10 @@ describe('BountyList', () => {
 
 		it('should be invalid bounty-type', async function() {
 			ctx.options.list['list-type'] = 'sadfasdfsdaf';
+
 			try {
 				await list(ctx);
 			} catch (e) {
-				console.log(e);
 				assert.equal(e.message, 'invalid bounty type');
 			}
 		});

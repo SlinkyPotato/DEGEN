@@ -1,8 +1,8 @@
 import * as chai from 'chai';
 import claim from '../../../app/service/bounty/claim';
 import * as sinon from 'sinon';
-import { MongoClient } from 'mongodb';
 import ServiceUtils from '../../../app/utils/ServiceUtils';
+import { MongoClient } from 'mongodb';
 import { DiscordAPIError } from 'discord.js';
 
 const assert = chai.assert;
@@ -72,10 +72,13 @@ describe('BountyClaim', () => {
 		it('should be mongodb error', async () => {
 
 			const mock = sinon.mock(MongoClient);
-			mock.expects('connect').once().throws('bad connection');
-			const result = await (await claim(ctx));
+			mock.expects('connect').throws('bad connection');
 
-			assert.equal(result, 'Sorry something is not working, our devs are looking into it.');
+			try {
+				await claim(ctx);
+			} catch (e) {
+				assert.equal(e.message, 'Sorry something is not working, our devs are looking into it.');
+			}
 		});
 
 		it('should be client api error', async () => {

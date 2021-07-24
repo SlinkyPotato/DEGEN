@@ -5,7 +5,7 @@ const nock = require('nock');
 import * as mockFAQsJsonResponse from './retrieve_faqs_mock.json';
 
 describe('NotionFAQs', () => {
-	before(() => {
+	beforeEach(() => {
 		// const env = process.env;
 		process.env = { FAQS_PAGE_ID: '6a2ba0a4-fd1e-4381-b365-6ad5afd418fa' };
 		nock('https://api.notion.com/v1')

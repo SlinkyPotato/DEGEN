@@ -1,6 +1,6 @@
 import * as sinon from 'sinon';
 import assert from 'assert';
-import ServiceUtils from '../../../app/utils/ServiceUtils';
+import client from '../../../app/app';
 
 const { grantGuestPass } = require('../../../app/commands/admin/GuestPass');
 
@@ -9,13 +9,11 @@ describe('GuestPass', () => {
 
 	beforeEach(() => {
 		ctx = {
-			user: {
-				bot: null,
-				id: '567865362541182987',
-			},
+			guildId: '345345345345345345',
 			options: {
-				claim: {
-					'bounty-id': '60f4af1ab8b8be734402b29b',
+				user: {
+					bot: null,
+					id: '567865362541182987',
 				},
 			},
 			send: (message: string) => {
@@ -31,11 +29,15 @@ describe('GuestPass', () => {
 	describe('User Object Validation', () => {
 
 		it('should be invalid for bot user', async () => {
-			const serviceUtilsMock = sinon.mock(ServiceUtils);
-			serviceUtilsMock.expects('getGuildAndMember').returns({
-				guild: {},
-				guildMember: { user: { bot: true } },
+			const clientMock = sinon.mock(client.guilds);
+			clientMock.expects('fetch').returns({
+				members: {
+					fetch: (_: string) => {
+						return { user: { bot: true } };
+					},
+				},
 			});
+
 			const result = await grantGuestPass(ctx);
 			assert.strictEqual(result, 'Bots don\'t need a guest pass!');
 		});

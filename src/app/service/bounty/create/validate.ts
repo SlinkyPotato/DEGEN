@@ -3,14 +3,13 @@ import constants from '../../../constants';
 import mongo, { MongoError, UpdateWriteOpResult } from 'mongodb';
 import db from '../../../utils/db';
 import BountyUtils from '../../../utils/BountyUtils';
-import serviceUtils from '../../../utils/ServiceUtils';
-import { GuildMember } from 'discord.js';
+import ServiceUtils from '../../../utils/ServiceUtils';
 
 export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
 
 	const bountyId = ctx.options.create.validate['bounty-id'];
-	const guildMember: GuildMember = await serviceUtils.getGuildMember(ctx);
+	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 
 	await BountyUtils.validateBountyId(ctx, guildMember, bountyId);
 

@@ -2,14 +2,14 @@ import * as chai from 'chai';
 import claim from '../../../app/service/bounty/claim';
 import * as sinon from 'sinon';
 import { MongoClient } from 'mongodb';
-import serviceUtils from '../../../app/utils/ServiceUtils';
+import ServiceUtils from '../../../app/utils/ServiceUtils';
 import { DiscordAPIError } from 'discord.js';
 
 const assert = chai.assert;
 
 describe('BountyClaim', () => {
 	let ctx;
-	let serviceUtilsStub;
+	let serviceUtilsMock;
 
 	beforeEach(() => {
 		ctx = {
@@ -25,8 +25,11 @@ describe('BountyClaim', () => {
 			send: (message: string) => { return message; },
 		};
 
-		serviceUtilsStub = sinon.stub(serviceUtils, 'getGuildMember');
-		serviceUtilsStub.returns({ send: (message) => { return message; } });
+		serviceUtilsMock = sinon.mock(ServiceUtils);
+		serviceUtilsMock.expects('getGuildAndMember').returns({
+			guild: {},
+			guildMember: { send: (message) => { return message; } },
+		});
 	});
 
 	afterEach(() => {
@@ -76,10 +79,9 @@ describe('BountyClaim', () => {
 		});
 
 		it('should be client api error', async () => {
-			serviceUtilsStub.restore();
-
-			const mock = sinon.mock(serviceUtils);
-			mock.expects('getGuildMember').once().throws(new DiscordAPIError('', new Error('Mock Discord API Error'), 'GET', 405));
+			serviceUtilsMock.restore();
+			const mock = sinon.mock(ServiceUtils);
+			mock.expects('getGuildAndMember').once().throws(new DiscordAPIError('', new Error('Mock Discord API Error'), 'GET', 405));
 
 			try {
 				await (await claim(ctx));

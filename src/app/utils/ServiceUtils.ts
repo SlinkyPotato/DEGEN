@@ -2,14 +2,17 @@
  * Utilities for service layer
  */
 import { CommandContext } from 'slash-create';
-import { GuildMember } from 'discord.js';
+import { Guild, GuildMember } from 'discord.js';
 import client from '../app';
 
-const serviceUtils = {
-	async getGuildMember(ctx: CommandContext): Promise<GuildMember> {
+const ServiceUtils = {
+	async getGuildAndMember(ctx: CommandContext): Promise<{ guild: Guild, guildMember: GuildMember }> {
 		const guild = await client.guilds.fetch(ctx.guildID);
-		return guild.members.fetch(ctx.user.id);
+		return {
+			guild: guild,
+			guildMember: await guild.members.fetch(ctx.user.id),
+		};
 	},
 };
 
-export default serviceUtils;
+export default ServiceUtils;

@@ -1,7 +1,8 @@
-import * as chai from 'chai';
 import * as sinon from 'sinon';
+import assert from 'assert';
+import ServiceUtils from '../../../app/utils/ServiceUtils';
 
-const assert = chai.assert;
+const { grantGuestPass } = require('../../../app/commands/admin/GuestPass');
 
 describe('GuestPass', () => {
 	let ctx;
@@ -17,7 +18,9 @@ describe('GuestPass', () => {
 					'bounty-id': '60f4af1ab8b8be734402b29b',
 				},
 			},
-			send: (message: string) => { return message; },
+			send: (message: string) => {
+				return message;
+			},
 		};
 	});
 
@@ -25,4 +28,17 @@ describe('GuestPass', () => {
 		sinon.restore();
 	});
 
+	describe('User Object Validation', () => {
+
+		it('should be invalid for bot user', async () => {
+			const serviceUtilsMock = sinon.mock(ServiceUtils);
+			serviceUtilsMock.expects('getGuildAndMember').returns({
+				guild: {},
+				guildMember: { user: { bot: true } },
+			});
+			const result = await grantGuestPass(ctx);
+			assert.strictEqual(result, 'Bots don\'t need a guest pass!');
+		});
+
+	});
 });

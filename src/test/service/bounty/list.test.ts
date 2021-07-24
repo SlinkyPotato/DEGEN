@@ -1,13 +1,13 @@
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 import list from '../../../app/service/bounty/list';
-import serviceUtils from '../../../app/utils/ServiceUtils';
+import ServiceUtils from '../../../app/utils/ServiceUtils';
 
 const assert = chai.assert;
 
 describe('BountyList', () => {
 	let ctx;
-	let serviceUtilsStub;
+	let serviceUtilsMock;
 
 	beforeEach(() => {
 		ctx = {
@@ -23,8 +23,11 @@ describe('BountyList', () => {
 			send: (message: string) => { return message; },
 		};
 
-		serviceUtilsStub = sinon.stub(serviceUtils, 'getGuildMember');
-		serviceUtilsStub.returns({ send: (message) => { return message; } });
+		serviceUtilsMock = sinon.mock(ServiceUtils);
+		serviceUtilsMock.expects('getGuildAndMember').returns({
+			guild: {},
+			guildMember: { send: (message) => { return message; } },
+		});
 	});
 
 	afterEach(() => {

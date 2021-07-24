@@ -21,7 +21,7 @@ export default async (client: DiscordClient): Promise<void> => {
 	// Retrieve Guest Pass Role
 	const guestRole = await module.exports.retrieveGuestRole(guild.roles);
 
-	db.connect(constants.DB_NAME_DEGEN, async (err: MongoError) => {
+	return db.connect(constants.DB_NAME_DEGEN, async (err: MongoError) => {
 		if (err) {
 			console.error('ERROR:', err);
 			return;

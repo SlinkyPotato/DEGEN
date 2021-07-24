@@ -3,7 +3,7 @@ import db from '../../utils/db';
 import constants from '../../constants';
 import mongo, { MongoError, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
-import serviceUtils from '../../utils/ServiceUtils';
+import ServiceUtils from '../../utils/ServiceUtils';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 
@@ -11,7 +11,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
 
 	const bountyId = ctx.options.claim['bounty-id'];
-	const guildMember = await serviceUtils.getGuildMember(ctx);
+	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 	await BountyUtils.validateBountyId(ctx, guildMember, ctx.options.claim['bounty-id']);
 
 	return db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError): Promise<any> => {

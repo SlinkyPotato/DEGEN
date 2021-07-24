@@ -110,3 +110,9 @@ dist
 *.ipr
 
 build
+
+.env.botplays
+.env
+.env.copy
+
+

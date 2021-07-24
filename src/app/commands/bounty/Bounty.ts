@@ -3,9 +3,6 @@ import create from '../../service/bounty/create/new';
 import list from '../../service/bounty/list';
 import claim from '../../service/bounty/claim';
 import validate from '../../service/bounty/create/validate';
-import ServiceUtils from '../../utils/ServiceUtils';
-import constants from '../../constants';
-import { GuildMember } from 'discord.js';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {

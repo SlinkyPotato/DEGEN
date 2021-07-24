@@ -3,6 +3,7 @@
 ## 1.2.0-SNAPSHOT
 
 1. Add Bounty slash command
+2. Add more unit cases for commands
 
 ## 1.1.0-RELEASE (2021-07-21)
 

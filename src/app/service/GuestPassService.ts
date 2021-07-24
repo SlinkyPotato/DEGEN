@@ -1,4 +1,4 @@
-import db from '../db/db';
+import db from '../utils/db';
 import constants from './../constants';
 import sleepTimer from 'util';
 import { Client } from '@notionhq/client';
@@ -21,16 +21,16 @@ export default async (client: DiscordClient): Promise<void> => {
 	// Retrieve Guest Pass Role
 	const guestRole = await module.exports.retrieveGuestRole(guild.roles);
 
-	db.connect(constants.DB_NAME_DEGEN, async (err: MongoError) => {
+	return db.connect(constants.DB_NAME_DEGEN, async (err: MongoError) => {
 		if (err) {
 			console.error('ERROR:', err);
 			return;
 		}
 
-		const dbGuestUsers = await db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
+		const dbGuestUsers = db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
 
 		// Query all guest pass users from db
-		const dbCursor = await dbGuestUsers.find({});
+		const dbCursor = dbGuestUsers.find({});
 		const currentTimestamp = Date.now();
 		const listOfExpiredGuests = [];
 		const listOfActiveGuests = [];

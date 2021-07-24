@@ -1,10 +1,9 @@
 import { CommandContext } from 'slash-create';
 import constants from '../../constants';
 import { Cursor, MongoError } from 'mongodb';
-import db from '../../db/db';
-import serviceUtils from '../ServiceUtils';
-import { GuildMember } from 'discord.js';
-import bountyUtils from './BountyUtils';
+import db from '../../utils/db';
+import ServiceUtils from '../../utils/ServiceUtils';
+import BountyUtils from '../../utils/BountyUtils';
 
 const DB_RECORD_LIMIT = 10;
 
@@ -12,18 +11,18 @@ export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
 
 	const listType: string = ctx.options.list['list-type'];
+	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 
-	bountyUtils.validateBountyType(listType);
+	await BountyUtils.validateBountyType(ctx, guildMember, listType);
 
-	return await db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
+	return db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
 		if (error) {
 			console.log('Error', error);
 			return ctx.send(`<@${ctx.user.id}> Sorry something is not working, our devs are looking into it.`);
 		}
 
-		const guildMember: GuildMember = await serviceUtils.getGuildMember(ctx);
 		let dbRecords: Cursor;
-		const dbCollection = await db.get().collection(constants.DB_COLLECTION_BOUNTIES);
+		const dbCollection = db.get().collection(constants.DB_COLLECTION_BOUNTIES);
 
 		let introStr: string;
 

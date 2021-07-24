@@ -1,26 +1,20 @@
 import { CommandContext } from 'slash-create';
-import db from '../../db/db';
+import db from '../../utils/db';
 import constants from '../../constants';
 import mongo, { MongoError, UpdateWriteOpResult } from 'mongodb';
-import bountyUtils from './BountyUtils';
-import serviceUtils from '../ServiceUtils';
+import BountyUtils from '../../utils/BountyUtils';
+import ServiceUtils from '../../utils/ServiceUtils';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 
 export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
 
-	const guildMember = await serviceUtils.getGuildMember(ctx);
-	const { isBountyIdValid, bountyId } = bountyUtils.validateBountyId(ctx.options.claim['bounty-id']);
-	if (!isBountyIdValid) {
-		await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
-		return guildMember.send(`<@${ctx.user.id}>\n` +
-			'Please enter a valid bounty hash ID: \n' +
-			' - can be found on bountyboard website\n' +
-			` - ${constants.BOUNTY_BOARD_URL}`);
-	}
+	const bountyId = ctx.options.claim['bounty-id'];
+	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
+	await BountyUtils.validateBountyId(ctx, guildMember, ctx.options.claim['bounty-id']);
 
-	return await db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError): Promise<any> => {
+	return db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError): Promise<any> => {
 		if (error) {
 			console.log('ERROR', error);
 			return ctx.send('Sorry something is not working, our devs are looking into it.');

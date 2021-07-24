@@ -1,8 +1,8 @@
 import { CommandContext } from 'slash-create';
-import db from '../../../db/db';
+import db from '../../../utils/db';
 import constants from '../../../constants';
 import { MongoError } from 'mongodb';
-import serviceUtils from '../../ServiceUtils';
+import ServiceUtils from '../../../utils/ServiceUtils';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
@@ -10,7 +10,7 @@ const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
 export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
 
-	const guildMember = await serviceUtils.getGuildMember(ctx);
+	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 	const params = ctx.options.create.new;
 	const { isSummaryValid, summary } = module.exports.validateSummary(params.summary);
 

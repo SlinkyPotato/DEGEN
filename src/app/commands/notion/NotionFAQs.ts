@@ -102,11 +102,11 @@ module.exports = class NotionFAQs extends SlashCommand {
 	}
 };
 
-module.exports.retrieveFAQsPromise = async () => {
+module.exports.retrieveFAQsPromise = async (): Promise<Array<any>> => {
 	const faqs = [];
 	const numberRegex = /^[0-9]./;
 	const response = await notion.blocks.children.list({
-		block_id: process.env.FAQS_PAGE_ID
+		block_id: process.env.FAQS_PAGE_ID,
 	});
 	response.results.forEach((obj) => {
 		if (obj.type === 'paragraph' && obj.paragraph.text.length > 0) {

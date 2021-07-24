@@ -1,26 +1,19 @@
 import { CommandContext } from 'slash-create';
 import constants from '../../../constants';
 import mongo, { MongoError, UpdateWriteOpResult } from 'mongodb';
-import db from '../../../db/db';
-import bountyUtils from '../BountyUtils';
-import serviceUtils from '../../ServiceUtils';
+import db from '../../../utils/db';
+import BountyUtils from '../../../utils/BountyUtils';
+import ServiceUtils from '../../../utils/ServiceUtils';
 
 export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
 
-	const params = ctx.options.create.validate;
-	const guildMember = await serviceUtils.getGuildMember(ctx);
+	const bountyId = ctx.options.create.validate['bounty-id'];
+	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 
-	const { isBountyIdValid, bountyId } = bountyUtils.validateBountyId(params['bounty-id']);
-	if (!isBountyIdValid) {
-		await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
-		return guildMember.send(`<@${ctx.user.id}>\n` +
-			'Please enter a valid bounty hash ID: \n' +
-			' - can be found on bountyboard website\n' +
-			` - ${constants.BOUNTY_BOARD_URL}`);
-	}
+	await BountyUtils.validateBountyId(ctx, guildMember, bountyId);
 
-	return await db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError): Promise<any> => {
+	return db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError): Promise<any> => {
 		if (error) {
 			console.log('ERROR', error);
 			return ctx.send(`<@${ctx.user.id}>Sorry something is not working, our devs are looking into it.`);

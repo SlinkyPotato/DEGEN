@@ -3,7 +3,7 @@
  */
 
 import GuestPassService from '../service/GuestPassService';
-import HttpServer from '../service/HttpServer';
+import ScoapHttpServer from '../service/ScoapHttpServer';
 
 module.exports = {
 	name: 'ready',
@@ -13,6 +13,6 @@ module.exports = {
 		console.log('Discord bot ready!');
 		client.user.setActivity('Going Bankless, Doing the DAO');
 		GuestPassService(client);
-		HttpServer(client);
+		ScoapHttpServer(client);
 	},
 };

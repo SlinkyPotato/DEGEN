@@ -10,5 +10,7 @@ export default Object.freeze({
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
 	BOUNTY_BOARD_URL: 'https://bankless.community',
 
+	SCOAP_HTTP_SERVER_CORS_WHITELIST: ['http://localhost:3000'],
+	SCOAP_HTTP_SERVER_PORT: 5000,
 	SCOAP_SQUAD_CHANNEL_ID: '854401837566001192',
 });

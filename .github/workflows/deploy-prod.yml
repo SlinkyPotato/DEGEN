@@ -1,14 +1,13 @@
 name: Deploy to Production Environment
 on:
     push:
-        branches: [DEGEN]
-    pull_request:
-        branches: [DEGEN]
+        branches:
+          - 'DEGEN'
 jobs:
     deploy:
         environment:
             name: production
-            url: https://degen-mk1.herokuapp.com/
+            url: https://bankless-dao-degen-bot.herokuapp.com/
         runs-on: ubuntu-20.04
         steps:
             - uses: actions/checkout@v2
@@ -29,7 +28,7 @@ jobs:
               uses: AkhileshNS/heroku-deploy@v3.12.12
               with:
                   heroku_api_key: ${{secrets.PROD_HEROKU_API_KEY}}
-                  heroku_app_name: 'degen-mk1'
+                  heroku_app_name: 'bankless-dao-degen-bot'
                   heroku_email: 'bankless@nonsensecodes.io'
                   procfile: 'worker: yarn prod'
               env:
@@ -46,3 +45,4 @@ jobs:
                   HD_NOTION_GUEST_PASS_DATABASE_ID: '15fae33760724cf7b696a981d53e50cb'
                   HD_DISCORD_ROLE_GUEST_PASS: '848369657281773599'
                   HD_DISCORD_ROLE_LEVEL_2: '839005084016312360'
+                  HD_DAO_CURRENT_SEASON: '1'

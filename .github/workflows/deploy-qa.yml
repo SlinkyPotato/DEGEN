@@ -1,9 +1,13 @@
 name: Deploy to QA Environment
 on:
     push:
-        branches: [develop]
+        branches:
+          - 'develop'
     pull_request:
-        branches: [develop]
+        branches:
+          - 'develop'
+          - 'release/**'
+          - 'DEGEN'
 jobs:
     deploy:
         environment:
@@ -46,3 +50,4 @@ jobs:
                   HD_NOTION_GUEST_PASS_DATABASE_ID: '30087b23eab34e93a200ed3603eb5e95'
                   HD_DISCORD_ROLE_GUEST_PASS: '857683488131907624'
                   HD_DISCORD_ROLE_LEVEL_2: '858064540393275413'
+                  HD_DAO_CURRENT_SEASON: '1'

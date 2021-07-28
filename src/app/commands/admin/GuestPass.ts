@@ -41,6 +41,7 @@ module.exports = class GuestPass extends SlashCommand {
 	run(ctx: CommandContext) {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
+		console.log('/guest-pass start');
 		return module.exports.grantGuestPass(ctx);
 	}
 };
@@ -84,7 +85,7 @@ module.exports.grantGuestPass = async (ctx: CommandContext) => {
 		}
 
 		await db.close();
-		console.log(`user ${guildMember.id} inserted into guestUsers`);
+		console.log(`/guest-pass end user ${guildMember.user.tag} inserted into guestUsers`);
 
 		// Add role to member
 		guildMember.roles.add(guestRole).catch(console.error);
@@ -122,7 +123,7 @@ module.exports.grantGuestPass = async (ctx: CommandContext) => {
 			// Remove guest pass role
 			guildMember.roles.remove(guestRole).catch(console.error);
 
-			console.log(`guest pass removed for ${guildMember.id} in discord`);
+			console.log(`/guest-pass end guest pass removed for ${guildMember.user.tag} in discord`);
 
 			return guildMember.send(`Hi <@${guildMember.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
 		});

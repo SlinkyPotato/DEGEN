@@ -100,6 +100,8 @@ module.exports = class Bounty extends SlashCommand {
 
 	async run(ctx: CommandContext) {
 		if (ctx.user.bot) return;
+		console.log('/bounty start');
+
 		let command: Promise<any>;
 
 		switch (ctx.subcommands[0]) {

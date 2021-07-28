@@ -5,6 +5,10 @@
 1. Add Bounty slash command
 2. Add more unit cases for commands
 
+## 1.1.1-RELEASE (2021-07-28)
+
+1. Handle all notion api calls in case of rate limit or out of sync errors
+
 ## 1.1.0-RELEASE (2021-07-21)
 
 1. Integrate slash commands

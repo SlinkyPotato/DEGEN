@@ -179,6 +179,7 @@ export async function updateNotionGuestPassDatabase(tag: string, activeGuestPass
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  */
 module.exports.findGuestPassPageByDiscordTag = async (tag: string): Promise<Page> => {
+	console.log('finding guest pass page by discord tag');
 	const response = await notion.databases.query({
 		database_id: process.env.NOTION_GUEST_PASS_DATABASE_ID,
 		filter: {

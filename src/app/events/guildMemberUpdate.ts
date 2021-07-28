@@ -19,10 +19,11 @@ module.exports = {
 			const oldMemberHasGuestPass = oldMember.roles.cache.some(role => role.name === constants.DISCORD_ROLE_GUEST_PASS);
 			const isNowActive: boolean = (newMemberHasGuestPass && !oldMemberHasGuestPass);
 			console.log(`guest pass active for username ${newMember.user.username}: ${isNowActive}`);
-			const updateNotionPromise = updateNotionGuestPassDatabase(newMember.user.tag, isNowActive);
-			updateNotionPromise.catch(error => {
-				console.log(error);
-			});
+			try {
+				await updateNotionGuestPassDatabase(newMember.user.tag, isNowActive);
+			} catch (e) {
+				console.log(e);
+			}
 		}
 	},
 };

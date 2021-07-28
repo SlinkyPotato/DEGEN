@@ -81,9 +81,10 @@ module.exports = class NotionGuildPage extends SlashCommand {
 	async run(ctx) {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
-
+		console.log('/notion start');
 		const guild = String(ctx.options.guild).toLowerCase();
 		const page = notionPageRefs[guild];
+		console.log('/notion end');
 		return `Here you are ${ctx.user.mention}, the ${ctx.options.guild} Guild Notion Page: ${page}`;
 	}
 };

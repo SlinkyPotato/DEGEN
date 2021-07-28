@@ -31,6 +31,9 @@ module.exports = class NotionFAQs extends SlashCommand {
 	async run(ctx) {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
+		
+		console.log('/faqs start');
+		
 		const client: Client = app.client;
 
 		const guild = await client.guilds.fetch(ctx.guildID);

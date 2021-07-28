@@ -42,6 +42,7 @@ module.exports = class GuestPass extends SlashCommand {
 	async run(ctx: CommandContext) {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
+		console.log('/guest-pass start');
 
 		const client: Client = app.client;
 
@@ -51,21 +52,20 @@ module.exports = class GuestPass extends SlashCommand {
 		const guildMember = await guild.members.fetch(ctx.options.user);
 
 		if (guildMember.user.bot) {
-			ctx.send('Bots don\'t need a guest pass!');
-			return;
+			return ctx.send('Bots don\'t need a guest pass!');
 		}
 
 		// Retrieve Guest Pass Role
-		const guestRole = await retrieveGuestRole(guild.roles);
+		const guestRole = retrieveGuestRole(guild.roles);
 
 		// Open database connection
-		db.connect(constants.DB_NAME_DEGEN, async (err) => {
+		await db.connect(constants.DB_NAME_DEGEN, async (err) => {
 			if (err) {
 				console.error('ERROR:', err);
 				return;
 			}
 			// DB Connected
-			const dbGuestUsers = await db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
+			const dbGuestUsers = db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
 			const queryOptions = {
 				upsert: true,
 			};
@@ -86,12 +86,12 @@ module.exports = class GuestPass extends SlashCommand {
 			}
 
 			await db.close();
-			console.log(`user ${guildMember.id} inserted into guestUsers`);
+			console.log(`/guest-pass end user ${guildMember.user.tag} inserted into guestUsers`);
 
 			// Add role to member
 			guildMember.roles.add(guestRole).catch(console.error);
 			console.log(`user ${guildMember.id} given ${constants.DISCORD_ROLE_GUEST_PASS} role`);
-			ctx.send(`Hey <@${guildMember.id}>! You now have access for ${expiresInHours / 24} days.`);
+			return ctx.send(`Hey <@${guildMember.id}>! You now have access for ${expiresInHours / 24} days.`);
 		});
 
 		// Send out notification on timer
@@ -125,7 +125,7 @@ module.exports = class GuestPass extends SlashCommand {
 				// Remove guest pass role
 				guildMember.roles.remove(guestRole).catch(console.error);
 
-				console.log(`guest pass removed for ${guildMember.id} in discord`);
+				console.log(`/guest-pass end guest pass removed for ${guildMember.user.tag} in discord`);
 
 				return guildMember.send(`Hi <@${guildMember.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
 			});

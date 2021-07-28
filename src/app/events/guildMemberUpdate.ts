@@ -21,7 +21,11 @@ module.exports = {
 			if (isNowActive) {
 				console.log(`guest pass active for username ${newMember.user.username}`);
 			}
-			return updateNotionGuestPassDatabase(newMember.user.tag, isNowActive);
+			try {
+				return updateNotionGuestPassDatabase(newMember.user.tag, isNowActive);
+			} catch (e) {
+				console.log(e);
+			}
 		}
 	},
 };

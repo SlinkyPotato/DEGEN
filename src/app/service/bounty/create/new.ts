@@ -41,15 +41,18 @@ export default async (ctx: CommandContext): Promise<any> => {
 		}
 		await db.close();
 		console.log(`user ${ctx.user.username} inserted into db`);
-		await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
-		return guildMember.send(`<@${ctx.user.id}> Bounty drafted! Please finalize the bounty at ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}`);
+		await ctx.send(`${ctx.user.mention} Bounty drafted! Please check your DM for next step.`);
+		return guildMember.send(`<@${ctx.user.id}> Please finalize the bounty by reacting with an emoji:\n\n
+		 :thumbsup: - bounty is ready to be posted on the channel\n
+		 :pencil: - let's make some additional changes to the bounty\n
+		 bounty page url: ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}`);
 	});
 };
 
 export const generateBountyRecord = (
 	summary: string, rewardAmount: number, currencySymbol: string, discordHandle: string,
 	discordId: string, title: string, criteria: string,
-) => {
+): any => {
 	const currentDate = (new Date()).toISOString();
 	return {
 		season: process.env.DAO_CURRENT_SEASON,

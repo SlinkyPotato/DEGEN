@@ -4,6 +4,7 @@
 
 1. Add Bounty slash command
 2. Add more unit cases for commands
+3. Add emoji support for bounties posted in #🧀-bounty-board channel
 
 ## 1.1.0-RELEASE (2021-07-21)
 

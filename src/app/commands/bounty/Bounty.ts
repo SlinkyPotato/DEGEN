@@ -35,9 +35,21 @@ module.exports = class Bounty extends SlashCommand {
 							description: 'Create a new draft of a bounty and finalize on the website',
 							options: [
 								{
+									name: 'title',
+									type: CommandOptionType.STRING,
+									description: 'What should the bounty be called?',
+									required: true,
+								},
+								{
 									name: 'summary',
 									type: CommandOptionType.STRING,
 									description: 'What would you like to be worked on?',
+									required: true,
+								},
+								{
+									name: 'criteria',
+									type: CommandOptionType.STRING,
+									description: 'What is absolutely required for this bounty?',
 									required: true,
 								},
 								{

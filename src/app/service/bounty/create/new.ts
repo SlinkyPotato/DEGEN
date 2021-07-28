@@ -12,7 +12,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 
 	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 	const params = ctx.options.create.new;
-	const { isSummaryValid, summary } = module.exports.validateSummary(params.summary);
+	const { isSummaryValid, summary } = validateSummary(params.summary);
 
 	if (!isSummaryValid) {
 		await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
@@ -52,7 +52,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 	});
 };
 
-module.exports.validateSummary = (summary: string): {isSummaryValid: boolean, summary: string} => {
+export const validateSummary = (summary: string): {isSummaryValid: boolean, summary: string} => {
 	const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,250}$/;
 	return {
 		isSummaryValid: !(summary == null || !CREATE_SUMMARY_REGEX.test(summary)),

@@ -3,6 +3,7 @@ import db from '../../../utils/db';
 import constants from '../../../constants';
 import { MongoError } from 'mongodb';
 import ServiceUtils from '../../../utils/ServiceUtils';
+import BountyUtils from '../../../utils/BountyUtils';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
@@ -11,26 +12,16 @@ export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
 
 	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
-	const params = ctx.options.create.new;
-	const { isSummaryValid, summary } = validateSummary(params.summary);
 
-	if (!isSummaryValid) {
-		await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
-		return guildMember.send(`<@${ctx.user.id}>\n` +
-			'Please enter a valid create-summary value: \n ' +
-			'- 250 characters maximum\n ' +
-			'- alphanumeric\n ' +
-			'- special characters: .!@#$%&,?');
-	}
+	const title = ctx.options.create.new.title;
+	const summary = ctx.options.create.new.summary;
+	const criteria = ctx.options.create.new.criteria;
+	const reward = ctx.options.create.new.reward;
+	const { rewardNumber, rewardSymbol } = await BountyUtils.validateReward(ctx, guildMember, reward);
 
-	const { isRewardValid, rewardNumber, rewardSymbol } = module.exports.validateReward(params.reward);
-	if (!isRewardValid) {
-		await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
-		return guildMember.send(`<@${ctx.user.id}>\n` +
-			'Please enter a valid create-reward value: \n ' +
-			'- 100 million maximum currency\n ' +
-			'- accepted currencies: ETH, BANK');
-	}
+	await BountyUtils.validateSummary(ctx, guildMember, summary);
+	await BountyUtils.validateTitle(ctx, guildMember, title);
+	await BountyUtils.validateCriteria(ctx, guildMember, criteria);
 
 	await db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
 		if (error) {
@@ -38,7 +29,10 @@ export default async (ctx: CommandContext): Promise<any> => {
 			return ctx.send('Sorry something is not working, our devs are looking into it.');
 		}
 		const dbBounty = db.get().collection(constants.DB_COLLECTION_BOUNTIES);
-		const newBounty = module.exports.generateBountyRecord(summary, rewardNumber, rewardSymbol, ctx.user.username, ctx.user.id);
+		const newBounty = generateBountyRecord(
+			summary, rewardNumber, rewardSymbol, ctx.user.username, ctx.user.id,
+			title, criteria,
+		);
 
 		const dbInsertResult = await dbBounty.insertOne(newBounty);
 		if (dbInsertResult == null) {
@@ -52,34 +46,16 @@ export default async (ctx: CommandContext): Promise<any> => {
 	});
 };
 
-export const validateSummary = (summary: string): {isSummaryValid: boolean, summary: string} => {
-	const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,250}$/;
-	return {
-		isSummaryValid: !(summary == null || !CREATE_SUMMARY_REGEX.test(summary)),
-		summary: summary,
-	};
-};
-
-module.exports.validateReward = (createReward: string): {isRewardValid: boolean, rewardNumber: number, rewardSymbol: string} => {
-	const ALLOWED_CURRENCIES = ['ETH', 'BANK'];
-	const MAXIMUM_REWARD = 100000000;
-
-	const [reward, symbol] = (createReward != null) ? createReward.split(' ') : [null, null];
-	const rewardNumber = Number(reward);
-
-	return {
-		isRewardValid: !(rewardNumber === Number.NaN || rewardNumber <= 0 || rewardNumber > MAXIMUM_REWARD || !ALLOWED_CURRENCIES.includes(symbol)),
-		rewardNumber: rewardNumber,
-		rewardSymbol: symbol,
-	};
-};
-
-module.exports.generateBountyRecord = (summary: string, rewardAmount: number, currencySymbol: string, discordHandle: string,
-	discordId: string) => {
+export const generateBountyRecord = (
+	summary: string, rewardAmount: number, currencySymbol: string, discordHandle: string,
+	discordId: string, title: string, criteria: string,
+) => {
 	const currentDate = (new Date()).toISOString();
 	return {
 		season: process.env.DAO_CURRENT_SEASON,
+		title: title,
 		description: summary,
+		criteria: criteria,
 		reward: {
 			currency: currencySymbol,
 			amount: rewardAmount,

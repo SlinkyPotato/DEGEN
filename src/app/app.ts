@@ -1,8 +1,9 @@
 // Libs
-import { SlashCreator, GatewayServer } from 'slash-create';
+import { SlashCreator, GatewayServer, FastifyServer } from 'slash-create';
 import Discord, { Client, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
+// import { server } from './service/ScoapFastifyServer';
 
 const client: Client = new Discord.Client();
 initializeEvents();
@@ -17,6 +18,8 @@ const creator = new SlashCreator({
 creator
 	.withServer(
 		new GatewayServer((handler) => client.ws.on(<WSEventType>'INTERACTION_CREATE', handler)),
+		// new FastifyServer(server, {alreadyListening: false}),
+
 	)
 	.registerCommandsIn(path.join(__dirname, 'commands'))
 	.syncCommands();

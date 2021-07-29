@@ -13,4 +13,16 @@ export default Object.freeze({
 	SCOAP_HTTP_SERVER_CORS_WHITELIST: ['http://localhost:3000'],
 	SCOAP_HTTP_SERVER_PORT: 5000,
 	SCOAP_SQUAD_CHANNEL_ID: '854401837566001192',
+
+	EMOJIS: {
+		one: '\u0031\uFE0F\u20E3',
+		two: '\u0032\uFE0F\u20E3',
+		three: '\u0033\uFE0F\u20E3',
+		four: '\u0034\ufe0f\u20e3',
+		five: '\u0035\ufe0f\u20e3',
+		six: '\u0036\ufe0f\u20e3',
+		seven: '\u0037\ufe0f\u20e3',
+		eight: '\u0038\ufe0f\u20e3',
+		nine: '\u0039\ufe0f\u20e3',
+	},
 });

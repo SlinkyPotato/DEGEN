@@ -64,6 +64,6 @@ export const finalizeBounty = (ctx: CommandContext, guildMember: GuildMember, bo
 		}
 
 		await db.close();
-		return ctx.send(`<@${ctx.user.id}> Bounty now open! Check out the bounty at ${constants.BOUNTY_BOARD_URL}/${bountyId}`);
+		return ctx.send(`<@${ctx.user.id}> Bounty published to #🧀-bounty-board and on the website! ${constants.BOUNTY_BOARD_URL}/${bountyId}`);
 	});
 };

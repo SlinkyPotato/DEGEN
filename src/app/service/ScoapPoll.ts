@@ -15,25 +15,27 @@ import constants from './../constants';
 // }
 // FastifyRequest<RouteGenericInterface, Server, IncomingMessage>
 
-
-
-const exampleEmbed = {
+const scoapEmbed = {
 	color: 0x0099ff,
-	title: 'Some title',
-	url: 'https://discord.js.org',
+	title: 'SCOAP SQUAD - NEW WEBSITE',
+	url: 'https://www.bankless.community',
 	author: {
-		name: 'Some name',
-		icon_url: 'https://i.imgur.com/wSTFkRM.png',
-		url: 'https://discord.js.org',
+		name: 'Posted by user Tiki',
+		// icon_url: '../../../docs/images/logo.svg',
+		url: 'https://www.bankless.community',
 	},
-	description: 'Some description here',
-	thumbnail: {
-		url: 'https://i.imgur.com/wSTFkRM.png',
-	},
+	description: 'Project Summary',
 	fields: [
 		{
-			name: 'Regular field title',
-			value: 'Some value here',
+			name: `${constants.EMOJIS.one} PM`,
+			value: '\u200b',
+			inline: true,
+		},
+
+		{
+			name: '0 % (0/1)',
+			value: '\u200b',
+			inline: true,
 		},
 		{
 			name: '\u200b',
@@ -41,47 +43,48 @@ const exampleEmbed = {
 			inline: false,
 		},
 		{
-			name: 'Inline field title',
-			value: 'Some value here',
+			name: `${constants.EMOJIS.two} DEV`,
+			value: 'JS, Web3',
 			inline: true,
 		},
 		{
-			name: 'Inline field title',
-			value: 'Some value here',
+			name: '0% (0/3)',
+			value: '\u200b',
 			inline: true,
 		},
 		{
-			name: 'Inline field title',
-			value: 'Some value here',
+			name: '\u200b',
+			value: '\u200b',
+			inline: false,
+		},
+		{
+			name: `${constants.EMOJIS.three} UI`,
+			value: 'Chakra',
+			inline: true,
+		},
+		{
+			name: '0% (0/2)',
+			value: '\u200b',
 			inline: true,
 		},
 	],
-	image: {
-		url: 'https://i.imgur.com/wSTFkRM.png',
-	},
 	timestamp: new Date(),
 	footer: {
-		text: 'Some footer text here',
-		icon_url: 'https://i.imgur.com/wSTFkRM.png',
+		text: 'You may select only one option in this poll',
 	},
 };
 
 //Note: How to do correct type definition for request?
 export default async (channel: TextChannel, request: any): Promise<any> => {
 	console.log(' here is the request body ', request.body)
-	const pollMessage = await channel.send({ embed: exampleEmbed });
+	// const pollMessage = await channel.send('a poll');
+	const embedMessage = await channel.send({ embed: scoapEmbed });
 	// const pollMessage = await channel.send(request.body.scoap);
-	// await pollMessage.react(`✅`);
-	// await pollMessage.react(`⛔`);
-	await pollMessage.react(constants.EMOJIS.one);
-	await pollMessage.react(constants.EMOJIS.two);
-	await pollMessage.react(constants.EMOJIS.three);
-	await pollMessage.react(constants.EMOJIS.four);
-	await pollMessage.react(constants.EMOJIS.five);
-	await pollMessage.react(constants.EMOJIS.six);
-	await pollMessage.react(constants.EMOJIS.seven);
-	await pollMessage.react(constants.EMOJIS.eight);
-	await pollMessage.react(constants.EMOJIS.nine);
+	
+	await embedMessage.react(constants.EMOJIS.one);
+	await embedMessage.react(constants.EMOJIS.two);
+	await embedMessage.react(constants.EMOJIS.three);
+
 	// await pollMessage.react(String.fromCodePoint(0x1F354));
 	// await pollMessage.react(String.fromCodePoint(0x0031));
 	

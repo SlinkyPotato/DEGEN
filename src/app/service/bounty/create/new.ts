@@ -4,6 +4,8 @@ import constants from '../../../constants';
 import { MongoError } from 'mongodb';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import BountyUtils from '../../../utils/BountyUtils';
+import { GuildMember, Message } from 'discord.js';
+import { finalizeBounty } from './validate';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
@@ -41,11 +43,13 @@ export default async (ctx: CommandContext): Promise<any> => {
 		}
 		await db.close();
 		console.log(`user ${ctx.user.username} inserted into db`);
-		await ctx.send(`${ctx.user.mention} Bounty drafted! Please check your DM for next step.`);
-		return guildMember.send(`<@${ctx.user.id}> Please finalize the bounty by reacting with an emoji:\n\n
-		 :thumbsup: - bounty is ready to be posted on the channel\n
-		 :pencil: - let's make some additional changes to the bounty\n
+		await ctx.send(`${ctx.user.mention} Bounty drafted! I just sent you a message.`);
+		const message: Message = await guildMember.send(`<@${ctx.user.id}> Please finalize the bounty by reacting with an emoji:\n
+		 👍 - bounty is ready to be posted to #🧀-bounty-board
+		 📝 - let's make some additional changes to the bounty
 		 bounty page url: ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}`);
+
+		return handleBountyReaction(await message, ctx, guildMember, dbInsertResult.insertedId);
 	});
 };
 
@@ -78,4 +82,26 @@ export const generateBountyRecord = (
 		dueDate: END_OF_SEASON,
 		isDiscordBotGenerated: true,
 	};
+};
+
+const handleBountyReaction = (message: Message, ctx: CommandContext, guildMember: GuildMember, bountyId: string): Promise<any> => {
+	return message.awaitReactions((reaction) => {
+		return ['📝', '👍'].includes(reaction.emoji.name);
+	}, {
+		max: 1,
+		time: 60000,
+		errors: ['time'],
+	}).then(collected => {
+		console.log('/bounty create new | handling reaction to bounty');
+		const reaction = collected.first();
+		if (reaction.emoji.name === '👍') {
+			console.log('/bounty create new | :thumbsup: up given');
+			return finalizeBounty(ctx, guildMember, bountyId);
+		} else {
+			console.log('/bounty create new | :pencil: given');
+			return guildMember.send('Please go to website to make changes');
+		}
+	}).catch(_ => {
+		console.log('did not react');
+	});
 };

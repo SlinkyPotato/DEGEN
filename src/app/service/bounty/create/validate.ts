@@ -4,6 +4,7 @@ import mongo, { MongoError, UpdateWriteOpResult } from 'mongodb';
 import db from '../../../utils/db';
 import BountyUtils from '../../../utils/BountyUtils';
 import ServiceUtils from '../../../utils/ServiceUtils';
+import { GuildMember } from 'discord.js';
 
 export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
@@ -12,7 +13,11 @@ export default async (ctx: CommandContext): Promise<any> => {
 	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 
 	await BountyUtils.validateBountyId(ctx, guildMember, bountyId);
+	return finalizeBounty(ctx, guildMember, bountyId);
+};
 
+export const finalizeBounty = (ctx: CommandContext, guildMember: GuildMember, bountyId: string): Promise<any> => {
+	console.log('starting to finalize bounty: ' + bountyId);
 	return db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError): Promise<any> => {
 		if (error) {
 			console.log('ERROR', error);
@@ -22,7 +27,6 @@ export default async (ctx: CommandContext): Promise<any> => {
 		const dbCollection = db.get().collection(constants.DB_COLLECTION_BOUNTIES);
 		const dbBountyResult = await dbCollection.findOne({
 			_id: new mongo.ObjectId(bountyId),
-			isDiscordBotGenerated: false,
 			status: 'Draft',
 		});
 
@@ -62,5 +66,4 @@ export default async (ctx: CommandContext): Promise<any> => {
 		await db.close();
 		return ctx.send(`<@${ctx.user.id}> Bounty now open! Check out the bounty at ${constants.BOUNTY_BOARD_URL}/${bountyId}`);
 	});
-
 };

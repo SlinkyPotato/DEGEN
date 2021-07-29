@@ -139,7 +139,9 @@ module.exports = class Bounty extends SlashCommand {
 	}
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
-		command.catch(e => {
+		command.then(() => {
+			console.log('/bounty end');
+		}).catch(e => {
 			console.error('ERROR', e);
 		});
 	}

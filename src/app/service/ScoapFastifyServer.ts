@@ -56,38 +56,3 @@ export default async (): Promise<void> => {
 	    process.exit(1)
 	  }
 };
-
-
-
-
-
-// server.post<{ Body: ScoapType; Response: ScoapType }>(
-//    "/scoap",
-//    {
-//      schema: {
-//        body: Scoap,
-//        response: {
-//          200: Scoap,
-//        },
-//      },
-//    }, 
-//    async (req, rep) => {
-//    	const channel = await client.channels.fetch(constants.SCOAP_SQUAD_CHANNEL_ID) as TextChannel;
-
-//      const { body: scoap } = req;
-//      /* user has type
-//      * const user: StaticProperties<{
-//      *  name: TString;
-//      *  mail: TOptional<TString>;
-//      * }>
-//      */
-//           var formData = await ScoapPoll(channel, req.body);
-//      rep.status(200).send(scoap);
-//    }
-//  );
-
-// //SCOAP object schema & type definition
-// const Scoap = Type.Object({
-// 	scoap: Type.String(),
-// });
-// type ScoapType = Static<typeof Scoap>;

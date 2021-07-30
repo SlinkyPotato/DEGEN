@@ -4,16 +4,6 @@ import express = require('express');
 import client from '../app'
 import constants from './../constants';
 
-// const fastify = require('fastify');
-// import { Server, IncomingMessage, ServerResponse } from 'http'
-// import ReplyDefault, { RequestGenericInterface } from 'fastify'
-
-
-// interface RouteGenericInterface extends RequestGenericInterface, ReplyGenericInterface {}
-// interface ReplyGenericInterface {
-//   Reply?: typeof ReplyDefault;
-// }
-// FastifyRequest<RouteGenericInterface, Server, IncomingMessage>
 
 const scoapEmbed = {
 	color: 0x0099ff,
@@ -21,7 +11,6 @@ const scoapEmbed = {
 	url: 'https://www.bankless.community',
 	author: {
 		name: 'Posted by user Tiki',
-		// icon_url: '../../../docs/images/logo.svg',
 		url: 'https://www.bankless.community',
 	},
 	description: 'Project Summary',

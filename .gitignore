@@ -114,5 +114,6 @@ build
 .env.botplays
 .env
 .env.copy
+snippets.ts
 
 

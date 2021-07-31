@@ -24,7 +24,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 	await BountyUtils.validateSummary(ctx, guildMember, summary);
 	await BountyUtils.validateTitle(ctx, guildMember, title);
 	await BountyUtils.validateCriteria(ctx, guildMember, criteria);
-	
+
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
 	const newBounty = generateBountyRecord(
@@ -39,7 +39,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 		return ctx.send('Sorry something is not working, our devs are looking into it.');
 	}
 	await dbInstance.close();
-	
+
 	console.log(`user ${ctx.user.username} inserted into db`);
 	await ctx.send(`${ctx.user.mention} Bounty drafted! I just sent you a message.`);
 	const message: Message = await guildMember.send(`<@${ctx.user.id}> Please finalize the bounty by reacting with an emoji:\n

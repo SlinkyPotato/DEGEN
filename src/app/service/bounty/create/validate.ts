@@ -1,12 +1,12 @@
-import { CommandContext, MessageOptions } from 'slash-create';
+import { CommandContext } from 'slash-create';
 import constants from '../../../constants';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../../utils/BountyUtils';
 import ServiceUtils from '../../../utils/ServiceUtils';
-import { Client, GuildChannel, GuildMember } from 'discord.js';
+import { Channel, GuildChannel, GuildMember, MessageOptions, TextChannel } from 'discord.js';
 import dbInstance from '../../../utils/db';
 import channelIDs from '../../../constants/channelIDs';
-import Channel from 'slash-create/lib/structures/channel';
+import client from '../../../app';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 
@@ -62,37 +62,59 @@ export const finalizeBounty = async (ctx: CommandContext, guildMember: GuildMemb
 		console.log(`failed to update record ${bountyId} for user <@${ctx.user.id}>`);
 		return ctx.send(`<@${ctx.user.id}> Sorry something is not working, our devs are looking into it.`);
 	}
-	
-	const slashMsgOptions: MessageOptions = {
-		embeds: [
-			{
-				title: dbBountyResult.title,
-				url: BOUNTY_BOARD_URL,
-				author: {
-					icon_url: guildMember.user.avatarURL(),
-					name: dbBountyResult.createdBy.discordHandle,
-				},
-				description: dbBountyResult.summary,
-				fields: [
-					{ name: 'Reward', value: dbBountyResult.reward.amount + ' ' + dbBountyResult.reward.currency },
-					{ name: 'Season', value: dbBountyResult.season },
-					{ name: 'Criteria', value: dbBountyResult.criteria },
-					{ name: 'CreatedBy', value: dbBountyResult.createdBy.discordHandle },
-					{ name: 'Deadline', value: dbBountyResult.dueAt },
-				],
-				timestamp: new Date(),
-				footer: {
-					text: 'footer? maybe',
-				},
+
+	const messageOptions: MessageOptions = {
+		embed: {
+			title: dbBountyResult.title,
+			url: BOUNTY_BOARD_URL,
+			author: {
+				icon_url: guildMember.user.avatarURL(),
+				name: dbBountyResult.createdBy.discordHandle,
 			},
-		],
+			description: dbBountyResult.summary,
+			fields: [
+				{ name: 'Reward', value: dbBountyResult.reward.amount + ' ' + dbBountyResult.reward.currency },
+				{ name: 'Season', value: dbBountyResult.season },
+				{ name: 'Criteria', value: dbBountyResult.criteria },
+				{ name: 'CreatedBy', value: dbBountyResult.createdBy.discordHandle },
+				{ name: 'Deadline', value: dbBountyResult.dueAt },
+			],
+			timestamp: new Date(),
+			footer: {
+				text: 'footer? maybe',
+			},
+		},
 	};
-	
+
+	// const slashMsgOptions: MessageOptions = {
+	// 	embeds: [
+	// 		{
+	// 			title: dbBountyResult.title,
+	// 			url: BOUNTY_BOARD_URL,
+	// 			author: {
+	// 				icon_url: guildMember.user.avatarURL(),
+	// 				name: dbBountyResult.createdBy.discordHandle,
+	// 			},
+	// 			description: dbBountyResult.summary,
+	// 			fields: [
+	// 				{ name: 'Reward', value: dbBountyResult.reward.amount + ' ' + dbBountyResult.reward.currency },
+	// 				{ name: 'Season', value: dbBountyResult.season },
+	// 				{ name: 'Criteria', value: dbBountyResult.criteria },
+	// 				{ name: 'CreatedBy', value: dbBountyResult.createdBy.discordHandle },
+	// 				{ name: 'Deadline', value: dbBountyResult.dueAt },
+	// 			],
+	// 			timestamp: new Date(),
+	// 			footer: {
+	// 				text: 'footer? maybe',
+	// 			},
+	// 		},
+	// 	],
+	// };
+
 	await dbInstance.close();
-	guildMember.send(`<@${ctx.user.id}> Bounty published to #🧀-bounty-board and on the website! ${constants.BOUNTY_BOARD_URL}/${bountyId}`);
-	// const bountyChannel: Channel = ctx.channels.get(channelIDs.bountyBoard);
-	const dClient: Client = new Client();
-	const channel: GuildChannel = dClient.channels.fetch(channelIDs.bountyBoard);
-	channel.send
-	return ctx.send(slashMsgOptions);
+
+	const bountyChannel: TextChannel = await guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
+	await bountyChannel.send(messageOptions);
+	return guildMember.send(`<@${ctx.user.id}> Bounty published to #🧀-bounty-board and the website! ${constants.BOUNTY_BOARD_URL}/${bountyId}`);
+	// return ctx.send(slashMsgOptions);
 };

@@ -74,7 +74,7 @@ export const finalizeBounty = async (ctx: CommandContext, guildMember: GuildMemb
 			description: dbBountyResult.summary,
 			fields: [
 				{ name: 'Reward', value: dbBountyResult.reward.amount + ' ' + dbBountyResult.reward.currency },
-				{ name: 'Season', value: dbBountyResult.season },
+				{ name: 'Summary', value: dbBountyResult.description },
 				{ name: 'Criteria', value: dbBountyResult.criteria },
 				{ name: 'CreatedBy', value: dbBountyResult.createdBy.discordHandle },
 				{ name: 'Deadline', value: dbBountyResult.dueAt },

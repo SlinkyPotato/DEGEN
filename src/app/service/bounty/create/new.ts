@@ -4,7 +4,7 @@ import ServiceUtils from '../../../utils/ServiceUtils';
 import BountyUtils from '../../../utils/BountyUtils';
 import { GuildMember, Message } from 'discord.js';
 import { finalizeBounty } from './validate';
-import { Db } from 'mongodb';
+import { Db, Double, Int32 } from 'mongodb';
 import dbInstance from '../../../utils/db';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
@@ -57,13 +57,13 @@ export const generateBountyRecord = (
 ): any => {
 	const currentDate = (new Date()).toISOString();
 	return {
-		season: process.env.DAO_CURRENT_SEASON,
+		season: new Int32(Number(process.env.DAO_CURRENT_SEASON)),
 		title: title,
 		description: summary,
 		criteria: criteria,
 		reward: {
 			currency: currencySymbol,
-			amount: rewardAmount,
+			amount: new Double(rewardAmount),
 		},
 		createdBy: {
 			discordHandle: discordHandle,

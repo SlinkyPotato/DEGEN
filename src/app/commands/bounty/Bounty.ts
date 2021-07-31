@@ -3,6 +3,7 @@ import create from '../../service/bounty/create/new';
 import list from '../../service/bounty/list';
 import claim from '../../service/bounty/claim';
 import validate from '../../service/bounty/create/validate';
+import ValidationError from '../../errors/ValidationError';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -142,8 +143,10 @@ module.exports = class Bounty extends SlashCommand {
 		command.then(() => {
 			console.log('/bounty end');
 		}).catch(e => {
-			console.error('ERROR', e);
-			return ctx.send('Sorry something is not working and our devs are looking into it');
+			if (!(e instanceof ValidationError)) {
+				console.error('ERROR', e);
+				return ctx.send('Sorry something is not working and our devs are looking into it');
+			}
 		});
 	}
 };

@@ -8,7 +8,7 @@ import dbInstance from '../../../utils/db';
 import channelIDs from '../../../constants/channelIDs';
 import client from '../../../app';
 
-const BOUNTY_BOARD_URL = 'https://bankless.community';
+const BOUNTY_BOARD_URL = 'https://bankless.community/';
 
 export default async (ctx: CommandContext): Promise<any> => {
 	if (ctx.user.bot) return;
@@ -66,7 +66,7 @@ export const finalizeBounty = async (ctx: CommandContext, guildMember: GuildMemb
 	const messageOptions: MessageOptions = {
 		embed: {
 			title: dbBountyResult.title,
-			url: BOUNTY_BOARD_URL,
+			url: BOUNTY_BOARD_URL + dbBountyResult._id,
 			author: {
 				icon_url: guildMember.user.avatarURL(),
 				name: dbBountyResult.createdBy.discordHandle,
@@ -75,6 +75,7 @@ export const finalizeBounty = async (ctx: CommandContext, guildMember: GuildMemb
 			fields: [
 				{ name: 'Reward', value: dbBountyResult.reward.amount + ' ' + dbBountyResult.reward.currency },
 				{ name: 'Summary', value: dbBountyResult.description },
+				{ name: 'Status', value: dbBountyResult.status },
 				{ name: 'Criteria', value: dbBountyResult.criteria },
 				{ name: 'CreatedBy', value: dbBountyResult.createdBy.discordHandle },
 				{ name: 'Deadline', value: dbBountyResult.dueAt },
@@ -85,31 +86,6 @@ export const finalizeBounty = async (ctx: CommandContext, guildMember: GuildMemb
 			},
 		},
 	};
-
-	// const slashMsgOptions: MessageOptions = {
-	// 	embeds: [
-	// 		{
-	// 			title: dbBountyResult.title,
-	// 			url: BOUNTY_BOARD_URL,
-	// 			author: {
-	// 				icon_url: guildMember.user.avatarURL(),
-	// 				name: dbBountyResult.createdBy.discordHandle,
-	// 			},
-	// 			description: dbBountyResult.summary,
-	// 			fields: [
-	// 				{ name: 'Reward', value: dbBountyResult.reward.amount + ' ' + dbBountyResult.reward.currency },
-	// 				{ name: 'Season', value: dbBountyResult.season },
-	// 				{ name: 'Criteria', value: dbBountyResult.criteria },
-	// 				{ name: 'CreatedBy', value: dbBountyResult.createdBy.discordHandle },
-	// 				{ name: 'Deadline', value: dbBountyResult.dueAt },
-	// 			],
-	// 			timestamp: new Date(),
-	// 			footer: {
-	// 				text: 'footer? maybe',
-	// 			},
-	// 		},
-	// 	],
-	// };
 
 	await dbInstance.close();
 

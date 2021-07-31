@@ -1,4 +1,4 @@
-import { CommandContext } from 'slash-create';
+import { CommandContext, User } from 'slash-create';
 import constants from '../../../constants';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import BountyUtils from '../../../utils/BountyUtils';
@@ -28,7 +28,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
 	const newBounty = generateBountyRecord(
-		summary, rewardNumber, rewardSymbol, ctx.user.username, ctx.user.id,
+		summary, rewardNumber, rewardSymbol, ctx.user.username + '#' + ctx.user.discriminator, ctx.user.id,
 		title, criteria,
 	);
 
@@ -43,10 +43,15 @@ export default async (ctx: CommandContext): Promise<any> => {
 	console.log(`user ${ctx.user.username} inserted into db`);
 	await ctx.send(`${ctx.user.mention} Bounty drafted! I just sent you a message.`);
 	const message: Message = await guildMember.send(`<@${ctx.user.id}> Please finalize the bounty by reacting with an emoji:\n
+		 bounty page url: ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}
+		 
 		 👍 - bounty is ready to be posted to #🧀-bounty-board
 		 📝 - let's make some additional changes to the bounty
 		 ❌ - delete the bounty
-		 bounty page url: ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}`);
+		 `);
+	await message.react('👍');
+	await message.react('📝');
+	await message.react('❌');
 
 	return handleBountyReaction(message, ctx, guildMember, dbInsertResult.insertedId);
 };
@@ -82,11 +87,11 @@ export const generateBountyRecord = (
 };
 
 const handleBountyReaction = (message: Message, ctx: CommandContext, guildMember: GuildMember, bountyId: string): Promise<any> => {
-	return message.awaitReactions((reaction) => {
-		return ['📝', '👍', '❌'].includes(reaction.emoji.name);
+	return message.awaitReactions((reaction, user: User) => {
+		return ['📝', '👍', '❌'].includes(reaction.emoji.name) && !user.bot;
 	}, {
 		max: 1,
-		time: 60000,
+		time: 60000 * 60,
 		errors: ['time'],
 	}).then(collected => {
 		console.log('/bounty create new | handling reaction to bounty');

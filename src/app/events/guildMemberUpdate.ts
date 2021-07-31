@@ -6,6 +6,7 @@ import { Collection, GuildMember, Role, Snowflake } from 'discord.js';
 import { Client } from '@notionhq/client';
 import { updateNotionGuestPassDatabase } from '../service/GuestPassService';
 import constants from '../constants';
+import { GuildMember } from 'discord.js';
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -32,7 +33,11 @@ module.exports = {
 		roles.each(role => {
 			switch (role.name) {
 				case constants.DISCORD_ROLE_GUEST_PASS:
-					updateNotionGuestPassDatabase(guildMember.user.tag, true);	
+					try {
+						updateNotionGuestPassDatabase(guildMember.user.tag, true);	
+					} catch (e) {
+						console.error(e)
+					}
 					break;
 				case constants.DISCORD_ROLE_DEVELOPERS_GUILD:
 					module.exports.sendGuildWelcomeMessage(guildMember, role);

@@ -1,11 +1,11 @@
 import { CommandContext } from 'slash-create';
-import db from '../../../utils/db';
 import constants from '../../../constants';
-import { MongoError } from 'mongodb';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import BountyUtils from '../../../utils/BountyUtils';
 import { GuildMember, Message } from 'discord.js';
 import { finalizeBounty } from './validate';
+import { Db } from 'mongodb';
+import dbInstance from '../../../utils/db';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
@@ -24,34 +24,31 @@ export default async (ctx: CommandContext): Promise<any> => {
 	await BountyUtils.validateSummary(ctx, guildMember, summary);
 	await BountyUtils.validateTitle(ctx, guildMember, title);
 	await BountyUtils.validateCriteria(ctx, guildMember, criteria);
+	
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
+	const newBounty = generateBountyRecord(
+		summary, rewardNumber, rewardSymbol, ctx.user.username, ctx.user.id,
+		title, criteria,
+	);
 
-	await db.connect(constants.DB_NAME_BOUNTY_BOARD, async (error: MongoError) => {
-		if (error) {
-			console.log('ERROR', error);
-			return ctx.send('Sorry something is not working, our devs are looking into it.');
-		}
-		const dbBounty = db.get().collection(constants.DB_COLLECTION_BOUNTIES);
-		const newBounty = generateBountyRecord(
-			summary, rewardNumber, rewardSymbol, ctx.user.username, ctx.user.id,
-			title, criteria,
-		);
+	const dbInsertResult = await dbBounty.insertOne(newBounty);
 
-		const dbInsertResult = await dbBounty.insertOne(newBounty);
-		if (dbInsertResult == null) {
-			console.error('failed to insert bounty into DB', error);
-			return ctx.send('Sorry something is not working, our devs are looking into it.');
-		}
-		await db.close();
-		console.log(`user ${ctx.user.username} inserted into db`);
-		await ctx.send(`${ctx.user.mention} Bounty drafted! I just sent you a message.`);
-		const message: Message = await guildMember.send(`<@${ctx.user.id}> Please finalize the bounty by reacting with an emoji:\n
+	if (dbInsertResult == null) {
+		console.error('failed to insert bounty into DB');
+		return ctx.send('Sorry something is not working, our devs are looking into it.');
+	}
+	await dbInstance.close();
+	
+	console.log(`user ${ctx.user.username} inserted into db`);
+	await ctx.send(`${ctx.user.mention} Bounty drafted! I just sent you a message.`);
+	const message: Message = await guildMember.send(`<@${ctx.user.id}> Please finalize the bounty by reacting with an emoji:\n
 		 👍 - bounty is ready to be posted to #🧀-bounty-board
 		 📝 - let's make some additional changes to the bounty
 		 ❌ - delete the bounty
 		 bounty page url: ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}`);
 
-		return handleBountyReaction(message, ctx, guildMember, dbInsertResult.insertedId);
-	});
+	return handleBountyReaction(message, ctx, guildMember, dbInsertResult.insertedId);
 };
 
 export const generateBountyRecord = (
@@ -80,8 +77,7 @@ export const generateBountyRecord = (
 			},
 		],
 		status: 'Draft',
-		dueDate: END_OF_SEASON,
-		isDiscordBotGenerated: true,
+		dueAt: END_OF_SEASON,
 	};
 };
 

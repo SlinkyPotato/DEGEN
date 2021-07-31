@@ -143,6 +143,7 @@ module.exports = class Bounty extends SlashCommand {
 			console.log('/bounty end');
 		}).catch(e => {
 			console.error('ERROR', e);
+			return ctx.send('Sorry something is not working and our devs are looking into it');
 		});
 	}
 };

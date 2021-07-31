@@ -1,8 +1,9 @@
 import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType, CommandContext } from 'slash-create';
-import db from '../../utils/db';
 import constants from '../../constants';
 import { retrieveGuestRole } from '../../service/GuestPassService';
 import client from '../../app';
+import { Db } from 'mongodb';
+import dbInstance from '../../utils/db';
 
 const expiresInHours = 168;
 
@@ -57,40 +58,36 @@ module.exports.grantGuestPass = async (ctx: CommandContext) => {
 	// Retrieve Guest Pass Role
 	const guestRole = retrieveGuestRole(guild.roles);
 
-	// Open database connection
-	await db.connect(constants.DB_NAME_DEGEN, async (err) => {
-		if (err) {
-			console.error('ERROR:', err);
-			return;
-		}
-		// DB Connected
-		const dbGuestUsers = db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
-		const queryOptions = {
-			upsert: true,
-		};
-		const currentTimestamp = Date.now();
-		const guestDbUser = {
-			_id: guildMember.id,
-			startTimestamp: currentTimestamp,
-			expiresTimestamp: currentTimestamp + (expiresInHours * 1000 * 60 * 60),
-		};
+	// DB Connected
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const dbGuestUsers = db.collection(constants.DB_COLLECTION_GUEST_USERS);
+	const queryOptions = {
+		upsert: true,
+	};
+	const currentTimestamp = Date.now();
+	const guestDbUser = {
+		_id: guildMember.id,
+		tag: guildMember.user.tag,
+		startTimestamp: currentTimestamp,
+		expiresTimestamp: currentTimestamp + (expiresInHours * 1000 * 60 * 60),
+	};
 
-		// Find and update guest user in mongodb
-		const dbUpdateResult = await dbGuestUsers.findOneAndReplace({
-			_id: guildMember.id,
-		}, guestDbUser, queryOptions);
-		if (dbUpdateResult == null) {
-			console.error('Failed to insert into DB');
-			return;
-		}
+	// Find and update guest user in mongodb
+	const dbUpdateResult = await dbGuestUsers.findOneAndReplace({
+		_id: guildMember.id,
+	}, guestDbUser, queryOptions);
+	if (dbUpdateResult == null) {
+		console.error('Failed to insert into DB');
+		return;
+	}
 
-		await db.close();
-		console.log(`/guest-pass end user ${guildMember.user.tag} inserted into guestUsers`);
+	await dbInstance.close();
+	console.log(`/guest-pass end user ${guildMember.user.tag} inserted into guestUsers`);
 
-		// Add role to member
-		guildMember.roles.add(guestRole).catch(console.error);
-		console.log(`user ${guildMember.id} given ${constants.DISCORD_ROLE_GUEST_PASS} role`);
-	});
+	// Add role to member
+	guildMember.roles.add(guestRole).catch(console.error);
+	console.log(`user ${guildMember.id} given ${constants.DISCORD_ROLE_GUEST_PASS} role`);
+	
 
 	// Send out notification on timer
 	client.setTimeout(() => {
@@ -102,31 +99,26 @@ module.exports.grantGuestPass = async (ctx: CommandContext) => {
 	}, (expiresInHours * 1000 * 60 * 60) - (1000 * 60 * 15));
 
 	// Handle removal of guest pass
-	client.setTimeout(() => {
-		db.connect(constants.DB_NAME_DEGEN, async (err) => {
-			if (err) {
-				console.error('ERROR:', err);
-				return;
-			}
-			const dbGuestUsers = db.get().collection(constants.DB_COLLECTION_GUEST_USERS);
-			const guestDBQuery = {
-				_id: guildMember.id,
-			};
-			const dbDeleteResult = await dbGuestUsers.findOneAndDelete(guestDBQuery);
-			if (dbDeleteResult == null) {
-				console.error('Failed to remove from DB');
-				return;
-			}
-			await db.close();
-			console.log(`guest pass removed for ${guildMember.id} in db`);
+	client.setTimeout(async () => {
+		const timeoutDB: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+		const timeoutDBGuestUsers = timeoutDB.collection(constants.DB_COLLECTION_GUEST_USERS);
+		const guestDBQuery = {
+			_id: guildMember.id,
+		};
+		const dbDeleteResult = await timeoutDBGuestUsers.findOneAndDelete(guestDBQuery);
+		if (dbDeleteResult == null) {
+			console.error('Failed to remove from DB');
+			return;
+		}
+		await dbInstance.close();
+		console.log(`guest pass removed for ${guildMember.id} in db`);
 
-			// Remove guest pass role
-			guildMember.roles.remove(guestRole).catch(console.error);
+		// Remove guest pass role
+		guildMember.roles.remove(guestRole).catch(console.error);
 
-			console.log(`/guest-pass end guest pass removed for ${guildMember.user.tag} in discord`);
+		console.log(`/guest-pass end guest pass removed for ${guildMember.user.tag} in discord`);
 
-			return guildMember.send(`Hi <@${guildMember.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
-		});
+		return guildMember.send(`Hi <@${guildMember.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
 	}, expiresInHours * 1000 * 60 * 60);
 
 	return ctx.send(`Hey <@${guildMember.id}>! You now have access for ${expiresInHours / 24} days.`);

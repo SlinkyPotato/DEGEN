@@ -1,4 +1,4 @@
-import { Db, MongoClient, MongoError } from 'mongodb';
+import { Db, MongoClient } from 'mongodb';
 import constants from '../constants';
 
 const state: {db: Db, client: MongoClient, mode} = {
@@ -7,34 +7,35 @@ const state: {db: Db, client: MongoClient, mode} = {
 	mode: null,
 };
 
-const db = {
-	connect(database: string, done: (error?: MongoError) => Promise<any>): Promise<any> {
-		try {
-			MongoClient.connect(
-				constants.MONGODB_URI_PARTIAL + database + constants.MONGODB_OPTIONS,
-				{ useUnifiedTopology: true },
-				async (err: MongoError, client: MongoClient) => {
-					if (err) {
-						return done(err);
-					} else {
-						state.db = client.db(database);
-						state.client = client;
-						return done();
-					}
-				},
-			);
-		} catch (e) {
-			return done(e);
-		}
+const dbInstance = {
+	connect: (database: string): Promise<any> => {
+		return MongoClient.connect(
+			constants.MONGODB_URI_PARTIAL + database + constants.MONGODB_OPTIONS,
+			{ useUnifiedTopology: true }).then((client: MongoClient) => {
+			state.db = client.db(database);
+			state.client = client;
+			return client;
+		}).catch(e => {
+			console.log('ERROR', e);
+			return e;
+		});
 	},
 
-	get(): Db {
+	db(): Db {
 		return state.db;
+	},
+	
+	async dbConnect(database: string): Promise<Db> {
+		await this.connect(database);
+		return this.db();
 	},
 
 	close(): Promise<void> {
-		return state.client.close();
+		const closePromise = state.client.close();
+		state.db = null;
+		state.client = null;
+		return closePromise;
 	},
 };
 
-export default db;
+export default dbInstance;

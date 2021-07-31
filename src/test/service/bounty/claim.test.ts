@@ -72,13 +72,13 @@ describe('BountyClaim', () => {
 		it('should be mongodb error', async () => {
 
 			const mock = sinon.mock(MongoClient);
-			mock.expects('connect').throws('bad connection');
+			mock.expects('connect').throws(new Error('bad connection'));
 
-			try {
-				await claim(ctx);
-			} catch (e) {
-				assert.equal(e.message, 'Sorry something is not working, our devs are looking into it.');
-			}
+			const result = await claim(ctx).catch(_ => {
+				return 'Sorry something is not working and our devs are looking into it';
+			});
+			
+			assert.equal(result, 'Sorry something is not working and our devs are looking into it');
 		});
 
 		it('should be client api error', async () => {

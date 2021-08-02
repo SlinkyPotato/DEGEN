@@ -30,6 +30,8 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 		console.log(`${guildMember.user.tag} does not have access to delete bounty`);
 		return guildMember.send(`<@${guildMember.user.id}> Sorry you do not have access to delete!`);
 	}
+	
+	console.log(`${guildMember.user.tag} is authorized to delete bounties`);
 
 	if (!(dbBountyResult.status === 'Draft' || dbBountyResult.status === 'Open')) {
 		console.log(`${bountyId} bounty is not open or in draft`);

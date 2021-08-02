@@ -2,8 +2,7 @@ import constants from '../constants';
 import { GuildMember, Message, TextChannel } from 'discord.js';
 import { BountyReward } from '../types/bounty/BountyReward';
 import channelIDs from '../constants/channelIDs';
-
-const ValidationError = require('../errors/ValidationError');
+import ValidationError from '../errors/ValidationError';
 
 /**
  * Utilities file for bounty commands

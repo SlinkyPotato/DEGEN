@@ -1,29 +1,15 @@
 import BountyUtils from '../../app/utils/BountyUtils';
-import * as sinon from 'sinon';
-import * as chai from 'chai';
-
-const assert = chai.assert;
 
 describe('BountyUtils', () => {
-	let ctx;
 	let guildMember;
 
 	beforeEach(() => {
-		ctx = {
-			user: {
-				bot: null,
-				id: '567865362541182987',
-				mention: 'George',
-			},
-			send: (message: string) => { return message; },
-		};
 		guildMember = {
 			send: (message: string) => { return message; },
+			user: {
+				id: '567865362541182987',
+			},
 		};
-	});
-
-	afterEach(() => {
-		sinon.restore();
 	});
 
 	describe('BountyId Validation', () => {
@@ -31,27 +17,27 @@ describe('BountyUtils', () => {
 		it('should be valid for string', () => {
 			try {
 				BountyUtils.validateBountyId(guildMember, '60f8492fa6a710dbb50b8b7d');
-				assert.equal(true, true);
+				expect(true).toStrictEqual(true);
 			} catch (e) {
-				assert.equal(true, false);
+				expect(true).toStrictEqual(false);
 			}
 		});
 
 		it('should be invalid for null', async () => {
 			try {
 				await BountyUtils.validateBountyId(guildMember, null);
-				assert.equal(false, true);
+				expect(false).toStrictEqual(true);
 			} catch (e) {
-				assert.equal(e.message, 'invalid bountyId');
+				expect(e.message).toStrictEqual('invalid bountyId');
 			}
 		});
 
 		it('should be invalid for special characters', async () => {
 			try {
 				await BountyUtils.validateBountyId(guildMember, '!!!!');
-				assert.equal(false, true);
+				expect(false).toStrictEqual(true);
 			} catch (e) {
-				assert.equal(e.message, 'invalid bountyId');
+				expect(e.message).toStrictEqual('invalid bountyId');
 			}
 		});
 	});
@@ -59,24 +45,24 @@ describe('BountyUtils', () => {
 	describe('BountyType Validation', () => {
 		it('should be valid for uppercase string', async () => {
 			await BountyUtils.validateBountyType(guildMember, 'OPEN');
-			assert.equal(true, true);
+			expect(true).toStrictEqual(true);
 		});
 
 		it('should be invalid for lowercase string', async () => {
 			try {
 				await BountyUtils.validateBountyType(guildMember, 'open');
-				assert.equal(false, true);
+				expect(false).toStrictEqual(true);
 			} catch (e) {
-				assert.equal(e.message, 'invalid bounty type');
+				expect(e.message).toStrictEqual('invalid bounty type');
 			}
 		});
 
 		it('should be invalid for null', async () => {
 			try {
 				await BountyUtils.validateBountyType(guildMember, null);
-				assert.equal(false, true);
+				expect(false).toStrictEqual(true);
 			} catch (e) {
-				assert.equal(e.message, 'invalid bounty type');
+				expect(e.message).toStrictEqual('invalid bounty type');
 			}
 		});
 	});

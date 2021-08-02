@@ -49,7 +49,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 			],
 			timestamp: new Date(),
 			footer: {
-				text: '🏴 - claimBounty | 📝 - edit | ❌ - delete',
+				text: '🏴 - start | 📝 - edit | ❌ - delete',
 			},
 		},
 	};

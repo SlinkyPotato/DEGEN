@@ -16,14 +16,14 @@ export default (reaction: MessageReaction, user: User): Promise<any> => {
 		console.log(`${user.tag} attempting to claim a bounty from the bounty board`);
 		return claimBountyForValidId(guildMember, bountyId, message);
 	} else if (reaction.emoji.name === '📝') {
-		console.log(`${user.tag} edited a bounty from the bounty board`);
+		console.log(`${user.tag} attempting to edit a bounty from the bounty board`);
 		return user.send('Sorry edit not yet available. Please delete bounty with /bounty delete command');
 	} else if (reaction.emoji.name === '❌') {
-		console.log(`${user.tag} deleted a bounty`);
+		console.log(`${user.tag} attempting to delete a bounty`);
 		return deleteBountyForValidId(guildMember, bountyId, message);
 	} else if (reaction.emoji.name === '✅') {
-		console.log('invalid emoji given');
+		console.log(`${user.tag} attempting to mark bounty complete`);
 	} else if (reaction.emoji.name === '🆘') {
-		
+		console.log(`${user.tag} attempting to seek help`);
 	}
 };

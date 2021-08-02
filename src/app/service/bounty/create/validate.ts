@@ -2,19 +2,16 @@ import { CommandContext } from 'slash-create';
 import constants from '../../../constants';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../../utils/BountyUtils';
-import ServiceUtils from '../../../utils/ServiceUtils';
 import { GuildMember, Message, MessageOptions, TextChannel } from 'discord.js';
 import dbInstance from '../../../utils/db';
 import channelIDs from '../../../constants/channelIDs';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community/';
 
-export default async (ctx: CommandContext): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	if (ctx.user.bot) return;
 
 	const bountyId = ctx.options.create.validate['bounty-id'];
-	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
-
 	await BountyUtils.validateBountyId(ctx, guildMember, bountyId);
 	return finalizeBounty(ctx, guildMember, bountyId);
 };

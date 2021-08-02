@@ -4,6 +4,7 @@ import { retrieveGuestRole } from '../../service/GuestPassService';
 import client from '../../app';
 import { Db } from 'mongodb';
 import dbInstance from '../../utils/db';
+import roleIDs from '../../constants/roleIDs';
 
 const expiresInHours = 168;
 
@@ -30,7 +31,12 @@ module.exports = class GuestPass extends SlashCommand {
 				[process.env.DISCORD_SERVER_ID]: [
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: process.env.DISCORD_ROLE_LEVEL_2,
+						id: roleIDs.level2,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIDs.admin,
 						permission: true,
 					},
 				],

@@ -4,14 +4,14 @@ import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 import dbInstance from '../../utils/db';
+import { GuildMember } from 'discord.js';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 
-export default async (ctx: CommandContext): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	if (ctx.user.bot) return;
 
 	const bountyId = ctx.options.claim['bounty-id'];
-	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 	await BountyUtils.validateBountyId(ctx, guildMember, bountyId);
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
@@ -36,6 +36,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 		return ctx.send(`Sorry bounty \`${bountyId}\` is not Open.`);
 	}
 
+	const currentDate = (new Date()).toISOString();
 	const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
 		$set: {
 			claimedBy: {
@@ -43,6 +44,13 @@ export default async (ctx: CommandContext): Promise<any> => {
 				'discordId': ctx.user.id,
 			},
 			claimedAt: Date.now(),
+			status: 'In-Progress',
+		},
+		$push: {
+			statusHistory: {
+				status: 'In-Progress',
+				setAt: currentDate,
+			},
 		},
 	});
 

@@ -1,18 +1,16 @@
 import { CommandContext } from 'slash-create';
 import constants from '../../constants';
 import { Cursor, Db } from 'mongodb';
-import ServiceUtils from '../../utils/ServiceUtils';
 import BountyUtils from '../../utils/BountyUtils';
 import dbInstance from '../../utils/db';
+import { GuildMember } from 'discord.js';
 
 const DB_RECORD_LIMIT = 10;
 
-export default async (ctx: CommandContext): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	if (ctx.user.bot) return;
 
 	const listType: string = ctx.options.list['list-type'];
-	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
-
 	await BountyUtils.validateBountyType(ctx, guildMember, listType);
 
 	let dbRecords: Cursor;

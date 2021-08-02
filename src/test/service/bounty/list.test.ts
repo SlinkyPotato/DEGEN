@@ -8,6 +8,7 @@ const assert = chai.assert;
 describe('BountyList', () => {
 	let ctx;
 	let serviceUtilsMock;
+	let guildMember;
 
 	beforeEach(() => {
 		ctx = {
@@ -38,9 +39,8 @@ describe('BountyList', () => {
 
 		it('should be invalid bounty-type', async function() {
 			ctx.options.list['list-type'] = 'sadfasdfsdaf';
-
 			try {
-				await list(ctx);
+				await list(ctx, guildMember);
 			} catch (e) {
 				assert.equal(e.message, 'invalid bounty type');
 			}

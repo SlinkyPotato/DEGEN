@@ -6,10 +6,9 @@ import dbInstance from '../../utils/db';
 import BountyUtils from '../../utils/BountyUtils';
 import { GuildMember } from 'discord.js';
 
-export const deleteBounty = async (ctx: CommandContext): Promise<any> => {
+export const deleteBounty = async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 
 	const bountyId = ctx.options.delete['bounty-id'];
-	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 	await BountyUtils.validateBountyId(ctx, guildMember, bountyId);
 	
 	return deleteBountyForValidId(ctx, guildMember, bountyId);
@@ -32,7 +31,7 @@ export const deleteBountyForValidId = async (ctx: CommandContext, guildMember: G
 		return ctx.send(`<@${ctx.user.id}> looks like bounty \`${bountyId}\` is already deleted!`);
 	}
 
-	if (!(ServiceUtils.isUserAdmin(guildMember) || dbBountyResult.createdBy.discordId === guildMember.id)) {
+	if (!(ServiceUtils.isAdmin(guildMember) || dbBountyResult.createdBy.discordId === guildMember.id)) {
 		console.log(`${ctx.user.username}#${ctx.user.discriminator} does not have access to delete bounty`);
 		return ctx.send(`<@${ctx.user.id}> Sorry you do not have access to delete!`);
 	}

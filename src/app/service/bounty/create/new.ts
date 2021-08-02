@@ -11,10 +11,8 @@ import { deleteBountyForValidId } from '../deleteBounty';
 const BOUNTY_BOARD_URL = 'https://bankless.community/';
 const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
 
-export default async (ctx: CommandContext): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	if (ctx.user.bot) return;
-
-	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 
 	const title = ctx.options.create.new.title;
 	const summary = ctx.options.create.new.summary;
@@ -122,7 +120,8 @@ const handleBountyReaction = (message: Message, ctx: CommandContext, guildMember
 			return finalizeBounty(ctx, guildMember, bountyId);
 		} else if (reaction.emoji.name === '📝') {
 			console.log('/bounty create new | :pencil: given');
-			return guildMember.send('Please go to website to make changes');
+			// return guildMember.send('Please go to website to make changes');
+			return guildMember.send('Sorry edit not yet available. Please delete bounty with /bounty delete command');
 		} else {
 			console.log('/bounty create new | delete given');
 			return deleteBountyForValidId(ctx, guildMember, bountyId);

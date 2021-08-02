@@ -10,6 +10,7 @@ const assert = chai.assert;
 describe('BountyClaim', () => {
 	let ctx;
 	let serviceUtilsMock;
+	let guildMember;
 
 	beforeEach(() => {
 		ctx = {
@@ -42,7 +43,7 @@ describe('BountyClaim', () => {
 			ctx.options.claim['bounty-id'] = null;
 
 			try {
-				await claim(ctx);
+				await claim(ctx, guildMember);
 			} catch (e) {
 				assert.equal(e.message, 'invalid bountyId');
 			}
@@ -51,7 +52,7 @@ describe('BountyClaim', () => {
 		it('should be invalid bountyId full special character', async function() {
 			ctx.options.claim['bounty-id'] = '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$';
 			try {
-				await claim(ctx);
+				await claim(ctx, guildMember);
 			} catch (e) {
 				assert.equal(e.message, 'invalid bountyId');
 			}
@@ -60,7 +61,7 @@ describe('BountyClaim', () => {
 		it('should be invalid bountyId full negative numbers', async function() {
 			ctx.options.claim['bounty-id'] = '-10005';
 			try {
-				await claim(ctx);
+				await claim(ctx, guildMember);
 			} catch (e) {
 				assert.equal(e.message, 'invalid bountyId');
 			}
@@ -74,7 +75,7 @@ describe('BountyClaim', () => {
 			const mock = sinon.mock(MongoClient);
 			mock.expects('connect').throws(new Error('bad connection'));
 
-			const result = await claim(ctx).catch(_ => {
+			const result = await claim(ctx, guildMember).catch(_ => {
 				return 'Sorry something is not working and our devs are looking into it';
 			});
 			
@@ -87,7 +88,7 @@ describe('BountyClaim', () => {
 			mock.expects('getGuildAndMember').once().throws(new DiscordAPIError('', new Error('Mock Discord API Error'), 'GET', 405));
 
 			try {
-				await (await claim(ctx));
+				await (await claim(ctx, guildMember));
 			} catch (e) {
 				assert.equal(e.message, 'Mock Discord API Error');
 			}

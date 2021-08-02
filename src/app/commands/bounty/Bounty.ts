@@ -1,10 +1,18 @@
-import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
+import {
+	ApplicationCommandPermissionType,
+	CommandContext,
+	CommandOptionType,
+	SlashCommand,
+	SlashCreator,
+} from 'slash-create';
 import create from '../../service/bounty/create/new';
 import list from '../../service/bounty/list';
 import claim from '../../service/bounty/claim';
 import validate from '../../service/bounty/create/validate';
 import ValidationError from '../../errors/ValidationError';
 import { deleteBounty } from '../../service/bounty/deleteBounty';
+import ServiceUtils from '../../utils/ServiceUtils';
+import roleIDs from '../../constants/roleIDs';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -122,6 +130,31 @@ module.exports = class Bounty extends SlashCommand {
 				usages: 2,
 				duration: 1,
 			},
+			defaultPermission: false,
+			permissions: {
+				[process.env.DISCORD_SERVER_ID]: [
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIDs.level1,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIDs.level2,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIDs.level3,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIDs.level4,
+						permission: true,
+					},
+				],
+			},
 		});
 	}
 
@@ -129,26 +162,26 @@ module.exports = class Bounty extends SlashCommand {
 		if (ctx.user.bot) return;
 		console.log('/bounty start');
 
+		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		let command: Promise<any>;
-
 		switch (ctx.subcommands[0]) {
 		case 'list':
-			command = list(ctx);
+			command = list(ctx, guildMember);
 			break;
 		case 'create':
 			if (ctx.subcommands[1] === 'new') {
-				command = create(ctx);
+				command = create(ctx, guildMember);
 			} else if (ctx.subcommands[1] === 'open') {
-				command = validate(ctx);
+				command = validate(ctx, guildMember);
 			} else {
 				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
 			}
 			break;
 		case 'claim':
-			command = claim(ctx);
+			command = claim(ctx, guildMember);
 			break;
 		case 'delete':
-			command = deleteBounty(ctx);
+			command = deleteBounty(ctx, guildMember);
 			break;
 		default:
 			return ctx.send(`${ctx.user.mention} Please try again.`);

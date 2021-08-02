@@ -12,7 +12,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 
 	const bountyId = ctx.options.claim['bounty-id'];
 	const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
-	await BountyUtils.validateBountyId(ctx, guildMember, ctx.options.claim['bounty-id']);
+	await BountyUtils.validateBountyId(ctx, guildMember, bountyId);
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
@@ -39,7 +39,7 @@ export default async (ctx: CommandContext): Promise<any> => {
 	const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
 		$set: {
 			claimedBy: {
-				'discordHandle': ctx.user.username,
+				'discordHandle': ctx.user.username + '#' + ctx.user.discriminator,
 				'discordId': ctx.user.id,
 			},
 			claimedAt: Date.now(),

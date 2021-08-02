@@ -4,12 +4,13 @@ import list from '../../service/bounty/list';
 import claim from '../../service/bounty/claim';
 import validate from '../../service/bounty/create/validate';
 import ValidationError from '../../errors/ValidationError';
+import { deleteBounty } from '../../service/bounty/deleteBounty';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'bounty',
-			description: 'List, create, and claim bounties',
+			description: 'List, create, claim, delete, and mark bounties complete',
 			guildIDs: process.env.DISCORD_SERVER_ID,
 			options: [
 				{
@@ -103,6 +104,19 @@ module.exports = class Bounty extends SlashCommand {
 						},
 					],
 				},
+				{
+					name: 'delete',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Delete an open or in draft bounty',
+					options: [
+						{
+							name: 'bounty-id',
+							type: CommandOptionType.STRING,
+							description: 'Hash ID of the bounty',
+							required: true,
+						},
+					],
+				},
 			],
 			throttling: {
 				usages: 2,
@@ -132,6 +146,9 @@ module.exports = class Bounty extends SlashCommand {
 			break;
 		case 'claim':
 			command = claim(ctx);
+			break;
+		case 'delete':
+			command = deleteBounty(ctx);
 			break;
 		default:
 			return ctx.send(`${ctx.user.mention} Please try again.`);

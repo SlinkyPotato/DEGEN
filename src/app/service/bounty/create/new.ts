@@ -2,12 +2,13 @@ import { CommandContext, User } from 'slash-create';
 import constants from '../../../constants';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import BountyUtils from '../../../utils/BountyUtils';
-import { GuildMember, Message } from 'discord.js';
+import { GuildMember, Message, MessageOptions } from 'discord.js';
 import { finalizeBounty } from './validate';
 import { Db, Double, Int32 } from 'mongodb';
 import dbInstance from '../../../utils/db';
+import { deleteBountyForValidId } from '../deleteBounty';
 
-const BOUNTY_BOARD_URL = 'https://bankless.community';
+const BOUNTY_BOARD_URL = 'https://bankless.community/';
 const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
 
 export default async (ctx: CommandContext): Promise<any> => {
@@ -41,14 +42,35 @@ export default async (ctx: CommandContext): Promise<any> => {
 	await dbInstance.close();
 
 	console.log(`user ${ctx.user.username} inserted into db`);
-	await ctx.send(`${ctx.user.mention} Bounty drafted! I just sent you a message.`);
-	const message: Message = await guildMember.send(`<@${ctx.user.id}> Please finalize the bounty by reacting with an emoji:\n
-		 bounty page url: ${BOUNTY_BOARD_URL}/${dbInsertResult.insertedId}
-		 
-		 👍 - bounty is ready to be posted to #🧀-bounty-board
-		 📝 - let's make some additional changes to the bounty
-		 ❌ - delete the bounty
-		 `);
+	await ctx.send(`${ctx.user.mention} Sent you a DM!`);
+
+	const messageOptions: MessageOptions = {
+		embed: {
+			title: newBounty.title,
+			url: (BOUNTY_BOARD_URL + dbInsertResult.insertedId),
+			author: {
+				icon_url: guildMember.user.avatarURL(),
+				name: newBounty.createdBy.discordHandle,
+			},
+			description: newBounty.summary,
+			fields: [
+				{ name: 'Reward', value: newBounty.reward.amount + ' ' + newBounty.reward.currency, inline: true },
+				{ name: 'Status', value: 'Open', inline: true },
+				{ name: 'Deadline', value: newBounty.dueAt, inline: true },
+				{ name: 'Criteria', value: newBounty.criteria },
+				{ name: 'Summary', value: newBounty.description },
+				{ name: 'CreatedBy', value: newBounty.createdBy.discordHandle },
+				{ name: 'HashId', value: dbInsertResult.insertedId },
+			],
+			timestamp: new Date(),
+			footer: {
+				text: '👍 - publish | 📝 - edit | ❌ - delete',
+			},
+		},
+	};
+	
+	const message: Message = await guildMember.send(messageOptions) as Message;
+	
 	await message.react('👍');
 	await message.react('📝');
 	await message.react('❌');
@@ -103,7 +125,7 @@ const handleBountyReaction = (message: Message, ctx: CommandContext, guildMember
 			return guildMember.send('Please go to website to make changes');
 		} else {
 			console.log('/bounty create new | delete given');
-			// todo: delete bounty
+			return deleteBountyForValidId(ctx, guildMember, bountyId);
 		}
 	}).catch(_ => {
 		console.log('did not react');

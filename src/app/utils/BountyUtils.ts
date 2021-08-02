@@ -16,7 +16,7 @@ const BountyUtils = {
 	 * @param bountyId
 	 */
 	async validateBountyId(ctx: CommandContext, guildMember: GuildMember, bountyId: string): Promise<any> {
-		const BOUNTY_ID_REGEX = /^[a-f\d]{1,100}$/i;
+		const BOUNTY_ID_REGEX = /^[a-f\d]{1,24}$/i;
 		if ((bountyId == null || !BOUNTY_ID_REGEX.test(bountyId))) {
 			await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 			await guildMember.send(`<@${ctx.user.id}>\n` +
@@ -48,7 +48,7 @@ const BountyUtils = {
 	},
 
 	async validateSummary(ctx: CommandContext, guildMember: GuildMember, summary: string): Promise<any> {
-		const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,250}$/;
+		const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,4000}$/;
 		if (summary == null || !CREATE_SUMMARY_REGEX.test(summary)) {
 			await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 			await guildMember.send(`<@${ctx.user.id}>\n` +
@@ -85,7 +85,7 @@ const BountyUtils = {
 	},
 
 	async validateTitle(ctx: CommandContext, guildMember: GuildMember, title: string): Promise<any> {
-		const CREATE_TITLE_REGEX = /^[\w\s.!@#$%&,?']{1,50}$/;
+		const CREATE_TITLE_REGEX = /^[\w\s.!@#$%&,?']{1,250}$/;
 		if (title == null || !CREATE_TITLE_REGEX.test(title)) {
 			await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 			await guildMember.send(`<@${ctx.user.id}>\n` +
@@ -99,7 +99,7 @@ const BountyUtils = {
 	},
 
 	async validateCriteria(ctx: CommandContext, guildMember: GuildMember, criteria: string): Promise<any> {
-		const CREATE_CRITERIA_REGEX = /^[\w\s.!@#$%&,?']{1,250}$/;
+		const CREATE_CRITERIA_REGEX = /^[\w\s.!@#$%&,?']{1,1000}$/;
 		if (criteria == null || !CREATE_CRITERIA_REGEX.test(criteria)) {
 			await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 			await guildMember.send(`<@${ctx.user.id}>\n` +

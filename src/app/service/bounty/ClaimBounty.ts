@@ -2,8 +2,7 @@ import constants from '../../constants';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
 import dbInstance from '../../utils/db';
-import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
-import channelIDs from '../../constants/channelIDs';
+import { GuildMember, Message, MessageEmbed } from 'discord.js';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 
@@ -12,7 +11,9 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<any> 
 	return claimBountyForValidId(guildMember, bountyId);
 };
 
-export const claimBountyForValidId = async (guildMember: GuildMember, bountyId: string, message?: Message): Promise<any> => {
+export const claimBountyForValidId = async (guildMember: GuildMember,
+	bountyId: string, message?: Message,
+): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
 	
@@ -21,7 +22,7 @@ export const claimBountyForValidId = async (guildMember: GuildMember, bountyId: 
 		status: 'Open',
 	});
 	
-	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
+	await BountyUtils.checkBountyExists(guildMember, dbBountyResult.discordMessageId, bountyId);
 
 	if (dbBountyResult.claimedBy && dbBountyResult.status != 'Open') {
 		console.log(`${bountyId} bounty already claimed by ${dbBountyResult.claimedBy.discordHandle}`);
@@ -56,19 +57,14 @@ export const claimBountyForValidId = async (guildMember: GuildMember, bountyId: 
 		return guildMember.send('Sorry something is not working, our devs are looking into it.');
 	}
 	await dbInstance.close();
-	
 	console.log(`${bountyId} bounty claimed by ${guildMember.user.tag}`);
-	
-	await claimBountyMessage(guildMember, dbBountyResult, message);
+	await claimBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 	
 	return guildMember.send(`<@${guildMember.user.id}> Bounty claimed! Feel free to reach out at any time ${BOUNTY_BOARD_URL}/${bountyId}`);
 };
 
-export const claimBountyMessage = async (guildMember: GuildMember, dbBountyResult, message?: Message): Promise<any> => {
-	if (message === null) {
-		const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
-		message = await bountyChannel.messages.fetch(dbBountyResult.discordMessageId);
-	}
+export const claimBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
+	message = (message === null) ? await BountyUtils.getBountyMessage(guildMember, bountyMessageId) : message;
 	
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[1].value = 'In-Progress';

@@ -20,8 +20,10 @@ export default (reaction: MessageReaction, user: User): Promise<any> => {
 		return user.send('Sorry edit not yet available. Please delete bounty with /bounty delete command');
 	} else if (reaction.emoji.name === '❌') {
 		console.log(`${user.tag} deleted a bounty`);
-		// return deleteBountyForValidId(guildMember, bountyId, message);
-	} else {
+		return deleteBountyForValidId(guildMember, bountyId, message);
+	} else if (reaction.emoji.name === '✅') {
 		console.log('invalid emoji given');
+	} else if (reaction.emoji.name === '🆘') {
+		
 	}
 };

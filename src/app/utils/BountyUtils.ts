@@ -1,6 +1,7 @@
 import constants from '../constants';
-import { GuildMember } from 'discord.js';
+import { GuildMember, Message, TextChannel } from 'discord.js';
 import { BountyReward } from '../types/bounty/BountyReward';
+import channelIDs from '../constants/channelIDs';
 
 const ValidationError = require('../errors/ValidationError');
 
@@ -102,6 +103,11 @@ const BountyUtils = {
 			await guildMember.send(`Sorry <@${guildMember.user.id}>, we're not able to find an open bounty with ID \`${bountyId}\`.`);
 			throw new Error(`failed to find bounty ${bountyId}`);
 		}
+	},
+	
+	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string): Promise<Message> {
+		const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
+		return bountyChannel.messages.fetch(bountyMessageId);
 	},
 };
 

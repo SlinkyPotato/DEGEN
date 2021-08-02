@@ -1,5 +1,5 @@
 import * as chai from 'chai';
-import claim from '../../../app/service/bounty/claim';
+import claim from '../../../app/service/bounty/ClaimBounty';
 import * as sinon from 'sinon';
 import ServiceUtils from '../../../app/utils/ServiceUtils';
 import { MongoClient } from 'mongodb';

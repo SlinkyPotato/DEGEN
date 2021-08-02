@@ -2,10 +2,10 @@ import { CommandContext, User } from 'slash-create';
 import constants from '../../../constants';
 import BountyUtils from '../../../utils/BountyUtils';
 import { GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
-import { finalizeBounty } from './validate';
+import { finalizeBounty } from './PublishBounty';
 import { Db, Double, Int32 } from 'mongodb';
 import dbInstance from '../../../utils/db';
-import { deleteBountyForValidId } from '../deleteBounty';
+import { deleteBountyForValidId } from '../DeleteBounty';
 import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community/';
@@ -113,7 +113,6 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, bounty
 			return finalizeBounty(guildMember, bountyId);
 		} else if (reaction.emoji.name === '📝') {
 			console.log('/bounty create new | :pencil: given');
-			// return guildMember.send('Please go to website to make changes');
 			return guildMember.send('Sorry edit not yet available. Please delete bounty with /bounty delete command');
 		} else {
 			console.log('/bounty create new | delete given');

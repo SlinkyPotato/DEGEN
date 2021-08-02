@@ -13,7 +13,6 @@ module.exports = {
 				await reaction.fetch();
 			} catch (error) {
 				console.error('Something went wrong when fetching the message: ', error);
-				// Return as `reaction.message.author` may be undefined/null
 				return;
 			}
 		}
@@ -25,6 +24,11 @@ module.exports = {
 				console.error('Something is not working for pulling the user, maybe account was removed? lol');
 				return;
 			}
+		}
+		
+		if (user.bot) {
+			console.log('ignoring bot reactions');
+			return;
 		}
 		
 		await handleBountyBoardChannel(reaction, user as User);

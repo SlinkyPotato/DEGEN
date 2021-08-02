@@ -95,6 +95,14 @@ const BountyUtils = {
 			throw new ValidationError('invalid criteria');
 		}
 	},
+	
+	async checkBountyExists(guildMember: GuildMember, dbBountyResult: any | null, bountyId: string): Promise<any> {
+		if (dbBountyResult == null) {
+			console.log(`${bountyId} bounty not found in db`);
+			await guildMember.send(`Sorry <@${guildMember.user.id}>, we're not able to find an open bounty with ID \`${bountyId}\`.`);
+			throw new Error(`failed to find bounty ${bountyId}`);
+		}
+	},
 };
 
 export default BountyUtils;

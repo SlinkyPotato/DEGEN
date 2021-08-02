@@ -10,7 +10,7 @@ export const expiresInHours = 168;
 export default async (guestUser: GuildMember): Promise<any> => {
 	await addGuestUserToDb(guestUser);
 	await addGuestRoleToUser(guestUser);
-	await notifyUserOfGuestExpiration(guestUser);
+	notifyUserOfGuestExpiration(guestUser);
 	return removeGuestRoleOnExpiration(guestUser);
 };
 

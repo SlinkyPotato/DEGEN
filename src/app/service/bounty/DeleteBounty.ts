@@ -5,7 +5,7 @@ import dbInstance from '../../utils/db';
 import BountyUtils from '../../utils/BountyUtils';
 import { GuildMember } from 'discord.js';
 
-export const deleteBounty = async (guildMember: GuildMember, bountyId: string): Promise<any> => {
+export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
 	return deleteBountyForValidId(guildMember, bountyId);
 };
@@ -17,10 +17,7 @@ export const deleteBountyForValidId = async (guildMember: GuildMember, bountyId:
 		_id: new mongo.ObjectId(bountyId),
 	});
 
-	if (dbBountyResult == null) {
-		console.log(`${bountyId} bounty not found in db`);
-		return guildMember.send(`Sorry <@${guildMember.user.id}>, we're not able to find that bounty with ID \`${bountyId}\`.`);
-	}
+	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 
 	if (dbBountyResult.status === 'Deleted') {
 		console.log(`${bountyId} bounty already deleted`);

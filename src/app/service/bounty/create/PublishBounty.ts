@@ -22,10 +22,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 		status: 'Draft',
 	});
 
-	if (dbBountyResult == null) {
-		console.log(`${bountyId} bounty not found in db`);
-		return guildMember.send(`<@${guildMember.user.id}> Sorry we're not able to find the drafted bounty.`);
-	}
+	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 
 	if (dbBountyResult.status != 'Draft') {
 		console.log(`${bountyId} bounty is not drafted`);
@@ -47,17 +44,17 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 				{ name: 'Deadline', value: dbBountyResult.dueAt, inline: true },
 				{ name: 'Criteria', value: dbBountyResult.criteria },
 				{ name: 'Summary', value: dbBountyResult.description },
-				{ name: 'CreatedBy', value: dbBountyResult.createdBy.discordHandle },
+				{ name: 'Created By', value: dbBountyResult.createdBy.discordHandle },
 				{ name: 'HashId', value: dbBountyResult._id },
 			],
 			timestamp: new Date(),
 			footer: {
-				text: '🏴 - claim | 📝 - edit | ❌ - delete',
+				text: '🏴 - claimBounty | 📝 - edit | ❌ - delete',
 			},
 		},
 	};
 
-	const bountyChannel: TextChannel = await guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
+	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
 	const bountyMessage: Message = await bountyChannel.send(messageOptions) as Message;
 	await bountyMessage.react('🏴');
 	await bountyMessage.react('📝');

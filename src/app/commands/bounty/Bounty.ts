@@ -5,21 +5,21 @@ import {
 	SlashCommand,
 	SlashCreator,
 } from 'slash-create';
-import create from '../../service/bounty/create/new';
-import list from '../../service/bounty/list';
-import claim from '../../service/bounty/claim';
-import validate from '../../service/bounty/create/validate';
 import ValidationError from '../../errors/ValidationError';
-import { deleteBounty } from '../../service/bounty/deleteBounty';
+import DeleteBounty from '../../service/bounty/DeleteBounty';
 import ServiceUtils from '../../utils/ServiceUtils';
 import roleIDs from '../../constants/roleIDs';
 import { BountyCreateNew } from '../../types/bounty/BountyCreateNew';
+import ListBounty from '../../service/bounty/ListBounty';
+import CreateNewBounty from '../../service/bounty/create/CreateNewBounty';
+import PublishBounty from '../../service/bounty/create/PublishBounty';
+import ClaimBounty from '../../service/bounty/ClaimBounty';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'bounty',
-			description: 'List, create, claim, delete, and mark bounties complete',
+			description: 'List, create, claimBounty, delete, and mark bounties complete',
 			guildIDs: process.env.DISCORD_SERVER_ID,
 			options: [
 				{
@@ -167,23 +167,23 @@ module.exports = class Bounty extends SlashCommand {
 		let command: Promise<any>;
 		switch (ctx.subcommands[0]) {
 		case 'list':
-			command = list(guildMember, ctx.options.list['list-type']);
+			command = ListBounty(guildMember, ctx.options.list['list-type']);
 			break;
 		case 'create':
 			if (ctx.subcommands[1] === 'new') {
 				const params = this.buildBountyCreateNewParams(ctx.options.create.new);
-				command = create(guildMember, params, ctx);
+				command = CreateNewBounty(guildMember, params, ctx);
 			} else if (ctx.subcommands[1] === 'open') {
-				command = validate(guildMember, ctx.options.create.validate['bounty-id']);
+				command = PublishBounty(guildMember, ctx.options.create.validate['bounty-id']);
 			} else {
 				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
 			}
 			break;
 		case 'claim':
-			command = claim(guildMember, ctx.options.claim['bounty-id']);
+			command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
 			break;
 		case 'delete':
-			command = deleteBounty(guildMember, ctx.options.delete['bounty-id']);
+			command = DeleteBounty(guildMember, ctx.options.delete['bounty-id']);
 			break;
 		default:
 			return ctx.send(`${ctx.user.mention} Please try again.`);

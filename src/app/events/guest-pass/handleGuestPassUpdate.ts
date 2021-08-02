@@ -1,4 +1,3 @@
-import constants from '../../constants';
 import { GuildMember } from 'discord.js';
 
 export default async (oldMember: GuildMember, newMember: GuildMember) => {

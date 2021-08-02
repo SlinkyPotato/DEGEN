@@ -1,6 +1,6 @@
 import * as chai from 'chai';
 import * as sinon from 'sinon';
-import list from '../../../app/service/bounty/list';
+import list from '../../../app/service/bounty/ListBounty';
 import ServiceUtils from '../../../app/utils/ServiceUtils';
 
 const assert = chai.assert;

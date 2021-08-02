@@ -91,10 +91,9 @@ const handleBountyReaction = (message: Message, ctx: CommandContext, guildMember
 		return ['📝', '👍', '❌'].includes(reaction.emoji.name) && !user.bot;
 	}, {
 		max: 1,
-		time: 60000 * 60,
+		time: (60000 * 60),
 		errors: ['time'],
 	}).then(collected => {
-		console.log('/bounty create new | handling reaction to bounty');
 		const reaction = collected.first();
 		if (reaction.emoji.name === '👍') {
 			console.log('/bounty create new | :thumbsup: up given');

@@ -62,7 +62,7 @@ module.exports = class Bounty extends SlashCommand {
 							],
 						},
 						{
-							name: 'validate',
+							name: 'open',
 							type: CommandOptionType.SUB_COMMAND,
 							description: 'Validate discord handle drafted bounty from the website',
 							options: [
@@ -124,7 +124,7 @@ module.exports = class Bounty extends SlashCommand {
 		case 'create':
 			if (ctx.subcommands[1] === 'new') {
 				command = create(ctx);
-			} else if (ctx.subcommands[1] === 'validate') {
+			} else if (ctx.subcommands[1] === 'open') {
 				command = validate(ctx);
 			} else {
 				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);

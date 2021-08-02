@@ -3,10 +3,9 @@ import constants from '../../../constants';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../../utils/BountyUtils';
 import ServiceUtils from '../../../utils/ServiceUtils';
-import { Channel, GuildChannel, GuildMember, MessageOptions, TextChannel } from 'discord.js';
+import { GuildMember, Message, MessageOptions, TextChannel } from 'discord.js';
 import dbInstance from '../../../utils/db';
 import channelIDs from '../../../constants/channelIDs';
-import client from '../../../app';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community/';
 
@@ -41,14 +40,42 @@ export const finalizeBounty = async (ctx: CommandContext, guildMember: GuildMemb
 		return ctx.send(`<@${ctx.user.id}> Sorry bounty is not drafted.`);
 	}
 
+	const messageOptions: MessageOptions = {
+		embed: {
+			title: dbBountyResult.title,
+			url: BOUNTY_BOARD_URL + dbBountyResult._id,
+			author: {
+				icon_url: guildMember.user.avatarURL(),
+				name: dbBountyResult.createdBy.discordHandle,
+			},
+			description: dbBountyResult.summary,
+			fields: [
+				{ name: 'Reward', value: dbBountyResult.reward.amount + ' ' + dbBountyResult.reward.currency, inline: true },
+				{ name: 'Status', value: 'Open', inline: true },
+				{ name: 'Deadline', value: dbBountyResult.dueAt, inline: true },
+				{ name: 'Criteria', value: dbBountyResult.criteria },
+				{ name: 'Summary', value: dbBountyResult.description },
+				{ name: 'CreatedBy', value: dbBountyResult.createdBy.discordHandle },
+				{ name: 'HashId', value: dbBountyResult._id },
+			],
+			timestamp: new Date(),
+			footer: {
+				text: '🏴 - claim | 📝 - edit | ❌ - delete',
+			},
+		},
+	};
+
+	const bountyChannel: TextChannel = await guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
+	const bountyMessage: Message = await bountyChannel.send(messageOptions) as Message;
+	await bountyMessage.react('🏴');
+	await bountyMessage.react('📝');
+	await bountyMessage.react('❌');
+
 	const currentDate = (new Date()).toISOString();
 	const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
 		$set: {
-			createdBy: {
-				discordHandle: ctx.user.username,
-				discordId: ctx.user.id,
-			},
 			status: 'Open',
+			discordMessageId: bountyMessage.id,
 		},
 		$push: {
 			statusHistory: {
@@ -63,34 +90,7 @@ export const finalizeBounty = async (ctx: CommandContext, guildMember: GuildMemb
 		return ctx.send(`<@${ctx.user.id}> Sorry something is not working, our devs are looking into it.`);
 	}
 
-	const messageOptions: MessageOptions = {
-		embed: {
-			title: dbBountyResult.title,
-			url: BOUNTY_BOARD_URL + dbBountyResult._id,
-			author: {
-				icon_url: guildMember.user.avatarURL(),
-				name: dbBountyResult.createdBy.discordHandle,
-			},
-			description: dbBountyResult.summary,
-			fields: [
-				{ name: 'Reward', value: dbBountyResult.reward.amount + ' ' + dbBountyResult.reward.currency },
-				{ name: 'Summary', value: dbBountyResult.description },
-				{ name: 'Status', value: dbBountyResult.status },
-				{ name: 'Criteria', value: dbBountyResult.criteria },
-				{ name: 'CreatedBy', value: dbBountyResult.createdBy.discordHandle },
-				{ name: 'Deadline', value: dbBountyResult.dueAt },
-			],
-			timestamp: new Date(),
-			footer: {
-				text: 'footer? maybe',
-			},
-		},
-	};
-
 	await dbInstance.close();
 
-	const bountyChannel: TextChannel = await guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
-	await bountyChannel.send(messageOptions);
 	return guildMember.send(`<@${ctx.user.id}> Bounty published to #🧀-bounty-board and the website! ${constants.BOUNTY_BOARD_URL}/${bountyId}`);
-	// return ctx.send(slashMsgOptions);
 };

@@ -2,15 +2,12 @@ import { CommandContext } from 'slash-create';
 import constants from '../../constants';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
-import ServiceUtils from '../../utils/ServiceUtils';
 import dbInstance from '../../utils/db';
 import { GuildMember } from 'discord.js';
 
 const BOUNTY_BOARD_URL = 'https://bankless.community';
 
 export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
-	if (ctx.user.bot) return;
-
 	const bountyId = ctx.options.claim['bounty-id'];
 	await BountyUtils.validateBountyId(ctx, guildMember, bountyId);
 

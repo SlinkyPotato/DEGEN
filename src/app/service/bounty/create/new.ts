@@ -1,8 +1,7 @@
 import { CommandContext, User } from 'slash-create';
 import constants from '../../../constants';
-import ServiceUtils from '../../../utils/ServiceUtils';
 import BountyUtils from '../../../utils/BountyUtils';
-import { GuildMember, Message, MessageOptions } from 'discord.js';
+import { GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
 import { finalizeBounty } from './validate';
 import { Db, Double, Int32 } from 'mongodb';
 import dbInstance from '../../../utils/db';
@@ -114,7 +113,7 @@ const handleBountyReaction = (message: Message, ctx: CommandContext, guildMember
 		time: (60000 * 60),
 		errors: ['time'],
 	}).then(collected => {
-		const reaction = collected.first();
+		const reaction: MessageReaction = collected.first();
 		if (reaction.emoji.name === '👍') {
 			console.log('/bounty create new | :thumbsup: up given');
 			return finalizeBounty(ctx, guildMember, bountyId);

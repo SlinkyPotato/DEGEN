@@ -53,7 +53,7 @@ const BountyUtils = {
 			await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 			await guildMember.send(`<@${ctx.user.id}>\n` +
 				'Please enter a valid summary: \n' +
-				'- 250 characters maximum\n ' +
+				'- 4000 characters maximum\n ' +
 				'- alphanumeric\n ' +
 				'- special characters: .!@#$%&,?',
 			);
@@ -90,7 +90,7 @@ const BountyUtils = {
 			await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 			await guildMember.send(`<@${ctx.user.id}>\n` +
 				'Please enter a valid title: \n' +
-				'- 50 characters maximum\n ' +
+				'- 250 characters maximum\n ' +
 				'- alphanumeric\n ' +
 				'- special characters: .!@#$%&,?',
 			);
@@ -104,7 +104,7 @@ const BountyUtils = {
 			await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 			await guildMember.send(`<@${ctx.user.id}>\n` +
 				'Please enter a valid criteria: \n' +
-				'- 250 characters maximum\n ' +
+				'- 1000 characters maximum\n ' +
 				'- alphanumeric\n ' +
 				'- special characters: .!@#$%&,?',
 			);

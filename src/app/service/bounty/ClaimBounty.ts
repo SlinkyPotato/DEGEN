@@ -61,7 +61,7 @@ export const claimBountyForValidId = async (guildMember: GuildMember, bountyId: 
 	
 	await claimBountyMessage(guildMember, dbBountyResult, message);
 	
-	return guildMember.send(`Bounty is now claimed by <@${guildMember.user.id}>! Please sign the bounty to begin work at ${BOUNTY_BOARD_URL}/${bountyId}`);
+	return guildMember.send(`<@${guildMember.user.id}> Bounty claimed! Feel free to reach out at any time ${BOUNTY_BOARD_URL}/${bountyId}`);
 };
 
 export const claimBountyMessage = async (guildMember: GuildMember, dbBountyResult, message?: Message): Promise<any> => {
@@ -73,10 +73,10 @@ export const claimBountyMessage = async (guildMember: GuildMember, dbBountyResul
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[1].value = 'In-Progress';
 	embedMessage.addField('Claimed By', guildMember.user.tag);
-	embedMessage.setFooter('✅ - finish bounty | 🆘 - help');
+	embedMessage.setFooter('✅ - finish | 🆘 - help');
+	await message.edit(embedMessage);
 
 	await message.reactions.removeAll();
 	await message.react('✅');
 	await message.react('🆘');
-	return message.react('❌');
 };

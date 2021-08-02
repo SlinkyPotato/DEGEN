@@ -1,4 +1,3 @@
-import { CommandContext } from 'slash-create';
 import constants from '../../constants';
 import { Cursor, Db } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
@@ -7,11 +6,8 @@ import { GuildMember } from 'discord.js';
 
 const DB_RECORD_LIMIT = 10;
 
-export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
-	if (ctx.user.bot) return;
-
-	const listType: string = ctx.options.list['list-type'];
-	await BountyUtils.validateBountyType(ctx, guildMember, listType);
+export default async (guildMember: GuildMember, listType: string): Promise<any> => {
+	await BountyUtils.validateBountyType(guildMember, listType);
 
 	let dbRecords: Cursor;
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
@@ -21,12 +17,12 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 
 	switch (listType) {
 	case 'CREATED_BY_ME':
-		introStr = `Showing max 10 bounties created by <@${ctx.user.id}>: \n\n`;
-		dbRecords = dbCollection.find({ 'createdBy.discordId': ctx.user.id }).limit(DB_RECORD_LIMIT);
+		introStr = `Showing max 10 bounties created by <@${guildMember.user.tag}>: \n\n`;
+		dbRecords = dbCollection.find({ 'createdBy.discordId': guildMember.user.id }).limit(DB_RECORD_LIMIT);
 		break;
 	case 'CLAIMED_BY_ME':
-		introStr = `Showing max 10 bounties claimed by <@${ctx.user.id}>: \n\n`;
-		dbRecords = dbCollection.find({ 'claimedBy.discordId': ctx.user.id }).limit(DB_RECORD_LIMIT);
+		introStr = `Showing max 10 bounties claimed by <@${guildMember.user.tag}>: \n\n`;
+		dbRecords = dbCollection.find({ 'claimedBy.discordId': guildMember.user.id }).limit(DB_RECORD_LIMIT);
 		break;
 	case 'OPEN':
 		introStr = 'Showing max 10 Open bounties: \n\n';
@@ -34,17 +30,16 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 		break;
 	default:
 		console.log('invalid list-type');
-		return ctx.send(`<@${ctx.user.id}> Please use a valid list-type`);
+		return guildMember.send(`<@${guildMember.user.id}> Please use a valid list-type`);
 	}
 	if (!await dbRecords.hasNext()) {
 		await dbInstance.close();
-		return ctx.send(`<@${ctx.user.id}> We couldn't find any bounties!`);
+		return guildMember.send(`<@${guildMember.user.id}> We couldn't find any bounties!`);
 	}
 
 	const formattedBountiesReply = await formatRecords(dbRecords);
 	await dbInstance.close();
-
-	await ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+	
 	return guildMember.send(introStr + formattedBountiesReply);
 };
 

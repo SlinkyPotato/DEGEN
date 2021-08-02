@@ -13,6 +13,7 @@ import ValidationError from '../../errors/ValidationError';
 import { deleteBounty } from '../../service/bounty/deleteBounty';
 import ServiceUtils from '../../utils/ServiceUtils';
 import roleIDs from '../../constants/roleIDs';
+import { BountyCreateNew } from '../../types/bounty/BountyCreateNew';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -166,22 +167,23 @@ module.exports = class Bounty extends SlashCommand {
 		let command: Promise<any>;
 		switch (ctx.subcommands[0]) {
 		case 'list':
-			command = list(ctx, guildMember);
+			command = list(guildMember, ctx.options.list['list-type']);
 			break;
 		case 'create':
 			if (ctx.subcommands[1] === 'new') {
-				command = create(ctx, guildMember);
+				const params = this.buildBountyCreateNewParams(ctx.options.create.new);
+				command = create(guildMember, params, ctx);
 			} else if (ctx.subcommands[1] === 'open') {
-				command = validate(ctx, guildMember);
+				command = validate(guildMember, ctx.options.create.validate['bounty-id']);
 			} else {
 				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
 			}
 			break;
 		case 'claim':
-			command = claim(ctx, guildMember);
+			command = claim(guildMember, ctx.options.claim['bounty-id']);
 			break;
 		case 'delete':
-			command = deleteBounty(ctx, guildMember);
+			command = deleteBounty(guildMember, ctx.options.delete['bounty-id']);
 			break;
 		default:
 			return ctx.send(`${ctx.user.mention} Please try again.`);
@@ -192,11 +194,25 @@ module.exports = class Bounty extends SlashCommand {
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
 		command.then(() => {
 			console.log('/bounty end');
+			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 		}).catch(e => {
 			if (!(e instanceof ValidationError)) {
 				console.error('ERROR', e);
 				return ctx.send('Sorry something is not working and our devs are looking into it');
 			}
 		});
+	}
+	
+	buildBountyCreateNewParams(ctxOptions): BountyCreateNew {
+		const [reward, symbol] = (ctxOptions.reward != null) ? ctxOptions.reward.split(' ') : [null, null];
+		return {
+			title: ctxOptions.title,
+			summary: ctxOptions.summary,
+			criteria: ctxOptions.criteria,
+			reward: {
+				amount: reward,
+				currencySymbol: symbol,
+			},
+		};
 	}
 };

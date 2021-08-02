@@ -1,10 +1,11 @@
-import constants from './../constants';
+import constants from '../../constants';
 import sleepTimer from 'util';
 import { Client } from '@notionhq/client';
-import { Client as DiscordClient, Role, RoleManager } from 'discord.js';
+import { Client as DiscordClient } from 'discord.js';
 import { Page } from '@notionhq/client/build/src/api-types';
 import { Db } from 'mongodb';
-import dbInstance from '../utils/db';
+import dbInstance from '../../utils/db';
+import ServiceUtils from '../../utils/ServiceUtils';
 
 const sleep = sleepTimer.promisify(setTimeout);
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
@@ -19,7 +20,7 @@ export default async (client: DiscordClient): Promise<void> => {
 	const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID);
 
 	// Retrieve Guest Pass Role
-	const guestRole = await module.exports.retrieveGuestRole(guild.roles);
+	const guestRole = await ServiceUtils.getGuestRole(guild.roles);
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbGuestUsers = db.collection(constants.DB_COLLECTION_GUEST_USERS);
@@ -110,66 +111,6 @@ export default async (client: DiscordClient): Promise<void> => {
 	}
 	console.log('guest pass service ready.');
 };
-
-// Retrieve the Guest Pass Role from guild
-export function retrieveGuestRole(roles: RoleManager): Role {
-	return roles.cache.find((role) => {
-		return role.id === process.env.DISCORD_ROLE_GUEST_PASS;
-	});
-}
-
-/**
- * Creates or updates page in Notion guest pass database.
- *
- * @param {string} tag Discord tag (e.g. hydrabolt#0001)
- * @param {boolean} activeGuestPass	Indicates if user has active guest pass
- */
-export async function updateNotionGuestPassDatabase(tag: string, activeGuestPass: boolean): Promise<void> {
-	// Check if page exists
-	const page = await module.exports.findGuestPassPageByDiscordTag(tag);
-
-	// Update page if exists, otherwise create new page
-	if (page) {
-		await notion.pages.update({
-			page_id: page.id,
-			properties: {
-				'Guest Pass': {
-					checkbox: activeGuestPass,
-					type: 'checkbox',
-				},
-			},
-		});
-	} else {
-		await notion.pages.create({
-			parent: {
-				database_id: process.env.NOTION_GUEST_PASS_DATABASE_ID,
-			},
-			properties: {
-				'Discord Tag': {
-					title: [
-						{
-							text: {
-								content: tag,
-							},
-							type: 'text',
-						},
-					],
-					type: 'title',
-				},
-				Date: {
-					date: {
-						start: new Date().toISOString().split('T')[0],
-					},
-					type: 'date',
-				},
-				'Guest Pass': {
-					checkbox: activeGuestPass,
-					type: 'checkbox',
-				},
-			},
-		});
-	}
-}
 
 /**
  * Return notion page from Guest Pass database for Discord tag

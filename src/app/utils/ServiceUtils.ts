@@ -2,7 +2,7 @@
  * Utilities for service layer
  */
 import { CommandContext } from 'slash-create';
-import { Guild, GuildMember } from 'discord.js';
+import { Guild, GuildMember, Role, RoleManager } from 'discord.js';
 import client from '../app';
 import roleIDs from '../constants/roleIDs';
 
@@ -13,6 +13,12 @@ const ServiceUtils = {
 			guild: guild,
 			guildMember: await guild.members.fetch(ctx.user.id),
 		};
+	},
+
+	getGuestRole(roles: RoleManager): Role {
+		return roles.cache.find((role) => {
+			return role.id === roleIDs.guestPass;
+		});
 	},
 	
 	isAdmin(guildMember: GuildMember): boolean {

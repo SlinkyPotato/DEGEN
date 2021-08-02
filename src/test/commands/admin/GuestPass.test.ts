@@ -1,25 +1,25 @@
 import * as sinon from 'sinon';
 import assert from 'assert';
 import client from '../../../app/app';
-
-const { grantGuestPass } = require('../../../app/commands/admin/GuestPass');
+import AddGuestPass from '../../../app/service/guest-pass/AddGuestPass';
 
 describe('GuestPass', () => {
 	let ctx;
+	let guestUser;
 
 	beforeEach(() => {
-		ctx = {
-			guildId: '345345345345345345',
-			options: {
-				user: {
-					bot: null,
-					id: '567865362541182987',
-				},
-			},
-			send: (message: string) => {
-				return message;
-			},
-		};
+		// ctx = {
+		// 	guildId: '345345345345345345',
+		// 	options: {
+		// 		user: {
+		// 			bot: null,
+		// 			id: '567865362541182987',
+		// 		},
+		// 	},
+		// 	send: (message: string) => {
+		// 		return message;
+		// 	},
+		// };
 	});
 
 	afterEach(() => {
@@ -38,7 +38,7 @@ describe('GuestPass', () => {
 				},
 			});
 
-			const result = await grantGuestPass(ctx);
+			const result = await AddGuestPass(guestUser);
 			assert.strictEqual(result, 'Bots don\'t need a guest pass!');
 		});
 

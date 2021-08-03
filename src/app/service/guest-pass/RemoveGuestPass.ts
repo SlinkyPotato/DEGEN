@@ -1,6 +1,6 @@
 import { Db, DeleteWriteOpResultObject } from 'mongodb';
 import dbInstance from '../../utils/db';
-import constants from '../../constants';
+import constants from '../constants/constants';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { GuildMember } from 'discord.js';
 

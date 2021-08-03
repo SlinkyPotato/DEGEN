@@ -1,5 +1,5 @@
 import { GuildMember, Message, MessageReaction, User } from 'discord.js';
-import channelIDs from '../../constants/channelIDs';
+import channelIDs from '../../service/constants/channelIDs';
 import { claimBountyForValidId } from '../../service/bounty/ClaimBounty';
 import { deleteBountyForValidId } from '../../service/bounty/DeleteBounty';
 import { submitBountyForValidId } from '../../service/bounty/SubmitBounty';

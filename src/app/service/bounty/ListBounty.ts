@@ -1,4 +1,4 @@
-import constants from '../../constants';
+import constants from '../constants/constants';
 import { Cursor, Db } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
 import dbInstance from '../../utils/db';

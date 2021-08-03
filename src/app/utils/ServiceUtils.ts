@@ -4,7 +4,7 @@
 import { CommandContext } from 'slash-create';
 import { Guild, GuildMember, Role, RoleManager } from 'discord.js';
 import client from '../app';
-import roleIDs from '../constants/roleIDs';
+import roleIDs from '../service/constants/roleIDs';
 
 const ServiceUtils = {
 	async getGuildAndMember(ctx: CommandContext): Promise<{ guild: Guild, guildMember: GuildMember }> {

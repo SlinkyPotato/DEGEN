@@ -1,5 +1,5 @@
 import { CommandContext, User } from 'slash-create';
-import constants from '../../../constants';
+import constants from '../../constants/constants';
 import BountyUtils from '../../../utils/BountyUtils';
 import { GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
 import { finalizeBounty } from './PublishBounty';

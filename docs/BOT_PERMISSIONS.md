@@ -14,4 +14,4 @@
 
 Permission Integer: `55566167120`
 
-Invite Link: `https://discord.com/api/oauth2/authorize?client_id=APP_ID_HERE&permissions=PERMIDDION_INTEGER&scope=bot%20applications.commands`
+Invite Link: `https://discord.com/api/oauth2/authorize?client_id=APP_ID_HERE&permissions=PERMISSION_INT_HERE&scope=bot%20applications.commands`

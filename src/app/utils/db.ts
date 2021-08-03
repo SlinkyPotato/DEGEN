@@ -1,5 +1,5 @@
 import { Db, MongoClient } from 'mongodb';
-import constants from '../constants';
+import constants from '../service/constants/constants';
 
 const state: {db: Db, client: MongoClient, mode} = {
 	db: null,

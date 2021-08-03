@@ -1,9 +1,9 @@
-import constants from '../../../constants';
+import constants from '../../constants/constants';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../../utils/BountyUtils';
 import { GuildMember, Message, MessageOptions, TextChannel } from 'discord.js';
 import dbInstance from '../../../utils/db';
-import channelIDs from '../../../constants/channelIDs';
+import channelIDs from '../../constants/channelIDs';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);

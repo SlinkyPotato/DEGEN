@@ -8,7 +8,7 @@ import {
 import ValidationError from '../../errors/ValidationError';
 import DeleteBounty from '../../service/bounty/DeleteBounty';
 import ServiceUtils from '../../utils/ServiceUtils';
-import roleIDs from '../../constants/roleIDs';
+import roleIDs from '../../service/constants/roleIDs';
 import { BountyCreateNew } from '../../types/bounty/BountyCreateNew';
 import ListBounty from '../../service/bounty/ListBounty';
 import CreateNewBounty from '../../service/bounty/create/CreateNewBounty';

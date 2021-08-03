@@ -1,4 +1,4 @@
-import constants from '../../constants';
+import constants from '../constants/constants';
 import sleepTimer from 'util';
 import { Client } from '@notionhq/client';
 import { Client as DiscordClient } from 'discord.js';

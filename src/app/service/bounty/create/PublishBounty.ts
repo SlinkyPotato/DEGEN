@@ -5,8 +5,6 @@ import { GuildMember, Message, MessageOptions, TextChannel } from 'discord.js';
 import dbInstance from '../../../utils/db';
 import channelIDs from '../../../constants/channelIDs';
 
-const BOUNTY_BOARD_URL = 'https://bankless.community/';
-
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
 	return finalizeBounty(guildMember, bountyId);
@@ -31,8 +29,9 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 
 	const messageOptions: MessageOptions = {
 		embed: {
+			color: '#1e7e34',
 			title: dbBountyResult.title,
-			url: BOUNTY_BOARD_URL + dbBountyResult._id,
+			url: constants.BOUNTY_BOARD_URL + dbBountyResult._id,
 			author: {
 				icon_url: guildMember.user.avatarURL(),
 				name: dbBountyResult.createdBy.discordHandle,
@@ -44,8 +43,8 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 				{ name: 'Deadline', value: dbBountyResult.dueAt, inline: true },
 				{ name: 'Criteria', value: dbBountyResult.criteria },
 				{ name: 'Summary', value: dbBountyResult.description },
-				{ name: 'Created By', value: dbBountyResult.createdBy.discordHandle },
-				{ name: 'HashId', value: dbBountyResult._id },
+				{ name: 'HashId', value: dbBountyResult._id},
+				{ name: 'Created By', value: dbBountyResult.createdBy.discordHandle, inline: true },
 			],
 			timestamp: new Date(),
 			footer: {

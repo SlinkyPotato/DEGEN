@@ -8,7 +8,6 @@ import dbInstance from '../../../utils/db';
 import { deleteBountyForValidId } from '../DeleteBounty';
 import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
 
-const BOUNTY_BOARD_URL = 'https://bankless.community/';
 const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
 
 export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: CommandContext): Promise<any> => {
@@ -41,7 +40,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 	const messageOptions: MessageOptions = {
 		embed: {
 			title: newBounty.title,
-			url: (BOUNTY_BOARD_URL + dbInsertResult.insertedId),
+			url: (constants.BOUNTY_BOARD_URL + dbInsertResult.insertedId),
 			author: {
 				icon_url: guildMember.user.avatarURL(),
 				name: newBounty.createdBy.discordHandle,
@@ -53,8 +52,8 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 				{ name: 'Deadline', value: newBounty.dueAt, inline: true },
 				{ name: 'Criteria', value: newBounty.criteria },
 				{ name: 'Summary', value: newBounty.description },
-				{ name: 'CreatedBy', value: newBounty.createdBy.discordHandle },
 				{ name: 'HashId', value: dbInsertResult.insertedId },
+				{ name: 'CreatedBy', value: newBounty.createdBy.discordHandle, inline: true },
 			],
 			timestamp: new Date(),
 			footer: {

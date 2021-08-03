@@ -15,6 +15,7 @@ import CreateNewBounty from '../../service/bounty/create/CreateNewBounty';
 import PublishBounty from '../../service/bounty/create/PublishBounty';
 import ClaimBounty from '../../service/bounty/ClaimBounty';
 import SubmitBounty from '../../service/bounty/SubmitBounty';
+import CompleteBounty from '../../service/bounty/CompleteBounty';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -32,6 +33,25 @@ module.exports = class Bounty extends SlashCommand {
 							name: 'bounty-id',
 							type: CommandOptionType.STRING,
 							description: 'Hash ID of the bounty',
+							required: true,
+						},
+					],
+				},
+				{
+					name: 'complete',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Mark bounty as complete and reward the claimer',
+					options: [
+						{
+							name: 'bounty-id',
+							type: CommandOptionType.STRING,
+							description: 'Hash ID of the bounty',
+							required: true,
+						},
+						{
+							name: 'is-complete',
+							type: CommandOptionType.BOOLEAN,
+							description: 'Is the bounty complete as per criteria?',
 							required: true,
 						},
 					],
@@ -199,9 +219,6 @@ module.exports = class Bounty extends SlashCommand {
 		case 'claim':
 			command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
 			break;
-		case 'submit':
-			command = SubmitBounty(guildMember, ctx.options.submit['bounty-id'], ctx.options.submit['url'], ctx.options.submit['notes']);
-			break;
 		case 'create':
 			if (ctx.subcommands[1] === 'new') {
 				const params = this.buildBountyCreateNewParams(ctx.options.create.new);
@@ -212,11 +229,17 @@ module.exports = class Bounty extends SlashCommand {
 				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
 			}
 			break;
+		case 'complete':
+			command = CompleteBounty(guildMember, ctx.options.complete['bounty-id'], ctx.options.complete['is-complete']);
+			break;
 		case 'delete':
 			command = DeleteBounty(guildMember, ctx.options.delete['bounty-id']);
 			break;
 		case 'list':
 			command = ListBounty(guildMember, ctx.options.list['list-type']);
+			break;
+		case 'submit':
+			command = SubmitBounty(guildMember, ctx.options.submit['bounty-id'], ctx.options.submit['url'], ctx.options.submit['notes']);
 			break;
 		default:
 			return ctx.send(`${ctx.user.mention} Please try again.`);

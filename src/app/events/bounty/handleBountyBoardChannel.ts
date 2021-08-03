@@ -3,6 +3,8 @@ import channelIDs from '../../constants/channelIDs';
 import { claimBountyForValidId } from '../../service/bounty/ClaimBounty';
 import { deleteBountyForValidId } from '../../service/bounty/DeleteBounty';
 import { submitBountyForValidId } from '../../service/bounty/SubmitBounty';
+import { completeBountyForValidId } from '../../service/bounty/CompleteBounty';
+import { seekHelpValidBountyId } from '../../service/bounty/SeekHelpBounty';
 
 export default (reaction: MessageReaction, user: User): Promise<any> => {
 	if (reaction.message.channel.id !== channelIDs.bountyBoard) {
@@ -23,15 +25,14 @@ export default (reaction: MessageReaction, user: User): Promise<any> => {
 		console.log(`${user.tag} attempting to delete a bounty`);
 		return deleteBountyForValidId(guildMember, bountyId, message);
 	} else if (reaction.emoji.name === '📮') {
-		console.log(`${user.tag} attempting to mark bounty complete`);
+		console.log(`${user.tag} attempting to submit bounty`);
 		// TODO: have bot ask user for details
 		return submitBountyForValidId(guildMember, bountyId, null, null, message);
 	} else if (reaction.emoji.name === '✅') {
-		
-		return null;
+		console.log(`${user.tag} attempting to mark bounty complete`);
+		return completeBountyForValidId(guildMember, bountyId, message);
 	} else if (reaction.emoji.name === '🆘') {
 		console.log(`${user.tag} attempting to seek help`);
-		return;
+		return seekHelpValidBountyId(guildMember, bountyId);
 	}
-	return;
 };

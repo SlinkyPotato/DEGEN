@@ -44,7 +44,6 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 			submittedAt: Date.now(),
 			status: 'In-Review',
 			submissionUrl: urlOfWork,
-			
 		},
 		$push: {
 			statusHistory: {
@@ -63,7 +62,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	console.log(`${bountyId} bounty submitted by ${guildMember.user.tag}`);
 	await submitBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 
-	return guildMember.send(`<@${guildMember.user.id}> Bounty in review! Look out for a follow up message from ${dbBountyResult.createdBy.id}`);
+	return guildMember.send(`<@${guildMember.user.id}> Bounty in review! Look out for a follow up message from <@${dbBountyResult.createdBy.id}>`);
 };
 
 export const submitBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
@@ -71,10 +70,12 @@ export const submitBountyMessage = async (guildMember: GuildMember, bountyMessag
 
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[1].value = 'In-Review';
-	embedMessage.addField('Submitted By', guildMember.user.tag);
-	embedMessage.setFooter('🆘 - help | bounty is in review');
+	embedMessage.setColor('#d39e00');
+	embedMessage.addField('Submitted By', guildMember.user.tag, true);
+	embedMessage.setFooter('✅ - complete | 🆘 - help | bounty is in review');
 	await message.edit(embedMessage);
 
 	await message.reactions.removeAll();
+	await message.react('✅');
 	await message.react('🆘');
 };

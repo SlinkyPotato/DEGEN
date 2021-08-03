@@ -4,8 +4,6 @@ import BountyUtils from '../../utils/BountyUtils';
 import dbInstance from '../../utils/db';
 import { GuildMember, Message, MessageEmbed } from 'discord.js';
 
-const BOUNTY_BOARD_URL = 'https://bankless.community';
-
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
 	return claimBountyForValidId(guildMember, bountyId);
@@ -60,7 +58,7 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 	console.log(`${bountyId} bounty claimed by ${guildMember.user.tag}`);
 	await claimBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 	
-	return guildMember.send(`<@${guildMember.user.id}> Bounty claimed! Feel free to reach out at any time ${BOUNTY_BOARD_URL}/${bountyId}`);
+	return guildMember.send(`<@${guildMember.user.id}> Bounty claimed! Feel free to reach out at any time ${constants.BOUNTY_BOARD_URL}${bountyId}`);
 };
 
 export const claimBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
@@ -68,11 +66,12 @@ export const claimBountyMessage = async (guildMember: GuildMember, bountyMessage
 	
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[1].value = 'In-Progress';
-	embedMessage.addField('Claimed By', guildMember.user.tag);
-	embedMessage.setFooter('✅ - complete | 🆘 - help');
+	embedMessage.setColor('#d39e00');
+	embedMessage.addField('Claimed By', guildMember.user.tag, true);
+	embedMessage.setFooter('📮 - submit | 🆘 - help');
 	await message.edit(embedMessage);
 
 	await message.reactions.removeAll();
-	await message.react('✅');
+	await message.react('📮');
 	await message.react('🆘');
 };

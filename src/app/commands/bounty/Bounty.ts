@@ -166,13 +166,13 @@ module.exports = class Bounty extends SlashCommand {
 							name: 'url',
 							type: CommandOptionType.STRING,
 							description: 'Url of work',
-							required: true,
+							required: false,
 						},
 						{
 							name: 'notes',
 							type: CommandOptionType.STRING,
 							description: 'any additional notes for bounty completion',
-							required: true,
+							required: false,
 						},
 					],
 				},
@@ -224,7 +224,7 @@ module.exports = class Bounty extends SlashCommand {
 				const params = this.buildBountyCreateNewParams(ctx.options.create.new);
 				command = CreateNewBounty(guildMember, params, ctx);
 			} else if (ctx.subcommands[1] === 'open') {
-				command = PublishBounty(guildMember, ctx.options.create.validate['bounty-id']);
+				command = PublishBounty(guildMember, ctx.options.create.open['bounty-id']);
 			} else {
 				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
 			}

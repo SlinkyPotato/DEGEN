@@ -7,6 +7,7 @@ import { Db, Double, Int32 } from 'mongodb';
 import dbInstance from '../../../utils/db';
 import { deleteBountyForValidId } from '../DeleteBounty';
 import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
+import ServiceUtils from '../../../utils/ServiceUtils';
 
 const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
 
@@ -49,7 +50,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 			fields: [
 				{ name: 'Reward', value: newBounty.reward.amount + ' ' + newBounty.reward.currency, inline: true },
 				{ name: 'Status', value: 'Open', inline: true },
-				{ name: 'Deadline', value: newBounty.dueAt, inline: true },
+				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(newBounty.dueAt), inline: true },
 				{ name: 'Criteria', value: newBounty.criteria },
 				{ name: 'Summary', value: newBounty.description },
 				{ name: 'HashId', value: dbInsertResult.insertedId },

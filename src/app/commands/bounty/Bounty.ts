@@ -14,7 +14,7 @@ import ListBounty from '../../service/bounty/ListBounty';
 import CreateNewBounty from '../../service/bounty/create/CreateNewBounty';
 import PublishBounty from '../../service/bounty/create/PublishBounty';
 import ClaimBounty from '../../service/bounty/ClaimBounty';
-import CompleteBounty from '../../service/bounty/CompleteBounty';
+import SubmitBounty from '../../service/bounty/SubmitBounty';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -32,31 +32,6 @@ module.exports = class Bounty extends SlashCommand {
 							name: 'bounty-id',
 							type: CommandOptionType.STRING,
 							description: 'Hash ID of the bounty',
-							required: true,
-						},
-					],
-				},
-				{
-					name: 'complete',
-					type: CommandOptionType.SUB_COMMAND,
-					description: 'Complete a bounty that you are working on. Bounty will be reviewed',
-					options: [
-						{
-							name: 'bounty-id',
-							type: CommandOptionType.STRING,
-							description: 'Hash ID of the bounty',
-							required: true,
-						},
-						{
-							name: 'url',
-							type: CommandOptionType.STRING,
-							description: 'Url of work',
-							required: true,
-						},
-						{
-							name: 'notes',
-							type: CommandOptionType.STRING,
-							description: 'any additional notes for bounty completion',
 							required: true,
 						},
 					],
@@ -156,6 +131,31 @@ module.exports = class Bounty extends SlashCommand {
 						},
 					],
 				},
+				{
+					name: 'submit',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Submit the bounty that you are working on. Bounty will be reviewed',
+					options: [
+						{
+							name: 'bounty-id',
+							type: CommandOptionType.STRING,
+							description: 'Hash ID of the bounty',
+							required: true,
+						},
+						{
+							name: 'url',
+							type: CommandOptionType.STRING,
+							description: 'Url of work',
+							required: true,
+						},
+						{
+							name: 'notes',
+							type: CommandOptionType.STRING,
+							description: 'any additional notes for bounty completion',
+							required: true,
+						},
+					],
+				},
 			],
 			throttling: {
 				usages: 2,
@@ -199,8 +199,8 @@ module.exports = class Bounty extends SlashCommand {
 		case 'claim':
 			command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
 			break;
-		case 'complete':
-			command = CompleteBounty(guildMember, ctx.options.complete['bounty-id'], ctx.options.complete['url'], ctx.options.complete['notes']);
+		case 'submit':
+			command = SubmitBounty(guildMember, ctx.options.submit['bounty-id'], ctx.options.submit['url'], ctx.options.submit['notes']);
 			break;
 		case 'create':
 			if (ctx.subcommands[1] === 'new') {

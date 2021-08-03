@@ -8,10 +8,10 @@ export default async (guildMember: GuildMember, bountyId: string, urlOfWork: str
 	await BountyUtils.validateBountyId(guildMember, bountyId);
 	await BountyUtils.validateUrl(guildMember, urlOfWork);
 	await BountyUtils.validateSummary(guildMember, notes);
-	return completeBountyForValidId(guildMember, bountyId, urlOfWork, notes);
+	return submitBountyForValidId(guildMember, bountyId, urlOfWork, notes);
 };
 
-export const completeBountyForValidId = async (guildMember: GuildMember,
+export const submitBountyForValidId = async (guildMember: GuildMember,
 	bountyId: string, urlOfWork: string, notes: string, message?: Message,
 ): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
@@ -37,11 +37,11 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 	const currentDate = (new Date()).toISOString();
 	const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
 		$set: {
-			completedBy: {
+			submittedBy: {
 				'discordHandle': guildMember.user.tag,
 				'discordId': guildMember.user.id,
 			},
-			completedAt: Date.now(),
+			submittedAt: Date.now(),
 			status: 'In-Review',
 			submissionUrl: urlOfWork,
 			
@@ -55,23 +55,23 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 	});
 
 	if (writeResult.modifiedCount != 1) {
-		console.log(`failed to update record ${bountyId} with completed user  <@${guildMember.user.tag}>`);
+		console.log(`failed to update record ${bountyId} with submitted user  <@${guildMember.user.tag}>`);
 		return guildMember.send('Sorry something is not working, our devs are looking into it.');
 	}
 	await dbInstance.close();
 
-	console.log(`${bountyId} bounty completed by ${guildMember.user.tag}`);
-	await completeBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
+	console.log(`${bountyId} bounty submitted by ${guildMember.user.tag}`);
+	await submitBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 
 	return guildMember.send(`<@${guildMember.user.id}> Bounty in review! Look out for a follow up message from ${dbBountyResult.createdBy.id}`);
 };
 
-export const completeBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
+export const submitBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
 	message = (message === null) ? await BountyUtils.getBountyMessage(guildMember, bountyMessageId) : message;
 
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[1].value = 'In-Review';
-	embedMessage.addField('Completed By', guildMember.user.tag);
+	embedMessage.addField('Submitted By', guildMember.user.tag);
 	embedMessage.setFooter('🆘 - help | bounty is in review');
 	await message.edit(embedMessage);
 

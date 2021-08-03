@@ -1,6 +1,7 @@
 import { GuildMember } from 'discord.js';
 
 export default async (oldMember: GuildMember, newMember: GuildMember) => {
+	// TODO: handle update guest pass role
 	// Check guest role was moved
 	// then execute RemoveGuestPass()
 	

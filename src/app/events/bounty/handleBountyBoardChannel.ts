@@ -12,7 +12,7 @@ export default (reaction: MessageReaction, user: User): Promise<any> => {
 		return;
 	}
 	const message: Message = reaction.message;
-	const bountyId: string = message.embeds[0].fields[6].value;
+	const bountyId: string = message.embeds[0].fields[5].value;
 	const guildMember: GuildMember = reaction.message.guild.member(user);
 
 	if (reaction.emoji.name === '🏴') {

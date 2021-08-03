@@ -1,48 +1,33 @@
-import * as chai from 'chai';
-import * as sinon from 'sinon';
 import list from '../../../app/service/bounty/ListBounty';
-import ServiceUtils from '../../../app/utils/ServiceUtils';
-
-const assert = chai.assert;
 
 describe('BountyList', () => {
-	let ctx;
-	let serviceUtilsMock;
+	// let ctx;
+	// let serviceUtilsMock;
 	let guildMember;
 
 	beforeEach(() => {
-		ctx = {
+		guildMember = {
+			send: (message: string) => {
+				return message;
+			},
 			user: {
-				bot: null,
-				id: '0000000',
+				id: '567865362541182987',
 			},
-			options: {
-				list: {
-					'list-type': 'open',
-				},
-			},
-			send: (message: string) => { return message; },
 		};
-
-		serviceUtilsMock = sinon.mock(ServiceUtils);
-		serviceUtilsMock.expects('getGuildAndMember').returns({
-			guild: {},
-			guildMember: { send: (message) => { return message; } },
-		});
-	});
-
-	afterEach(() => {
-		sinon.restore();
+		// serviceUtilsMock = sinon.mock(ServiceUtils);
+		// serviceUtilsMock.expects('getGuildAndMember').returns({
+		// 	guild: {},
+		// 	guildMember: { send: (message) => { return message; } },
+		// });
 	});
 
 	describe('Parameter Validation', () => {
 
 		it('should be invalid bounty-type', async function() {
-			ctx.options.list['list-type'] = 'sadfasdfsdaf';
 			try {
-				await list(ctx, guildMember);
+				await list(guildMember, 'sadfasdfsdaf');
 			} catch (e) {
-				assert.equal(e.message, 'invalid bounty type');
+				expect(e.message).toStrictEqual('invalid bounty type');
 			}
 		});
 	});

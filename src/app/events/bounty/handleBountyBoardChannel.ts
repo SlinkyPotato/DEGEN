@@ -2,6 +2,7 @@ import { GuildMember, Message, MessageReaction, User } from 'discord.js';
 import channelIDs from '../../constants/channelIDs';
 import { claimBountyForValidId } from '../../service/bounty/ClaimBounty';
 import { deleteBountyForValidId } from '../../service/bounty/DeleteBounty';
+import { completeBountyForValidId } from '../../service/bounty/CompleteBounty';
 
 export default (reaction: MessageReaction, user: User): Promise<any> => {
 	if (reaction.message.channel.id !== channelIDs.bountyBoard) {
@@ -23,6 +24,8 @@ export default (reaction: MessageReaction, user: User): Promise<any> => {
 		return deleteBountyForValidId(guildMember, bountyId, message);
 	} else if (reaction.emoji.name === '✅') {
 		console.log(`${user.tag} attempting to mark bounty complete`);
+		// TODO: have bot ask user for details
+		return completeBountyForValidId(guildMember, bountyId, null, null, message);
 	} else if (reaction.emoji.name === '🆘') {
 		console.log(`${user.tag} attempting to seek help`);
 	}

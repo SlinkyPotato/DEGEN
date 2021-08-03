@@ -28,6 +28,10 @@ export default async (guildMember: GuildMember, listType: string): Promise<any> 
 		introStr = 'Showing max 10 Open bounties: \n\n';
 		dbRecords = dbCollection.find({ status: 'Open' }).limit(DB_RECORD_LIMIT);
 		break;
+	case 'IN_PROGRESS':
+		introStr = 'Showing max 10 In-Progress bounties: \n\n';
+		dbRecords = dbCollection.find({ status: 'In-Progress', 'claimedBy.discordId': guildMember.user.id }).limit(DB_RECORD_LIMIT);
+		break;
 	default:
 		console.log('invalid list-type');
 		return guildMember.send(`<@${guildMember.user.id}> Please use a valid list-type`);

@@ -3,6 +3,7 @@ import { GuildMember, Message, TextChannel } from 'discord.js';
 import { BountyReward } from '../types/bounty/BountyReward';
 import channelIDs from '../constants/channelIDs';
 import ValidationError from '../errors/ValidationError';
+import { URL } from 'url';
 
 /**
  * Utilities file for bounty commands
@@ -93,6 +94,20 @@ const BountyUtils = {
 				'- special characters: .!@#$%&,?',
 			);
 			throw new ValidationError('invalid criteria');
+		}
+	},
+
+	async validateUrl(guildMember: GuildMember, url: string): Promise<any> {
+		try {
+			new URL(url);
+		} catch (e) {
+			await guildMember.send(`<@${guildMember.user.id}>\n` +
+				'Please enter a valid criteria: \n' +
+				'- 1000 characters maximum\n ' +
+				'- alphanumeric\n ' +
+				'- special characters: .!@#$%&,?',
+			);
+			throw new ValidationError('invalid url');
 		}
 	},
 	

@@ -25,8 +25,8 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 	await BountyUtils.checkBountyExists(guildMember, dbBountyResult.discordMessageId, bountyId);
 
 	if (dbBountyResult.claimedBy && dbBountyResult.status != 'Open') {
-		console.log(`${bountyId} bounty already claimed by ${dbBountyResult.claimedBy.discordHandle}`);
-		return guildMember.send(`Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` already claimed.`);
+		console.log(`${bountyId} bounty not open and is claimed by ${dbBountyResult.claimedBy.discordHandle}`);
+		return guildMember.send(`Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is not open.`);
 	}
 
 	if (dbBountyResult.status != 'Open') {

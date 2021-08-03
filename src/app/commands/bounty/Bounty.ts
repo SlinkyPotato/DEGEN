@@ -14,6 +14,7 @@ import ListBounty from '../../service/bounty/ListBounty';
 import CreateNewBounty from '../../service/bounty/create/CreateNewBounty';
 import PublishBounty from '../../service/bounty/create/PublishBounty';
 import ClaimBounty from '../../service/bounty/ClaimBounty';
+import CompleteBounty from '../../service/bounty/CompleteBounty';
 
 module.exports = class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -31,6 +32,31 @@ module.exports = class Bounty extends SlashCommand {
 							name: 'bounty-id',
 							type: CommandOptionType.STRING,
 							description: 'Hash ID of the bounty',
+							required: true,
+						},
+					],
+				},
+				{
+					name: 'complete',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Complete a bounty that you are working on. Bounty will be reviewed',
+					options: [
+						{
+							name: 'bounty-id',
+							type: CommandOptionType.STRING,
+							description: 'Hash ID of the bounty',
+							required: true,
+						},
+						{
+							name: 'url',
+							type: CommandOptionType.STRING,
+							description: 'Url of work',
+							required: true,
+						},
+						{
+							name: 'notes',
+							type: CommandOptionType.STRING,
+							description: 'any additional notes for bounty completion',
 							required: true,
 						},
 					],
@@ -108,6 +134,10 @@ module.exports = class Bounty extends SlashCommand {
 									name: 'open',
 									value: 'OPEN',
 								},
+								{
+									name: 'in-progress',
+									value: 'IN_PROGRESS',
+								},
 							],
 							required: true,
 						},
@@ -166,8 +196,11 @@ module.exports = class Bounty extends SlashCommand {
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		let command: Promise<any>;
 		switch (ctx.subcommands[0]) {
-		case 'list':
-			command = ListBounty(guildMember, ctx.options.list['list-type']);
+		case 'claim':
+			command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
+			break;
+		case 'complete':
+			command = CompleteBounty(guildMember, ctx.options.complete['bounty-id'], ctx.options.complete['url'], ctx.options.complete['notes']);
 			break;
 		case 'create':
 			if (ctx.subcommands[1] === 'new') {
@@ -179,11 +212,11 @@ module.exports = class Bounty extends SlashCommand {
 				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
 			}
 			break;
-		case 'claim':
-			command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
-			break;
 		case 'delete':
 			command = DeleteBounty(guildMember, ctx.options.delete['bounty-id']);
+			break;
+		case 'list':
+			command = ListBounty(guildMember, ctx.options.list['list-type']);
 			break;
 		default:
 			return ctx.send(`${ctx.user.mention} Please try again.`);

@@ -1,45 +1,45 @@
-import * as sinon from 'sinon';
-import assert from 'assert';
-import client from '../../../app/app';
-
-const { grantGuestPass } = require('../../../app/commands/admin/GuestPass');
+import AddGuestPass from '../../../app/service/guest-pass/AddGuestPass';
 
 describe('GuestPass', () => {
-	let ctx;
+	let guestUser;
 
 	beforeEach(() => {
-		ctx = {
-			guildId: '345345345345345345',
-			options: {
-				user: {
-					bot: null,
-					id: '567865362541182987',
-				},
-			},
-			send: (message: string) => {
-				return message;
-			},
-		};
+		// ctx = {
+		// 	guildId: '345345345345345345',
+		// 	options: {
+		// 		user: {
+		// 			bot: null,
+		// 			id: '567865362541182987',
+		// 		},
+		// 	},
+		// 	send: (message: string) => {
+		// 		return message;
+		// 	},
+		// };
 	});
 
-	afterEach(() => {
-		sinon.restore();
-	});
+	describe('Connection Error', () => {
 
-	describe('User Object Validation', () => {
+		it('should be invalid Mongo DB connection', async () => {
+			// jest.mock('mongodb');
+			// const mockedMongoClient = jest.mock('MongoClient');
+			// const mockedMongoClient = mocked(MongoClient, true);
+			// mockedMongoClient.mockImplementation(() => {
+			// 	throw new Error('Bad connection');
+			// });
+			//
+			// const clientMock = sinon.mock(client.guilds);
+			// clientMock.expects('fetch').returns({
+			// 	members: {
+			// 		fetch: (_: string) => {
+			// 			return { user: { bot: true } };
+			// 		},
+			// 	},
+			// });
 
-		it('should be invalid for bot user', async () => {
-			const clientMock = sinon.mock(client.guilds);
-			clientMock.expects('fetch').returns({
-				members: {
-					fetch: (_: string) => {
-						return { user: { bot: true } };
-					},
-				},
-			});
-
-			const result = await grantGuestPass(ctx);
-			assert.strictEqual(result, 'Bots don\'t need a guest pass!');
+			// const result = await AddGuestPass(guestUser);
+			// expect(result.message).toStrictEqual('Bad Connection');
+			// assert.strictEqual(result, 'Bots don\'t need a guest pass!');
 		});
 
 	});

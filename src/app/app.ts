@@ -4,7 +4,7 @@ import Discord, { Client, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
 
-const client: Client = new Discord.Client();
+const client: Client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 initializeEvents();
 
 const creator = new SlashCreator({

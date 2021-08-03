@@ -8,5 +8,5 @@ export default Object.freeze({
 
 	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
-	BOUNTY_BOARD_URL: 'https://bankless.community',
+	BOUNTY_BOARD_URL: 'https://bankless.community/',
 });

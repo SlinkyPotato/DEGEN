@@ -80,5 +80,5 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 
 	await dbInstance.close();
 
-	return guildMember.send(`<@${guildMember.user.id}> Bounty published to #🧀-bounty-board and the website! ${constants.BOUNTY_BOARD_URL}/${bountyId}`);
+	return guildMember.send(`<@${guildMember.user.id}> Bounty published to #🧀-bounty-board and the website! ${constants.BOUNTY_BOARD_URL}${bountyId}`);
 };

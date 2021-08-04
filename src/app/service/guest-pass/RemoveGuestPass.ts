@@ -5,10 +5,13 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import { GuildMember } from 'discord.js';
 
 export default async (guestUser: GuildMember): Promise<any> => {
+	if (guestUser.user.bot) {
+		return;
+	}
 	console.log(`attempting to remove guest role to ${guestUser.user.tag}`);
 	await removeGuestRoleFromUser(guestUser);
 	await removeGuestUserFromDb(guestUser);
-	return guestUser.send(`<@${guestUser.id}>guest pass removed.`);
+	return guestUser.send(`Hi <@${guestUser.user.id}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!`);
 };
 
 export const removeGuestUserFromDb = async (guestUser: GuildMember): Promise<any> => {

@@ -53,8 +53,7 @@ module.exports = class GuestPass extends SlashCommand {
 		
 		await AddGuestPass(guestUser);
 
-		return ctx.send(`Hey <@${guestUser.id}>! You now have access for ${expiresInHours / 24} days.`);
-
+		return ctx.send(`<@${ctx.user.id}> guest pass added and message sent!`);
 	}
 };
 

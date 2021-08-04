@@ -86,7 +86,7 @@ export const removeGuestRoleOnExpiration = (guestUser: GuildMember) => {
 		const guestRole = ServiceUtils.getGuestRole(guestUser.guild.roles);
 		await guestUser.roles.remove(guestRole).catch(console.error);
 
-		console.log(`/guest-pass end guest pass removed for ${guestUser.user.tag} in discord`);
+		console.log(`/guest-pass end; guest pass removed for ${guestUser.user.tag} in discord`);
 
 		return guestUser.send(`Hi <@${guestUser.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
 	}, expiresInHours * 1000 * 60 * 60);

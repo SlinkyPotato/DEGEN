@@ -4,15 +4,21 @@ import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
 
-export default async (guildMember: GuildMember, bountyId: string, urlOfWork: string, notes: string): Promise<any> => {
+export default async (guildMember: GuildMember, bountyId: string, urlOfWork?: string, notes?: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
-	await BountyUtils.validateUrl(guildMember, urlOfWork);
-	await BountyUtils.validateSummary(guildMember, notes);
+	
+	if (urlOfWork) {
+		await BountyUtils.validateUrl(guildMember, urlOfWork);
+	}
+	
+	if (notes) {
+		await BountyUtils.validateSummary(guildMember, notes);
+	}
 	return submitBountyForValidId(guildMember, bountyId, urlOfWork, notes);
 };
 
 export const submitBountyForValidId = async (guildMember: GuildMember,
-	bountyId: string, urlOfWork: string, notes: string, message?: Message,
+	bountyId: string, urlOfWork?: string, notes?: string, message?: Message,
 ): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
@@ -22,7 +28,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 		status: 'In-Progress',
 	});
 
-	await BountyUtils.checkBountyExists(guildMember, dbBountyResult.discordMessageId, bountyId);
+	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 	
 	if (dbBountyResult.claimedBy.discordId !== guildMember.user.id) {
 		console.log(`${bountyId} bounty not claimed by ${guildMember.user.tag} but it is claimed by ${dbBountyResult.claimedBy.discordHandle}`);
@@ -44,6 +50,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 			submittedAt: Date.now(),
 			status: 'In-Review',
 			submissionUrl: urlOfWork,
+			submissionNotes: notes,
 		},
 		$push: {
 			statusHistory: {

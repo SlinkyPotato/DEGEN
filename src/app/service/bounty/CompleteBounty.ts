@@ -24,7 +24,7 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 		status: 'In-Review',
 	});
 
-	await BountyUtils.checkBountyExists(guildMember, dbBountyResult.discordMessageId, bountyId);
+	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 	
 	if (dbBountyResult.createdBy.discordId !== guildMember.user.id) {
 		console.log(`${bountyId} bounty created by ${guildMember.user.tag} but it is created by ${dbBountyResult.createdBy.discordHandle}`);

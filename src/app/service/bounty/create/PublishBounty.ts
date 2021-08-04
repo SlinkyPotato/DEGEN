@@ -4,6 +4,7 @@ import BountyUtils from '../../../utils/BountyUtils';
 import { GuildMember, Message, MessageOptions, TextChannel } from 'discord.js';
 import dbInstance from '../../../utils/db';
 import channelIDs from '../../constants/channelIDs';
+import ServiceUtils from '../../../utils/ServiceUtils';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -26,7 +27,6 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 		console.log(`${bountyId} bounty is not drafted`);
 		return guildMember.send(`<@${guildMember.user.id}> Sorry bounty is not drafted.`);
 	}
-
 	const messageOptions: MessageOptions = {
 		embed: {
 			color: '#1e7e34',
@@ -40,10 +40,10 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 			fields: [
 				{ name: 'Reward', value: dbBountyResult.reward.amount + ' ' + dbBountyResult.reward.currency, inline: true },
 				{ name: 'Status', value: 'Open', inline: true },
-				{ name: 'Deadline', value: dbBountyResult.dueAt, inline: true },
+				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(dbBountyResult.dueAt), inline: true },
 				{ name: 'Criteria', value: dbBountyResult.criteria },
 				{ name: 'Summary', value: dbBountyResult.description },
-				{ name: 'HashId', value: dbBountyResult._id},
+				{ name: 'HashId', value: dbBountyResult._id },
 				{ name: 'Created By', value: dbBountyResult.createdBy.discordHandle, inline: true },
 			],
 			timestamp: new Date(),

@@ -18,7 +18,7 @@ export const seekHelpValidBountyId = async (guildMember: GuildMember,
 	const dbBountyResult = await dbCollection.findOne({
 		_id: new mongo.ObjectId(bountyId),
 	});
-	await BountyUtils.checkBountyExists(guildMember, dbBountyResult.discordMessageId, bountyId);
+	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 	const bountyUrl = constants.BOUNTY_BOARD_URL + dbBountyResult._id;
 	const createdByUser: GuildMember = guildMember.guild.member(dbBountyResult.createdBy.discordId);
 	await createdByUser.send(`Hello <@${createdByUser.user.id}>! Bankless DAO user <@${guildMember.user.id}> needs some help with bounty ${bountyUrl}. Please reach out to them to check.`);

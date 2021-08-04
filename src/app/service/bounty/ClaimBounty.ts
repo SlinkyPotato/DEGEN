@@ -20,7 +20,7 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 		status: 'Open',
 	});
 	
-	await BountyUtils.checkBountyExists(guildMember, dbBountyResult.discordMessageId, bountyId);
+	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 
 	if (dbBountyResult.claimedBy && dbBountyResult.status != 'Open') {
 		console.log(`${bountyId} bounty not open and is claimed by ${dbBountyResult.claimedBy.discordHandle}`);

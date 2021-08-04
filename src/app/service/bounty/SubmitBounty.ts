@@ -28,7 +28,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 		status: 'In-Progress',
 	});
 
-	await BountyUtils.checkBountyExists(guildMember, dbBountyResult.discordMessageId, bountyId);
+	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 	
 	if (dbBountyResult.claimedBy.discordId !== guildMember.user.id) {
 		console.log(`${bountyId} bounty not claimed by ${guildMember.user.tag} but it is claimed by ${dbBountyResult.claimedBy.discordHandle}`);

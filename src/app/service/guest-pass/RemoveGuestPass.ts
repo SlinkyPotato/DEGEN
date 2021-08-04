@@ -5,6 +5,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import { GuildMember } from 'discord.js';
 
 export default async (guestUser: GuildMember): Promise<any> => {
+	console.log(`attempting to remove guest role to ${guestUser.user.tag}`);
 	await removeGuestRoleFromUser(guestUser);
 	await removeGuestUserFromDb(guestUser);
 	return guestUser.send(`<@${guestUser.id}>guest pass removed.`);

@@ -10,6 +10,6 @@ module.exports = {
 	once: false,
 
 	async execute(oldMember: GuildMember, newMember: GuildMember) {
-		await handleGuestPassUpdate(oldMember, newMember);
+		return handleGuestPassUpdate(oldMember, newMember);
 	},
 };

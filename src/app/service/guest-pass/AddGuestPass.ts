@@ -8,6 +8,7 @@ import { GuildMember } from 'discord.js';
 export const expiresInHours = 168;
 
 export default async (guestUser: GuildMember): Promise<any> => {
+	console.log(`attempting to add guest role to ${guestUser.user.tag}`);
 	await addGuestUserToDb(guestUser);
 	await addGuestRoleToUser(guestUser);
 	notifyUserOfGuestExpiration(guestUser);

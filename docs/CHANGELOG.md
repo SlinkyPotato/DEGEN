@@ -7,6 +7,7 @@
 3. Add emoji support for bounties posted in #🧀-bounty-board channel
    - restructure codebase
    - add more logging
+4. Fix guest pass event service
 
 ## 1.1.1-RELEASE (2021-07-28)
 

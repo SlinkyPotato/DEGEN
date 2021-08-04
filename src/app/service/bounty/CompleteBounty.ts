@@ -43,7 +43,7 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 				'discordHandle': guildMember.user.tag,
 				'discordId': guildMember.user.id,
 			},
-			reviewedAt: Date.now(),
+			reviewedAt: currentDate,
 			status: 'Completed',
 		},
 		$push: {

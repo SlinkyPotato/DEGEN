@@ -211,34 +211,41 @@ module.exports = class Bounty extends SlashCommand {
 
 	async run(ctx: CommandContext) {
 		if (ctx.user.bot) return;
-		console.log('/bounty start');
+		console.log(`/bounty start ${ctx.user.username}#${ctx.user.discriminator}`);
 
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		let command: Promise<any>;
 		switch (ctx.subcommands[0]) {
 		case 'claim':
+			console.log('/bounty claim');
 			command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
 			break;
 		case 'create':
 			if (ctx.subcommands[1] === 'new') {
 				const params = this.buildBountyCreateNewParams(ctx.options.create.new);
+				console.log('/bounty create new ' + params);
 				command = CreateNewBounty(guildMember, params, ctx);
 			} else if (ctx.subcommands[1] === 'open') {
+				console.log('/bounty create open ');
 				command = PublishBounty(guildMember, ctx.options.create.open['bounty-id']);
 			} else {
 				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
 			}
 			break;
 		case 'complete':
+			console.log('/bounty complete');
 			command = CompleteBounty(guildMember, ctx.options.complete['bounty-id'], ctx.options.complete['is-complete']);
 			break;
 		case 'delete':
+			console.log('/bounty delete');
 			command = DeleteBounty(guildMember, ctx.options.delete['bounty-id']);
 			break;
 		case 'list':
+			console.log('/bounty list');
 			command = ListBounty(guildMember, ctx.options.list['list-type']);
 			break;
 		case 'submit':
+			console.log('/bounty submit');
 			command = SubmitBounty(guildMember, ctx.options.submit['bounty-id'], ctx.options.submit['url'], ctx.options.submit['notes']);
 			break;
 		default:
@@ -249,7 +256,7 @@ module.exports = class Bounty extends SlashCommand {
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
 		command.then(() => {
-			console.log('/bounty end');
+			console.log(`/bounty end ${ctx.user.username}#${ctx.user.discriminator}`);
 			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 		}).catch(e => {
 			if (!(e instanceof ValidationError)) {

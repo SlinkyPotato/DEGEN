@@ -121,7 +121,7 @@ const BountyUtils = {
 	
 	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string): Promise<Message> {
 		const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
-		return bountyChannel.messages.fetch(bountyMessageId);
+		return await bountyChannel.messages.fetch(bountyMessageId);
 	},
 };
 

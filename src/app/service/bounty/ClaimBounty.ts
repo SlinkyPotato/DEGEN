@@ -39,7 +39,7 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 				'discordHandle': guildMember.user.tag,
 				'discordId': guildMember.user.id,
 			},
-			claimedAt: Date.now(),
+			claimedAt: currentDate,
 			status: 'In-Progress',
 		},
 		$push: {

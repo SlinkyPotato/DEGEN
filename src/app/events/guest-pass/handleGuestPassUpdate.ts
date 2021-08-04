@@ -1,22 +1,17 @@
 import { GuildMember } from 'discord.js';
+import roleIDs from '../../service/constants/roleIDs';
+import AddGuestPass from '../../service/guest-pass/AddGuestPass';
+import RemoveGuestPass from '../../service/guest-pass/RemoveGuestPass';
 
-export default async (oldMember: GuildMember, newMember: GuildMember) => {
-	// TODO: handle update guest pass role
-	// Check guest role was moved
-	// then execute RemoveGuestPass()
-	
-	// or 
-	
-	// Check if guest role was added
-	// then execute AddGeustPass()
-	
-	// This can probably be deleted
-	// if (oldMember.roles !== newMember.roles) {
-	// 	console.log(`role updated for username: ${newMember.user.username}`);
-	// 	// Check if guest pass was added or removed
-	// 	const newMemberHasGuestPass = newMember.roles.cache.some(role => role.name === constants.DISCORD_ROLE_GUEST_PASS);
-	// 	const oldMemberHasGuestPass = oldMember.roles.cache.some(role => role.name === constants.DISCORD_ROLE_GUEST_PASS);
-	// 	const isNowActive: boolean = (newMemberHasGuestPass && !oldMemberHasGuestPass);
-	// 	console.log(`guest pass active for username ${newMember.user.username}: ${isNowActive}`);
-	// }
+export default async (oldMember: GuildMember, newMember: GuildMember): Promise<any> => {
+	const newMemberHasGuestPass: boolean = newMember.roles.cache.some(role => role.id === roleIDs.guestPass);
+	const oldMemberHasGuestPass = oldMember.roles.cache.some(role => role.id === roleIDs.guestPass);
+	const isGuestAdded: boolean = (newMemberHasGuestPass && !oldMemberHasGuestPass);
+	const isGuestRemoved: boolean = (!newMemberHasGuestPass && oldMemberHasGuestPass);
+	if (isGuestAdded) {
+		return AddGuestPass(newMember);
+	} else if (isGuestRemoved) {
+		return RemoveGuestPass(newMember);
+	}
+	console.log('no guest pass role change occurred');
 };

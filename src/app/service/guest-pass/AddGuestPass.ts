@@ -8,10 +8,15 @@ import { GuildMember } from 'discord.js';
 export const expiresInHours = 168;
 
 export default async (guestUser: GuildMember): Promise<any> => {
+	if (guestUser.user.bot) {
+		return;
+	}
+	console.log(`attempting to add guest role to ${guestUser.user.tag}`);
 	await addGuestUserToDb(guestUser);
 	await addGuestRoleToUser(guestUser);
 	notifyUserOfGuestExpiration(guestUser);
-	return removeGuestRoleOnExpiration(guestUser);
+	removeGuestRoleOnExpiration(guestUser);
+	return guestUser.send(`Hi <@${guestUser.user.id}>, You have been granted guest access at Bankless DAO. Let us know if you have any questions!`);
 };
 
 export const addGuestUserToDb = async (guestUser: GuildMember): Promise<any> => {
@@ -81,7 +86,7 @@ export const removeGuestRoleOnExpiration = (guestUser: GuildMember) => {
 		const guestRole = ServiceUtils.getGuestRole(guestUser.guild.roles);
 		await guestUser.roles.remove(guestRole).catch(console.error);
 
-		console.log(`/guest-pass end guest pass removed for ${guestUser.user.tag} in discord`);
+		console.log(`/guest-pass end; guest pass removed for ${guestUser.user.tag} in discord`);
 
 		return guestUser.send(`Hi <@${guestUser.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
 	}, expiresInHours * 1000 * 60 * 60);

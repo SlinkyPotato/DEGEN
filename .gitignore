@@ -116,4 +116,6 @@ build
 .env.copy
 snippets.ts
 
+.off_eslintrc.json
+
 

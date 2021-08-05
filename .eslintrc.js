@@ -5,7 +5,7 @@ module.exports = {
 		es2020: true,
 		node: true,
 	},
-	extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
+	extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended',"prettier"],
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		ecmaVersion: 12,
@@ -21,7 +21,7 @@ module.exports = {
 		curly: ['error', 'multi-line', 'consistent'],
 		'dot-location': ['error', 'property'],
 		'handle-callback-err': 'off',
-		indent: ['error', 'tab'],
+		indent: ['error', 'tab', {SwitchCase: 1}],
 		'max-nested-callbacks': ['error', { max: 4 }],
 		'max-statements-per-line': ['error', { max: 2 }],
 		'no-console': 'off',

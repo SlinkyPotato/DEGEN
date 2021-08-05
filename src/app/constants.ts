@@ -24,5 +24,8 @@ export default Object.freeze({
 		seven: '\u0037\ufe0f\u20e3',
 		eight: '\u0038\ufe0f\u20e3',
 		nine: '\u0039\ufe0f\u20e3',
+		plus: '\u2795\u2B1C',
+		memo: String.fromCodePoint(0x1F4DD),
+		cross_mark: '\u274C',
 	},
 });

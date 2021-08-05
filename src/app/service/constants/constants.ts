@@ -8,7 +8,7 @@ export default Object.freeze({
 
 	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}.aa5jf.mongodb.net/myFirstDatabase`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
-	BOUNTY_BOARD_URL: 'https://bankless.community',
+	BOUNTY_BOARD_URL: 'https://bankless.community/',
 
 	SCOAP_HTTP_SERVER_CORS_WHITELIST: ['http://localhost:3000'],
 	SCOAP_HTTP_SERVER_PORT: 5000,

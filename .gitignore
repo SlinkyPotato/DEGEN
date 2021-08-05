@@ -111,11 +111,4 @@ dist
 
 build
 
-.env.botplays
-.env
-.env.copy
-snippets.ts
-
-.off_eslintrc.json
-
-
+.DS_Store

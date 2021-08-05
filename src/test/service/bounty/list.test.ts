@@ -1,40 +1,33 @@
-import * as chai from 'chai';
-import * as sinon from 'sinon';
-import list from '../../../app/service/bounty/list';
+import list from '../../../app/service/bounty/ListBounty';
 
-const assert = chai.assert;
-
-describe('BountyListTest', () => {
-	let ctx;
+describe('BountyList', () => {
+	// let ctx;
+	// let serviceUtilsMock;
+	let guildMember;
 
 	beforeEach(() => {
-		ctx = {
+		guildMember = {
+			send: (message: string) => {
+				return message;
+			},
 			user: {
-				bot: null,
-				id: '0000000',
+				id: '567865362541182987',
 			},
-			options: {
-				list: {
-					'list-type': 'open',
-				},
-			},
-			send: (message: string) => { return message; },
 		};
-
-		afterEach(() => {
-			sinon.restore();
-		});
+		// serviceUtilsMock = sinon.mock(ServiceUtils);
+		// serviceUtilsMock.expects('getGuildAndMember').returns({
+		// 	guild: {},
+		// 	guildMember: { send: (message) => { return message; } },
+		// });
 	});
 
 	describe('Parameter Validation', () => {
 
 		it('should be invalid bounty-type', async function() {
-			ctx.options.list['list-type'] = 'sadfasdfsdaf';
 			try {
-				await list(ctx);
+				await list(guildMember, 'sadfasdfsdaf');
 			} catch (e) {
-				console.log(e);
-				assert.equal(e.message, 'invalid bounty type');
+				expect(e.message).toStrictEqual('invalid bounty type');
 			}
 		});
 	});

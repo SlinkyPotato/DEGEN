@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 // import { server } from './service/ScoapFastifyServer';
 
-const client: Client = new Discord.Client();
+const client: Client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 initializeEvents();
 
 const creator = new SlashCreator({

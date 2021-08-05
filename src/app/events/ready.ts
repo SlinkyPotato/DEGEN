@@ -3,7 +3,7 @@
  */
 
 import GuestPassService from '../service/guest-pass/GuestPassService';
-import ScoapFastifyServer from '../service/ScoapFastifyServer';
+import ScoapFastifyServer from '../service/scoap-squad/ScoapFastifyServer';
 
 module.exports = {
 	name: 'ready',

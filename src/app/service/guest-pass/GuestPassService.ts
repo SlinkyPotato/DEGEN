@@ -68,7 +68,7 @@ export default async (client: DiscordClient): Promise<void> => {
 	await dbInstance.close();
 
 	// Begin reminder of active guest users
-	for (const activeUser of listOfActiveGuests) {
+	listOfActiveGuests.forEach(activeUser => {
 		console.log('active userid: ' + activeUser._id);
 
 		const expiresInMilli = Math.max(activeUser.expiresTimestamp - Date.now(), 0);
@@ -108,7 +108,7 @@ export default async (client: DiscordClient): Promise<void> => {
 			await sleep(1000);
 		}, expiresInMilli);
 
-	}
+	});
 	console.log('guest pass service ready.');
 };
 

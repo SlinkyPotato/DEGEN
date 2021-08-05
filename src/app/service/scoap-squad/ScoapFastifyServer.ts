@@ -1,14 +1,10 @@
-import constants from './../constants';
+import constants from '../constants/constants';
 import Fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify';
-// import { Server, IncomingMessage, ServerResponse } from 'http';
+import helmet from 'fastify-helmet';
+import cors from 'fastify-cors';
 import ScoapPoll from './ScoapPoll';
-import client from '../app';
+import client from '../../app';
 import { TextChannel } from 'discord.js';
-// import { Static, Type } from '@sinclair/typebox';
-
-// security headers
-const helmet = require('fastify-helmet');
-const cors = require('fastify-cors');
 
 // Instatiate Fastify
 export const server: FastifyInstance = Fastify({});
@@ -36,7 +32,7 @@ const opts: RouteShorthandOptions = {
 server.post('/scoap', opts, async (request) => {
 	// console.log(typeof request.body);
 	const channel = (await client.channels.fetch(
-		constants.SCOAP_SQUAD_CHANNEL_ID
+		constants.SCOAP_SQUAD_CHANNEL_ID,
 	)) as TextChannel;
 	// const requestBody: object = request.body;
 	const formData = await ScoapPoll(channel, request);

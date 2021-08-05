@@ -34,22 +34,19 @@
     "homepage": "https://github.com/BanklessDAO/discord-bots/blob/main/README.md",
     "dependencies": {
         "@notionhq/client": "0.2.0",
-        "@sinclair/typebox": "^0.20.4",
         "@types/node": "^16.4.6",
-        "cors": "^2.8.5",
         "discord.js": "^12.5.3",
         "dotenv": "^10.0.0",
-        "express": "^4.17.1",
         "fastify": "^3.19.2",
         "fastify-cors": "^6.0.2",
         "fastify-helmet": "^5.3.2",
-        "helmet": "^4.6.0",
         "lodash.clonedeep": "^4.5.0",
         "mongodb": "^3.6.9",
         "slash-create": "^3.3.0"
     },
     "devDependencies": {
         "@types/jest": "^26.0.24",
+        "@types/lodash.clonedeep": "^4.5.6",
         "@types/mongodb": "^3.6.20",
         "@typescript-eslint/eslint-plugin": "^4.29.0",
         "@typescript-eslint/parser": "^4.29.0",

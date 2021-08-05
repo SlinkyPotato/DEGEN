@@ -1,7 +1,6 @@
 import { TextChannel } from 'discord.js';
-// import { FastifyRequest } from 'fastify';
-// import client from '../app';
-import constants from './../constants';
+import cloneDeep from 'lodash.clonedeep';
+import constants from '../constants/constants';
 import { ScoapEmbed, Vote, VoteRecord } from './ScoapClasses';
 
 const scoapEmbedTemplate = {
@@ -63,9 +62,9 @@ const scoapEmbedTemplate = {
 };
 
 const removeReaction = async (message, user_id, emoji, choice_valid) => {
-	const userReactions = message.reactions.cache.filter((reaction) =>
-		reaction.users.cache.has(user_id)
-	);
+	const userReactions = message.reactions.cache.filter((reaction) => {
+		reaction.users.cache.has(user_id);
+	});
 	try {
 		for (const reac of userReactions.values()) {
 			if (choice_valid === true) {
@@ -103,10 +102,11 @@ const validateChoice = (emoji, totals, required) => {
 	}
 };
 
+type NewType = any;
+
 // Note: How to do correct type definition for request?
-export default async (channel: TextChannel, request: any): Promise<any> => {
+export default async (channel: TextChannel, request: NewType): Promise<any> => {
 	// console.log(' here is the request body ', request.body.scoap);
-	const cloneDeep = require('lodash.clonedeep');
 	const deepEmbed = cloneDeep(scoapEmbedTemplate);
 
 	const votableEmojiArray = [
@@ -142,7 +142,7 @@ export default async (channel: TextChannel, request: any): Promise<any> => {
 		const choiceValid = validateChoice(
 			reaction.emoji.name,
 			voteRecord.getEmoteTotals(),
-			voteRecord.getEmoteRequired()
+			voteRecord.getEmoteRequired(),
 		);
 
 		if (emojiValid(reaction.emoji.name, votableEmojiArray) === true) {
@@ -151,7 +151,7 @@ export default async (channel: TextChannel, request: any): Promise<any> => {
 					const vote = new Vote(
 						user.id,
 						reaction.emoji.name,
-						voteRecord.getUserVoteLedger()
+						voteRecord.getUserVoteLedger(),
 					);
 					voteRecord.update(vote);
 
@@ -160,7 +160,7 @@ export default async (channel: TextChannel, request: any): Promise<any> => {
 							embedMessage,
 							vote.getUserId(),
 							vote.getEmoji(),
-							choiceValid
+							choiceValid,
 						);
 					}
 
@@ -168,7 +168,7 @@ export default async (channel: TextChannel, request: any): Promise<any> => {
 						// console.log('key ', key, ' value ', voteRecord.getProgressStrings()[key]);
 						scoapEmbed.updateProgressString(
 							key,
-							voteRecord.getProgressStrings()[key]
+							voteRecord.getProgressStrings()[key],
 						);
 					}
 					embedMessage.edit({ embed: scoapEmbed.getEmbed() });
@@ -180,7 +180,7 @@ export default async (channel: TextChannel, request: any): Promise<any> => {
 						embedMessage,
 						user.id,
 						reaction.emoji.name,
-						choiceValid
+						choiceValid,
 					);
 					break;
 				}
@@ -198,15 +198,15 @@ export default async (channel: TextChannel, request: any): Promise<any> => {
 		// console.log('current state: \n user vote record ', voteRecord.getUserVoteLedger());
 	});
 
-	collector.on('end', (collected) =>
-		console.log(`Collected ${collected.size} items`)
-	);
+	collector.on('end', (collected) => {
+		console.log(`Collected ${collected.size} items`);
+	});
 
 	collector.on('remove', async (reaction, user) => {
 		const vote = new Vote(
 			user.id,
 			reaction.emoji.name,
-			voteRecord.getUserVoteLedger()
+			voteRecord.getUserVoteLedger(),
 		);
 		if (vote.getType() === 'UNVOTE') {
 			voteRecord.update(vote);
@@ -214,7 +214,7 @@ export default async (channel: TextChannel, request: any): Promise<any> => {
 				// console.log('key ', key, ' value ', voteRecord.getProgressStrings()[key]);
 				scoapEmbed.updateProgressString(
 					key,
-					voteRecord.getProgressStrings()[key]
+					voteRecord.getProgressStrings()[key],
 				);
 			}
 			embedMessage.edit({ embed: scoapEmbed.getEmbed() });

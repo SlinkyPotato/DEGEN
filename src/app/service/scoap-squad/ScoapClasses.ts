@@ -1,4 +1,4 @@
-import constants from './../constants';
+import constants from '../constants/constants';
 
 export class ScoapEmbed {
 	embed: Record<string, any>;
@@ -32,7 +32,7 @@ export class Vote {
 	constructor(
 		user_id: string,
 		emoji: string,
-		user_vote_ledger: Record<string, unknown>
+		user_vote_ledger: Record<string, unknown>,
 	) {
 		this.user_id = user_id;
 		this.emoji = emoji;
@@ -151,28 +151,20 @@ export class VoteRecord {
 
 	_updateProgressStrings(vote: Record<string, any>): this {
 		const old_emoji = this.userVoteLedger[vote.user_id];
-		console.log(
-			`updating progress string, inputs: ${vote.emoji}, ${old_emoji}, ${vote.type}, ${this.emoteTotals}, ${this.emoteRequired}`
-		);
+		console.log(`updating progress string, inputs: ${vote.emoji}, ${old_emoji}, ${vote.type}, ${this.emoteTotals}, ${this.emoteRequired}`);
 		if (vote.type === 'CHANGEVOTE') {
 			this.progressStrings[old_emoji] = this._generateProgressString(old_emoji);
-			this.progressStrings[vote.emoji] = this._generateProgressString(
-				vote.emoji
-			);
+			this.progressStrings[vote.emoji] = this._generateProgressString(vote.emoji);
 		} else if (vote.type === 'UNVOTE') {
 			this.progressStrings[old_emoji] = this._generateProgressString(old_emoji);
 		} else {
-			this.progressStrings[vote.emoji] = this._generateProgressString(
-				vote.emoji
-			);
+			this.progressStrings[vote.emoji] = this._generateProgressString(vote.emoji);
 		}
 		return this;
 	}
 
 	_calcPercentages(emoji: string): string {
-		const percent = Math.round(
-			(100 / this.emoteRequired[emoji]) * this.emoteTotals[emoji]
-		);
+		const percent = Math.round((100 / this.emoteRequired[emoji]) * this.emoteTotals[emoji]);
 		return percent.toString();
 	}
 
@@ -181,6 +173,5 @@ export class VoteRecord {
 		return `${this._calcPercentages(emoji)}%(${this.emoteTotals[emoji]}/${
 			this.emoteRequired[emoji]
 		})`;
-		return 'test';
 	}
 }

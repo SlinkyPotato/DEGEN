@@ -268,13 +268,16 @@ module.exports = class Bounty extends SlashCommand {
 	
 	buildBountyCreateNewParams(ctxOptions): BountyCreateNew {
 		const [reward, symbol] = (ctxOptions.reward != null) ? ctxOptions.reward.split(' ') : [null, null];
+		let scale = reward.split('.')[1]?.length;
+		scale = (scale != null) ? scale : 0;
 		return {
 			title: ctxOptions.title,
 			summary: ctxOptions.summary,
 			criteria: ctxOptions.criteria,
 			reward: {
-				amount: reward,
+				amount: reward.replace('.', ''),
 				currencySymbol: symbol,
+				scale: scale,
 			},
 		};
 	}

@@ -3,6 +3,7 @@ import BountyUtils from '../../utils/BountyUtils';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
+import envUrls from '../constants/envUrls';
 
 export default async (guildMember: GuildMember, bountyId: string, urlOfWork?: string, notes?: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -69,7 +70,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	console.log(`${bountyId} bounty submitted by ${guildMember.user.tag}`);
 	await submitBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 	
-	const bountyUrl = constants.BOUNTY_BOARD_URL + dbBountyResult._id;
+	const bountyUrl = envUrls.BOUNTY_BOARD_URL + dbBountyResult._id;
 	const createdByUser: GuildMember = guildMember.guild.member(dbBountyResult.createdBy.discordId);
 	await createdByUser.send(`Hello <@${createdByUser.user.id}>! Bankless DAO user <@${guildMember.user.id}> has finished the bounty ${bountyUrl}. Please reach out to them to check.`);
 

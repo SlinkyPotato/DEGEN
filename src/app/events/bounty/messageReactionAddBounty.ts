@@ -5,6 +5,7 @@ import { deleteBountyForValidId } from '../../service/bounty/DeleteBounty';
 import { submitBountyForValidId } from '../../service/bounty/SubmitBounty';
 import { completeBountyForValidId } from '../../service/bounty/CompleteBounty';
 import { seekHelpValidBountyId } from '../../service/bounty/SeekHelpBounty';
+import BountyUtils from '../../utils/BountyUtils';
 
 export default (reaction: MessageReaction, user: User): Promise<any> => {
 	if (reaction.message.channel.id !== channelIDs.bountyBoard) {
@@ -12,7 +13,7 @@ export default (reaction: MessageReaction, user: User): Promise<any> => {
 		return;
 	}
 	const message: Message = reaction.message;
-	const bountyId: string = message.embeds[0].fields[5].value;
+	const bountyId: string = BountyUtils.getBountyIdFromEmbedMessage(message);
 	const guildMember: GuildMember = reaction.message.guild.member(user);
 
 	if (reaction.emoji.name === '🏴') {

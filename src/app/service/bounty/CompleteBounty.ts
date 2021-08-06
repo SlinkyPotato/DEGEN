@@ -3,13 +3,15 @@ import BountyUtils from '../../utils/BountyUtils';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
+import { seekHelpValidBountyId } from './SeekHelpBounty';
 
 export default async (guildMember: GuildMember, bountyId: string, isComplete: boolean): Promise<any> => {
-	if (!isComplete) {
-		// TODO: execute SOS help
-		return;
-	}
 	await BountyUtils.validateBountyId(guildMember, bountyId);
+
+	if (!isComplete) {
+		return seekHelpValidBountyId(guildMember, bountyId);
+	}
+	
 	return completeBountyForValidId(guildMember, bountyId);
 };
 

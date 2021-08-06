@@ -5,6 +5,7 @@ import { GuildMember, Message, MessageOptions, TextChannel } from 'discord.js';
 import dbInstance from '../../../utils/db';
 import channelIDs from '../../constants/channelIDs';
 import ServiceUtils from '../../../utils/ServiceUtils';
+import envUrls from '../../constants/envUrls';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -31,33 +32,30 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 		embed: {
 			color: '#1e7e34',
 			title: dbBountyResult.title,
-			url: constants.BOUNTY_BOARD_URL + dbBountyResult._id,
+			url: envUrls.BOUNTY_BOARD_URL + dbBountyResult._id,
 			author: {
 				icon_url: guildMember.user.avatarURL(),
 				name: dbBountyResult.createdBy.discordHandle,
 			},
-			description: dbBountyResult.summary,
+			description: dbBountyResult.description,
 			fields: [
 				{ name: 'Reward', value: dbBountyResult.reward.amount + ' ' + dbBountyResult.reward.currency, inline: true },
 				{ name: 'Status', value: 'Open', inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(dbBountyResult.dueAt), inline: true },
 				{ name: 'Criteria', value: dbBountyResult.criteria },
-				{ name: 'Summary', value: dbBountyResult.description },
 				{ name: 'HashId', value: dbBountyResult._id },
 				{ name: 'Created By', value: dbBountyResult.createdBy.discordHandle, inline: true },
 			],
 			timestamp: new Date(),
 			footer: {
-				text: '🏴 - start | 📝 - edit | ❌ - delete',
+				text: '🔄 - refresh | 🏴 - start | 📝 - edit | ❌ - delete',
 			},
 		},
 	};
 
 	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
 	const bountyMessage: Message = await bountyChannel.send(messageOptions) as Message;
-	await bountyMessage.react('🏴');
-	await bountyMessage.react('📝');
-	await bountyMessage.react('❌');
+	addPublishReactions(bountyMessage);
 
 	const currentDate = (new Date()).toISOString();
 	const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
@@ -80,5 +78,12 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 
 	await dbInstance.close();
 
-	return guildMember.send(`<@${guildMember.user.id}> Bounty published to #🧀-bounty-board and the website! ${constants.BOUNTY_BOARD_URL}${bountyId}`);
+	return guildMember.send(`<@${guildMember.user.id}> Bounty published to #🧀-bounty-board and the website! ${envUrls.BOUNTY_BOARD_URL}${bountyId}`);
+};
+
+export const addPublishReactions = (message: Message): void => {
+	message.react('🔄');
+	message.react('🏴');
+	message.react('📝');
+	message.react('❌');
 };

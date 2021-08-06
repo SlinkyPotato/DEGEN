@@ -1,5 +1,5 @@
 import { MessageReaction, PartialUser, User } from 'discord.js';
-import handleBountyBoardChannel from './bounty/handleBountyBoardChannel';
+import messageReactionAddBounty from './bounty/messageReactionAddBounty';
 
 module.exports = {
 	name: 'messageReactionAdd',
@@ -31,6 +31,6 @@ module.exports = {
 			return;
 		}
 		
-		await handleBountyBoardChannel(reaction, user as User);
+		await messageReactionAddBounty(reaction, user as User);
 	},
 };

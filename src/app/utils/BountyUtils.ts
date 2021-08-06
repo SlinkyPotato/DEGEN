@@ -1,9 +1,10 @@
-import constants from '../service/constants/constants';
 import { GuildMember, Message, TextChannel } from 'discord.js';
 import { BountyReward } from '../types/bounty/BountyReward';
 import channelIDs from '../service/constants/channelIDs';
 import ValidationError from '../errors/ValidationError';
 import { URL } from 'url';
+import envUrls from '../service/constants/envUrls';
+import constants from '../service/constants/constants';
 
 /**
  * Utilities file for bounty commands
@@ -21,7 +22,7 @@ const BountyUtils = {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid bounty hash ID: \n' +
 				' - can be found on bountyboard website\n' +
-				` - ${constants.BOUNTY_BOARD_URL}`);
+				` - ${envUrls.BOUNTY_BOARD_URL}`);
 			throw new ValidationError('invalid bountyId');
 		}
 	},
@@ -59,7 +60,7 @@ const BountyUtils = {
 
 	async validateReward(guildMember: GuildMember, reward: BountyReward): Promise<void> {
 		const ALLOWED_CURRENCIES = ['ETH', 'BANK'];
-		const MAXIMUM_REWARD = 100000000;
+		const MAXIMUM_REWARD = 100000000.00;
 
 		if (reward.amount === Number.NaN || reward.amount <= 0 || reward.amount > MAXIMUM_REWARD
 			|| !ALLOWED_CURRENCIES.includes(reward.currencySymbol)) {
@@ -121,7 +122,11 @@ const BountyUtils = {
 	
 	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string): Promise<Message> {
 		const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
-		return await bountyChannel.messages.fetch(bountyMessageId);
+		return bountyChannel.messages.fetch(bountyMessageId);
+	},
+	
+	getBountyIdFromEmbedMessage(message: Message): string {
+		return message.embeds[0].fields[4].value;
 	},
 };
 

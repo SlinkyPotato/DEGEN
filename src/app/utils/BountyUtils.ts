@@ -1,9 +1,9 @@
-import constants from '../service/constants/constants';
 import { GuildMember, Message, TextChannel } from 'discord.js';
 import { BountyReward } from '../types/bounty/BountyReward';
 import channelIDs from '../service/constants/channelIDs';
 import ValidationError from '../errors/ValidationError';
 import { URL } from 'url';
+import envUrls from '../service/constants/envUrls';
 
 /**
  * Utilities file for bounty commands
@@ -21,7 +21,7 @@ const BountyUtils = {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid bounty hash ID: \n' +
 				' - can be found on bountyboard website\n' +
-				` - ${constants.BOUNTY_BOARD_URL}`);
+				` - ${envUrls.BOUNTY_BOARD_URL}`);
 			throw new ValidationError('invalid bountyId');
 		}
 	},
@@ -37,7 +37,7 @@ const BountyUtils = {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid bounty type: \n' +
 				' - OPEN\n' +
-				' - CREATED_BY_ME' +
+				' - CREATED_BY_ME\n' +
 				' - CLAIMED_BY_ME',
 			);
 			throw new ValidationError('invalid bounty type');
@@ -59,7 +59,7 @@ const BountyUtils = {
 
 	async validateReward(guildMember: GuildMember, reward: BountyReward): Promise<void> {
 		const ALLOWED_CURRENCIES = ['ETH', 'BANK'];
-		const MAXIMUM_REWARD = 100000000;
+		const MAXIMUM_REWARD = 100000000.00;
 
 		if (reward.amount === Number.NaN || reward.amount <= 0 || reward.amount > MAXIMUM_REWARD
 			|| !ALLOWED_CURRENCIES.includes(reward.currencySymbol)) {
@@ -115,13 +115,22 @@ const BountyUtils = {
 		if (dbBountyResult == null) {
 			console.log(`${bountyId} bounty not found in db`);
 			await guildMember.send(`Sorry <@${guildMember.user.id}>, we're not able to find an open bounty with ID \`${bountyId}\`.`);
-			throw new Error(`failed to find bounty ${bountyId}`);
+			throw new ValidationError('Please try another bounty Id');
+		}
+		console.log(`found bounty ${bountyId} in db`);
+	},
+	
+	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<Message> {
+		if (message == null) {
+			const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
+			return bountyChannel.messages.fetch(bountyMessageId);
+		} else {
+			return message;
 		}
 	},
 	
-	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string): Promise<Message> {
-		const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
-		return await bountyChannel.messages.fetch(bountyMessageId);
+	getBountyIdFromEmbedMessage(message: Message): string {
+		return message.embeds[0].fields[4].value;
 	},
 };
 

@@ -4,6 +4,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import dbInstance from '../../utils/db';
 import BountyUtils from '../../utils/BountyUtils';
 import { GuildMember, Message } from 'discord.js';
+import { BountyCollection } from '../../types/bounty/BountyCollection';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -15,7 +16,7 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 ): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
-	const dbBountyResult = await dbCollection.findOne({
+	const dbBountyResult: BountyCollection = await dbCollection.findOne({
 		_id: new mongo.ObjectId(bountyId),
 	});
 
@@ -67,6 +68,6 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 };
 
 export const deleteBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
-	message = (message === null) ? await BountyUtils.getBountyMessage(guildMember, bountyMessageId) : message;
+	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
 	return message.delete();
 };

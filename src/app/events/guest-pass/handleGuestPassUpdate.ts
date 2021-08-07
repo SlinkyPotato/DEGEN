@@ -13,5 +13,4 @@ export default async (oldMember: GuildMember, newMember: GuildMember): Promise<a
 	} else if (isGuestRemoved) {
 		return RemoveGuestPass(newMember);
 	}
-	console.log('no guest pass role change occurred');
 };

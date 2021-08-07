@@ -8,6 +8,7 @@
    - restructure codebase
    - add more logging
 4. Fix guest pass event service
+5. More bug fixes for bounty board commands and flow, add refresh button!
 
 ## 1.1.1-RELEASE (2021-07-28)
 

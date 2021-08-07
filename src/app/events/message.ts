@@ -3,6 +3,8 @@
  */
 
 import messageCreateOnBountyBoard from './bounty/messageCreateOnBountyBoard';
+import messageSetScoapRoles from './scoap-squad/messageSetScoapRoles';
+
 
 module.exports = {
 	name: 'message',
@@ -17,5 +19,11 @@ module.exports = {
 		messageCreateOnBountyBoard(message).catch(e => {
 			console.error('ERROR: ', e);
 		});
+
+		messageSetScoapRoles(message).catch(e => {
+			console.error('ERROR: ', e);
+		});
+		
+
 	},
 };

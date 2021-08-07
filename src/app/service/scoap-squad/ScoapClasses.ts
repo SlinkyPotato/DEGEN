@@ -1,17 +1,44 @@
 import constants from '../constants/constants';
+import { Channel } from 'discord.js';
 
 export class ScoapEmbed {
 	embed: Record<string, any>;
 	scoap_author: string;
+	current_channel: Channel;
 
-	constructor(embed: Record<string, any>, scoap_author: string) {
-		this.embed = embed;
-		// discord id
-		this.scoap_author = scoap_author;
-	}
+	// constructor(embed: Record<string, any>, scoap_author: string, current_channel: Channel) {
+	// 	this.embed = embed;
+	// 	// discord id
+	// 	this.scoap_author = scoap_author;
+	// 	// the channel the current embed lives in
+	// 	this.current_channel = current_channel;
+	// }
 
 	getEmbed(): any {
 		return this.embed;
+	}
+
+	getAuthor(): string {
+		return this.scoap_author;
+	}
+
+	getCurrentChannel(): Channel {
+		return this.current_channel;
+	}
+
+	setEmbed(embed: any): this {
+		this.embed = embed;
+		return this;
+	}
+
+	setScoapAuthor(scoap_author: string): this {
+		this.scoap_author = scoap_author;
+		return this;
+	}
+
+	setCurrentChannel(current_channel: Channel): this {
+		this.current_channel = current_channel;
+		return this;
 	}
 
 	updateProgressString(emoji: string, update_progress_string: string): this {

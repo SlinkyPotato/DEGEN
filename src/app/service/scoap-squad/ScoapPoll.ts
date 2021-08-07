@@ -119,7 +119,10 @@ export default async (channel: TextChannel, request: NewType): Promise<any> => {
 
 	const voteRecord = new VoteRecord();
 
-	const scoapEmbed = new ScoapEmbed(deepEmbed, '749152252966469668');
+	// const scoapEmbed = new ScoapEmbed(deepEmbed, '749152252966469668', channel);
+	const scoapEmbed = new ScoapEmbed();
+
+	scoapEmbed.setEmbed(deepEmbed).setScoapAuthor('749152252966469668').setCurrentChannel(channel);
 
 	const embedMessage = await channel.send({ embed: scoapEmbed.getEmbed() });
 

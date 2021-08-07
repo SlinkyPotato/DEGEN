@@ -7,13 +7,15 @@ export default Object.freeze({
 	DB_COLLECTION_BOUNTIES: 'bounties',
 
 	// MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
-	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}.aa5jf.mongodb.net/myFirstDatabase`,
+	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}${process.env.MONGODB_URL_ENDPOINT}`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
 	BOUNTY_BOARD_URL: 'https://bankless.community/',
 
 	SCOAP_HTTP_SERVER_CORS_WHITELIST: ['http://localhost:3000'],
 	SCOAP_HTTP_SERVER_PORT: 5000,
 	SCOAP_SQUAD_CHANNEL_ID: '854401837566001192',
+
+	BOUNTY_BOARD_WEBSITE_WEBHOOK_NAME: 'bounty-board-website',
 
 	EMOJIS: {
 		one: '\u0031\uFE0F\u20E3',

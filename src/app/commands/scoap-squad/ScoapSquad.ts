@@ -84,7 +84,7 @@ module.exports = class ScoapSquad extends SlashCommand {
 		
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 
-		console.log(guildMember);
+		// console.log(guildMember);
 
 		let command: Promise<any>;
 		switch (ctx.subcommands[0]) {
@@ -117,7 +117,7 @@ module.exports = class ScoapSquad extends SlashCommand {
 	}
 	
 	buildScoapCreateNewParams(ctxOptions): any {
-		console.log(ctxOptions);
+		// console.log(ctxOptions);
 		const [reward, symbol] = (ctxOptions.new.reward != null) ? ctxOptions.new.reward.split(' ') : [null, null];
 		return {
 			title: ctxOptions.new.title,

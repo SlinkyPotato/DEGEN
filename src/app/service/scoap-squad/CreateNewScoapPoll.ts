@@ -1,43 +1,20 @@
 import { CommandContext, User } from 'slash-create';
-// import constants from '../../constants/constants';
 import ScoapUtils from '../../utils/ScoapUtils';
 import { GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
-// import { finalizeBounty } from './PublishBounty';
-// import { Db, Double, Int32 } from 'mongodb';
-// import dbInstance from '../../../utils/db';
-// import { deleteBountyForValidId } from '../DeleteBounty';
-// import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
-// import ServiceUtils from '../../../utils/ServiceUtils';
+// import { setScoapRoles } from './SetRolesCommandScoap';
+import { ScoapEmbed } from './ScoapClasses';
+// import cloneDeep from 'lodash.clonedeep';
 
 // const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
+
+// export const scoapEmbed = new ScoapEmbed();
+
+export const scoapEmbedArray = [];
 
 export default async (guildMember: GuildMember, params: any, ctx?: CommandContext): Promise<any> => {
 	const title = params.title;
 	const summary = params.summary;
-	// const roles = params.roles;
 	const reward = params.reward;
-	
-	// await ScoapUtils.validateReward(guildMember, reward);
-	// await ScoapUtils.validateSummary(guildMember, summary);
-	// await ScoapUtils.validateTitle(guildMember, title);
-	// await BountyUtils.validateCriteria(guildMember, criteria);
-
-	// const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
-	// const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
-	// const newBounty = generateBountyRecord(
-	// 	params, guildMember.user.tag, guildMember.user.id,
-	// );
-
-	// const dbInsertResult = await dbBounty.insertOne(newBounty);
-
-	// if (dbInsertResult == null) {
-	// 	console.error('failed to insert bounty into DB');
-	// 	return guildMember.send('Sorry something is not working, our devs are looking into it.');
-	// }
-	// await dbInstance.close();
-
-	// console.log(`user ${guildMember.user.tag} inserted into db`);
-
 	const messageOptions: MessageOptions = {
 		embed: {
 			title: title,
@@ -48,62 +25,29 @@ export default async (guildMember: GuildMember, params: any, ctx?: CommandContex
 			},
 			// description: summary,
 			fields: [
-				// { name: 'Reward', value: newBounty.reward.amount + ' ' + newBounty.reward.currency, inline: true },
 				{ name: 'Summary', value: summary },
-				{ name: 'Reward', value: reward.amount + ' ' + reward.currency, inline: true },
-				// { name: 'Deadline', value: ServiceUtils.formatDisplayDate(newBounty.dueAt), inline: true },
-				// { name: 'Roles', value: roles },
-				// { name: 'HashId', value: dbInsertResult.insertedId },
+				{ name: 'Reward', value: reward.amount + ' ' + reward.currencySymbol, inline: true },
 				{ name: 'CreatedBy', value: guildMember.user.tag, inline: true },
 			],
 			timestamp: new Date(),
 			footer: {
-				text: '👍 - publish | 📝 - edit | ❌ - delete',
+				text: '👍 - confirm | ❌ - delete draft and start over',
 			},
 		},
 	};
 	ctx?.send(`${ctx.user.mention} Sent you draft SCOAP Squad request, please verify.`);
 	const message: Message = await guildMember.send(
-		'Please verify below information. \n' +
-		'If everything is correct, \n' +
-		'reply YES to this message to start \n' +
-		'defining roles for your SCOAP squad. \n' +
-		'Reply NO to start over \n', 
+		'Please verify below information. ' +
+		'If everything is correct, ' +
+		'hit the confirm emoji to start ' +
+		'defining roles for your SCOAP squad.\n',
 		messageOptions) as Message;
 	
 	await message.react('👍');
-	await message.react('📝');
 	await message.react('❌');
 
 	return handleScoapReaction(message, guildMember);
 };
-
-// export const generateBountyRecord = (bountyParams: BountyCreateNew, discordHandle: string, discordId: string): any => {
-// 	const currentDate = (new Date()).toISOString();
-// 	return {
-// 		season: new Int32(Number(process.env.DAO_CURRENT_SEASON)),
-// 		title: bountyParams.title,
-// 		description: bountyParams.summary,
-// 		criteria: bountyParams.criteria,
-// 		reward: {
-// 			currency: bountyParams.reward.currencySymbol,
-// 			amount: new Double(bountyParams.reward.amount),
-// 		},
-// 		createdBy: {
-// 			discordHandle: discordHandle,
-// 			discordId: discordId,
-// 		},
-// 		createdAt: currentDate,
-// 		statusHistory: [
-// 			{
-// 				status: 'Draft',
-// 				setAt: currentDate,
-// 			},
-// 		],
-// 		status: 'Draft',
-// 		dueAt: END_OF_SEASON,
-// 	};
-// };
 
 const handleScoapReaction = (message: Message, guildMember: GuildMember): Promise<any> => {
 	return message.awaitReactions((reaction, user: User) => {
@@ -112,21 +56,35 @@ const handleScoapReaction = (message: Message, guildMember: GuildMember): Promis
 		max: 1,
 		time: (60000 * 60),
 		errors: ['time'],
-	}).then(collected => {
+	}).then(async collected => {
 		const reaction: MessageReaction = collected.first();
 		if (reaction.emoji.name === '👍') {
 			console.log('/scoap-squad assemble new | :thumbsup: up given');
-			// return finalizeBounty(guildMember, bountyId);
-			return guildMember.send('Thumbs up bro!');
-		} else if (reaction.emoji.name === '📝') {
-			console.log('/scoap-squad assemble new | :pencil: given');
-			return guildMember.send('Sorry edit not yet available. Please delete bounty with /bounty delete command');
+			return setScoapRoles(guildMember, message);
 		} else {
 			console.log('/scoap-squad assemble new | delete given');
-			// return deleteBountyForValidId(guildMember, bountyId);
-			return guildMember.send('Thumbs up bro!');
+			await message.delete();
+			return guildMember.send('Message deleted, let\'s start over.');
 		}
 	}).catch(_ => {
 		console.log('did not react');
 	});
+};
+
+export const setScoapRoles = async (guildMember: GuildMember, message: Message): Promise<any> => {
+	console.log('ready to set roles: ');
+
+	// create ScoapEmbed object
+	const draftEmbed = message.embeds[0];
+	const scoapEmbed = new ScoapEmbed();
+	scoapEmbed.setEmbed(draftEmbed).setScoapAuthor(guildMember.id).setCurrentChannel(message.channel);
+	scoapEmbedArray.push(scoapEmbed);
+
+	const roleMessage: Message = await guildMember.send(
+		'Please define at least one role for your SCOAP squad. ' +
+		'Reply to this message with the name of the first role (e.g. Project Manager)') as Message;
+
+	return roleMessage;
+
+
 };

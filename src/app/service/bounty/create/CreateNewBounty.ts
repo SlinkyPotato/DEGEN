@@ -3,11 +3,12 @@ import constants from '../../constants/constants';
 import BountyUtils from '../../../utils/BountyUtils';
 import { GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
 import { finalizeBounty } from './PublishBounty';
-import { Db, Double, Int32 } from 'mongodb';
+import { Db, Int32 } from 'mongodb';
 import dbInstance from '../../../utils/db';
 import { deleteBountyForValidId } from '../DeleteBounty';
 import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
 import ServiceUtils from '../../../utils/ServiceUtils';
+import envUrls from '../../constants/envUrls';
 
 const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
 
@@ -41,18 +42,17 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 	const messageOptions: MessageOptions = {
 		embed: {
 			title: newBounty.title,
-			url: (constants.BOUNTY_BOARD_URL + dbInsertResult.insertedId),
+			url: (envUrls.BOUNTY_BOARD_URL + dbInsertResult.insertedId),
 			author: {
 				icon_url: guildMember.user.avatarURL(),
 				name: newBounty.createdBy.discordHandle,
 			},
-			description: newBounty.summary,
+			description: newBounty.description,
 			fields: [
 				{ name: 'Reward', value: newBounty.reward.amount + ' ' + newBounty.reward.currency, inline: true },
 				{ name: 'Status', value: 'Open', inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(newBounty.dueAt), inline: true },
 				{ name: 'Criteria', value: newBounty.criteria },
-				{ name: 'Summary', value: newBounty.description },
 				{ name: 'HashId', value: dbInsertResult.insertedId },
 				{ name: 'CreatedBy', value: newBounty.createdBy.discordHandle, inline: true },
 			],
@@ -74,6 +74,8 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 
 export const generateBountyRecord = (bountyParams: BountyCreateNew, discordHandle: string, discordId: string): any => {
 	const currentDate = (new Date()).toISOString();
+	const precision = (bountyParams.reward.amount);
+	console.log(precision);
 	return {
 		season: new Int32(Number(process.env.DAO_CURRENT_SEASON)),
 		title: bountyParams.title,
@@ -81,7 +83,8 @@ export const generateBountyRecord = (bountyParams: BountyCreateNew, discordHandl
 		criteria: bountyParams.criteria,
 		reward: {
 			currency: bountyParams.reward.currencySymbol,
-			amount: new Double(bountyParams.reward.amount),
+			amount: new Int32(bountyParams.reward.amount),
+			scale: new Int32(bountyParams.reward.scale),
 		},
 		createdBy: {
 			discordHandle: discordHandle,
@@ -118,7 +121,5 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, bounty
 			console.log('/bounty create new | delete given');
 			return deleteBountyForValidId(guildMember, bountyId);
 		}
-	}).catch(_ => {
-		console.log('did not react');
-	});
+	}).catch(console.error);
 };

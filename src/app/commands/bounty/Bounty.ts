@@ -129,10 +129,6 @@ module.exports = class Bounty extends SlashCommand {
 									name: 'open',
 									value: 'OPEN',
 								},
-								{
-									name: 'in-progress',
-									value: 'IN_PROGRESS',
-								},
 							],
 							required: true,
 						},
@@ -259,8 +255,10 @@ module.exports = class Bounty extends SlashCommand {
 			console.log(`/bounty end ${ctx.user.username}#${ctx.user.discriminator}`);
 			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 		}).catch(e => {
-			if (!(e instanceof ValidationError)) {
-				console.error('ERROR', e);
+			console.error('ERROR', e);
+			if (e instanceof ValidationError) {
+				return ctx.send(e.message);
+			} else {
 				return ctx.send('Sorry something is not working and our devs are looking into it');
 			}
 		});
@@ -268,13 +266,16 @@ module.exports = class Bounty extends SlashCommand {
 	
 	buildBountyCreateNewParams(ctxOptions): BountyCreateNew {
 		const [reward, symbol] = (ctxOptions.reward != null) ? ctxOptions.reward.split(' ') : [null, null];
+		let scale = reward.split('.')[1]?.length;
+		scale = (scale != null) ? scale : 0;
 		return {
 			title: ctxOptions.title,
 			summary: ctxOptions.summary,
 			criteria: ctxOptions.criteria,
 			reward: {
-				amount: reward,
+				amount: reward.replace('.', ''),
 				currencySymbol: symbol,
+				scale: scale,
 			},
 		};
 	}

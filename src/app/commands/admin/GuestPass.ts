@@ -1,7 +1,7 @@
 import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType, CommandContext } from 'slash-create';
 import client from '../../app';
 import roleIDs from '../../service/constants/roleIDs';
-import AddGuestPass, { expiresInHours } from '../../service/guest-pass/AddGuestPass';
+import AddGuestPass from '../../service/guest-pass/AddGuestPass';
 
 module.exports = class GuestPass extends SlashCommand {
 	constructor(creator) {

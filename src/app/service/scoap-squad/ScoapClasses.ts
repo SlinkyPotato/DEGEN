@@ -168,7 +168,6 @@ export class VoteRecord {
 		return percent.toString();
 	}
 
-	// emoji:string
 	_generateProgressString(emoji: string): string {
 		return `${this._calcPercentages(emoji)}%(${this.emoteTotals[emoji]}/${
 			this.emoteRequired[emoji]

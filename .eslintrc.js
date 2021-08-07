@@ -21,7 +21,7 @@ module.exports = {
 		curly: ['error', 'multi-line', 'consistent'],
 		'dot-location': ['error', 'property'],
 		'handle-callback-err': 'off',
-		indent: ['error', 'tab', {SwitchCase: 1}],
+		indent: ['error', 'tab'],
 		'max-nested-callbacks': ['error', { max: 4 }],
 		'max-statements-per-line': ['error', { max: 2 }],
 		'no-console': 'off',

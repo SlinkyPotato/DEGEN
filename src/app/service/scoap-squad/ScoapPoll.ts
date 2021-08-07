@@ -106,7 +106,7 @@ type NewType = any;
 
 // Note: How to do correct type definition for request?
 export default async (channel: TextChannel, request: NewType): Promise<any> => {
-	// console.log(' here is the request body ', request.body.scoap);
+
 	const deepEmbed = cloneDeep(scoapEmbedTemplate);
 
 	const votableEmojiArray = [
@@ -147,43 +147,43 @@ export default async (channel: TextChannel, request: NewType): Promise<any> => {
 
 		if (emojiValid(reaction.emoji.name, votableEmojiArray) === true) {
 			switch (true) {
-				case choiceValid === true: {
-					const vote = new Vote(
-						user.id,
-						reaction.emoji.name,
-						voteRecord.getUserVoteLedger(),
-					);
-					voteRecord.update(vote);
+			case choiceValid === true: {
+				const vote = new Vote(
+					user.id,
+					reaction.emoji.name,
+					voteRecord.getUserVoteLedger(),
+				);
+				voteRecord.update(vote);
 
-					if (vote.getType() === 'CHANGEVOTE') {
-						await removeReaction(
-							embedMessage,
-							vote.getUserId(),
-							vote.getEmoji(),
-							choiceValid,
-						);
-					}
-
-					for (const key in voteRecord.getProgressStrings()) {
-						// console.log('key ', key, ' value ', voteRecord.getProgressStrings()[key]);
-						scoapEmbed.updateProgressString(
-							key,
-							voteRecord.getProgressStrings()[key],
-						);
-					}
-					embedMessage.edit({ embed: scoapEmbed.getEmbed() });
-
-					break;
-				}
-				case choiceValid === false: {
+				if (vote.getType() === 'CHANGEVOTE') {
 					await removeReaction(
 						embedMessage,
-						user.id,
-						reaction.emoji.name,
+						vote.getUserId(),
+						vote.getEmoji(),
 						choiceValid,
 					);
-					break;
 				}
+
+				for (const key in voteRecord.getProgressStrings()) {
+					// console.log('key ', key, ' value ', voteRecord.getProgressStrings()[key]);
+					scoapEmbed.updateProgressString(
+						key,
+						voteRecord.getProgressStrings()[key],
+					);
+				}
+				embedMessage.edit({ embed: scoapEmbed.getEmbed() });
+
+				break;
+			}
+			case choiceValid === false: {
+				await removeReaction(
+					embedMessage,
+					user.id,
+					reaction.emoji.name,
+					choiceValid,
+				);
+				break;
+			}
 			}
 		} else {
 			console.log(reaction.emoji.name);

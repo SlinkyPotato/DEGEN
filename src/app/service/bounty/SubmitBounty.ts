@@ -46,8 +46,8 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
 		$set: {
 			submittedBy: {
-				'discordHandle': guildMember.user.tag,
-				'discordId': guildMember.user.id,
+				discordHandle: guildMember.user.tag,
+				discordId: guildMember.user.id,
 			},
 			submittedAt: currentDate,
 			status: 'In-Review',
@@ -79,7 +79,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 };
 
 export const submitBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
-	message = (message === null) ? await BountyUtils.getBountyMessage(guildMember, bountyMessageId) : message;
+	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
 
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[1].value = 'In-Review';

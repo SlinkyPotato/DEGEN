@@ -68,6 +68,6 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 };
 
 export const deleteBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
-	message = (message === null) ? await BountyUtils.getBountyMessage(guildMember, bountyMessageId) : message;
+	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
 	return message.delete();
 };

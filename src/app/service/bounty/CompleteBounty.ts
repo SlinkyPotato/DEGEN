@@ -70,7 +70,7 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 };
 
 export const completeBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
-	message = (message === null) ? await BountyUtils.getBountyMessage(guildMember, bountyMessageId) : message;
+	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
 
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[1].value = 'Completed';

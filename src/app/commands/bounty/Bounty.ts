@@ -259,8 +259,10 @@ module.exports = class Bounty extends SlashCommand {
 			console.log(`/bounty end ${ctx.user.username}#${ctx.user.discriminator}`);
 			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 		}).catch(e => {
-			if (!(e instanceof ValidationError)) {
-				console.error('ERROR', e);
+			console.error('ERROR', e);
+			if (e instanceof ValidationError) {
+				return ctx.send(e.message);
+			} else {
 				return ctx.send('Sorry something is not working and our devs are looking into it');
 			}
 		});

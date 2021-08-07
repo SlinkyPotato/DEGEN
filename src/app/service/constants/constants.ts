@@ -3,6 +3,7 @@ export default Object.freeze({
 
 	DB_NAME_DEGEN: 'degen',
 	DB_NAME_BOUNTY_BOARD: 'bountyboard',
+	
 	DB_COLLECTION_GUEST_USERS: 'guestUsers',
 	DB_COLLECTION_BOUNTIES: 'bounties',
 

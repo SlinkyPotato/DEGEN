@@ -63,7 +63,8 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 };
 
 export const claimBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
-	message = (message === null) ? await BountyUtils.getBountyMessage(guildMember, bountyMessageId) : message;
+	console.log(`attempting to claim bountyMessageId: ${bountyMessageId}`);
+	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
 	
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[1].value = 'In-Progress';

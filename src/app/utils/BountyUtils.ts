@@ -116,14 +116,18 @@ const BountyUtils = {
 		if (dbBountyResult == null) {
 			console.log(`${bountyId} bounty not found in db`);
 			await guildMember.send(`Sorry <@${guildMember.user.id}>, we're not able to find an open bounty with ID \`${bountyId}\`.`);
-			throw new Error(`failed to find bounty ${bountyId}`);
+			throw new ValidationError('Please try another bounty Id');
 		}
 		console.log(`found bounty ${bountyId} in db`);
 	},
 	
-	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string): Promise<Message> {
-		const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
-		return bountyChannel.messages.fetch(bountyMessageId);
+	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<Message> {
+		if (message == null) {
+			const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
+			return bountyChannel.messages.fetch(bountyMessageId);
+		} else {
+			return message;
+		}
 	},
 	
 	getBountyIdFromEmbedMessage(message: Message): string {

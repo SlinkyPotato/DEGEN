@@ -11,7 +11,6 @@ import envUrls from '../../service/constants/envUrls';
 
 export default (reaction: MessageReaction, user: User): Promise<any> => {
 	if (reaction.message.channel.id !== channelIDs.bountyBoard) {
-		console.log('reaction for another channel');
 		return;
 	}
 	const message: Message = reaction.message;

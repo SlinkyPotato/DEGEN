@@ -129,10 +129,6 @@ module.exports = class Bounty extends SlashCommand {
 									name: 'open',
 									value: 'OPEN',
 								},
-								{
-									name: 'in-progress',
-									value: 'IN_PROGRESS',
-								},
 							],
 							required: true,
 						},

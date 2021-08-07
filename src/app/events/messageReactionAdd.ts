@@ -30,6 +30,6 @@ module.exports = {
 			return;
 		}
 		
-		messageReactionAddBounty(reaction, user as User).catch(console.error);
+		await messageReactionAddBounty(reaction, user as User);
 	},
 };

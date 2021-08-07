@@ -29,30 +29,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 		console.log(`${bountyId} bounty is not drafted`);
 		return guildMember.send(`<@${guildMember.user.id}> Sorry bounty is not drafted.`);
 	}
-	const messageOptions: MessageOptions = {
-		embed: {
-			color: '#1e7e34',
-			title: dbBountyResult.title,
-			url: envUrls.BOUNTY_BOARD_URL + dbBountyResult._id,
-			author: {
-				icon_url: guildMember.user.avatarURL(),
-				name: dbBountyResult.createdBy.discordHandle,
-			},
-			description: dbBountyResult.description,
-			fields: [
-				{ name: 'Reward', value: dbBountyResult.reward.amount + ' ' + dbBountyResult.reward.currency, inline: true },
-				{ name: 'Status', value: 'Open', inline: true },
-				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(dbBountyResult.dueAt), inline: true },
-				{ name: 'Criteria', value: dbBountyResult.criteria },
-				{ name: 'HashId', value: dbBountyResult._id },
-				{ name: 'Created By', value: dbBountyResult.createdBy.discordHandle, inline: true },
-			],
-			timestamp: new Date(),
-			footer: {
-				text: '🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete',
-			},
-		},
-	};
+	const messageOptions: MessageOptions = generateEmbedMessage(dbBountyResult, guildMember.user.avatarURL());
 
 	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
 	const bountyMessage: Message = await bountyChannel.send(messageOptions) as Message;
@@ -89,4 +66,31 @@ export const addPublishReactions = (message: Message): void => {
 	message.react('🔄');
 	message.react('📝');
 	message.react('❌');
+};
+
+export const generateEmbedMessage = (dbBounty: BountyCollection, iconUrl?: string): MessageOptions => {
+	return {
+		embed: {
+			color: '#1e7e34',
+			title: dbBounty.title,
+			url: envUrls.BOUNTY_BOARD_URL + dbBounty._id,
+			author: {
+				icon_url: iconUrl,
+				name: dbBounty.createdBy.discordHandle,
+			},
+			description: dbBounty.description,
+			fields: [
+				{ name: 'Reward', value: dbBounty.reward.amount + ' ' + dbBounty.reward.currency, inline: true },
+				{ name: 'Status', value: 'Open', inline: true },
+				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(dbBounty.dueAt), inline: true },
+				{ name: 'Criteria', value: dbBounty.criteria },
+				{ name: 'HashId', value: dbBounty._id },
+				{ name: 'Created By', value: dbBounty.createdBy.discordHandle, inline: true },
+			],
+			timestamp: new Date(),
+			footer: {
+				text: '🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete',
+			},
+		},
+	};
 };

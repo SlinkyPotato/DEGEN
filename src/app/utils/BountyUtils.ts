@@ -37,7 +37,7 @@ const BountyUtils = {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid bounty type: \n' +
 				' - OPEN\n' +
-				' - CREATED_BY_ME' +
+				' - CREATED_BY_ME\n' +
 				' - CLAIMED_BY_ME',
 			);
 			throw new ValidationError('invalid bounty type');

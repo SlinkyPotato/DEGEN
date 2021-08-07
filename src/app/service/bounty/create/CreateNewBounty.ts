@@ -107,6 +107,8 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, bounty
 		return ['📝', '👍', '❌'].includes(reaction.emoji.name) && !user.bot;
 	}, {
 		max: 1,
+		time: (60000 * 60),
+		errors: ['time'],
 	}).then(collected => {
 		const reaction: MessageReaction = collected.first();
 		if (reaction.emoji.name === '👍') {

@@ -31,6 +31,6 @@ module.exports = {
 			return;
 		}
 		
-		await messageReactionAddBounty(reaction, user as User).catch(console.error);
+		messageReactionAddBounty(reaction, user as User).catch(console.error);
 	},
 };

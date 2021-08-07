@@ -49,7 +49,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 			],
 			timestamp: new Date(),
 			footer: {
-				text: '🔄 - refresh | 🏴 - start | 📝 - edit | ❌ - delete',
+				text: '🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete',
 			},
 		},
 	};
@@ -85,8 +85,8 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 
 export const addPublishReactions = (message: Message): void => {
 	message.reactions.removeAll();
-	message.react('🔄');
 	message.react('🏴');
+	message.react('🔄');
 	message.react('📝');
 	message.react('❌');
 };

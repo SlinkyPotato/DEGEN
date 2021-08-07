@@ -85,14 +85,14 @@ export const submitBountyMessage = async (guildMember: GuildMember, bountyMessag
 	embedMessage.fields[1].value = 'In-Review';
 	embedMessage.setColor('#d39e00');
 	embedMessage.addField('Submitted By', guildMember.user.tag, true);
-	embedMessage.setFooter('🔄 - refresh | ✅ - complete | 🆘 - help | bounty is in review');
+	embedMessage.setFooter('✅ - complete | 🔄 - refresh | 🆘 - help');
 	await message.edit(embedMessage);
 	addSubmitReactions(message);
 };
 
 export const addSubmitReactions = (message: Message): void => {
 	message.reactions.removeAll();
-	message.react('🔄');
 	message.react('✅');
+	message.react('🔄');
 	message.react('🆘');
 };

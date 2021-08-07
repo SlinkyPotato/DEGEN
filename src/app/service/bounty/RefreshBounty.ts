@@ -33,25 +33,25 @@ export default async (guildMember: GuildMember, bountyId: string, message: Messa
 	switch (bountyCollection.status) {
 	case 'Open':
 		embedMessage.setColor('#1e7e34');
-		embedMessage.setFooter('🔄 - refresh | 🏴 - start | 📝 - edit | ❌ - delete');
+		embedMessage.setFooter('🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete');
 		await message.edit(embedMessage);
 		addPublishReactions(message);
 		break;
 	case 'In-Progress':
 		embedMessage.setColor('#d39e00');
-		embedMessage.setFooter('🔄 - refresh | 📮 - submit | 🆘 - help');
+		embedMessage.setFooter('📮 - submit | 🔄 - refresh | 🆘 - help');
 		await message.edit(embedMessage);
 		addClaimReactions(message);
 		break;
 	case 'In-Review':
 		embedMessage.setColor('#d39e00');
-		embedMessage.setFooter('🔄 - refresh | ✅ - complete | 🆘 - help | bounty is in review');
+		embedMessage.setFooter('✅ - complete | 🔄 - refresh | 🆘 - help');
 		await message.edit(embedMessage);
 		addSubmitReactions(message);
 		break;
 	case 'Completed':
 		embedMessage.setColor('#1d2124');
-		embedMessage.setFooter('🆘 - help | bounty complete');
+		embedMessage.setFooter('🆘 - help');
 		await message.edit(embedMessage);
 		addCompletedReactions(message);
 		break;

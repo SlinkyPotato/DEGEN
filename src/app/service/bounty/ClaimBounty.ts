@@ -69,14 +69,14 @@ export const claimBountyMessage = async (guildMember: GuildMember, bountyMessage
 	embedMessage.fields[1].value = 'In-Progress';
 	embedMessage.setColor('#d39e00');
 	embedMessage.addField('Claimed By', guildMember.user.tag, true);
-	embedMessage.setFooter('🔄 - refresh - | 📮 - submit | 🆘 - help');
+	embedMessage.setFooter('📮 - submit | 🔄 - refresh | 🆘 - help');
 	await message.edit(embedMessage);
 	addClaimReactions(message);
 };
 
 export const addClaimReactions = (message: Message): void => {
 	message.reactions.removeAll();
-	message.react('🔄');
 	message.react('📮');
+	message.react('🔄');
 	message.react('🆘');
 };

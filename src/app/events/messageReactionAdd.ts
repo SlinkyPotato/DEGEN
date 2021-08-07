@@ -27,7 +27,6 @@ module.exports = {
 		}
 		
 		if (user.bot) {
-			console.log('ignoring bot reactions');
 			return;
 		}
 		

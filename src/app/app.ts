@@ -1,6 +1,6 @@
 // Libs
 import { SlashCreator, GatewayServer } from 'slash-create';
-import Discord, { Client, Message, WSEventType } from 'discord.js';
+import Discord, { Client, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
 

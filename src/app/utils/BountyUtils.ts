@@ -4,7 +4,6 @@ import channelIDs from '../service/constants/channelIDs';
 import ValidationError from '../errors/ValidationError';
 import { URL } from 'url';
 import envUrls from '../service/constants/envUrls';
-import constants from '../service/constants/constants';
 
 /**
  * Utilities file for bounty commands

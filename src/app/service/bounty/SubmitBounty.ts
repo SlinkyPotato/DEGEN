@@ -4,6 +4,7 @@ import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
 import envUrls from '../constants/envUrls';
+import { BountyCollection } from '../../types/bounty/BountyCollection';
 
 export default async (guildMember: GuildMember, bountyId: string, urlOfWork?: string, notes?: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -24,7 +25,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
 
-	const dbBountyResult = await dbCollection.findOne({
+	const dbBountyResult: BountyCollection = await dbCollection.findOne({
 		_id: new mongo.ObjectId(bountyId),
 		status: 'In-Progress',
 	});
@@ -74,7 +75,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	const createdByUser: GuildMember = guildMember.guild.member(dbBountyResult.createdBy.discordId);
 	await createdByUser.send(`Hello <@${createdByUser.user.id}>! Bankless DAO user <@${guildMember.user.id}> has finished the bounty ${bountyUrl}. Please reach out to them to check.`);
 
-	return guildMember.send(`<@${guildMember.user.id}> Bounty in review! Look out for a follow up message from <@${dbBountyResult.createdBy.id}>`);
+	return guildMember.send(`<@${guildMember.user.id}> Bounty in review! Look out for a follow up message from <@${dbBountyResult.createdBy.discordId}>`);
 };
 
 export const submitBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
@@ -84,10 +85,14 @@ export const submitBountyMessage = async (guildMember: GuildMember, bountyMessag
 	embedMessage.fields[1].value = 'In-Review';
 	embedMessage.setColor('#d39e00');
 	embedMessage.addField('Submitted By', guildMember.user.tag, true);
-	embedMessage.setFooter('✅ - complete | 🆘 - help | bounty is in review');
+	embedMessage.setFooter('🔄 - refresh | ✅ - complete | 🆘 - help | bounty is in review');
 	await message.edit(embedMessage);
+	addSubmitReactions(message);
+};
 
-	await message.reactions.removeAll();
-	await message.react('✅');
-	await message.react('🆘');
+export const addSubmitReactions = (message: Message): void => {
+	message.reactions.removeAll();
+	message.react('🔄');
+	message.react('✅');
+	message.react('🆘');
 };

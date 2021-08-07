@@ -6,6 +6,7 @@ import dbInstance from '../../../utils/db';
 import channelIDs from '../../constants/channelIDs';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import envUrls from '../../constants/envUrls';
+import { BountyCollection } from '../../../types/bounty/BountyCollection';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -17,7 +18,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
-	const dbBountyResult = await dbCollection.findOne({
+	const dbBountyResult: BountyCollection = await dbCollection.findOne({
 		_id: new mongo.ObjectId(bountyId),
 		status: 'Draft',
 	});
@@ -55,6 +56,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 
 	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
 	const bountyMessage: Message = await bountyChannel.send(messageOptions) as Message;
+	console.log('bounty published to #bounty-board');
 	addPublishReactions(bountyMessage);
 
 	const currentDate = (new Date()).toISOString();
@@ -82,6 +84,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 };
 
 export const addPublishReactions = (message: Message): void => {
+	message.reactions.removeAll();
 	message.react('🔄');
 	message.react('🏴');
 	message.react('📝');

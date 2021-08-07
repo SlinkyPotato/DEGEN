@@ -1,10 +1,9 @@
 import constants from '../constants/constants';
-import mongo, { Collection, Db, UpdateWriteOpResult } from 'mongodb';
+import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
 import dbInstance from '../../utils/db';
 import { GuildMember, Message, MessageEmbed } from 'discord.js';
 import envUrls from '../constants/envUrls';
-import CheckBountyBoard from './RefreshBounty';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
@@ -70,10 +69,14 @@ export const claimBountyMessage = async (guildMember: GuildMember, bountyMessage
 	embedMessage.fields[1].value = 'In-Progress';
 	embedMessage.setColor('#d39e00');
 	embedMessage.addField('Claimed By', guildMember.user.tag, true);
-	embedMessage.setFooter('📮 - submit | 🆘 - help');
+	embedMessage.setFooter('🔄 - refresh - | 📮 - submit | 🆘 - help');
 	await message.edit(embedMessage);
+	addClaimReactions(message);
+};
 
-	await message.reactions.removeAll();
-	await message.react('📮');
-	await message.react('🆘');
+export const addClaimReactions = (message: Message): void => {
+	message.reactions.removeAll();
+	message.react('🔄');
+	message.react('📮');
+	message.react('🆘');
 };

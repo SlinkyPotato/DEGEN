@@ -118,6 +118,7 @@ const BountyUtils = {
 			await guildMember.send(`Sorry <@${guildMember.user.id}>, we're not able to find an open bounty with ID \`${bountyId}\`.`);
 			throw new Error(`failed to find bounty ${bountyId}`);
 		}
+		console.log(`found bounty ${bountyId} in db`);
 	},
 	
 	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string): Promise<Message> {

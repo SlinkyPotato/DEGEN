@@ -14,6 +14,8 @@ module.exports = {
 		if (message.content.toLowerCase().match('^.*degen$')) {
 			message.channel.send(`${greetings[Math.floor(Math.random() * greetings.length)]} ${message.author.username}!`);
 		}
-		messageCreateOnBountyBoard(message);
+		messageCreateOnBountyBoard(message).catch(e => {
+			console.error('ERROR: ', e);
+		});
 	},
 };

@@ -4,6 +4,7 @@ import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
 import { seekHelpValidBountyId } from './SeekHelpBounty';
+import { BountyCollection } from '../../types/bounty/BountyCollection';
 
 export default async (guildMember: GuildMember, bountyId: string, isComplete: boolean): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -21,7 +22,7 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
 
-	const dbBountyResult = await dbCollection.findOne({
+	const dbBountyResult: BountyCollection = await dbCollection.findOne({
 		_id: new mongo.ObjectId(bountyId),
 		status: 'In-Review',
 	});
@@ -65,7 +66,7 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 	console.log(`${bountyId} bounty reviewed by ${guildMember.user.tag}`);
 	await completeBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 
-	return guildMember.send(`<@${guildMember.user.id}> Bounty in review! Look out for a follow up message from <@${dbBountyResult.createdBy.id}>`);
+	return guildMember.send(`<@${guildMember.user.id}> Bounty in review! Look out for a follow up message from <@${dbBountyResult.createdBy.discordId}>`);
 };
 
 export const completeBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
@@ -77,7 +78,10 @@ export const completeBountyMessage = async (guildMember: GuildMember, bountyMess
 	embedMessage.addField('Reviewed By', guildMember.user.tag, true);
 	embedMessage.setFooter('🆘 - help | bounty complete');
 	await message.edit(embedMessage);
+	addCompletedReactions(message);
+};
 
-	await message.reactions.removeAll();
-	await message.react('🆘');
+export const addCompletedReactions = (message: Message): void => {
+	message.reactions.removeAll();
+	message.react('🆘');
 };

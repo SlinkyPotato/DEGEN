@@ -6,6 +6,8 @@ import { submitBountyForValidId } from '../../service/bounty/SubmitBounty';
 import { completeBountyForValidId } from '../../service/bounty/CompleteBounty';
 import { seekHelpValidBountyId } from '../../service/bounty/SeekHelpBounty';
 import BountyUtils from '../../utils/BountyUtils';
+import RefreshBounty from '../../service/bounty/RefreshBounty';
+import envUrls from '../../service/constants/envUrls';
 
 export default (reaction: MessageReaction, user: User): Promise<any> => {
 	if (reaction.message.channel.id !== channelIDs.bountyBoard) {
@@ -20,20 +22,22 @@ export default (reaction: MessageReaction, user: User): Promise<any> => {
 		console.log(`${user.tag} attempting to claim a bounty ${bountyId} from the bounty board`);
 		return claimBountyForValidId(guildMember, bountyId, message);
 	} else if (reaction.emoji.name === '📝') {
-		console.log(`${user.tag} attempting to edit bounty ${bountyId} from the bounty board`);
-		return user.send('Sorry edit not yet available. Please delete bounty with /bounty delete command');
+		return guildMember.send(`<@${guildMember.user.id}> Bounty can be edited at ${envUrls.BOUNTY_BOARD_URL}${bountyId}/edit`);
 	} else if (reaction.emoji.name === '❌') {
 		console.log(`${user.tag} attempting to delete bounty ${bountyId}`);
-		return deleteBountyForValidId(guildMember, bountyId, message);
+		return deleteBountyForValidId(guildMember, bountyId, message).catch(console.error);
 	} else if (reaction.emoji.name === '📮') {
 		console.log(`${user.tag} attempting to submit bounty ${bountyId}`);
 		// TODO: have bot ask user for details
-		return submitBountyForValidId(guildMember, bountyId, null, null, message);
+		return submitBountyForValidId(guildMember, bountyId, null, null, message).catch(console.error);
 	} else if (reaction.emoji.name === '✅') {
 		console.log(`${user.tag} attempting to mark bounty ${bountyId} complete`);
-		return completeBountyForValidId(guildMember, bountyId, message);
+		return completeBountyForValidId(guildMember, bountyId, message).catch(console.error);
 	} else if (reaction.emoji.name === '🆘') {
 		console.log(`${user.tag} attempting to seek help for bounty ${bountyId}`);
-		return seekHelpValidBountyId(guildMember, bountyId);
+		return seekHelpValidBountyId(guildMember, bountyId).catch(console.error);
+	} else if (reaction.emoji.name === '🔄') {
+		console.log(`${user.tag} attempting to refresh bounty ${bountyId}`);
+		return RefreshBounty(guildMember, bountyId, message).catch(console.error);
 	}
 };

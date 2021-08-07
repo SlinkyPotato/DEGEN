@@ -121,7 +121,5 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, bounty
 			console.log('/bounty create new | delete given');
 			return deleteBountyForValidId(guildMember, bountyId);
 		}
-	}).catch(_ => {
-		console.log('did not react');
-	});
+	}).catch(console.error);
 };

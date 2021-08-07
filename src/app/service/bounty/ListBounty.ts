@@ -3,6 +3,7 @@ import { Cursor, Db } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
 import dbInstance from '../../utils/db';
 import { GuildMember } from 'discord.js';
+import { BountyCollection } from '../../types/bounty/BountyCollection';
 
 const DB_RECORD_LIMIT = 10;
 
@@ -51,7 +52,7 @@ const formatRecords = async (dbRecords: Cursor): Promise<any> => {
 	let bountyListStr = '';
 
 	while (await dbRecords.hasNext()) {
-		const record = await dbRecords.next();
+		const record: BountyCollection = await dbRecords.next();
 		bountyListStr += `**bountyId**: ${record._id} | **summary**: ${record.description} | **reward**: ${record.reward.amount} ${record.reward.currency} \n`;
 	}
 

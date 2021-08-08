@@ -2,7 +2,8 @@ import { CommandContext, User } from 'slash-create';
 import ScoapUtils from '../../utils/ScoapUtils';
 import { GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
 // import { setScoapRoles } from './SetRolesCommandScoap';
-import { ScoapEmbed } from './ScoapClasses';
+import { ScoapEmbed, BotConversation } from './ScoapClasses';
+import constants from '../constants/constants';
 // import cloneDeep from 'lodash.clonedeep';
 
 // const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
@@ -10,6 +11,7 @@ import { ScoapEmbed } from './ScoapClasses';
 // export const scoapEmbed = new ScoapEmbed();
 
 export const scoapEmbedArray = [];
+export const botConvoArray = [];
 
 export default async (guildMember: GuildMember, params: any, ctx?: CommandContext): Promise<any> => {
 	const title = params.title;
@@ -67,6 +69,7 @@ const handleScoapReaction = (message: Message, guildMember: GuildMember): Promis
 			return guildMember.send('Message deleted, let\'s start over.');
 		}
 	}).catch(_ => {
+		console.log(_);
 		console.log('did not react');
 	});
 };
@@ -80,11 +83,70 @@ export const setScoapRoles = async (guildMember: GuildMember, message: Message):
 	scoapEmbed.setEmbed(draftEmbed).setScoapAuthor(guildMember.id).setCurrentChannel(message.channel);
 	scoapEmbedArray.push(scoapEmbed);
 
-	const roleMessage: Message = await guildMember.send(
-		'Please define at least one role for your SCOAP squad. ' +
-		'Reply to this message with the name of the first role (e.g. Project Manager)') as Message;
+	const botConvo = new BotConversation();
+	botConvo.setTimeout(constants.BOT_CONVERSATION_TIMEOUT_MS).setExpired(false).setConvo(createBotConversationParams());
+	botConvoArray.push(botConvo);
 
-	return roleMessage;
+	const roleMessage: Message = await guildMember.send(
+		'Let\'s define the roles for your SCOAP squad. \n' +
+		`(Timeout after ${constants.BOT_CONVERSATION_TIMEOUT_MS / 60000} minutes | Reply cancel to abort)\n\n`) as Message;
+
+	scoapEmbed.setCurrentMessage(roleMessage);
+	console.log('Here is bot convo ', botConvo.getConvo());
+	botConvo.setCurrentMessageFlowIndex('1', message);
+
+	// console.log('scoap embed array before remove', scoapEmbedArray);
+	// await sleep(constants.BOT_CONVERSATION_TIMEOUT_MS);
+	// await guildMember.send('Conversation has timed out, please start over') as Message;
+	// const removeIndex = scoapEmbedArray.map(embed => embed.current_channel).indexOf(message.channel);
+	// ~removeIndex && scoapEmbedArray.splice(removeIndex, 1);
+	// console.log('scoap embed array after remove', scoapEmbedArray);
+
+
+	return;
 
 
 };
+
+
+const createBotConversationParams = () => {
+	
+	const convo = {
+		message_flow: {
+			'1': 'How many roles do you want to define in total? \n',
+			'2': 'What is the title of this role?',
+			'3': 'How many?',
+		},
+		cancel_options: ['cancel', 'abort', 'stop', 'exit', 'shut up'],
+		confirm_options: ['yes', 'ok', 'do it already'],
+		choices: {
+			'one_to_ten': Array.from(Array(10).keys()),
+		},
+		user_response_record: {},
+	};
+
+	return convo;
+
+};
+
+// export const confirmUserInput = async (guildMember: GuildMember, message: Message): Promise<any> => {
+// 	console.log('ready to set roles: ');
+
+// 	// create ScoapEmbed object
+// 	const draftEmbed = message.embeds[0];
+// 	const scoapEmbed = new ScoapEmbed();
+// 	scoapEmbed.setEmbed(draftEmbed).setScoapAuthor(guildMember.id).setCurrentChannel(message.channel);
+// 	scoapEmbedArray.push(scoapEmbed);
+
+// 	const roleMessage: Message = await guildMember.send(
+// 		'Let\'s define the roles for your SCOAP squad.' +
+// 		'You have to define at least one role and you can define up to 10 different roles.\n' +
+// 		'first off, How many roles do you want to define in total? \n' +
+// 		'Reply to this message with a number between 1 and 10') as Message;
+
+// 	scoapEmbed.setCurrentMessage(roleMessage);
+
+// 	return roleMessage;
+
+
+// };

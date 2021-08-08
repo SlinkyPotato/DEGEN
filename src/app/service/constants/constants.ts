@@ -11,11 +11,13 @@ export default Object.freeze({
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
 	BOUNTY_BOARD_URL: 'https://bankless.community/',
 
+	BOUNTY_BOARD_WEBSITE_WEBHOOK_NAME: 'bounty-board-website',
+
 	SCOAP_HTTP_SERVER_CORS_WHITELIST: ['http://localhost:3000'],
 	SCOAP_HTTP_SERVER_PORT: 5000,
 	SCOAP_SQUAD_CHANNEL_ID: '854401837566001192',
 
-	BOUNTY_BOARD_WEBSITE_WEBHOOK_NAME: 'bounty-board-website',
+	BOT_CONVERSATION_TIMEOUT_MS: 1000 * 60 * 60,
 
 	EMOJIS: {
 		one: '\u0031\uFE0F\u20E3',

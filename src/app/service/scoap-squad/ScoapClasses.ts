@@ -1,18 +1,83 @@
 import constants from '../constants/constants';
-import { Channel } from 'discord.js';
+import { Channel, Message } from 'discord.js';
+
+export class BotConversation {
+	timeout: number;
+	expired: boolean;
+	convo: any;
+	current_message_flow_index: string;
+	current_channel: Channel;
+	current_message: Message;
+
+	getTimeout(): any {
+		return this.timeout;
+	}
+
+	getExpired(): any {
+		return this.expired;
+	}
+
+	getConvo(): any {
+		return this.convo;
+	}
+
+	getCurrentMessageFlowIndex(): any {
+		return this.current_message_flow_index;
+	}
+
+	getCurrentChannel(): Channel {
+		return this.current_channel;
+	}
+
+	getCurrentMessage(): Message {
+		return this.current_message;
+	}
+
+	setCurrentChannel(current_channel: Channel): this {
+		this.current_channel = current_channel;
+		return this;
+	}
+
+	setCurrentMessage(current_message: Message): this {
+		this.current_message = current_message;
+		return this;
+	}
+
+	setTimeout(timeout: number): this {
+		this.timeout = timeout;
+		return this;
+	}
+
+	setExpired(expired: boolean): this {
+		this.expired = expired;
+		return this;
+	}
+
+	setConvo(convo: any): this {
+		this.convo = convo;
+		return this;
+	}
+
+	setCurrentMessageFlowIndex(message_flow_index: string, message: Message): this {
+		this.current_message_flow_index = message_flow_index;
+		message.channel.send(this.convo.message_flow[message_flow_index]);
+
+		await this.sleep(this.timeout);
+		console.log('bot conversation timeout');
+		return this;
+	}
+
+	async sleep(timeout: number): Promise<any> {
+		return new Promise(resolve => setTimeout(resolve, timeout));
+	};
+};
+
 
 export class ScoapEmbed {
 	embed: Record<string, any>;
 	scoap_author: string;
 	current_channel: Channel;
-
-	// constructor(embed: Record<string, any>, scoap_author: string, current_channel: Channel) {
-	// 	this.embed = embed;
-	// 	// discord id
-	// 	this.scoap_author = scoap_author;
-	// 	// the channel the current embed lives in
-	// 	this.current_channel = current_channel;
-	// }
+	current_message: Message;
 
 	getEmbed(): any {
 		return this.embed;
@@ -24,6 +89,10 @@ export class ScoapEmbed {
 
 	getCurrentChannel(): Channel {
 		return this.current_channel;
+	}
+
+	getCurrentMessage(): Message {
+		return this.current_message;
 	}
 
 	setEmbed(embed: any): this {
@@ -38,6 +107,11 @@ export class ScoapEmbed {
 
 	setCurrentChannel(current_channel: Channel): this {
 		this.current_channel = current_channel;
+		return this;
+	}
+
+	setCurrentMessage(current_message: Message): this {
+		this.current_message = current_message;
 		return this;
 	}
 

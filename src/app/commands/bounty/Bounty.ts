@@ -93,7 +93,7 @@ module.exports = class Bounty extends SlashCommand {
 							],
 						},
 						{
-							name: 'open',
+							name: 'publish',
 							type: CommandOptionType.SUB_COMMAND,
 							description: 'Validate discord handle drafted bounty from the website',
 							options: [
@@ -126,8 +126,16 @@ module.exports = class Bounty extends SlashCommand {
 									value: 'CLAIMED_BY_ME',
 								},
 								{
+									name: 'drafted by me',
+									value: 'DRAFT_BY_ME',
+								},
+								{
 									name: 'open',
 									value: 'OPEN',
+								},
+								{
+									name: 'in progress',
+									value: 'IN_PROGRESS',
 								},
 							],
 							required: true,
@@ -221,9 +229,9 @@ module.exports = class Bounty extends SlashCommand {
 				const params = this.buildBountyCreateNewParams(ctx.options.create.new);
 				console.log('/bounty create new ' + params);
 				command = CreateNewBounty(guildMember, params, ctx);
-			} else if (ctx.subcommands[1] === 'open') {
-				console.log('/bounty create open ');
-				command = PublishBounty(guildMember, ctx.options.create.open['bounty-id']);
+			} else if (ctx.subcommands[1] === 'publish') {
+				console.log('/bounty create publish ');
+				command = PublishBounty(guildMember, ctx.options.create.publish['bounty-id']);
 			} else {
 				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
 			}

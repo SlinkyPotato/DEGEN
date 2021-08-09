@@ -55,7 +55,9 @@ export default async (guildMember: GuildMember, bountyId: string, message: Messa
 		await message.edit(embedMessage);
 		addCompletedReactions(message);
 		break;
+	case 'Draft':
 	case 'Deleted':
+	default:
 		console.log(`bounty ${bountyId} is deleted`);
 		return message.delete();
 	}

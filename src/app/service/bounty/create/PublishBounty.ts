@@ -29,7 +29,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 		console.log(`${bountyId} bounty is not drafted`);
 		return guildMember.send(`<@${guildMember.user.id}> Sorry bounty is not drafted.`);
 	}
-	const messageOptions: MessageOptions = generateEmbedMessage(dbBountyResult, guildMember.user.avatarURL());
+	const messageOptions: MessageOptions = generateEmbedMessage(dbBountyResult, 'Open', guildMember.user.avatarURL());
 
 	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
 	const bountyMessage: Message = await bountyChannel.send(messageOptions) as Message;
@@ -68,7 +68,7 @@ export const addPublishReactions = (message: Message): void => {
 	message.react('❌');
 };
 
-export const generateEmbedMessage = (dbBounty: BountyCollection, iconUrl?: string): MessageOptions => {
+export const generateEmbedMessage = (dbBounty: BountyCollection, newStatus: string, iconUrl?: string): MessageOptions => {
 	return {
 		embed: {
 			color: '#1e7e34',
@@ -81,7 +81,7 @@ export const generateEmbedMessage = (dbBounty: BountyCollection, iconUrl?: strin
 			description: dbBounty.description,
 			fields: [
 				{ name: 'Reward', value: dbBounty.reward.amount + ' ' + dbBounty.reward.currency, inline: true },
-				{ name: 'Status', value: 'Open', inline: true },
+				{ name: 'Status', value: newStatus, inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(dbBounty.dueAt), inline: true },
 				{ name: 'Criteria', value: dbBounty.criteria },
 				{ name: 'HashId', value: dbBounty._id },

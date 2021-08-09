@@ -58,11 +58,11 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 			],
 			timestamp: new Date(),
 			footer: {
-				text: '👍 - publish | 📝 - edit | ❌ - delete',
+				text: '👍 - publish | 📝 - edit | ❌ - delete | Please reply within 60 minutes',
 			},
 		},
 	};
-	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty, please verify.`);
+	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty! Draft must be finalized first before publishing to #🧀-bounty-board`);
 	const message: Message = await guildMember.send(messageOptions) as Message;
 	
 	await message.react('👍');
@@ -116,7 +116,7 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, bounty
 			return finalizeBounty(guildMember, bountyId);
 		} else if (reaction.emoji.name === '📝') {
 			console.log('/bounty create new | :pencil: given');
-			return guildMember.send('Sorry edit not yet available. Please delete bounty with /bounty delete command');
+			return guildMember.send(`<@${guildMember.user.id}> Bounty can be edited at ${envUrls.BOUNTY_BOARD_URL}${bountyId}/edit`);
 		} else {
 			console.log('/bounty create new | delete given');
 			return deleteBountyForValidId(guildMember, bountyId);

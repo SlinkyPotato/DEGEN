@@ -17,16 +17,19 @@ export default async (guildMember: GuildMember, listType: string): Promise<any> 
 
 	switch (listType) {
 	case 'CREATED_BY_ME':
-		dbRecords = dbCollection.find({ 'createdBy.discordId': guildMember.user.id }).limit(DB_RECORD_LIMIT);
+		dbRecords = dbCollection.find({ 'createdBy.discordId': guildMember.user.id, status: { $ne: 'Deleted' } }).limit(DB_RECORD_LIMIT);
 		break;
 	case 'CLAIMED_BY_ME':
-		dbRecords = dbCollection.find({ 'claimedBy.discordId': guildMember.user.id }).limit(DB_RECORD_LIMIT);
+		dbRecords = dbCollection.find({ 'claimedBy.discordId': guildMember.user.id, status: { $ne: 'Deleted' } }).limit(DB_RECORD_LIMIT);
+		break;
+	case 'DRAFT_BY_ME':
+		dbRecords = dbCollection.find({ 'createdBy.discordId': guildMember.user.id, status: 'Draft' }).limit(DB_RECORD_LIMIT);
 		break;
 	case 'OPEN':
 		dbRecords = dbCollection.find({ status: 'Open' }).limit(DB_RECORD_LIMIT);
 		break;
 	case 'IN_PROGRESS':
-		dbRecords = dbCollection.find({ status: 'In-Progress', 'claimedBy.discordId': guildMember.user.id }).limit(DB_RECORD_LIMIT);
+		dbRecords = dbCollection.find({ status: 'In-Progress' }).limit(DB_RECORD_LIMIT);
 		break;
 	default:
 		console.log('invalid list-type');
@@ -44,8 +47,8 @@ const sendMultipleMessages = async (guildMember: GuildMember, dbRecords: Cursor)
 
 	while (await dbRecords.hasNext()) {
 		const record: BountyCollection = await dbRecords.next();
-		const messageOptions: MessageOptions = generateEmbedMessage(record);
+		const messageOptions: MessageOptions = generateEmbedMessage(record, record.status);
 		await (guildMember.send(messageOptions));
 	}
-	await guildMember.send(`<@${guildMember.user.id}> Please checkout the bounty in the #🧀-bounty-board to take action`);
+	await guildMember.send(`<@${guildMember.user.id}> Please go to #🧀-bounty-board to take action.`);
 };

@@ -32,7 +32,7 @@ const BountyUtils = {
 	 * @param bountyType
 	 */
 	async validateBountyType(guildMember: GuildMember, bountyType: string): Promise<any> {
-		const ALLOWED_BOUNTY_TYPES = ['OPEN', 'CREATED_BY_ME', 'CLAIMED_BY_ME'];
+		const ALLOWED_BOUNTY_TYPES = ['OPEN', 'IN_PROGRESS', 'CREATED_BY_ME', 'CLAIMED_BY_ME', 'DRAFT_BY_ME'];
 		if (bountyType == null || !ALLOWED_BOUNTY_TYPES.includes(bountyType)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid bounty type: \n' +

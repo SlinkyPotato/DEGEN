@@ -53,7 +53,7 @@ export default async (guildMember: GuildMember, params: any, ctx?: CommandContex
 
 const handleScoapReaction = (message: Message, guildMember: GuildMember): Promise<any> => {
 	return message.awaitReactions((reaction, user: User) => {
-		return ['📝', '👍', '❌'].includes(reaction.emoji.name) && !user.bot;
+		return ['👍', '❌'].includes(reaction.emoji.name) && !user.bot;
 	}, {
 		max: 1,
 		time: (60000 * 60),
@@ -84,15 +84,14 @@ export const setScoapRoles = async (guildMember: GuildMember, message: Message):
 	scoapEmbedArray.push(scoapEmbed);
 
 	const botConvo = new BotConversation();
-	botConvo.setTimeout(constants.BOT_CONVERSATION_TIMEOUT_MS).setExpired(false).setConvo(createBotConversationParams());
+	botConvo.setTimeout(constants.BOT_CONVERSATION_TIMEOUT_MS).setExpired(false).setConvo(createBotConversationParams()).setCurrentChannel(message.channel);
 	botConvoArray.push(botConvo);
+	console.log('BOT CONVO ARRAY ', botConvoArray);
 
-	const roleMessage: Message = await guildMember.send(
-		'Let\'s define the roles for your SCOAP squad. \n' +
-		`(Timeout after ${constants.BOT_CONVERSATION_TIMEOUT_MS / 60000} minutes | Reply cancel to abort)\n\n`) as Message;
+	// `(Timeout after ${constants.BOT_CONVERSATION_TIMEOUT_MS / 60000} minutes | Reply cancel to abort)\n\n`
+	const roleMessage: Message = await guildMember.send('Let\'s define the roles for your SCOAP squad.') as Message;
 
 	scoapEmbed.setCurrentMessage(roleMessage);
-	console.log('Here is bot convo ', botConvo.getConvo());
 	botConvo.setCurrentMessageFlowIndex('1', message);
 
 	// console.log('scoap embed array before remove', scoapEmbedArray);
@@ -114,14 +113,19 @@ const createBotConversationParams = () => {
 	const convo = {
 		message_flow: {
 			'1': 'How many roles do you want to define in total? \n',
-			'2': 'What is the title of this role?',
-			'3': 'How many?',
+			'2': 'Role title: ',
+			'3': 'Role count: ',
+			'4': 'Thank you for your input, please verify layout..',
 		},
 		cancel_options: ['cancel', 'abort', 'stop', 'exit', 'shut up'],
 		confirm_options: ['yes', 'ok', 'do it already'],
 		choices: {
 			'one_to_ten': Array.from(Array(10).keys()),
 		},
+		// conditions: {
+		// 	'1': function(x) { isInteger(x); },
+		// 	'2': function(x) { typeof x === 'string'; },
+		// },
 		user_response_record: {},
 	};
 

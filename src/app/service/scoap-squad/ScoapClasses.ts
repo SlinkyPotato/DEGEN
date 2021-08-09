@@ -58,12 +58,13 @@ export class BotConversation {
 		return this;
 	}
 
-	setCurrentMessageFlowIndex(message_flow_index: string, message: Message): this {
+	async setCurrentMessageFlowIndex(message_flow_index: string, message: Message): Promise<this> {
 		this.current_message_flow_index = message_flow_index;
-		message.channel.send(this.convo.message_flow[message_flow_index]);
+		const currMsg = await message.channel.send(this.convo.message_flow[message_flow_index]);
+		this.setCurrentMessage(currMsg);
 
-		await this.sleep(this.timeout);
-		console.log('bot conversation timeout');
+		// await this.sleep(this.timeout);
+		// console.log('bot conversation timeout');
 		return this;
 	}
 

@@ -9,6 +9,7 @@
    - add more logging
 4. Fix guest pass event service
 5. More bug fixes for bounty board commands and flow, add refresh button!
+6. Add /bounty list drafted by me, add edit reaction to drafted bounties
 
 ## 1.1.1-RELEASE (2021-07-28)
 

@@ -7,6 +7,7 @@ import constants from '../constants/constants';
 import { addClaimReactions } from './ClaimBounty';
 import { addSubmitReactions } from './SubmitBounty';
 import { addCompletedReactions } from './CompleteBounty';
+import BountyUtils from '../../utils/BountyUtils';
 
 /**
  * This service will refresh the bounty in the Bounty board with the correct information
@@ -32,8 +33,12 @@ export default async (guildMember: GuildMember, bountyId: string, message: Messa
 	
 	switch (bountyCollection.status) {
 	case 'Open':
+		embedMessage.setTitle(bountyCollection.title);
 		embedMessage.setColor('#1e7e34');
+		embedMessage.setDescription(bountyCollection.description);
 		embedMessage.setFooter('🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete');
+		embedMessage.fields[0].value = BountyUtils.formatBountyAmount(bountyCollection.reward.amount as number, bountyCollection.reward.scale as number) + ' ' + bountyCollection.reward.currency;
+		embedMessage.fields[3].value = bountyCollection.criteria;
 		await message.edit(embedMessage);
 		addPublishReactions(message);
 		break;

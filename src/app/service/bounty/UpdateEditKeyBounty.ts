@@ -6,7 +6,7 @@ import constants from '../constants/constants';
 import envUrls from '../constants/envUrls';
 import { randomUUID } from 'crypto';
 
-export default async (guildMember: GuildMember, bountyId: string, message: Message): Promise<any> => {
+export default async (guildMember: GuildMember, bountyId: string, message?: Message): Promise<any> => {
 	const secretEditKey: string = randomUUID();
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
@@ -17,7 +17,7 @@ export default async (guildMember: GuildMember, bountyId: string, message: Messa
 
 	if (bounty === null) {
 		console.log(`bounty ${bountyId} is deleted`);
-		return message.delete();
+		return message?.delete();
 	}
 	
 	if (!(bounty.status === 'Draft' || bounty.status === 'Open')) {

@@ -133,6 +133,10 @@ const BountyUtils = {
 	getBountyIdFromEmbedMessage(message: Message): string {
 		return message.embeds[0].fields[4].value;
 	},
+	
+	formatBountyAmount(amount: number, scale: number): number {
+		return amount / 10 ** scale;
+	},
 };
 
 export default BountyUtils;

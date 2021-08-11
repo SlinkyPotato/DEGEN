@@ -59,10 +59,11 @@ const BountyUtils = {
 
 	async validateReward(guildMember: GuildMember, reward: BountyReward): Promise<void> {
 		const ALLOWED_CURRENCIES = ['BANK'];
+		const allowedRegex = new RegExp(ALLOWED_CURRENCIES.join('|'), 'i');
 		const MAXIMUM_REWARD = 100000000.00;
 
 		if (reward.amount === Number.NaN || reward.amount <= 0 || reward.amount > MAXIMUM_REWARD
-			|| !ALLOWED_CURRENCIES.includes(reward.currencySymbol)) {
+			|| !allowedRegex.test(reward.currencySymbol)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid reward value: \n ' +
 				'- 100 million maximum currency\n ' +
@@ -72,7 +73,7 @@ const BountyUtils = {
 	},
 
 	async validateTitle(guildMember: GuildMember, title: string): Promise<any> {
-		const CREATE_TITLE_REGEX = /^[\w\s.!@#$%&,?-']{1,250}$/;
+		const CREATE_TITLE_REGEX = /^[\w\s.!@#$%&,?\-']{1,250}$/;
 		if (title == null || !CREATE_TITLE_REGEX.test(title)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid title: \n' +

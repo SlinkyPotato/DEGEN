@@ -1,6 +1,6 @@
 {
     "name": "degen",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
     "main": "app.js",
     "private": true,

@@ -7,7 +7,7 @@ import { completeBountyForValidId } from '../../service/bounty/CompleteBounty';
 import { seekHelpValidBountyId } from '../../service/bounty/SeekHelpBounty';
 import BountyUtils from '../../utils/BountyUtils';
 import RefreshBounty from '../../service/bounty/RefreshBounty';
-import envUrls from '../../service/constants/envUrls';
+import UpdateEditKeyBounty from '../../service/bounty/UpdateEditKeyBounty';
 
 export default (reaction: MessageReaction, user: User): Promise<any> => {
 	if (reaction.message.channel.id !== channelIDs.bountyBoard) {
@@ -19,9 +19,9 @@ export default (reaction: MessageReaction, user: User): Promise<any> => {
 
 	if (reaction.emoji.name === '🏴') {
 		console.log(`${user.tag} attempting to claim a bounty ${bountyId} from the bounty board`);
-		return claimBountyForValidId(guildMember, bountyId, message);
+		return claimBountyForValidId(guildMember, bountyId, message).catch(console.error);
 	} else if (reaction.emoji.name === '📝') {
-		return guildMember.send(`<@${guildMember.user.id}> Bounty can be edited at ${envUrls.BOUNTY_BOARD_URL}${bountyId}/edit`);
+		return UpdateEditKeyBounty(guildMember, bountyId, message).catch(console.error);
 	} else if (reaction.emoji.name === '❌') {
 		console.log(`${user.tag} attempting to delete bounty ${bountyId}`);
 		return deleteBountyForValidId(guildMember, bountyId, message).catch(console.error);

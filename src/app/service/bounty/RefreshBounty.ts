@@ -1,4 +1,3 @@
-import BountyUtils from '../../utils/BountyUtils';
 import { GuildMember, Message, MessageEmbed } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import { addPublishReactions } from './create/PublishBounty';
@@ -13,6 +12,7 @@ import { addCompletedReactions } from './CompleteBounty';
  * This service will refresh the bounty in the Bounty board with the correct information
  * @param guildMember
  * @param bountyId
+ * @param message 
  */
 export default async (guildMember: GuildMember, bountyId: string, message: Message): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
@@ -61,5 +61,5 @@ export default async (guildMember: GuildMember, bountyId: string, message: Messa
 		console.log(`bounty ${bountyId} is deleted`);
 		return message.delete();
 	}
-	
+	await dbInstance.close();
 };

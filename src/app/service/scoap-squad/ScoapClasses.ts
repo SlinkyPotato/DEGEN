@@ -79,6 +79,7 @@ export class ScoapEmbed {
 	scoap_author: string;
 	current_channel: Channel;
 	current_message: Message;
+	votable_emoji_array: Array<any>;
 
 	getEmbed(): any {
 		return this.embed;
@@ -94,6 +95,10 @@ export class ScoapEmbed {
 
 	getCurrentMessage(): Message {
 		return this.current_message;
+	}
+
+	getVotableEmojiArray(): Array<any> {
+		return this.votable_emoji_array;
 	}
 
 	setEmbed(embed: any): this {
@@ -113,6 +118,11 @@ export class ScoapEmbed {
 
 	setCurrentMessage(current_message: Message): this {
 		this.current_message = current_message;
+		return this;
+	}
+
+	setVotableEmojiArray(votable_emoji_array: Array<any>): this {
+		this.votable_emoji_array = votable_emoji_array;
 		return this;
 	}
 
@@ -177,23 +187,23 @@ export class Vote {
 export class VoteRecord {
 	emoteRequired = {
 		// {emoji<unicode>: required_total<int>}
-		[constants.EMOJIS.one]: 1,
-		[constants.EMOJIS.two]: 3,
-		[constants.EMOJIS.three]: 2,
+		[constants.EMOJIS['1']]: 1,
+		[constants.EMOJIS['2']]: 3,
+		[constants.EMOJIS['3']]: 2,
 	};
 
 	emoteTotals = {
 		// {emoji<unicode>: current_total<int>}
-		[constants.EMOJIS.one]: 0,
-		[constants.EMOJIS.two]: 0,
-		[constants.EMOJIS.three]: 0,
+		[constants.EMOJIS['1']]: 0,
+		[constants.EMOJIS['2']]: 0,
+		[constants.EMOJIS['3']]: 0,
 	};
 
 	progressStrings = {
 		// {emoji<unicode>: progress string<str>}
-		[constants.EMOJIS.one]: '0/1 - > 0%',
-		[constants.EMOJIS.two]: '0/3 -> 0%',
-		[constants.EMOJIS.three]: '0/2 -> 0%',
+		[constants.EMOJIS['1']]: '0/1 - > 0%',
+		[constants.EMOJIS['2']]: '0/3 -> 0%',
+		[constants.EMOJIS['3']]: '0/2 -> 0%',
 	};
 
 	userVoteLedger = {};
@@ -235,19 +245,19 @@ export class VoteRecord {
 	_updateEmoteTotals = (vote: Record<string, any>): this => {
 		const old_emoji = this.userVoteLedger[vote.user_id];
 		switch (vote.type) {
-			case 'NEWVOTE':
-				++this.emoteTotals[vote.emoji];
-				return this;
-			case 'REVOTE':
-				++this.emoteTotals[vote.emoji];
-				return this;
-			case 'CHANGEVOTE':
-				--this.emoteTotals[old_emoji];
-				++this.emoteTotals[vote.emoji];
-				return this;
-			case 'UNVOTE':
-				--this.emoteTotals[vote.emoji];
-				return this;
+		case 'NEWVOTE':
+			++this.emoteTotals[vote.emoji];
+			return this;
+		case 'REVOTE':
+			++this.emoteTotals[vote.emoji];
+			return this;
+		case 'CHANGEVOTE':
+			--this.emoteTotals[old_emoji];
+			++this.emoteTotals[vote.emoji];
+			return this;
+		case 'UNVOTE':
+			--this.emoteTotals[vote.emoji];
+			return this;
 		}
 	};
 

@@ -14,7 +14,7 @@ const scoapEmbedTemplate = {
 	description: 'Project Summary',
 	fields: [
 		{
-			name: `${constants.EMOJIS.one} PM`,
+			name: `${constants.EMOJIS['1']} PM`,
 			value: '\u200b',
 			inline: true,
 		},
@@ -30,7 +30,7 @@ const scoapEmbedTemplate = {
 			inline: false,
 		},
 		{
-			name: `${constants.EMOJIS.two} DEV`,
+			name: `${constants.EMOJIS['2']} DEV`,
 			value: 'JS, Web3',
 			inline: true,
 		},
@@ -45,7 +45,7 @@ const scoapEmbedTemplate = {
 			inline: false,
 		},
 		{
-			name: `${constants.EMOJIS.three} UI`,
+			name: `${constants.EMOJIS['3']} UI`,
 			value: 'Chakra',
 			inline: true,
 		},
@@ -102,34 +102,51 @@ const validateChoice = (emoji, totals, required) => {
 	}
 };
 
-type NewType = any;
+// type NewType = any;
+// request: NewType
 
 // Note: How to do correct type definition for request?
-export default async (channel: TextChannel, request: NewType): Promise<any> => {
+export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 
-	const deepEmbed = cloneDeep(scoapEmbedTemplate);
+	// const deepEmbed = cloneDeep(scoapEmbedTemplate);
 
-	const votableEmojiArray = [
-		constants.EMOJIS.one,
-		constants.EMOJIS.two,
-		constants.EMOJIS.three,
-	];
 
-	const validEmojiArray = votableEmojiArray.push(constants.EMOJIS.cross_mark);
+	// const votableEmojiArray = [
+	// 	constants.EMOJIS['1'],
+	// 	constants.EMOJIS['2'],
+	// 	constants.EMOJIS['3'],
+	// ];
+
+	// const validEmojiArray = votableEmojiArray.push(constants.EMOJIS.cross_mark);
+	const validEmojiArray = scoapEmbed.getVotableEmojiArray();
+	validEmojiArray.push(constants.EMOJIS.cross_mark);
+
 
 	const voteRecord = new VoteRecord();
 
 	// const scoapEmbed = new ScoapEmbed(deepEmbed, '749152252966469668', channel);
-	const scoapEmbed = new ScoapEmbed();
+	// const scoapEmbed = new ScoapEmbed();
 
-	scoapEmbed.setEmbed(deepEmbed).setScoapAuthor('749152252966469668').setCurrentChannel(channel);
+	// scoapEmbed.setEmbed(deepEmbed).setScoapAuthor('749152252966469668').setCurrentChannel(channel);
 
 	const embedMessage = await channel.send({ embed: scoapEmbed.getEmbed() });
+	scoapEmbed.setCurrentChannel(channel).setCurrentMessage(embedMessage);
 
-	await embedMessage.react(constants.EMOJIS.one);
-	await embedMessage.react(constants.EMOJIS.two);
-	await embedMessage.react(constants.EMOJIS.three);
-	await embedMessage.react(constants.EMOJIS.cross_mark);
+	// validEmojiArray.forEach(async function(item, index) {
+	// 	await embedMessage.react(item);
+	// 	console.log(item, index);
+	// });
+
+	for (const item of validEmojiArray) {
+		console.log(item);
+		await embedMessage.react(item);
+	}
+
+
+	// await embedMessage.react(constants.EMOJIS['1']);
+	// await embedMessage.react(constants.EMOJIS['2']);
+	// await embedMessage.react(constants.EMOJIS['3']);
+	// await embedMessage.react(constants.EMOJIS.cross_mark);
 
 	const filter = (reaction) => {
 		const emoji_valid = emojiValid(reaction.emoji.name, validEmojiArray);
@@ -148,7 +165,7 @@ export default async (channel: TextChannel, request: NewType): Promise<any> => {
 			voteRecord.getEmoteRequired(),
 		);
 
-		if (emojiValid(reaction.emoji.name, votableEmojiArray) === true) {
+		if (emojiValid(reaction.emoji.name, scoapEmbed.getVotableEmojiArray()) === true) {
 			switch (true) {
 			case choiceValid === true: {
 				const vote = new Vote(
@@ -228,5 +245,6 @@ export default async (channel: TextChannel, request: NewType): Promise<any> => {
 			// console.log('current state: \n user vote record ', voteRecord.getUserVoteLedger());
 		}
 	});
-	return request.body;
+	// return request.body;
+	return;
 };

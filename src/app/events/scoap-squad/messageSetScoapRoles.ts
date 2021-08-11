@@ -1,5 +1,6 @@
-import { botConvoArray } from '../../service/scoap-squad/CreateNewScoapPoll';
+import { botConvoArray, scoapEmbedArray, publishScoapPoll } from '../../service/scoap-squad/CreateNewScoapPoll';
 import { Message } from 'discord.js';
+import constants from '../../service/constants/constants';
 
 export default async (message: Message): Promise<any> => {
 
@@ -7,50 +8,32 @@ export default async (message: Message): Promise<any> => {
 	// Note - make sure to get rid of embedObject in array after scoap draft is completed
 
 	// map message to correct botConvoObject object
-	// const scoapEmbedIndex = scoapEmbedArray.map(embed => embed.current_channel).indexOf(message.channel);
-	// if (scoapEmbedIndex === -1) return;
-	console.log('botConvoArray ', botConvoArray);
+	// console.log('botConvoArray ', botConvoArray);
 	const botConvoIndex = botConvoArray.map(x => x.current_channel).indexOf(message.channel);
-	console.log('botConvoIndex', botConvoIndex);
+	// console.log('botConvoIndex', botConvoIndex);
 	if (botConvoIndex === -1) return;
 
 	// const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
 	const botConvo = botConvoArray[botConvoIndex];
-	console.log('botConvo ', botConvo);
 
-	console.log('received this message: ', message.content);
-	console.log('last message (from message.channel): ', message.channel.lastMessageID);
-	console.log('last message (from botConvo.channel): ', botConvo.getCurrentChannel().lastMessageID);
-	console.log('this message: ', message.id);
-	console.log('botConvoCurrentMessage: ', botConvo.getCurrentMessage().id);
-	console.log('botConvoCurrentChannel: ', botConvo.getCurrentChannel().id);
-	console.log('message channel: ', message.channel.id);
-	console.log('last message Key: ', message.channel.messages.cache.lastKey());
-	console.log('last message id: ', message.channel.messages.cache.last().id);
-	console.log('last message Key(2): ', message.channel.messages.cache.lastKey(2));
-
-	// only respond if this message is a direct response to botConvo.current_message
-	// if (message.channel.messages.cache.lastKey(2)[0] === scoapEmbed.getCurrentMessage().id) {
+	// only act if this message is a direct response to botConvo.current_message
 	if (message.channel.messages.cache.lastKey(2)[0] === botConvo.getCurrentMessage().id) {
-		console.log ('still kickin');
+		// user_rersponse_record still empty
 		if (!('1' in botConvo.getConvo().user_response_record)) {
-			// if (botConvo.getCurrentMessageFlowIndex() === '1') {
-			console.log('current message is 1');
 			switch (true) {
-			// isInteger(message.content)
-			case (isInteger(message.content)):
+			case (isInteger(message.content) && (parseInt(message.content) < 10) && (parseInt(message.content) >= 1)):
 				console.log('got integer', message.content);
 				botConvo.getConvo().user_response_record[botConvo.getCurrentMessageFlowIndex()] = message.content,
 				botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + 1).toString(), await handleCorrectInput(message));
 				return;
-			case (!isInteger(message.content)):
-				botConvo.setCurrentMessageFlowIndex(botConvo.getCurrentMessageFlowIndex(), await handleWrongInput(message, 'number between 1 and 10'));
+			// (!isInteger(message.content) || (parseInt(message.content) >= 10))
+			default:
+				botConvo.setCurrentMessageFlowIndex(botConvo.getCurrentMessageFlowIndex(), await handleWrongInput(message, 'number between 1 and 9'));
 				return;
 			}
-			// } 
+		// user already answered question 1 -> we have total number of roles to start our loop
 		} else if ('1' in botConvo.getConvo().user_response_record) {
 			const roleCount = parseInt(botConvo.getConvo().user_response_record['1']);
-			// [...Array(roleCount * 2).keys()].map(i => {
 			if (!('roles' in botConvo.getConvo().user_response_record)) {
 				botConvo.getConvo().user_response_record['roles'] = {};
 				botConvo.getConvo().user_response_record.roles['1'] = {};
@@ -59,7 +42,6 @@ export default async (message: Message): Promise<any> => {
 			const roleIndex = Object.keys(botConvo.getConvo().user_response_record['roles']).length;
 			if (roleIndex <= roleCount) {
 				switch (true) {
-				// isInteger(message.content)
 				case (botConvo.getCurrentMessageFlowIndex() === '2'):
 					botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + 1).toString(), await handleCorrectInput(message));
 					botConvo.getConvo().user_response_record.roles[roleIndex.toString()]['title'] = message.content;
@@ -72,25 +54,50 @@ export default async (message: Message): Promise<any> => {
 					} else if (roleIndex == roleCount) {
 						await message.channel.send(`Recorderd the following inputs ${botConvo.getConvo().user_response_record.roles}`);
 						botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + 1).toString(), message);
+
+						console.log('response record ', botConvo.getConvo().user_response_record);
+						const scoapEmbedIndex = scoapEmbedArray.map(embed => embed.current_channel).indexOf(message.channel);
+						const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
+						Array(parseInt(botConvo.getConvo().user_response_record['1'])).fill(0).map((_, i) => {
+							console.log('i ', i);
+
+							const role = botConvo.getConvo().user_response_record.roles[(i + 1).toString()];
+							const emoji = constants.EMOJIS[(i + 1).toString()];
+							scoapEmbed.getVotableEmojiArray().push(emoji);
+
+							scoapEmbed.getEmbed().fields.push(
+								{
+									name: `${emoji} ${role.title}`,
+									value: '\u200b',
+									inline: true,
+								},
+								{
+									name: `0 % (0/${role.role_count})`,
+									value: '\u200b',
+									inline: true,
+								},
+								{
+									name: '\u200b',
+									value: '\u200b',
+									inline: false,
+								},
+							);
+						});
+						const verifyMessage = await message.channel.send('Please verify final draft', { embed: scoapEmbed.getEmbed() });
+						await verifyMessage.react('👍');
+						await verifyMessage.react('❌');
+						return publishScoapPoll(verifyMessage, scoapEmbed);
+
 					};
-					// Note check if int
 					break;
 				}
 			}
-			
-
-			// });
-			
-			console.log('response record ', botConvo.getConvo().user_response_record);
-			
 		}
 
 		return;
 	};
 
 	return;
-
-	// return console.log('channel did not match ', message.channel, scoapEmbed.current_channel);
 };
 
 function isInteger(value) {
@@ -104,3 +111,4 @@ const handleWrongInput = async (message, expected) => {
 const handleCorrectInput = async (message) => {
 	return await message.channel.send(`Received input "${message.content}".`);
 } ;
+

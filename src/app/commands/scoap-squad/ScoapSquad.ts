@@ -90,9 +90,9 @@ module.exports = class ScoapSquad extends SlashCommand {
 		switch (ctx.subcommands[0]) {
 		case 'assemble':
 			if (ctx.subcommands[1] === 'new') {
-				const params = this.buildScoapCreateNewParams(ctx.options.assemble);
-				console.log('/scoap-squad assemble new ' + params);
-				command = CreateNewScoapPoll(guildMember, params, ctx);
+				// const params = this.buildScoapCreateNewParams(ctx.options.assemble);
+				console.log('/scoap-squad assemble new ');
+				command = CreateNewScoapPoll(guildMember, ctx);
 			} else {
 				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
 			}
@@ -116,25 +116,23 @@ module.exports = class ScoapSquad extends SlashCommand {
 		});
 	}
 	
-	buildScoapCreateNewParams(ctxOptions): any {
-		// console.log(ctxOptions);
-		const [reward, symbol] = (ctxOptions.new.reward != null) ? ctxOptions.new.reward.split(' ') : [null, null];
-		return {
-			title: ctxOptions.new.title,
-			summary: ctxOptions.new.summary,
-			reward: {
-				amount: reward,
-				currencySymbol: symbol,
-			},
-			// roles: {
-			// 	role1: ctxOptions.define-roles.roles,
-			// 	role2: ctxOptions.roles,
-			// 	role3: ctxOptions.roles,
-			// 	role4: ctxOptions.roles,
-			// 	role5: ctxOptions.roles,
-			// 	role6: ctxOptions.roles,
-			// },
-
-		};
-	}
+	// buildScoapCreateNewParams(ctxOptions): any {
+	// 	const [reward, symbol] = (ctxOptions.new.reward != null) ? ctxOptions.new.reward.split(' ') : [null, null];
+	// 	if (!reward) {
+	// 		return {
+	// 			title: ctxOptions.new.title,
+	// 			summary: ctxOptions.new.summary,
+	// 			reward: {
+	// 				amount: reward,
+	// 				currencySymbol: symbol,
+	// 			},
+	// 		};
+	// 	} else {
+	// 		return {
+	// 			title: ctxOptions.new.title,
+	// 			summary: ctxOptions.new.summary,
+	// 		};
+	// 	}
+		
+	// }
 };

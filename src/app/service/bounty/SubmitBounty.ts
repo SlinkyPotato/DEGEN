@@ -73,9 +73,9 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	
 	const bountyUrl = envUrls.BOUNTY_BOARD_URL + dbBountyResult._id;
 	const createdByUser: GuildMember = guildMember.guild.member(dbBountyResult.createdBy.discordId);
-	await createdByUser.send(`Hello <@${createdByUser.user.id}>! Bankless DAO user <@${guildMember.user.id}> has finished the bounty ${bountyUrl}. Please reach out to them to check.`);
+	await createdByUser.send(`<@${createdByUser.user.id}> Please reach out to <@${guildMember.user.id}>. They are ready for bounty review ${bountyUrl}`);
 
-	return guildMember.send(`<@${guildMember.user.id}> Bounty complete! Look out for a follow up message from <@${dbBountyResult.createdBy.discordId}>`);
+	return guildMember.send(`<@${guildMember.user.id}> Bounty in review! Expect a message from <@${dbBountyResult.createdBy.discordId}>`);
 };
 
 export const submitBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {

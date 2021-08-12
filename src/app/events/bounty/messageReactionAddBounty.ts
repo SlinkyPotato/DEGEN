@@ -7,21 +7,33 @@ import { completeBountyForValidId } from '../../service/bounty/CompleteBounty';
 import { seekHelpValidBountyId } from '../../service/bounty/SeekHelpBounty';
 import BountyUtils from '../../utils/BountyUtils';
 import RefreshBounty from '../../service/bounty/RefreshBounty';
-import envUrls from '../../service/constants/envUrls';
+import UpdateEditKeyBounty from '../../service/bounty/UpdateEditKeyBounty';
+import ReCreateBounty from '../../service/bounty/ReCreateBounty';
 
-export default (reaction: MessageReaction, user: User): Promise<any> => {
+export default async (reaction: MessageReaction, user: User): Promise<any> | null => {
 	if (reaction.message.channel.id !== channelIDs.bountyBoard) {
 		return;
 	}
-	const message: Message = reaction.message;
+	let message: Message = reaction.message;
 	const bountyId: string = BountyUtils.getBountyIdFromEmbedMessage(message);
 	const guildMember: GuildMember = reaction.message.guild.member(user);
+	
+	if (message.webhookID !== null) {
+		console.log('message created by webhook');
+		await message.delete();
+		message = await ReCreateBounty(guildMember, bountyId).catch(console.error) as Message;
+	}
+	
+	if (message === null) {
+		console.log('message not found');
+		return;
+	}
 
 	if (reaction.emoji.name === '🏴') {
 		console.log(`${user.tag} attempting to claim a bounty ${bountyId} from the bounty board`);
-		return claimBountyForValidId(guildMember, bountyId, message);
+		return claimBountyForValidId(guildMember, bountyId, message).catch(console.error);
 	} else if (reaction.emoji.name === '📝') {
-		return guildMember.send(`<@${guildMember.user.id}> Bounty can be edited at ${envUrls.BOUNTY_BOARD_URL}${bountyId}/edit`);
+		return UpdateEditKeyBounty(guildMember, bountyId, message).catch(console.error);
 	} else if (reaction.emoji.name === '❌') {
 		console.log(`${user.tag} attempting to delete bounty ${bountyId}`);
 		return deleteBountyForValidId(guildMember, bountyId, message).catch(console.error);

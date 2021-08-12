@@ -13,6 +13,7 @@
 7. Allow dashes in criteria and allow only BANK tokens
 8. Sync bounties posted by webhook
 9. Recreate bounty boards for webhook created posts
+10. Allow much more special characters in description
 
 ## 1.1.1-RELEASE (2021-07-28)
 

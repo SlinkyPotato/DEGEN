@@ -45,7 +45,7 @@ const BountyUtils = {
 	},
 
 	async validateSummary(guildMember: GuildMember, summary: string): Promise<any> {
-		const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,4000}$/;
+		const CREATE_SUMMARY_REGEX = /^[\w\s\W]{1,4000}$/;
 		if (summary == null || !CREATE_SUMMARY_REGEX.test(summary)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid summary: \n' +
@@ -86,7 +86,7 @@ const BountyUtils = {
 	},
 
 	async validateCriteria(guildMember: GuildMember, criteria: string): Promise<any> {
-		const CREATE_CRITERIA_REGEX = /^[\w\s.!@#$%&,?']{1,1000}$/;
+		const CREATE_CRITERIA_REGEX = /^[\w\s.!@#$%&,?\-']{1,1000}$/;
 		if (criteria == null || !CREATE_CRITERIA_REGEX.test(criteria)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid criteria: \n' +

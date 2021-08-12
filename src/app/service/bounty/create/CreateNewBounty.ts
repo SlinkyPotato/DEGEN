@@ -63,7 +63,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 			},
 		},
 	};
-	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty! Draft must be finalized first before publishing to #🧀-bounty-board`);
+	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty! Please finalize bounty in DM`);
 	const message: Message = await guildMember.send(messageOptions) as Message;
 	
 	await message.react('👍');

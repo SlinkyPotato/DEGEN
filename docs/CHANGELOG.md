@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0-SNAPSHOT
+
+
 ## 1.2.1-RELEASE (2021-08-12)
 
 1. Allow larger criteria regex

@@ -73,7 +73,7 @@ const BountyUtils = {
 	},
 
 	async validateTitle(guildMember: GuildMember, title: string): Promise<any> {
-		const CREATE_TITLE_REGEX = /^[\w\s.!@#$%&,?\-']{1,250}$/;
+		const CREATE_TITLE_REGEX = /^[\w\s\W]{1,250}$/;
 		if (title == null || !CREATE_TITLE_REGEX.test(title)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid title: \n' +
@@ -86,7 +86,7 @@ const BountyUtils = {
 	},
 
 	async validateCriteria(guildMember: GuildMember, criteria: string): Promise<any> {
-		const CREATE_CRITERIA_REGEX = /^[\w\s.!@#$%&,?\-']{1,1000}$/;
+		const CREATE_CRITERIA_REGEX = /^[\w\s\W]{1,1000}$/;
 		if (criteria == null || !CREATE_CRITERIA_REGEX.test(criteria)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid criteria: \n' +

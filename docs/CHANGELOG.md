@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.0-SNAPSHOT
+## 1.2.0-RELEASE (2021-08-12)
 
 1. Add Bounty slash command
 2. Add more unit cases for commands

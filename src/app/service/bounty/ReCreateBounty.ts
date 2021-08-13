@@ -76,7 +76,7 @@ export const generateEmbedMessage = (bounty: BountyCollection, iconUrl: string):
 			},
 			description: bounty.description,
 			fields: [
-				{ name: 'Reward', value: bounty.reward.amount + ' ' + bounty.reward.currency, inline: true },
+				{ name: 'Reward', value: bounty.reward.amount + ' ' + bounty.reward.currency.toUpperCase(), inline: true },
 				{ name: 'Status', value: bounty.status, inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(bounty.dueAt), inline: true },
 				{ name: 'Criteria', value: bounty.criteria },

@@ -15,6 +15,11 @@ export default async (reaction: MessageReaction, user: User): Promise<any> | nul
 		return;
 	}
 	let message: Message = reaction.message;
+	
+	if (message.embeds == null || message.embeds[0] == null || message.embeds[0].fields[4] == null) {
+		return;
+	}
+	
 	const bountyId: string = BountyUtils.getBountyIdFromEmbedMessage(message);
 	const guildMember: GuildMember = reaction.message.guild.member(user);
 	

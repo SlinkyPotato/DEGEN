@@ -5,6 +5,9 @@ import path from 'path';
 import fs from 'fs';
 // import { server } from './service/ScoapFastifyServer';
 
+export const scoapEmbedArray = [];
+export const botConvoArray = [];
+
 const client: Client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 initializeEvents();
 

@@ -1,7 +1,7 @@
 import { TextChannel } from 'discord.js';
-import cloneDeep from 'lodash.clonedeep';
+// import cloneDeep from 'lodash.clonedeep';
 import constants from '../constants/constants';
-import { ScoapEmbed, Vote, VoteRecord } from './ScoapClasses';
+import { Vote, VoteRecord } from './ScoapClasses';
 
 const scoapEmbedTemplate = {
 	color: 0x0099ff,
@@ -62,14 +62,23 @@ const scoapEmbedTemplate = {
 };
 
 const removeReaction = async (message, user_id, emoji, choice_valid) => {
-	const userReactions = message.reactions.cache.filter((reaction) => {
-		reaction.users.cache.has(user_id);
+	console.log('inside remove function');
+	console.log('params ', 'userid ', user_id, ' emoji ', emoji, ' choice valid ', choice_valid);
+	const userReactions = await message.reactions.cache.filter((reaction) => {
+		return reaction.users.cache.has(user_id);
+		// console.log('REACTION ', reaction.users.cache.has(user_id));
 	});
+	console.log('user reactions ', userReactions);
+	console.log('message ', message);
+	console.log('message reactions', message.reactions.cache);
 	try {
 		for (const reac of userReactions.values()) {
+			console.log('reac ', reac);
 			if (choice_valid === true) {
+				console.log('here');
 				// the selected choice is available, only remove choices that don't match current choice
 				if (reac.emoji.name !== emoji) {
+					console.log('here now');
 					await reac.users.remove(user_id);
 					// console.log('reaction removed by bot, case true');
 					break;
@@ -106,7 +115,7 @@ const validateChoice = (emoji, totals, required) => {
 // request: NewType
 
 // Note: How to do correct type definition for request?
-export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
+export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Promise<any> => {
 
 	// const deepEmbed = cloneDeep(scoapEmbedTemplate);
 
@@ -121,8 +130,25 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 	const validEmojiArray = scoapEmbed.getVotableEmojiArray();
 	validEmojiArray.push(constants.EMOJIS.cross_mark);
 
+	const emoteRequired = {};
+	const emoteTotals = {};
+	const progressStrings = {};
+	Array(parseInt(botConvo.getConvo().user_response_record['1'])).fill(0).map((_, i) => {
+		// console.log('i ', i);
+		const role = botConvo.getConvo().user_response_record.roles[(i + 1).toString()];
+		const emoji = constants.EMOJIS[(i + 1).toString()];
+		emoteRequired[emoji] = parseInt(role.role_count);
+		emoteTotals[emoji] = 0;
+		progressStrings[emoji] = `0/${role.role_count} 0%`;
 
-	const voteRecord = new VoteRecord();
+	});
+
+	const voteRecord = new VoteRecord().setUserVoteLedger({}).setEmoteRequired(emoteRequired).setEmoteTotals(emoteTotals).setProgressStrings(progressStrings);
+
+	console.log('EMOTE REQUIRED ', voteRecord.getEmoteRequired());
+	console.log('EMOTE TOTALS ', voteRecord.getEmoteTotals());
+	console.log('PROGRESS STRINGS ', voteRecord.getProgressStrings());
+
 
 	// const scoapEmbed = new ScoapEmbed(deepEmbed, '749152252966469668', channel);
 	// const scoapEmbed = new ScoapEmbed();
@@ -138,7 +164,7 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 	// });
 
 	for (const item of validEmojiArray) {
-		console.log(item);
+		// console.log(item);
 		await embedMessage.react(item);
 	}
 
@@ -174,8 +200,13 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 					voteRecord.getUserVoteLedger(),
 				);
 				voteRecord.update(vote);
+				console.log('received vote from user: ', user.id, ' ', reaction.emoji.name);
+				console.log(voteRecord.getUserVoteLedger());
+
 
 				if (vote.getType() === 'CHANGEVOTE') {
+					console.log('invoking remove vote. choice vlaid = ', choiceValid, ' ', 'user id = ', vote.getUserId());
+					console.log('message reactions', embedMessage.reactions.cache);
 					await removeReaction(
 						embedMessage,
 						vote.getUserId(),
@@ -206,7 +237,7 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 			}
 			}
 		} else {
-			console.log(reaction.emoji.name);
+			// console.log(reaction.emoji.name);
 			// handle delete
 			// handle add
 			// handle edit

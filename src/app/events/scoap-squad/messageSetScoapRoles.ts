@@ -1,9 +1,13 @@
-import { botConvoArray, scoapEmbedArray, publishScoapPoll } from '../../service/scoap-squad/CreateNewScoapPoll';
+import { publishScoapPoll } from '../../service/scoap-squad/CreateNewScoapPoll';
+import { scoapEmbedArray, botConvoArray } from '../../app';
 import { Message } from 'discord.js';
 import constants from '../../service/constants/constants';
 
 export default async (message: Message): Promise<any> => {
 
+	// console.log(' THE ARRAYS ');
+	// console.log(scoapEmbedArray);
+	// console.log(botConvoArray);
 
 	// Note - make sure to get rid of embedObject in array after scoap draft is completed
 
@@ -52,14 +56,14 @@ export default async (message: Message): Promise<any> => {
 						botConvo.getConvo().user_response_record.roles[(roleIndex + 1).toString()] = {};
 						botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) - 1).toString(), await handleCorrectInput(message));
 					} else if (roleIndex == roleCount) {
-						await message.channel.send(`Recorderd the following inputs ${botConvo.getConvo().user_response_record.roles}`);
+						// await message.channel.send(`Recorderd the following inputs ${botConvo.getConvo().user_response_record.roles}`);
 						botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + 1).toString(), message);
 
 						console.log('response record ', botConvo.getConvo().user_response_record);
 						const scoapEmbedIndex = scoapEmbedArray.map(embed => embed.current_channel).indexOf(message.channel);
 						const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
 						Array(parseInt(botConvo.getConvo().user_response_record['1'])).fill(0).map((_, i) => {
-							console.log('i ', i);
+							// console.log('i ', i);
 
 							const role = botConvo.getConvo().user_response_record.roles[(i + 1).toString()];
 							const emoji = constants.EMOJIS[(i + 1).toString()];
@@ -86,7 +90,9 @@ export default async (message: Message): Promise<any> => {
 						const verifyMessage = await message.channel.send('Please verify final draft', { embed: scoapEmbed.getEmbed() });
 						await verifyMessage.react('👍');
 						await verifyMessage.react('❌');
-						return publishScoapPoll(verifyMessage, scoapEmbed);
+						console.log('embedArray ', scoapEmbedArray);
+						console.log('botConvoArray ', botConvoArray);
+						return publishScoapPoll(verifyMessage, scoapEmbed, botConvo);
 
 					};
 					break;

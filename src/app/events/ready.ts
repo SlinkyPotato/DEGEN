@@ -5,6 +5,7 @@
 import GuestPassService from '../service/guest-pass/GuestPassService';
 import ScoapFastifyServer from '../service/scoap-squad/ScoapFastifyServer';
 
+
 module.exports = {
 	name: 'ready',
 	once: true,
@@ -16,3 +17,4 @@ module.exports = {
 		ScoapFastifyServer();
 	},
 };
+

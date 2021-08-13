@@ -185,45 +185,69 @@ export class Vote {
 }
 
 export class VoteRecord {
-	emoteRequired = {
-		// {emoji<unicode>: required_total<int>}
-		[constants.EMOJIS['1']]: 1,
-		[constants.EMOJIS['2']]: 3,
-		[constants.EMOJIS['3']]: 2,
-	};
+	user_vote_ledger: any;
+	progress_strings: any;
+	emote_totals: any;
+	emote_required: any;
+	
+	// emoteRequired = {
+	// 	// {emoji<unicode>: required_total<int>}
+	// 	[constants.EMOJIS['1']]: 1,
+	// 	[constants.EMOJIS['2']]: 3,
+	// 	[constants.EMOJIS['3']]: 2,
+	// };
 
-	emoteTotals = {
-		// {emoji<unicode>: current_total<int>}
-		[constants.EMOJIS['1']]: 0,
-		[constants.EMOJIS['2']]: 0,
-		[constants.EMOJIS['3']]: 0,
-	};
+	// emoteTotals = {
+	// 	// {emoji<unicode>: current_total<int>}
+	// 	[constants.EMOJIS['1']]: 0,
+	// 	[constants.EMOJIS['2']]: 0,
+	// 	[constants.EMOJIS['3']]: 0,
+	// };
 
-	progressStrings = {
-		// {emoji<unicode>: progress string<str>}
-		[constants.EMOJIS['1']]: '0/1 - > 0%',
-		[constants.EMOJIS['2']]: '0/3 -> 0%',
-		[constants.EMOJIS['3']]: '0/2 -> 0%',
-	};
+	// progressStrings = {
+	// 	// {emoji<unicode>: progress string<str>}
+	// 	[constants.EMOJIS['1']]: '0/1 - > 0%',
+	// 	[constants.EMOJIS['2']]: '0/3 -> 0%',
+	// 	[constants.EMOJIS['3']]: '0/2 -> 0%',
+	// };
 
-	userVoteLedger = {};
+	// user_vote_ledger = {};
 
-	// choiceAvailable = true;
 
 	getUserVoteLedger(): any {
-		return this.userVoteLedger;
+		return this.user_vote_ledger;
 	}
 
 	getProgressStrings(): any {
-		return this.progressStrings;
+		return this.progress_strings;
 	}
 
 	getEmoteTotals(): any {
-		return this.emoteTotals;
+		return this.emote_totals;
 	}
 
 	getEmoteRequired(): any {
-		return this.emoteRequired;
+		return this.emote_required;
+	}
+
+	setUserVoteLedger(user_vote_ledger: any): this {
+		this.user_vote_ledger = user_vote_ledger;
+		return this;
+	}
+
+	setProgressStrings(progress_strings: any): this {
+		this.progress_strings = progress_strings;
+		return this;
+	}
+
+	setEmoteTotals(emote_totals: any): this {
+		this.emote_totals = emote_totals;
+		return this;
+	}
+
+	setEmoteRequired(emote_required: any): this {
+		this.emote_required = emote_required;
+		return this;
 	}
 
 	update(vote: Record<string, any>): this {
@@ -235,54 +259,54 @@ export class VoteRecord {
 
 	_updateUserVoteLedger(vote: Record<string, any>): this {
 		if (vote.type === 'UNVOTE') {
-			this.userVoteLedger[vote.user_id] = '';
+			this.user_vote_ledger[vote.user_id] = '';
 		} else {
-			this.userVoteLedger[vote.user_id] = vote.emoji;
+			this.user_vote_ledger[vote.user_id] = vote.emoji;
 		}
 		return this;
 	}
 
 	_updateEmoteTotals = (vote: Record<string, any>): this => {
-		const old_emoji = this.userVoteLedger[vote.user_id];
+		const old_emoji = this.user_vote_ledger[vote.user_id];
 		switch (vote.type) {
 		case 'NEWVOTE':
-			++this.emoteTotals[vote.emoji];
+			++this.emote_totals[vote.emoji];
 			return this;
 		case 'REVOTE':
-			++this.emoteTotals[vote.emoji];
+			++this.emote_totals[vote.emoji];
 			return this;
 		case 'CHANGEVOTE':
-			--this.emoteTotals[old_emoji];
-			++this.emoteTotals[vote.emoji];
+			--this.emote_totals[old_emoji];
+			++this.emote_totals[vote.emoji];
 			return this;
 		case 'UNVOTE':
-			--this.emoteTotals[vote.emoji];
+			--this.emote_totals[vote.emoji];
 			return this;
 		}
 	};
 
 	_updateProgressStrings(vote: Record<string, any>): this {
-		const old_emoji = this.userVoteLedger[vote.user_id];
-		console.log(`updating progress string, inputs: ${vote.emoji}, ${old_emoji}, ${vote.type}, ${this.emoteTotals}, ${this.emoteRequired}`);
+		const old_emoji = this.user_vote_ledger[vote.user_id];
+		console.log(`updating progress string, inputs: ${vote.emoji}, ${old_emoji}, ${vote.type}`, this.emote_totals, this.emote_required);
 		if (vote.type === 'CHANGEVOTE') {
-			this.progressStrings[old_emoji] = this._generateProgressString(old_emoji);
-			this.progressStrings[vote.emoji] = this._generateProgressString(vote.emoji);
+			this.progress_strings[old_emoji] = this._generateProgressString(old_emoji);
+			this.progress_strings[vote.emoji] = this._generateProgressString(vote.emoji);
 		} else if (vote.type === 'UNVOTE') {
-			this.progressStrings[old_emoji] = this._generateProgressString(old_emoji);
+			this.progress_strings[old_emoji] = this._generateProgressString(old_emoji);
 		} else {
-			this.progressStrings[vote.emoji] = this._generateProgressString(vote.emoji);
+			this.progress_strings[vote.emoji] = this._generateProgressString(vote.emoji);
 		}
 		return this;
 	}
 
 	_calcPercentages(emoji: string): string {
-		const percent = Math.round((100 / this.emoteRequired[emoji]) * this.emoteTotals[emoji]);
+		const percent = Math.round((100 / this.emote_required[emoji]) * this.emote_totals[emoji]);
 		return percent.toString();
 	}
 
 	_generateProgressString(emoji: string): string {
-		return `${this._calcPercentages(emoji)}%(${this.emoteTotals[emoji]}/${
-			this.emoteRequired[emoji]
+		return `${this._calcPercentages(emoji)}%(${this.emote_totals[emoji]}/${
+			this.emote_required[emoji]
 		})`;
 	}
 }

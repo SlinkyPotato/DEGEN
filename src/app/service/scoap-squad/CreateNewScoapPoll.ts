@@ -6,9 +6,10 @@ import constants from '../constants/constants';
 import channelIDs from '../constants/channelIDs';
 import client from '../../app';
 import ScoapPoll from './ScoapPoll';
+import { scoapEmbedArray, botConvoArray } from '../../app';
 
-export const scoapEmbedArray = [];
-export const botConvoArray = [];
+// export const scoapEmbedArray = [];
+// export const botConvoArray = [];
 
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
 	const title = ctx.options.assemble.new.title;
@@ -73,7 +74,7 @@ export const handleScoapReaction = (message: Message, guildMember: GuildMember):
 	});
 };
 
-export const publishScoapPoll = async (message: Message, scoapEmbed: any): Promise<any> => {
+export const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any): Promise<any> => {
 	return message.awaitReactions((reaction, user: User) => {
 		return ['👍', '❌'].includes(reaction.emoji.name) && !user.bot;
 	}, {
@@ -88,7 +89,7 @@ export const publishScoapPoll = async (message: Message, scoapEmbed: any): Promi
 			const scoapChannel: TextChannel = await client.channels.fetch(channelIDs.scoapSquad) as TextChannel;
 			// console.log('scoap Channel ', scoapChannel);
 			// const bountyMessage: Message = await scoapChannel.send({ scoapEmbed: embed.getEmbed() }) as Message;
-			ScoapPoll(scoapChannel, scoapEmbed);
+			ScoapPoll(scoapChannel, scoapEmbed, botConvo);
 			return message.channel.send('SCOAP Squad assemble request has been posted in #scoap-squad-assemble');
 			// return publishScoapPoll(guildMember, scoapEmbedArray[scoapEmbedArray.map(x => x.current_channel).indexOf(message.channel)]);
 		} else {
@@ -103,6 +104,12 @@ export const publishScoapPoll = async (message: Message, scoapEmbed: any): Promi
 		console.log('did not react');
 	});
 };
+
+// export const createScoapArrays = (): any => {
+// 	export const scoapEmbedArray = [];
+// 	export const botConvoArray = [];
+// 	return;
+// };
 	
 
 const clearArray = async (array, message) => {

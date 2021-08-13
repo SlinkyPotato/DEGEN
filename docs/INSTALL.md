@@ -24,10 +24,18 @@ Please create a `.env` with the keys below
 
 ```
 DISCORD_BOT_TOKEN=<taken from discord bot applciation page>
+DISCORD_BOT_PUBLIC_KEY=<taken from discord application PUBLIC KEY>
+DISCORD_BOT_APPLICATION_ID=<taken from discord application APPLICATION ID>
 DISCORD_OWNER_ID=<taken from discord app in TEST mode>
-MONGODB_URI=<local or web url of mongo db>
+MONGODB_USERNAME=<mongodb user name>
+MONGODB_PASS=<mongodb user password>
+MONGODB_CLUSTER=<mongodb cluster url>
 NOTION_TOKEN=<generated from notion integrations page>
 FAQS_PAGE_ID=<personal FAQS page>
+DISCORD_ROLE_GUEST_PASS=848369657281773599
+DISCORD_ROLE_LEVEL_2=839005084016312360
+NOTION_GUEST_PASS_DATABASE_ID=15fae33760724cf7b696a981d53e50cb
+DISCORD_SERVER_ID=834499078434979890
 ```
 
 ### 2. Generate bot token

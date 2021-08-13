@@ -80,7 +80,7 @@ export const generateEmbedMessage = (dbBounty: BountyCollection, newStatus: stri
 			},
 			description: dbBounty.description,
 			fields: [
-				{ name: 'Reward', value: dbBounty.reward.amount + ' ' + dbBounty.reward.currency, inline: true },
+				{ name: 'Reward', value: dbBounty.reward.amount + ' ' + dbBounty.reward.currency.toUpperCase(), inline: true },
 				{ name: 'Status', value: newStatus, inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(dbBounty.dueAt), inline: true },
 				{ name: 'Criteria', value: dbBounty.criteria },

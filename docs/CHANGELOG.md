@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1-RELEASE (2021-08-12)
+
+1. Allow larger criteria regex
+2. upper case bank values for reward
+
 ## 1.2.0-RELEASE (2021-08-12)
 
 1. Add Bounty slash command

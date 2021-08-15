@@ -5,16 +5,10 @@ import constants from '../../service/constants/constants';
 
 export default async (message: Message): Promise<any> => {
 
-	// console.log(' THE ARRAYS ');
-	// console.log(scoapEmbedArray);
-	// console.log(botConvoArray);
+	// Note - make sure to get rid of embed-objects and bot-convo objects in array after scoap draft is completed
 
-	// Note - make sure to get rid of embedObject in array after scoap draft is completed
-
-	// map message to correct botConvoObject object
-	// console.log('botConvoArray ', botConvoArray);
+	// map message to correct botConvo object
 	const botConvoIndex = botConvoArray.map(x => x.current_channel).indexOf(message.channel);
-	// console.log('botConvoIndex', botConvoIndex);
 	if (botConvoIndex === -1) return;
 
 	// const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
@@ -52,16 +46,18 @@ export default async (message: Message): Promise<any> => {
 					break;
 				case (botConvo.getCurrentMessageFlowIndex() === '3'):
 					botConvo.getConvo().user_response_record.roles[(roleIndex).toString()]['role_count'] = message.content;
+					// if true we continue the loop
 					if (roleIndex < roleCount) {
 						botConvo.getConvo().user_response_record.roles[(roleIndex + 1).toString()] = {};
 						botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) - 1).toString(), await handleCorrectInput(message));
+					// if true this is last iteration
 					} else if (roleIndex == roleCount) {
-						// await message.channel.send(`Recorderd the following inputs ${botConvo.getConvo().user_response_record.roles}`);
 						botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + 1).toString(), message);
-
 						console.log('response record ', botConvo.getConvo().user_response_record);
+
 						const scoapEmbedIndex = scoapEmbedArray.map(embed => embed.current_channel).indexOf(message.channel);
 						const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
+						
 						Array(parseInt(botConvo.getConvo().user_response_record['1'])).fill(0).map((_, i) => {
 							// console.log('i ', i);
 
@@ -76,7 +72,7 @@ export default async (message: Message): Promise<any> => {
 									inline: true,
 								},
 								{
-									name: `0 % (0/${role.role_count})`,
+									name: `0%(0/${role.role_count})`,
 									value: '\u200b',
 									inline: true,
 								},

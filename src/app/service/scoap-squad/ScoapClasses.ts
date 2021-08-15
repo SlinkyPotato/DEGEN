@@ -185,35 +185,15 @@ export class Vote {
 }
 
 export class VoteRecord {
+	// {user_id<string>: emoji<unicode>}
 	user_vote_ledger: any;
+	// {emoji<unicode>: progress string<str>}
 	progress_strings: any;
+	// {emoji<unicode>: current_total<int>}
 	emote_totals: any;
+	// {emoji<unicode>: required_total<int>}
 	emote_required: any;
 	
-	// emoteRequired = {
-	// 	// {emoji<unicode>: required_total<int>}
-	// 	[constants.EMOJIS['1']]: 1,
-	// 	[constants.EMOJIS['2']]: 3,
-	// 	[constants.EMOJIS['3']]: 2,
-	// };
-
-	// emoteTotals = {
-	// 	// {emoji<unicode>: current_total<int>}
-	// 	[constants.EMOJIS['1']]: 0,
-	// 	[constants.EMOJIS['2']]: 0,
-	// 	[constants.EMOJIS['3']]: 0,
-	// };
-
-	// progressStrings = {
-	// 	// {emoji<unicode>: progress string<str>}
-	// 	[constants.EMOJIS['1']]: '0/1 - > 0%',
-	// 	[constants.EMOJIS['2']]: '0/3 -> 0%',
-	// 	[constants.EMOJIS['3']]: '0/2 -> 0%',
-	// };
-
-	// user_vote_ledger = {};
-
-
 	getUserVoteLedger(): any {
 		return this.user_vote_ledger;
 	}

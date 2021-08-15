@@ -116,23 +116,4 @@ module.exports = class ScoapSquad extends SlashCommand {
 		});
 	}
 	
-	// buildScoapCreateNewParams(ctxOptions): any {
-	// 	const [reward, symbol] = (ctxOptions.new.reward != null) ? ctxOptions.new.reward.split(' ') : [null, null];
-	// 	if (!reward) {
-	// 		return {
-	// 			title: ctxOptions.new.title,
-	// 			summary: ctxOptions.new.summary,
-	// 			reward: {
-	// 				amount: reward,
-	// 				currencySymbol: symbol,
-	// 			},
-	// 		};
-	// 	} else {
-	// 		return {
-	// 			title: ctxOptions.new.title,
-	// 			summary: ctxOptions.new.summary,
-	// 		};
-	// 	}
-		
-	// }
 };

@@ -1,5 +1,5 @@
 // Libs
-import { SlashCreator, GatewayServer, FastifyServer } from 'slash-create';
+import { SlashCreator, GatewayServer } from 'slash-create';
 import Discord, { Client, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';

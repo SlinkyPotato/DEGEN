@@ -8,9 +8,6 @@ import client from '../../app';
 import ScoapPoll from './ScoapPoll';
 import { scoapEmbedArray, botConvoArray } from '../../app';
 
-// export const scoapEmbedArray = [];
-// export const botConvoArray = [];
-
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
 	const title = ctx.options.assemble.new.title;
 	const summary = ctx.options.assemble.new.summary;
@@ -105,13 +102,6 @@ export const publishScoapPoll = async (message: Message, scoapEmbed: any, botCon
 	});
 };
 
-// export const createScoapArrays = (): any => {
-// 	export const scoapEmbedArray = [];
-// 	export const botConvoArray = [];
-// 	return;
-// };
-	
-
 const clearArray = async (array, message) => {
 	const removeIndex = array.map(item => item.getCurrentChannel()).indexOf(message.channel);
 	~removeIndex && array.splice(removeIndex, 1);
@@ -145,37 +135,6 @@ const createBotConversationParams = () => {
 	return convo;
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // export const confirmUserInput = async (guildMember: GuildMember, message: Message): Promise<any> => {
 // 	console.log('ready to set roles: ');
-
-// 	// create ScoapEmbed object
-// 	const draftEmbed = message.embeds[0];
-// 	const scoapEmbed = new ScoapEmbed();
-// 	scoapEmbed.setEmbed(draftEmbed).setScoapAuthor(guildMember.id).setCurrentChannel(message.channel);
-// 	scoapEmbedArray.push(scoapEmbed);
-
-// 	const roleMessage: Message = await guildMember.send(
-// 		'Let\'s define the roles for your SCOAP squad.' +
-// 		'You have to define at least one role and you can define up to 10 different roles.\n' +
-// 		'first off, How many roles do you want to define in total? \n' +
-// 		'Reply to this message with a number between 1 and 10') as Message;
-
-// 	scoapEmbed.setCurrentMessage(roleMessage);
-
-// 	return roleMessage;
-
-
 // };

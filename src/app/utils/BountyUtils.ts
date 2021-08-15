@@ -32,7 +32,7 @@ const BountyUtils = {
 	 * @param bountyType
 	 */
 	async validateBountyType(guildMember: GuildMember, bountyType: string): Promise<any> {
-		const ALLOWED_BOUNTY_TYPES = ['OPEN', 'CREATED_BY_ME', 'CLAIMED_BY_ME'];
+		const ALLOWED_BOUNTY_TYPES = ['OPEN', 'IN_PROGRESS', 'CREATED_BY_ME', 'CLAIMED_BY_ME', 'DRAFT_BY_ME'];
 		if (bountyType == null || !ALLOWED_BOUNTY_TYPES.includes(bountyType)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid bounty type: \n' +
@@ -45,7 +45,7 @@ const BountyUtils = {
 	},
 
 	async validateSummary(guildMember: GuildMember, summary: string): Promise<any> {
-		const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,4000}$/;
+		const CREATE_SUMMARY_REGEX = /^[\w\s\W]{1,4000}$/;
 		if (summary == null || !CREATE_SUMMARY_REGEX.test(summary)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid summary: \n' +
@@ -58,11 +58,12 @@ const BountyUtils = {
 	},
 
 	async validateReward(guildMember: GuildMember, reward: BountyReward): Promise<void> {
-		const ALLOWED_CURRENCIES = ['ETH', 'BANK'];
+		const ALLOWED_CURRENCIES = ['BANK'];
+		const allowedRegex = new RegExp(ALLOWED_CURRENCIES.join('|'), 'i');
 		const MAXIMUM_REWARD = 100000000.00;
 
 		if (reward.amount === Number.NaN || reward.amount <= 0 || reward.amount > MAXIMUM_REWARD
-			|| !ALLOWED_CURRENCIES.includes(reward.currencySymbol)) {
+			|| !allowedRegex.test(reward.currencySymbol)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid reward value: \n ' +
 				'- 100 million maximum currency\n ' +
@@ -72,7 +73,7 @@ const BountyUtils = {
 	},
 
 	async validateTitle(guildMember: GuildMember, title: string): Promise<any> {
-		const CREATE_TITLE_REGEX = /^[\w\s.!@#$%&,?']{1,250}$/;
+		const CREATE_TITLE_REGEX = /^[\w\s\W]{1,250}$/;
 		if (title == null || !CREATE_TITLE_REGEX.test(title)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid title: \n' +
@@ -85,7 +86,7 @@ const BountyUtils = {
 	},
 
 	async validateCriteria(guildMember: GuildMember, criteria: string): Promise<any> {
-		const CREATE_CRITERIA_REGEX = /^[\w\s.!@#$%&,?']{1,1000}$/;
+		const CREATE_CRITERIA_REGEX = /^[\w\s\W]{1,1000}$/;
 		if (criteria == null || !CREATE_CRITERIA_REGEX.test(criteria)) {
 			await guildMember.send(`<@${guildMember.user.id}>\n` +
 				'Please enter a valid criteria: \n' +
@@ -131,6 +132,10 @@ const BountyUtils = {
 	
 	getBountyIdFromEmbedMessage(message: Message): string {
 		return message.embeds[0].fields[4].value;
+	},
+	
+	formatBountyAmount(amount: number, scale: number): number {
+		return amount / 10 ** scale;
 	},
 };
 

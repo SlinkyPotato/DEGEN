@@ -1,6 +1,14 @@
 # Changelog
 
-## 1.2.0-SNAPSHOT
+## 1.3.0-SNAPSHOT
+
+
+## 1.2.1-RELEASE (2021-08-12)
+
+1. Allow larger criteria regex
+2. upper case bank values for reward
+
+## 1.2.0-RELEASE (2021-08-12)
 
 1. Add Bounty slash command
 2. Add more unit cases for commands
@@ -9,6 +17,11 @@
    - add more logging
 4. Fix guest pass event service
 5. More bug fixes for bounty board commands and flow, add refresh button!
+6. Add /bounty list drafted by me, add edit reaction to drafted bounties
+7. Allow dashes in criteria and allow only BANK tokens
+8. Sync bounties posted by webhook
+9. Recreate bounty boards for webhook created posts
+10. Allow much more special characters in description
 
 ## 1.1.1-RELEASE (2021-07-28)
 

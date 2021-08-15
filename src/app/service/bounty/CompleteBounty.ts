@@ -66,7 +66,7 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 	console.log(`${bountyId} bounty reviewed by ${guildMember.user.tag}`);
 	await completeBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 
-	return guildMember.send(`<@${guildMember.user.id}> Bounty in review! Look out for a follow up message from <@${dbBountyResult.createdBy.discordId}>`);
+	return guildMember.send(`<@${guildMember.user.id}> Bounty complete! Please remember to tip <@${dbBountyResult.createdBy.discordId}>`);
 };
 
 export const completeBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {

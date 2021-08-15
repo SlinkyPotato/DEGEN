@@ -9,6 +9,7 @@ import { deleteBountyForValidId } from '../DeleteBounty';
 import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import envUrls from '../../constants/envUrls';
+import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
 
 const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
 
@@ -49,7 +50,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 			},
 			description: newBounty.description,
 			fields: [
-				{ name: 'Reward', value: newBounty.reward.amount + ' ' + newBounty.reward.currency, inline: true },
+				{ name: 'Reward', value: BountyUtils.formatBountyAmount(newBounty.reward.amount, newBounty.reward.scale) + ' ' + newBounty.reward.currency.toUpperCase(), inline: true },
 				{ name: 'Status', value: 'Open', inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(newBounty.dueAt), inline: true },
 				{ name: 'Criteria', value: newBounty.criteria },
@@ -58,11 +59,11 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 			],
 			timestamp: new Date(),
 			footer: {
-				text: '👍 - publish | 📝 - edit | ❌ - delete',
+				text: '👍 - publish | 📝 - edit | ❌ - delete | Please reply within 60 minutes',
 			},
 		},
 	};
-	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty, please verify.`);
+	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty! Please finalize bounty in DM`);
 	const message: Message = await guildMember.send(messageOptions) as Message;
 	
 	await message.react('👍');
@@ -116,7 +117,7 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, bounty
 			return finalizeBounty(guildMember, bountyId);
 		} else if (reaction.emoji.name === '📝') {
 			console.log('/bounty create new | :pencil: given');
-			return guildMember.send('Sorry edit not yet available. Please delete bounty with /bounty delete command');
+			return UpdateEditKeyBounty(guildMember, bountyId);
 		} else {
 			console.log('/bounty create new | delete given');
 			return deleteBountyForValidId(guildMember, bountyId);

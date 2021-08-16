@@ -5,89 +5,52 @@ import constants from '../../service/constants/constants';
 
 export default async (message: Message): Promise<any> => {
 
-	// Note - make sure to get rid of embed-objects and bot-convo objects in array after scoap draft is completed
-
-	// map message to correct botConvo object
-	const botConvoIndex = botConvoArray.map(x => x.current_channel).indexOf(message.channel);
+	const botConvoIndex = retrieveObjectFromArray(botConvoArray, message.channel);
 	if (botConvoIndex === -1) return;
-
-	// const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
 	const botConvo = botConvoArray[botConvoIndex];
 
-	// only act if this message is a direct response to botConvo.current_message
-	if (message.channel.messages.cache.lastKey(2)[0] === botConvo.getCurrentMessage().id) {
-		// user_rersponse_record still empty
-		if (!('1' in botConvo.getConvo().user_response_record)) {
+	
+	if (messageIsValid(message, botConvo)) {
+		if (!(hasUserResponse(botConvo))) {
 			switch (true) {
-			case (isInteger(message.content) && (parseInt(message.content) < 10) && (parseInt(message.content) >= 1)):
-				console.log('got integer', message.content);
-				botConvo.getConvo().user_response_record[botConvo.getCurrentMessageFlowIndex()] = message.content,
-				botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + 1).toString(), await handleCorrectInput(message));
+			case (validateTotalNumberOfRoles(message.content)):
+				setUserResponseRecord(message.content, botConvo, 'TOTAL_ROLES');
+				incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 				return;
-			// (!isInteger(message.content) || (parseInt(message.content) >= 10))
 			default:
-				botConvo.setCurrentMessageFlowIndex(botConvo.getCurrentMessageFlowIndex(), await handleWrongInput(message, 'number between 1 and 9'));
+				incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'number between 1 and 9']);
 				return;
 			}
-		// user already answered question 1 -> we have total number of roles to start our loop
-		} else if ('1' in botConvo.getConvo().user_response_record) {
-			const roleCount = parseInt(botConvo.getConvo().user_response_record['1']);
+		} else if (hasUserResponse(botConvo)) {
 			if (!('roles' in botConvo.getConvo().user_response_record)) {
-				botConvo.getConvo().user_response_record['roles'] = {};
-				botConvo.getConvo().user_response_record.roles['1'] = {};
+				initiateRolesRecord(botConvo);
 			}
-
-			const roleIndex = Object.keys(botConvo.getConvo().user_response_record['roles']).length;
-			if (roleIndex <= roleCount) {
+			if (getNumberOfRolesRecorded(botConvo) <= getTotalNumberOfRoles(botConvo)) {
 				switch (true) {
 				case (botConvo.getCurrentMessageFlowIndex() === '2'):
-					botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + 1).toString(), await handleCorrectInput(message));
-					botConvo.getConvo().user_response_record.roles[roleIndex.toString()]['title'] = message.content;
+					incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
+					setUserResponseRecord(message.content, botConvo, 'ROLE_TITLE');
 					break;
 				case (botConvo.getCurrentMessageFlowIndex() === '3'):
-					botConvo.getConvo().user_response_record.roles[(roleIndex).toString()]['role_count'] = message.content;
+					setUserResponseRecord(message.content, botConvo, 'ROLE_COUNT');
 					// if true we continue the loop
-					if (roleIndex < roleCount) {
-						botConvo.getConvo().user_response_record.roles[(roleIndex + 1).toString()] = {};
-						botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) - 1).toString(), await handleCorrectInput(message));
+					if (getNumberOfRolesRecorded(botConvo) < getTotalNumberOfRoles(botConvo)) {
+						setUserResponseRecord({}, botConvo, 'NEW_ROLE');
+						incrementMessageFlowIndex(botConvo, message, ['CORRECT', -1]);
 					// if true this is last iteration
-					} else if (roleIndex == roleCount) {
-						botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + 1).toString(), message);
-						console.log('response record ', botConvo.getConvo().user_response_record);
-
-						const scoapEmbedIndex = scoapEmbedArray.map(embed => embed.current_channel).indexOf(message.channel);
+					} else if (getNumberOfRolesRecorded(botConvo) == getTotalNumberOfRoles(botConvo)) {
+						incrementMessageFlowIndex(botConvo, message, ['FINAL', +1]);
+						const scoapEmbedIndex = retrieveObjectFromArray(scoapEmbedArray, message.channel);
 						const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
 						
 						Array(parseInt(botConvo.getConvo().user_response_record['1'])).fill(0).map((_, i) => {
-							// console.log('i ', i);
-
-							const role = botConvo.getConvo().user_response_record.roles[(i + 1).toString()];
-							const emoji = constants.EMOJIS[(i + 1).toString()];
-							scoapEmbed.getVotableEmojiArray().push(emoji);
-
-							scoapEmbed.getEmbed().fields.push(
-								{
-									name: `${emoji} ${role.title}`,
-									value: '\u200b',
-									inline: true,
-								},
-								{
-									name: `0%(0/${role.role_count})`,
-									value: '\u200b',
-									inline: true,
-								},
-								{
-									name: '\u200b',
-									value: '\u200b',
-									inline: false,
-								},
-							);
+							createScoapEmbedFields(botConvo, scoapEmbed, i);
 						});
+
 						const verifyMessage = await message.channel.send('Please verify final draft', { embed: scoapEmbed.getEmbed() });
 						await verifyMessage.react('👍');
 						await verifyMessage.react('❌');
-						console.log('embedArray ', scoapEmbedArray);
-						console.log('botConvoArray ', botConvoArray);
+
 						return handleScoapDraftReaction('PUBLISH', [verifyMessage, scoapEmbed, botConvo]);
 
 					};
@@ -102,12 +65,55 @@ export default async (message: Message): Promise<any> => {
 	return;
 };
 
-const hasRecordInUserResponse = (botConvo) => {
-	return ('1' in botConvo.getConvo().user_response_record);
+const createScoapEmbedFields = (botConvo, scoapEmbed, i) => {
+	const role = botConvo.getConvo().user_response_record.roles[(i + 1).toString()];
+	const emoji = constants.EMOJIS[(i + 1).toString()];
+	scoapEmbed.getVotableEmojiArray().push(emoji);
+
+	scoapEmbed.getEmbed().fields.push(
+		{
+			name: `${emoji} ${role.title}`,
+			value: '\u200b',
+			inline: true,
+		},
+		{
+			name: `0%(0/${role.role_count})`,
+			value: '\u200b',
+			inline: true,
+		},
+		{
+			name: '\u200b',
+			value: '\u200b',
+			inline: false,
+		},
+	);
 };
 
-const isInteger = (value) => {
-	return /^\d+$/.test(value);
+const getNumberOfRolesRecorded = (botConvo) => {
+	return Object.keys(botConvo.getConvo().user_response_record['roles']).length;
+};
+
+const initiateRolesRecord = (botConvo) => {
+	botConvo.getConvo().user_response_record['roles'] = {};
+	botConvo.getConvo().user_response_record.roles['1'] = {};
+};
+
+const getTotalNumberOfRoles = (botConvo) => {
+	return parseInt(botConvo.getConvo().user_response_record['1']);
+};
+
+const incrementMessageFlowIndex = async (botConvo, message, params) => {
+	switch (params[0]) {
+	case 'CORRECT':
+		botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + params[1]).toString(), await handleCorrectInput(message));
+		break;
+	case 'INCORRECT':
+		botConvo.setCurrentMessageFlowIndex(botConvo.getCurrentMessageFlowIndex(), await handleWrongInput(message, params[1]));
+		break;
+	case 'FINAL':
+		botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + params[1]).toString(), message);
+		break;
+	}
 };
 
 const handleWrongInput = async (message, expected) => {
@@ -118,3 +124,41 @@ const handleCorrectInput = async (message) => {
 	return await message.channel.send(`Received input "${message.content}".`);
 } ;
 
+const setUserResponseRecord = (record_entry, botConvo, option) => {
+	switch (option) {
+	case 'TOTAL_ROLES':
+		botConvo.getConvo().user_response_record[botConvo.getCurrentMessageFlowIndex()] = record_entry;
+		break;
+	case 'ROLE_TITLE':
+		botConvo.getConvo().user_response_record.roles[(getNumberOfRolesRecorded(botConvo)).toString()]['title'] = record_entry;
+		break;
+	case 'ROLE_COUNT':
+		botConvo.getConvo().user_response_record.roles[(getNumberOfRolesRecorded(botConvo)).toString()]['role_count'] = record_entry;
+		break;
+	case 'NEW_ROLE':
+		botConvo.getConvo().user_response_record.roles[(getNumberOfRolesRecorded(botConvo) + 1).toString()] = record_entry;
+		break;
+	}
+};
+
+const validateTotalNumberOfRoles = (message_content) => {
+	return (isInteger(message_content) && (parseInt(message_content) < 10) && (parseInt(message_content) >= 1));
+};
+
+const messageIsValid = (message, botConvo) => {
+	// returns true if this message is a direct response to botConvo.current_message
+	return (message.channel.messages.cache.lastKey(2)[0] === botConvo.getCurrentMessage().id);
+};
+
+const retrieveObjectFromArray = (array, channel) => {
+	// map message to correct botConvo / scoapEmbed object
+	return array.map(x => x.current_channel).indexOf(channel);
+};
+
+const hasUserResponse = (botConvo) => {
+	return ('1' in botConvo.getConvo().user_response_record);
+};
+
+const isInteger = (value) => {
+	return /^\d+$/.test(value);
+};

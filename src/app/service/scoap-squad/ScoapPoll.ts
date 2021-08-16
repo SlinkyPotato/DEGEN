@@ -3,6 +3,8 @@ import { TextChannel } from 'discord.js';
 import constants from '../constants/constants';
 import { Vote, VoteRecord } from './ScoapClasses';
 
+	// Note - make sure to get rid of embed-objects and bot-convo objects in array after scoap poll is completed
+
 const removeReaction = async (message, user_id, emoji, choice_valid) => {
 	const userReactions = await message.reactions.cache.filter((reaction) => {
 		return reaction.users.cache.has(user_id);
@@ -64,7 +66,7 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 		const emoji = constants.EMOJIS[(i + 1).toString()];
 		emoteRequired[emoji] = parseInt(role.role_count);
 		emoteTotals[emoji] = 0;
-		progressStrings[emoji] = `0/${role.role_count} 0%`;
+		progressStrings[emoji] = `0%(0/${role.role_count})`;
 
 	});
 

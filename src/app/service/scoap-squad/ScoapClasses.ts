@@ -1,4 +1,3 @@
-import constants from '../constants/constants';
 import { Channel, Message } from 'discord.js';
 
 export class BotConversation {

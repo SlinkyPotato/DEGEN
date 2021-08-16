@@ -1,4 +1,4 @@
-import { publishScoapPoll } from '../../service/scoap-squad/CreateNewScoapPoll';
+import { handleScoapDraftReaction } from '../../service/scoap-squad/CreateNewScoapPoll';
 import { scoapEmbedArray, botConvoArray } from '../../app';
 import { Message } from 'discord.js';
 import constants from '../../service/constants/constants';
@@ -88,7 +88,7 @@ export default async (message: Message): Promise<any> => {
 						await verifyMessage.react('❌');
 						console.log('embedArray ', scoapEmbedArray);
 						console.log('botConvoArray ', botConvoArray);
-						return publishScoapPoll(verifyMessage, scoapEmbed, botConvo);
+						return handleScoapDraftReaction('PUBLISH', [verifyMessage, scoapEmbed, botConvo]);
 
 					};
 					break;
@@ -102,9 +102,13 @@ export default async (message: Message): Promise<any> => {
 	return;
 };
 
-function isInteger(value) {
+const hasRecordInUserResponse = (botConvo) => {
+	return ('1' in botConvo.getConvo().user_response_record);
+};
+
+const isInteger = (value) => {
 	return /^\d+$/.test(value);
-}
+};
 
 const handleWrongInput = async (message, expected) => {
 	return await message.channel.send(`Expected ${expected}, but received input "${message.content}". Please try again.`);

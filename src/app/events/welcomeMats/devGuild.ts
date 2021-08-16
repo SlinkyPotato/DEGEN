@@ -5,19 +5,19 @@ import notionPageRefs from '../../api/notion/NotionGuildPages';
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
 /**
-	 * Sends custom welcome message on adding Developer's Guild role
-	 * 
-	 * @param guildMember member that has added Developer's Guild role
-	 */
+ * Sends custom welcome message on adding Developer's Guild role
+ * 
+ * @param guildMember member that has added Developer's Guild role
+ */
 export default async function sendGuildWelcomeMessage(guildMember: GuildMember) {
 	const response = await notion.databases.query({
 		database_id: process.env.NOTION_DEV_GUILD_PROJECTS_DATABASE_ID,
-		/* filter: {
+		filter: {
 			property: 'Status',
 			select: {
 				equals: 'Active',
 			},
-		}, */
+		}
 	});
 
 	let message = '';

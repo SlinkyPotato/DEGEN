@@ -3,8 +3,9 @@
  */
 
 import { Collection, GuildMember, Role, Snowflake } from 'discord.js';
-import { updateNotionGuestPassDatabase } from '../service/GuestPassService';
-import constants from '../constants';
+import constants from '../service/constants/constants';
+import addGuestPass from './guest-pass/addGuestPass';
+import removeGuestPass from './guest-pass/removeGuestPass';
 import sendGuildWelcomeMessage from './welcomeMats/devGuild';
 
 module.exports = {
@@ -16,13 +17,13 @@ module.exports = {
 		const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
 		if (removedRoles.size > 0) { 
 			console.debug(`The roles ${removedRoles.map(r => r.name)} were removed from ${oldMember.displayName}.`);
-			module.exports.handleRolesRemoved(newMember, removedRoles);
+			module.exports.handleRolesRemoved(oldMember, newMember, removedRoles);
 		}
 
 		const addedRoles = newMember.roles.cache.filter(role => !oldMember.roles.cache.has(role.id));
 		if (addedRoles.size > 0) {
 			console.debug(`The roles ${addedRoles.map(r => r.name)} were added to ${oldMember.displayName}.`);
-			module.exports.handleRolesAdded(newMember, addedRoles);
+			module.exports.handleRolesAdded(oldMember, newMember, addedRoles);
 		}
 	},
 
@@ -37,7 +38,7 @@ module.exports = {
 			switch (role.name) {
 				case constants.DISCORD_ROLE_GUEST_PASS:
 					try {
-						updateNotionGuestPassDatabase(guildMember.user.tag, true);	
+						addGuestPass(guildMember);
 					} catch (e) {
 						console.error(e);
 					}
@@ -63,7 +64,7 @@ module.exports = {
 		roles.each(role => {
 			switch (role.name) {
 				case constants.DISCORD_ROLE_GUEST_PASS:
-					return updateNotionGuestPassDatabase(guildMember.user.tag, false);
+					return removeGuestPass(guildMember);
 			}
 		});
 	},

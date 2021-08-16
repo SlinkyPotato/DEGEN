@@ -1,4 +1,4 @@
-class ValidationError extends Error {
+export default class ValidationError extends Error {
 
 	constructor(message: string) {
 		super(message);
@@ -6,5 +6,3 @@ class ValidationError extends Error {
 		Object.setPrototypeOf(this, ValidationError.prototype);
 	}
 }
-
-module.exports = ValidationError;

@@ -15,13 +15,13 @@ module.exports = {
     /*
      * Name of the Discord event to handle.
      */
-    name: 'guildMemberAdd'
+    name: 'guildMemberAdd',
 
     /*
      * Optional field. Indicates if this is a one time listener. If true, event
      * will be registered with `client.once` instead of `client.on`
      */
-    once: true
+    once: true,
 
     /* 
      * Function that is called when event is emitted, Different events pass in a 

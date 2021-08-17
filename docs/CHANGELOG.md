@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.3.0-SNAPSHOT
-
+1. Add queue for requests to Notion
 
 ## 1.2.1-RELEASE (2021-08-12)
 

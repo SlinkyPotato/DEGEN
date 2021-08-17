@@ -14,7 +14,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember) 
 	const response = await notionQueue.add(() => notion.databases.query({
 		database_id: process.env.NOTION_DEV_GUILD_PROJECTS_DATABASE_ID,
 		filter: {
-			property: 'Staus',
+			property: 'Status',
 			select: {
 				equals: 'Active',
 			},

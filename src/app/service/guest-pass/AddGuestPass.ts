@@ -51,7 +51,7 @@ export const addGuestUserToDb = async (guestUser: GuildMember): Promise<any> => 
 export const addGuestRoleToUser = async (guestUser: GuildMember): Promise<void> => {
 	const guestRole = ServiceUtils.getGuestRole(guestUser.guild.roles);
 	await guestUser.roles.add(guestRole);
-	console.log(`user ${guestUser.user.tag} given ${constants.DISCORD_ROLE_GUEST_PASS} role`);
+	console.log(`user ${guestUser.user.tag} given ${guestRole.name} role`);
 };
 
 export const notifyUserOfGuestExpiration = (guestUser: GuildMember): void =>{

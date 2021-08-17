@@ -59,6 +59,7 @@ export const handleRolesRemoved = (guildMember: GuildMember, roles: Collection<S
 		switch (role.id) {
 			case roleIDs.guestPass:
 				RemoveGuestPass(guildMember).catch(err => console.error(err));
+				break;
 		}
 	});
 };

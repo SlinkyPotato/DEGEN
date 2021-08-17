@@ -2,6 +2,7 @@
 
 ## 1.3.0-SNAPSHOT
 
+1. Upgrade discordjs v12 -> v13
 
 ## 1.2.1-RELEASE (2021-08-12)
 

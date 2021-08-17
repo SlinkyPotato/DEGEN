@@ -1,6 +1,7 @@
 import { SlashCommand, CommandOptionType } from 'slash-create';
 import { Client as NotionClient } from '@notionhq/client';
 import client from '../../app';
+import { notionQueue } from '../../api/notion/NotionQueue';
 const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
 const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
@@ -106,9 +107,9 @@ module.exports = class NotionFAQs extends SlashCommand {
 module.exports.retrieveFAQsPromise = async (): Promise<Array<any>> => {
 	const faqs = [];
 	const numberRegex = /^[0-9]./;
-	const response = await notion.blocks.children.list({
+	const response = await notionQueue.add(() => notion.blocks.children.list({
 		block_id: process.env.FAQS_PAGE_ID,
-	});
+	}));
 	response.results.forEach((obj) => {
 		if (obj.type === 'paragraph' && obj.paragraph.text.length > 0) {
 			// Check and add question to list

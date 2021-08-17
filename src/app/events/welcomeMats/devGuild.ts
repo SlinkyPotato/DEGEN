@@ -1,6 +1,7 @@
 import { GuildMember, MessageEmbed } from 'discord.js';
 import { Client } from '@notionhq/client';
 import notionPageRefs from '../../api/notion/NotionGuildPages';
+import { notionQueue } from '../../api/notion/NotionQueue';
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -10,15 +11,15 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
  * @param guildMember member that has added Developer's Guild role
  */
 export default async function sendGuildWelcomeMessage(guildMember: GuildMember) {
-	const response = await notion.databases.query({
+	const response = await notionQueue.add(() => notion.databases.query({
 		database_id: process.env.NOTION_DEV_GUILD_PROJECTS_DATABASE_ID,
 		filter: {
-			property: 'Status',
+			property: 'Staus',
 			select: {
 				equals: 'Active',
 			},
 		}
-	});
+	}));
 
 	let message = '';
 	message += 'Here are some resources to help you get started:\n';

@@ -3,7 +3,7 @@ import { TextChannel } from 'discord.js';
 import constants from '../constants/constants';
 import { Vote, VoteRecord } from './ScoapClasses';
 
-	// Note - make sure to get rid of embed-objects and bot-convo objects in array after scoap poll is completed
+// Note - make sure to get rid of embed-objects and bot-convo objects in array after scoap poll is completed
 
 const removeReaction = async (message, user_id, emoji, choice_valid) => {
 	const userReactions = await message.reactions.cache.filter((reaction) => {

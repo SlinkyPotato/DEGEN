@@ -9,9 +9,9 @@ import { scoapEmbedArray, botConvoArray } from '../../app';
 
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
 	const scoapEmbed = createNewScoapEmbed(guildMember, ctx);
-	ctx?.send(`${ctx.user.mention} Sent you draft SCOAP Squad request, please verify.`);
+	ctx?.send(`Hi, ${ctx.user.mention}! I just sent you a draft SCOAP Squad request, please verify.`);
 	const message: Message = await guildMember.send(
-		'Please verify below information. ' +
+		'Please verify the information below. ' +
 		'If everything is correct, ' +
 		'hit the confirm emoji to start ' +
 		'defining roles for your SCOAP squad.\n',
@@ -111,9 +111,12 @@ const clearArray = async (array, message) => {
 const createBotConversationParams = () => {
 	const convo = {
 		message_flow: {
-			'1': 'How many roles do you want to define in total? \n',
+			'1': 'You\'ll give each role a title, and ' +
+				 'specify how many people you\'ll need ' +
+				 'to fill each role in the proceeding prompts. ' +
+				 'How many roles do you want to define? ',
 			'2': 'Role title: ',
-			'3': 'Role count: ',
+			'3': 'How many people do you need in this role: ',
 			'4': 'Thank you for your input, please verify layout..',
 		},
 		cancel_options: ['cancel', 'abort', 'stop', 'exit', 'shut up'],

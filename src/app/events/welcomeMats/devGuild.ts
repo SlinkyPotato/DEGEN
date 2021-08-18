@@ -1,7 +1,7 @@
 import { GuildMember, MessageEmbed } from 'discord.js';
 import { Client } from '@notionhq/client';
-import notionPageRefs from '../../api/notion/NotionGuildPages';
-import { notionQueue } from '../../api/notion/NotionQueue';
+import notionPageRefs from '../../service/notion/NotionGuildPages';
+import { notionQueue } from '../../service/notion/NotionQueue';
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -18,7 +18,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember) 
 			select: {
 				equals: 'Active',
 			},
-		}
+		},
 	}));
 
 	let message = '';

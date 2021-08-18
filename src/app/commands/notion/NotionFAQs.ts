@@ -1,7 +1,7 @@
 import { SlashCommand, CommandOptionType } from 'slash-create';
 import { Client as NotionClient } from '@notionhq/client';
 import client from '../../app';
-import { notionQueue } from '../../api/notion/NotionQueue';
+import { notionQueue } from '../../service/notion/NotionQueue';
 const trimPageID = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageID}`;
 const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });

@@ -24,9 +24,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
-	const newBounty = generateBountyRecord(
-		params, guildMember.user.tag, guildMember.user.id,
-	);
+	const newBounty = generateBountyRecord(params, guildMember);
 
 	const dbInsertResult = await dbBounty.insertOne(newBounty);
 
@@ -48,14 +46,14 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 			},
 			description: newBounty.description,
 			fields: [
+				{ name: 'HashId', value: dbInsertResult.insertedId.toString(), inline: false },
 				{ name: 'Reward', value: BountyUtils.formatBountyAmount(newBounty.reward.amount, newBounty.reward.scale) + ' ' + newBounty.reward.currency.toUpperCase(), inline: true },
 				{ name: 'Status', value: 'Open', inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(newBounty.dueAt), inline: true },
 				{ name: 'Criteria', value: newBounty.criteria.toString() },
-				{ name: 'HashId', value: dbInsertResult.insertedId.toString() },
 				{ name: 'CreatedBy', value: newBounty.createdBy.discordHandle.toString(), inline: true },
 			],
-			timestamp: new Date(),
+			timestamp: new Date().getTime(),
 			footer: {
 				text: '👍 - publish | 📝 - edit | ❌ - delete | Please reply within 60 minutes',
 			},
@@ -71,10 +69,8 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 	return handleBountyReaction(message, guildMember, dbInsertResult.insertedId);
 };
 
-export const generateBountyRecord = (bountyParams: BountyCreateNew, discordHandle: string, discordId: string): any => {
+export const generateBountyRecord = (bountyParams: BountyCreateNew, guildMember: GuildMember): any => {
 	const currentDate = (new Date()).toISOString();
-	const precision = (bountyParams.reward.amount);
-	console.log(precision);
 	return {
 		season: new Int32(Number(process.env.DAO_CURRENT_SEASON)),
 		title: bountyParams.title,
@@ -86,8 +82,9 @@ export const generateBountyRecord = (bountyParams: BountyCreateNew, discordHandl
 			scale: new Int32(bountyParams.reward.scale),
 		},
 		createdBy: {
-			discordHandle: discordHandle,
-			discordId: discordId,
+			discordHandle: guildMember.user.tag,
+			discordId: guildMember.user.id,
+			iconUrl: guildMember.user.avatarURL(),
 		},
 		createdAt: currentDate,
 		statusHistory: [

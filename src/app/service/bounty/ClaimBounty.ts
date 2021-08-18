@@ -37,8 +37,9 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 	const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
 		$set: {
 			claimedBy: {
-				'discordHandle': guildMember.user.tag,
-				'discordId': guildMember.user.id,
+				discordHandle: guildMember.user.tag,
+				discordId: guildMember.user.id,
+				iconUrl: guildMember.user.avatarURL(),
 			},
 			claimedAt: currentDate,
 			status: 'In-Progress',

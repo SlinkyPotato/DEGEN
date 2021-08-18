@@ -1,7 +1,7 @@
 import constants from '../../constants/constants';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../../utils/BountyUtils';
-import { GuildMember, Message, MessageOptions, TextChannel } from 'discord.js';
+import {GuildMember, Message, MessageEmbed, MessageEmbedOptions, MessageOptions, TextChannel} from 'discord.js';
 import dbInstance from '../../../utils/db';
 import channelIDs from '../../constants/channelIds';
 import ServiceUtils from '../../../utils/ServiceUtils';
@@ -29,10 +29,10 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 		console.log(`${bountyId} bounty is not drafted`);
 		return guildMember.send(`<@${guildMember.user.id}> Sorry bounty is not drafted.`);
 	}
-	const messageOptions: MessageOptions = generateEmbedMessage(dbBountyResult, 'Open', guildMember.user.avatarURL());
+	const messageOptions: MessageEmbedOptions = generateEmbedMessage(dbBountyResult, 'Open');
 
 	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
-	const bountyMessage: Message = await bountyChannel.send(messageOptions);
+	const bountyMessage: Message = await bountyChannel.send({ embeds: [messageOptions] });
 	console.log('bounty published to #bounty-board');
 	addPublishReactions(bountyMessage);
 
@@ -68,29 +68,27 @@ export const addPublishReactions = (message: Message): void => {
 	message.react('❌');
 };
 
-export const generateEmbedMessage = (dbBounty: BountyCollection, newStatus: string, iconUrl?: string): MessageOptions => {
+export const generateEmbedMessage = (dbBounty: BountyCollection, newStatus: string): MessageEmbedOptions => {
 	return {
-		embeds: [{
-			color: '#1e7e34',
-			title: dbBounty.title,
-			url: envUrls.BOUNTY_BOARD_URL + dbBounty._id,
-			author: {
-				icon_url: iconUrl,
-				name: dbBounty.createdBy.discordHandle,
-			},
-			description: dbBounty.description,
-			fields: [
-				{ name: 'Reward', value: dbBounty.reward.amount + ' ' + dbBounty.reward.currency.toUpperCase(), inline: true },
-				{ name: 'Status', value: newStatus, inline: true },
-				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(dbBounty.dueAt), inline: true },
-				{ name: 'Criteria', value: dbBounty.criteria },
-				{ name: 'HashId', value: dbBounty._id.toHexString() },
-				{ name: 'Created By', value: dbBounty.createdBy.discordHandle, inline: true },
-			],
-			timestamp: new Date(),
-			footer: {
-				text: '🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete',
-			},
-		}],
+		color: 1998388,
+		title: dbBounty.title,
+		url: (envUrls.BOUNTY_BOARD_URL + dbBounty._id.toHexString()),
+		author: {
+			iconURL: dbBounty.createdBy.iconUrl,
+			name: dbBounty.createdBy.discordHandle,
+		},
+		description: dbBounty.description,
+		fields: [
+			{ name: 'HashId', value: dbBounty._id.toHexString(), inline: false },
+			{ name: 'Criteria', value: dbBounty.criteria, inline: false },
+			{ name: 'Reward', value: dbBounty.reward.amount + ' ' + dbBounty.reward.currency.toUpperCase(), inline: true },
+			{ name: 'Status', value: newStatus, inline: true },
+			{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(dbBounty.dueAt), inline: true },
+			{ name: 'Created By', value: dbBounty.createdBy.discordHandle, inline: true },
+		],
+		timestamp: new Date().getTime(),
+		footer: {
+			text: '🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete',
+		},
 	};
 };

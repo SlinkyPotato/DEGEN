@@ -48,6 +48,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 			submittedBy: {
 				discordHandle: guildMember.user.tag,
 				discordId: guildMember.user.id,
+				iconUrl: guildMember.user.avatarURL(),
 			},
 			submittedAt: currentDate,
 			status: 'In-Review',

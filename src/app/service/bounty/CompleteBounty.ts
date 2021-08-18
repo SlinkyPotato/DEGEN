@@ -43,8 +43,9 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 	const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
 		$set: {
 			reviewedBy: {
-				'discordHandle': guildMember.user.tag,
-				'discordId': guildMember.user.id,
+				discordHandle: guildMember.user.tag,
+				discordId: guildMember.user.id,
+				iconUrl: guildMember.user.avatarURL(),
 			},
 			reviewedAt: currentDate,
 			status: 'Completed',

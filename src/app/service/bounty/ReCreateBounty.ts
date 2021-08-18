@@ -35,8 +35,8 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 	case 'Open':
 		embedMessage.color = '#1e7e34';
 		embedMessage.footer = { text: '🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete' };
-		embedMessage.fields[0].value = BountyUtils.formatBountyAmount(bountyCollection.reward.amount as number, bountyCollection.reward.scale as number) + ' ' + bountyCollection.reward.currency;
-		embedMessage.fields[3].value = bountyCollection.criteria;
+		embedMessage.fields[2].value = BountyUtils.formatBountyAmount(bountyCollection.reward.amount as number, bountyCollection.reward.scale as number) + ' ' + bountyCollection.reward.currency;
+		embedMessage.fields[1].value = bountyCollection.criteria;
 		message = await bountyChannel.send(messageOptions);
 		break;
 	case 'In-Progress':
@@ -76,11 +76,11 @@ export const generateEmbedMessage = (bounty: BountyCollection, iconUrl: string):
 			},
 			description: bounty.description,
 			fields: [
+				{ name: 'HashId', value: bounty._id.toHexString() },
 				{ name: 'Reward', value: bounty.reward.amount + ' ' + bounty.reward.currency.toUpperCase(), inline: true },
 				{ name: 'Status', value: bounty.status, inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(bounty.dueAt), inline: true },
 				{ name: 'Criteria', value: bounty.criteria },
-				{ name: 'HashId', value: bounty._id.toHexString() },
 				{ name: 'Created By', value: bounty.createdBy.discordHandle, inline: true },
 			],
 			timestamp: new Date(),

@@ -2,7 +2,7 @@ import constants from '../constants/constants';
 import { Cursor, Db } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
 import dbInstance from '../../utils/db';
-import { GuildMember, MessageOptions } from 'discord.js';
+import {GuildMember, MessageEmbedOptions } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import { generateEmbedMessage } from './create/PublishBounty';
 
@@ -44,11 +44,12 @@ export default async (guildMember: GuildMember, listType: string): Promise<any> 
 };
 
 const sendMultipleMessages = async (guildMember: GuildMember, dbRecords: Cursor): Promise<any> => {
-
-	while (await dbRecords.hasNext()) {
+	const listOfBounties = [];
+	while (listOfBounties.length < 10 && await dbRecords.hasNext()) {
 		const record: BountyCollection = await dbRecords.next();
-		const messageOptions: MessageOptions = generateEmbedMessage(record, record.status);
-		await (guildMember.send(messageOptions));
+		const messageOptions: MessageEmbedOptions = generateEmbedMessage(record, record.status);
+		listOfBounties.push(messageOptions);
 	}
+	await (guildMember.send({ embeds: listOfBounties }));
 	await guildMember.send(`<@${guildMember.user.id}> Please go to #🧀-bounty-board to take action.`);
 };

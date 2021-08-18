@@ -29,7 +29,7 @@ export default async (guildMember: GuildMember, bountyId: string, message: Messa
 	}
 	
 	const embedMessage: MessageEmbed = message.embeds[0];
-	embedMessage.fields[1].value = bountyCollection.status;
+	embedMessage.fields[3].value = bountyCollection.status;
 	
 	switch (bountyCollection.status) {
 	case 'Open':

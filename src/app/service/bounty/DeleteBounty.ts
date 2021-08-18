@@ -43,8 +43,9 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 	const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
 		$set: {
 			deletedBy: {
-				'discordHandle': guildMember.user.tag,
-				'discordId': guildMember.user.id,
+				discordHandle: guildMember.user.tag,
+				discordId: guildMember.user.id,
+				iconUrl: guildMember.user.avatarURL(),
 			},
 			status: 'Deleted',
 		},

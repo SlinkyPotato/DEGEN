@@ -77,10 +77,10 @@ export const generateEmbedMessage = (bounty: BountyCollection, iconUrl: string):
 			description: bounty.description,
 			fields: [
 				{ name: 'HashId', value: bounty._id.toHexString() },
+				{ name: 'Criteria', value: bounty.criteria },
 				{ name: 'Reward', value: bounty.reward.amount + ' ' + bounty.reward.currency.toUpperCase(), inline: true },
 				{ name: 'Status', value: bounty.status, inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(bounty.dueAt), inline: true },
-				{ name: 'Criteria', value: bounty.criteria },
 				{ name: 'Created By', value: bounty.createdBy.discordHandle, inline: true },
 			],
 			timestamp: new Date(),

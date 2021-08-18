@@ -74,7 +74,7 @@ export const completeBountyMessage = async (guildMember: GuildMember, bountyMess
 	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
 
 	const embedMessage: MessageEmbed = message.embeds[0];
-	embedMessage.fields[1].value = 'Completed';
+	embedMessage.fields[3].value = 'Completed';
 	embedMessage.setColor('#1d2124');
 	embedMessage.addField('Reviewed By', guildMember.user.tag, true);
 	embedMessage.setFooter('🆘 - help');

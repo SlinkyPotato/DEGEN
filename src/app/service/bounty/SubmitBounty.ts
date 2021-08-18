@@ -83,7 +83,7 @@ export const submitBountyMessage = async (guildMember: GuildMember, bountyMessag
 	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
 
 	const embedMessage: MessageEmbed = message.embeds[0];
-	embedMessage.fields[1].value = 'In-Review';
+	embedMessage.fields[3].value = 'In-Review';
 	embedMessage.setColor('#d39e00');
 	embedMessage.addField('Submitted By', guildMember.user.tag, true);
 	embedMessage.setFooter('✅ - complete | 🔄 - refresh | 🆘 - help');

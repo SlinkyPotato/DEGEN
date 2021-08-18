@@ -37,8 +37,8 @@ export default async (guildMember: GuildMember, bountyId: string, message: Messa
 		embedMessage.setColor('#1e7e34');
 		embedMessage.setDescription(bountyCollection.description);
 		embedMessage.setFooter('🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete');
-		embedMessage.fields[0].value = BountyUtils.formatBountyAmount(bountyCollection.reward.amount as number, bountyCollection.reward.scale as number) + ' ' + bountyCollection.reward.currency;
-		embedMessage.fields[3].value = bountyCollection.criteria;
+		embedMessage.fields[2].value = BountyUtils.formatBountyAmount(bountyCollection.reward.amount as number, bountyCollection.reward.scale as number) + ' ' + bountyCollection.reward.currency;
+		embedMessage.fields[1].value = bountyCollection.criteria;
 		await message.edit({ embeds: [embedMessage] });
 		addPublishReactions(message);
 		break;

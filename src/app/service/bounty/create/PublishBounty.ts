@@ -3,7 +3,7 @@ import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../../utils/BountyUtils';
 import { GuildMember, Message, MessageOptions, TextChannel } from 'discord.js';
 import dbInstance from '../../../utils/db';
-import channelIDs from '../../constants/channelIDs';
+import channelIDs from '../../constants/channelIds';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import envUrls from '../../constants/envUrls';
 import { BountyCollection } from '../../../types/bounty/BountyCollection';
@@ -32,7 +32,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 	const messageOptions: MessageOptions = generateEmbedMessage(dbBountyResult, 'Open', guildMember.user.avatarURL());
 
 	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
-	const bountyMessage: Message = await bountyChannel.send(messageOptions) as Message;
+	const bountyMessage: Message = await bountyChannel.send(messageOptions);
 	console.log('bounty published to #bounty-board');
 	addPublishReactions(bountyMessage);
 

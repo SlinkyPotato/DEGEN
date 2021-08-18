@@ -5,7 +5,7 @@
 import messageCreateOnBountyBoard from './bounty/messageCreateOnBountyBoard';
 
 module.exports = {
-	name: 'message',
+	name: 'messageCreate',
 	once: false,
 
 	execute(message) {

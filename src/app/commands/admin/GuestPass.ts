@@ -1,6 +1,6 @@
 import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType, CommandContext } from 'slash-create';
 import client from '../../app';
-import roleIDs from '../../service/constants/roleIDs';
+import roleIds from '../../service/constants/roleIds';
 import AddGuestPass from '../../service/guest-pass/AddGuestPass';
 
 module.exports = class GuestPass extends SlashCommand {
@@ -26,12 +26,12 @@ module.exports = class GuestPass extends SlashCommand {
 				[process.env.DISCORD_SERVER_ID]: [
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.level2,
+						id: roleIds.level2,
 						permission: true,
 					},
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.admin,
+						id: roleIds.admin,
 						permission: true,
 					},
 				],

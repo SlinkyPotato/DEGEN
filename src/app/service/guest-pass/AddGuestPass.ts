@@ -1,4 +1,3 @@
-import client from '../../app';
 import { Db } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
@@ -16,7 +15,7 @@ export default async (guestUser: GuildMember): Promise<any> => {
 	await addGuestRoleToUser(guestUser);
 	notifyUserOfGuestExpiration(guestUser);
 	removeGuestRoleOnExpiration(guestUser);
-	return guestUser.send(`Hi <@${guestUser.user.id}>, You have been granted guest access at Bankless DAO. Let us know if you have any questions!`);
+	return guestUser.send(`Hi <@${guestUser.user.id}>, You have been granted guest access at Bankless DAO. Let us know if you have any questions!`).catch(console.error);
 };
 
 export const addGuestUserToDb = async (guestUser: GuildMember): Promise<any> => {
@@ -51,16 +50,16 @@ export const addGuestUserToDb = async (guestUser: GuildMember): Promise<any> => 
 export const addGuestRoleToUser = async (guestUser: GuildMember): Promise<void> => {
 	const guestRole = ServiceUtils.getGuestRole(guestUser.guild.roles);
 	await guestUser.roles.add(guestRole);
-	console.log(`user ${guestUser.user.tag} given ${constants.DISCORD_ROLE_GUEST_PASS} role`);
+	console.log(`user ${guestUser.user.tag} given ${guestRole.name} role`);
 };
 
 export const notifyUserOfGuestExpiration = (guestUser: GuildMember): void =>{
 	// Send out notification on timer
-	client.setTimeout(async () => {
+	setTimeout(async () => {
 		await guestUser.send(`Hey <@${guestUser.id}>, your guest pass is set to expire in 1 day. Let us know if you have any questions!`);
 	}, (expiresInHours * 1000 * 60 * 60) - (1000 * 60 * 60 * 24));
-
-	client.setTimeout(async () => {
+	
+	setTimeout(async () => {
 		await guestUser.send(`Hey <@${guestUser.id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!`);
 	}, (expiresInHours * 1000 * 60 * 60) - (1000 * 60 * 15));
 
@@ -68,7 +67,7 @@ export const notifyUserOfGuestExpiration = (guestUser: GuildMember): void =>{
 
 export const removeGuestRoleOnExpiration = (guestUser: GuildMember) => {
 	// Handle removal of guest pass
-	client.setTimeout(async () => {
+	setTimeout(async () => {
 		const timeoutDB: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 		const timeoutDBGuestUsers = timeoutDB.collection(constants.DB_COLLECTION_GUEST_USERS);
 		const guestDBQuery = {

@@ -39,25 +39,25 @@ export default async (guildMember: GuildMember, bountyId: string, message: Messa
 		embedMessage.setFooter('🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete');
 		embedMessage.fields[0].value = BountyUtils.formatBountyAmount(bountyCollection.reward.amount as number, bountyCollection.reward.scale as number) + ' ' + bountyCollection.reward.currency;
 		embedMessage.fields[3].value = bountyCollection.criteria;
-		await message.edit(embedMessage);
+		await message.edit({ embeds: [embedMessage] });
 		addPublishReactions(message);
 		break;
 	case 'In-Progress':
 		embedMessage.setColor('#d39e00');
 		embedMessage.setFooter('📮 - submit | 🔄 - refresh | 🆘 - help');
-		await message.edit(embedMessage);
+		await message.edit({ embeds: [embedMessage] });
 		addClaimReactions(message);
 		break;
 	case 'In-Review':
 		embedMessage.setColor('#d39e00');
 		embedMessage.setFooter('✅ - complete | 🔄 - refresh | 🆘 - help');
-		await message.edit(embedMessage);
+		await message.edit({ embeds: [embedMessage] });
 		addSubmitReactions(message);
 		break;
 	case 'Completed':
 		embedMessage.setColor('#1d2124');
 		embedMessage.setFooter('🆘 - help');
-		await message.edit(embedMessage);
+		await message.edit({ embeds: [embedMessage] });
 		addCompletedReactions(message);
 		break;
 	case 'Draft':

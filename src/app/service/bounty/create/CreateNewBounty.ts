@@ -1,4 +1,4 @@
-import { CommandContext, User } from 'slash-create';
+import { CommandContext } from 'slash-create';
 import constants from '../../constants/constants';
 import BountyUtils from '../../../utils/BountyUtils';
 import { GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
@@ -10,8 +10,6 @@ import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import envUrls from '../../constants/envUrls';
 import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
-
-const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
 
 export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: CommandContext): Promise<any> => {
 	const title = params.title;
@@ -53,9 +51,9 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 				{ name: 'Reward', value: BountyUtils.formatBountyAmount(newBounty.reward.amount, newBounty.reward.scale) + ' ' + newBounty.reward.currency.toUpperCase(), inline: true },
 				{ name: 'Status', value: 'Open', inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(newBounty.dueAt), inline: true },
-				{ name: 'Criteria', value: newBounty.criteria },
-				{ name: 'HashId', value: dbInsertResult.insertedId },
-				{ name: 'CreatedBy', value: newBounty.createdBy.discordHandle, inline: true },
+				{ name: 'Criteria', value: newBounty.criteria.toString() },
+				{ name: 'HashId', value: dbInsertResult.insertedId.toString() },
+				{ name: 'CreatedBy', value: newBounty.createdBy.discordHandle.toString(), inline: true },
 			],
 			timestamp: new Date(),
 			footer: {
@@ -99,17 +97,18 @@ export const generateBountyRecord = (bountyParams: BountyCreateNew, discordHandl
 			},
 		],
 		status: 'Draft',
-		dueAt: END_OF_SEASON,
+		dueAt: constants.BOUNTY_BOARD_END_OF_SEASON_DATE,
 	};
 };
 
 const handleBountyReaction = (message: Message, guildMember: GuildMember, bountyId: string): Promise<any> => {
-	return message.awaitReactions((reaction, user: User) => {
-		return ['📝', '👍', '❌'].includes(reaction.emoji.name) && !user.bot;
-	}, {
+	return message.awaitReactions({
 		max: 1,
-		time: (60000 * 60),
+		time: (6000 * 60),
 		errors: ['time'],
+		filter: async (reaction, user) => {
+			return ['📝', '👍', '❌'].includes(reaction.emoji.name) && !user.bot;
+		},
 	}).then(collected => {
 		const reaction: MessageReaction = collected.first();
 		if (reaction.emoji.name === '👍') {

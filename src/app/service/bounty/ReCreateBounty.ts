@@ -4,7 +4,7 @@ import mongo, { Db } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
 import BountyUtils from '../../utils/BountyUtils';
-import channelIDs from '../constants/channelIDs';
+import channelIds from '../constants/channelIds';
 import envUrls from '../constants/envUrls';
 import ServiceUtils from '../../utils/ServiceUtils';
 
@@ -27,7 +27,7 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 	}
 
 	const messageOptions: MessageOptions = generateEmbedMessage(bountyCollection, guildMember.user.avatarURL());
-	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
+	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIds.bountyBoard) as TextChannel;
 	const embedMessage = messageOptions.embeds[0];
 	let message: Message;
 	

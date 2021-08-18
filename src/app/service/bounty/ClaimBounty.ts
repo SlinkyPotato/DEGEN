@@ -56,7 +56,7 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 		return guildMember.send('Sorry something is not working, our devs are looking into it.');
 	}
 
-	const createdByUser: GuildMember = guildMember.guild.member(dbBountyResult.createdBy.discordId);
+	const createdByUser: GuildMember = guildMember.guild.members.cache.get(dbBountyResult.createdBy.discordId);
 	await createdByUser.send(`<@${createdByUser.id}> Bounty has been claimed ${envUrls.BOUNTY_BOARD_URL}${bountyId} Please reach out to <@${guildMember.user.id}> with any questions`);
 
 	await dbInstance.close();
@@ -75,7 +75,7 @@ export const claimBountyMessage = async (guildMember: GuildMember, bountyMessage
 	embedMessage.setColor('#d39e00');
 	embedMessage.addField('Claimed By', guildMember.user.tag, true);
 	embedMessage.setFooter('📮 - submit | 🔄 - refresh | 🆘 - help');
-	await message.edit(embedMessage);
+	await message.edit({ embeds: [embedMessage] });
 	addClaimReactions(message);
 };
 

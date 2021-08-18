@@ -20,7 +20,7 @@ export default async (client: DiscordClient): Promise<void> => {
 	const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID);
 
 	// Retrieve Guest Pass Role
-	const guestRole = await ServiceUtils.getGuestRole(guild.roles);
+	const guestRole = ServiceUtils.getGuestRole(guild.roles);
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbGuestUsers = db.collection(constants.DB_COLLECTION_GUEST_USERS);

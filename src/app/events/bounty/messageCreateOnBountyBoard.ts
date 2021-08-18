@@ -20,7 +20,7 @@ export default async (message: Message): Promise<any> => {
 	const dbBountyResult: BountyCollection = await dbCollection.findOne({
 		_id: new mongo.ObjectId(bountyId),
 	});
-	const guildMember: GuildMember = message.guild.member(dbBountyResult.createdBy.discordId);
+	const guildMember: GuildMember = message.guild.members.cache.get(dbBountyResult.createdBy.discordId);
 
 	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 	

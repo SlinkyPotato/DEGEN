@@ -1,6 +1,6 @@
 import { GuildMember, Message, TextChannel } from 'discord.js';
 import { BountyReward } from '../types/bounty/BountyReward';
-import channelIDs from '../service/constants/channelIDs';
+import channelIds from '../service/constants/channelIds';
 import ValidationError from '../errors/ValidationError';
 import { URL } from 'url';
 import envUrls from '../service/constants/envUrls';
@@ -123,7 +123,7 @@ const BountyUtils = {
 	
 	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<Message> {
 		if (message == null) {
-			const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
+			const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIds.bountyBoard) as TextChannel;
 			return bountyChannel.messages.fetch(bountyMessageId);
 		} else {
 			return message;
@@ -134,8 +134,12 @@ const BountyUtils = {
 		return message.embeds[0].fields[4].value;
 	},
 	
-	formatBountyAmount(amount: number, scale: number): number {
-		return amount / 10 ** scale;
+	formatBountyAmount(amount: number, scale: number): string {
+		return (amount / 10 ** scale).toString();
+	},
+	
+	getDateFromISOString(date: string): Date {
+		return new Date(date);
 	},
 };
 

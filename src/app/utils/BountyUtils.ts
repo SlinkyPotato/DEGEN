@@ -4,6 +4,7 @@ import channelIds from '../service/constants/channelIds';
 import ValidationError from '../errors/ValidationError';
 import { URL } from 'url';
 import envUrls from '../service/constants/envUrls';
+import BountyMessageNotFound from '../errors/BountyMessageNotFound';
 
 /**
  * Utilities file for bounty commands
@@ -124,7 +125,10 @@ const BountyUtils = {
 	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<Message> {
 		if (message == null) {
 			const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIds.bountyBoard) as TextChannel;
-			return bountyChannel.messages.fetch(bountyMessageId);
+			return bountyChannel.messages.fetch(bountyMessageId).catch(e => {
+				console.log(e);
+				throw new BountyMessageNotFound('could not find bounty in discord #bounty-board channel');
+			});
 		} else {
 			return message;
 		}

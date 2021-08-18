@@ -5,6 +5,7 @@ import dbInstance from '../../utils/db';
 import BountyUtils from '../../utils/BountyUtils';
 import { GuildMember, Message } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
+import BountyMessageNotFound from '../../errors/BountyMessageNotFound';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -69,6 +70,14 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 };
 
 export const deleteBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
-	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
-	return message.delete();
+	return BountyUtils.getBountyMessage(guildMember, bountyMessageId, message)
+		.then(embedMessage => {
+			return embedMessage.delete();
+		})
+		.catch(e => {
+			console.log(e);
+			if (e instanceof BountyMessageNotFound) {
+				return;
+			}
+		});
 };

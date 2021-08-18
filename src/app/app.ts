@@ -1,10 +1,10 @@
 // Libs
 import { SlashCreator, GatewayServer } from 'slash-create';
-import Discord, { Client, WSEventType } from 'discord.js';
+import Discord, {Client, ClientOptions, Intents, WSEventType} from 'discord.js';
 import path from 'path';
 import fs from 'fs';
 
-const client: Client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
+const client: Client = initializeClient();
 initializeEvents();
 
 const creator = new SlashCreator({
@@ -34,7 +34,24 @@ client.on('error', console.error);
 
 client.login(process.env.DISCORD_BOT_TOKEN);
 
-function initializeEvents() {
+function initializeClient(): Client {
+	const clientOptions: ClientOptions = {
+		intents: [
+			Intents.FLAGS.GUILDS,
+			Intents.FLAGS.GUILD_MEMBERS,
+			Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
+			Intents.FLAGS.GUILD_PRESENCES,
+			Intents.FLAGS.GUILD_MESSAGES,
+			Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+			Intents.FLAGS.DIRECT_MESSAGES,
+			Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
+		],
+		partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
+	};
+	return new Discord.Client(clientOptions);
+}
+
+function initializeEvents(): void {
 	const eventFiles = fs.readdirSync(path.join(__dirname, '/events')).filter(file => file.endsWith('.js'));
 	eventFiles.forEach(file => {
 		const event = require(`./events/${file}`);

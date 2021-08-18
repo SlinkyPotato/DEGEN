@@ -41,7 +41,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 	console.log(`user ${guildMember.user.tag} inserted into db`);
 
 	const messageOptions: MessageOptions = {
-		embed: {
+		embeds: [{
 			title: newBounty.title,
 			url: (envUrls.BOUNTY_BOARD_URL + dbInsertResult.insertedId),
 			author: {
@@ -61,10 +61,10 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 			footer: {
 				text: '👍 - publish | 📝 - edit | ❌ - delete | Please reply within 60 minutes',
 			},
-		},
+		}],
 	};
 	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty! Please finalize bounty in DM`);
-	const message: Message = await guildMember.send(messageOptions) as Message;
+	const message: Message = await guildMember.send(messageOptions);
 	
 	await message.react('👍');
 	await message.react('📝');

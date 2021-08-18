@@ -28,7 +28,7 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 
 	const messageOptions: MessageOptions = generateEmbedMessage(bountyCollection, guildMember.user.avatarURL());
 	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
-	const embedMessage = messageOptions.embed;
+	const embedMessage = messageOptions.embeds[0];
 	let message: Message;
 	
 	switch (bountyCollection.status) {
@@ -37,22 +37,22 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 		embedMessage.footer = { text: '🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete' };
 		embedMessage.fields[0].value = BountyUtils.formatBountyAmount(bountyCollection.reward.amount as number, bountyCollection.reward.scale as number) + ' ' + bountyCollection.reward.currency;
 		embedMessage.fields[3].value = bountyCollection.criteria;
-		message = await bountyChannel.send(messageOptions) as Message;
+		message = await bountyChannel.send(messageOptions);
 		break;
 	case 'In-Progress':
 		embedMessage.color = '#d39e00';
 		embedMessage.footer = { text: '📮 - submit | 🔄 - refresh | 🆘 - help' };
-		message = await bountyChannel.send(messageOptions) as Message;
+		message = await bountyChannel.send(messageOptions);
 		break;
 	case 'In-Review':
 		embedMessage.color = '#d39e00';
 		embedMessage.footer = { text: '✅ - complete | 🔄 - refresh | 🆘 - help' };
-		message = await bountyChannel.send(messageOptions) as Message;
+		message = await bountyChannel.send(messageOptions);
 		break;
 	case 'Completed':
 		embedMessage.title = '#1d2124';
 		embedMessage.footer = { text: '🆘 - help' };
-		message = await bountyChannel.send(messageOptions) as Message;
+		message = await bountyChannel.send(messageOptions);
 		break;
 	case 'Draft':
 	case 'Deleted':
@@ -67,7 +67,7 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 
 export const generateEmbedMessage = (bounty: BountyCollection, iconUrl: string): MessageOptions => {
 	return {
-		embed: {
+		embeds: [{
 			title: bounty.title,
 			url: envUrls.BOUNTY_BOARD_URL + bounty._id,
 			author: {
@@ -80,10 +80,10 @@ export const generateEmbedMessage = (bounty: BountyCollection, iconUrl: string):
 				{ name: 'Status', value: bounty.status, inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(bounty.dueAt), inline: true },
 				{ name: 'Criteria', value: bounty.criteria },
-				{ name: 'HashId', value: bounty._id },
+				{ name: 'HashId', value: bounty._id.toHexString() },
 				{ name: 'Created By', value: bounty.createdBy.discordHandle, inline: true },
 			],
 			timestamp: new Date(),
-		},
+		}],
 	};
 };

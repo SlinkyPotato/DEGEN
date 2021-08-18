@@ -70,7 +70,7 @@ export const addPublishReactions = (message: Message): void => {
 
 export const generateEmbedMessage = (dbBounty: BountyCollection, newStatus: string, iconUrl?: string): MessageOptions => {
 	return {
-		embed: {
+		embeds: [{
 			color: '#1e7e34',
 			title: dbBounty.title,
 			url: envUrls.BOUNTY_BOARD_URL + dbBounty._id,
@@ -84,13 +84,13 @@ export const generateEmbedMessage = (dbBounty: BountyCollection, newStatus: stri
 				{ name: 'Status', value: newStatus, inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(dbBounty.dueAt), inline: true },
 				{ name: 'Criteria', value: dbBounty.criteria },
-				{ name: 'HashId', value: dbBounty._id },
+				{ name: 'HashId', value: dbBounty._id.toHexString() },
 				{ name: 'Created By', value: dbBounty.createdBy.discordHandle, inline: true },
 			],
 			timestamp: new Date(),
 			footer: {
 				text: '🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete',
 			},
-		},
+		}],
 	};
 };

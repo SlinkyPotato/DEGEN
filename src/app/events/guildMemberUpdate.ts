@@ -3,11 +3,10 @@
  */
 
 import { Collection, GuildMember, Role, Snowflake } from 'discord.js';
-import constants from '../service/constants/constants';
 import roleIDs from '../service/constants/roleIDs';
 import AddGuestPass from '../service/guest-pass/AddGuestPass';
 import RemoveGuestPass from '../service/guest-pass/RemoveGuestPass';
-import sendGuildWelcomeMessage from './welcomeMats/devGuild';
+import sendGuildWelcomeMessage from './welcomeMats/guildMats';
 
 module.exports = {
 	name: 'guildMemberUpdate',
@@ -38,12 +37,12 @@ module.exports = {
 export const handleRolesAdded = (guildMember: GuildMember, roles: Collection<Snowflake, Role>) => { 
 	roles.each(role => {
 		switch (role.id) {
-			case roleIDs.guestPass:
-				AddGuestPass(guildMember).catch(err => console.error(err));
-				break;
-			case roleIDs.developersGuild:
-				sendGuildWelcomeMessage(guildMember).catch(err => console.error(err));
-				break;
+		case roleIDs.guestPass:
+			AddGuestPass(guildMember).catch(err => console.error(err));
+			break;
+		case roleIDs.developersGuild:
+			sendGuildWelcomeMessage.devGuildMat(guildMember).catch(err => console.error(err));
+			break;
 		}
 	});
 };
@@ -57,9 +56,9 @@ export const handleRolesAdded = (guildMember: GuildMember, roles: Collection<Sno
 export const handleRolesRemoved = (guildMember: GuildMember, roles: Collection<Snowflake, Role>) => { 
 	roles.each(role => {
 		switch (role.id) {
-			case roleIDs.guestPass:
-				RemoveGuestPass(guildMember).catch(err => console.error(err));
-				break;
+		case roleIDs.guestPass:
+			RemoveGuestPass(guildMember).catch(err => console.error(err));
+			break;
 		}
 	});
 };

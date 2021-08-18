@@ -1,7 +1,9 @@
 # Changelog
 
 ## 1.3.0-SNAPSHOT
-
+1. Add queue for requests to Notion
+2. Add Dev Guild welcome mat
+3. Removed `api` directory in favor of `service` directory
 
 ## 1.2.1-RELEASE (2021-08-12)
 

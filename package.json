@@ -6,7 +6,7 @@
     "private": true,
     "scripts": {
         "build": "tsc -p tsconfig.json",
-        "test": "jest",
+        "test": "jest --forceExit",
         "qa": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa",
         "prod": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.prod",
         "prestart": "yarn install && yarn build",
@@ -38,6 +38,7 @@
         "discord.js": "^12.5.3",
         "dotenv": "^10.0.0",
         "mongodb": "^3.6.9",
+        "p-queue": "^6.6.2",
         "slash-create": "^3.3.0",
         "typescript": "^4.3.5"
     },

@@ -1,6 +1,4 @@
 export default Object.freeze({
-	DISCORD_ROLE_GUEST_PASS: 'Guest Pass',
-
 	DB_NAME_DEGEN: 'degen',
 	DB_NAME_BOUNTY_BOARD: 'bountyboard',
 	

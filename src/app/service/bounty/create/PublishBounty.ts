@@ -1,7 +1,7 @@
 import constants from '../../constants/constants';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../../utils/BountyUtils';
-import {GuildMember, Message, MessageEmbed, MessageEmbedOptions, MessageOptions, TextChannel} from 'discord.js';
+import { GuildMember, Message, MessageEmbedOptions, TextChannel } from 'discord.js';
 import dbInstance from '../../../utils/db';
 import channelIDs from '../../constants/channelIds';
 import ServiceUtils from '../../../utils/ServiceUtils';
@@ -57,7 +57,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 
 	await dbInstance.close();
 
-	return guildMember.send(`<@${guildMember.user.id}> Bounty published to #🧀-bounty-board and the website! ${envUrls.BOUNTY_BOARD_URL}${bountyId}`);
+	return guildMember.send({ content: `Bounty published to #🧀-bounty-board and the website! ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
 };
 
 export const addPublishReactions = (message: Message): void => {

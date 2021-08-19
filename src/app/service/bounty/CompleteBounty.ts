@@ -64,7 +64,7 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 	}
 	console.log(`${bountyId} bounty reviewed by ${guildMember.user.tag}`);
 	await completeBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
-	await guildMember.send(`<@${guildMember.user.id}> Bounty complete! Please remember to tip <@${dbBountyResult.createdBy.discordId}>`);
+	await guildMember.send(`<@${guildMember.user.id}> Bounty complete! Please remember to tip <@${dbBountyResult.claimedBy.discordId}>`);
 	return dbInstance.close();
 };
 

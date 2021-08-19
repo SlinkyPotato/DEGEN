@@ -32,7 +32,6 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 		console.error('failed to insert bounty into DB');
 		return guildMember.send('Sorry something is not working, our devs are looking into it.');
 	}
-	await dbInstance.close();
 
 	console.log(`user ${guildMember.user.tag} inserted into db`);
 
@@ -59,6 +58,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 			},
 		}],
 	};
+	await dbInstance.close();
 	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty! Please finalize bounty in DM`);
 	const message: Message = await guildMember.send(messageOptions);
 	

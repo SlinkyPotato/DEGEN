@@ -40,7 +40,7 @@ export default async (guildMember: GuildMember, listType: string): Promise<any> 
 		return guildMember.send(`<@${guildMember.user.id}> We couldn't find any bounties!`);
 	}
 	await sendMultipleMessages(guildMember, dbRecords);
-	await dbInstance.close();
+	return dbInstance.close();
 };
 
 const sendMultipleMessages = async (guildMember: GuildMember, dbRecords: Cursor): Promise<any> => {

@@ -62,12 +62,10 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 		console.log(`failed to update record ${bountyId} with reviewer user  <@${guildMember.user.tag}>`);
 		return guildMember.send('Sorry something is not working, our devs are looking into it.');
 	}
-	await dbInstance.close();
-
 	console.log(`${bountyId} bounty reviewed by ${guildMember.user.tag}`);
 	await completeBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
-
-	return guildMember.send(`<@${guildMember.user.id}> Bounty complete! Please remember to tip <@${dbBountyResult.createdBy.discordId}>`);
+	await guildMember.send(`<@${guildMember.user.id}> Bounty complete! Please remember to tip <@${dbBountyResult.createdBy.discordId}>`);
+	return dbInstance.close();
 };
 
 export const completeBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {

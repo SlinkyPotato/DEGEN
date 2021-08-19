@@ -29,45 +29,66 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember) 
 	message += 'Here are the projects we are working on:\n';
 
 	response.results.forEach(result => {
-		const project = result['properties']['Project']['title'][0]['text']['content'];
-		const page = result['url'];
-		if (project && page) {
-			message += `**[${project}](${page})**\n`;
-		} else if (project) {
-			message += `**${project}**\n`;
-		} else {
+		try {
+			const project = result['properties']['Project']['title'][0]['text']['content'];
+			const page = result['url'];
+			if (project && page) {
+				message += `**[${project}](${page})**\n`;
+			} else if (project) {
+				message += `**${project}**\n`;
+			} else {
+				return;
+			}
+		} catch (err) {
+			console.warn(err)
 			return;
 		}
 
-		const description = result['properties']['Description']['rich_text'][0]['text']['content'];
-		if (description) {
-			message += `${description}\n`;
+		try {
+			const description = result['properties']['Summary']['rich_text'][0]['text']['content'];
+			if (description) {
+				message += `${description}\n`;
+			}
+		} catch (err) {
+			console.warn(err)
 		}
 
-		const techStack = result['properties']['Tech Stack']['multi_select'];
-		if (techStack) {
-			message += 'Tech Stack: ';
-			const length = techStack.length;
-			techStack.forEach((element, index) => {
-				message += element['name'];
-				if (index < length - 1) {
-					message += ', ';
-				} else {
-					message += '\n';
-				}
-			});
+		try {
+			const techStack = result['properties']['Tech Stack']['multi_select'];
+			if (techStack) {
+				message += 'Tech Stack: ';
+				const length = techStack.length;
+				techStack.forEach((element, index) => {
+					message += element['name'];
+					if (index < length - 1) {
+						message += ', ';
+					} else {
+						message += '\n';
+					}
+				});
+			}
+		} catch (err) {
+			console.warn(err)
 		}
 
-		const githubRepo = result['properties']['Github']['rich_text'][0]['text']['content'];
-		const githubLink = result['properties']['Github']['rich_text'][0]['text']['link']['url'];
-		if (githubRepo && githubLink) {
-			message += `Github: [${githubRepo}](${githubLink})\n`;
+		try {
+			const githubRepo = result['properties']['Github']['rich_text'][0]['text']['content'];
+			const githubLink = result['properties']['Github']['rich_text'][0]['text']['link']['url'];
+			if (githubRepo && githubLink) {
+				message += `Github: [${githubRepo}](${githubLink})\n`;
+			}
+		} catch (err) {
+			console.warn(err)
 		}
 
-		const discordChannel = result['properties']['Discord Channel']['rich_text'][0]['text']['content'];
-		const discordLink = result['properties']['Discord Channel']['rich_text'][0]['text']['link']['url'];
-		if (discordChannel && discordLink) {
-			message += `Discord: [${discordChannel}](${discordLink})\n`;
+		try {
+			const discordChannel = result['properties']['Discord Channel']['rich_text'][0]['text']['content'];
+			const discordLink = result['properties']['Discord Channel']['rich_text'][0]['text']['link']['url'];
+			if (discordChannel && discordLink) {
+				message += `Discord: [${discordChannel}](${discordLink})\n`;
+			}
+		} catch (err) {
+			console.warn(err)
 		}
 
 		message += '\n';

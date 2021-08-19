@@ -33,11 +33,11 @@ export default async (guildMember: GuildMember, listType: string): Promise<any> 
 		break;
 	default:
 		console.log('invalid list-type');
-		return guildMember.send(`<@${guildMember.user.id}> Please use a valid list-type`);
+		return guildMember.send({ content: 'Please use a valid list-type' });
 	}
 	if (!await dbRecords.hasNext()) {
 		await dbInstance.close();
-		return guildMember.send(`<@${guildMember.user.id}> We couldn't find any bounties!`);
+		return guildMember.send({ content: 'We couldn\'t find any bounties!' });
 	}
 	await sendMultipleMessages(guildMember, dbRecords);
 	return dbInstance.close();
@@ -51,5 +51,5 @@ const sendMultipleMessages = async (guildMember: GuildMember, dbRecords: Cursor)
 		listOfBounties.push(messageOptions);
 	}
 	await (guildMember.send({ embeds: listOfBounties }));
-	await guildMember.send(`<@${guildMember.user.id}> Please go to #🧀-bounty-board to take action.`);
+	await guildMember.send({ content: 'Please go to #🧀-bounty-board to take action.' });
 };

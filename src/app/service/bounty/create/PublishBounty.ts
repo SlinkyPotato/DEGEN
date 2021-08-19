@@ -27,7 +27,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 
 	if (dbBountyResult.status != 'Draft') {
 		console.log(`${bountyId} bounty is not drafted`);
-		return guildMember.send(`<@${guildMember.user.id}> Sorry bounty is not drafted.`);
+		return guildMember.send({ content: 'Sorry bounty is not drafted.' });
 	}
 	const messageOptions: MessageEmbedOptions = generateEmbedMessage(dbBountyResult, 'Open');
 
@@ -52,7 +52,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 
 	if (writeResult.modifiedCount != 1) {
 		console.log(`failed to update record ${bountyId} for user <@${guildMember.user.id}>`);
-		return guildMember.send(`<@${guildMember.user.id}> Sorry something is not working, our devs are looking into it.`);
+		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
 
 	await dbInstance.close();

@@ -11,7 +11,7 @@ export default async (guestUser: GuildMember): Promise<any> => {
 	console.log(`attempting to remove guest role from ${guestUser.user.tag}`);
 	await removeGuestRoleFromUser(guestUser);
 	await removeGuestUserFromDb(guestUser);
-	return guestUser.send(`Hi <@${guestUser.user.id}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!`).catch(console.error);
+	return guestUser.send({ content: `Hi <@${guestUser.user.id}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!` }).catch(console.error);
 };
 
 export const removeGuestUserFromDb = async (guestUser: GuildMember): Promise<any> => {

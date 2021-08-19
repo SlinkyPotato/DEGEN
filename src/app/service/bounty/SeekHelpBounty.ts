@@ -23,9 +23,9 @@ export const seekHelpValidBountyId = async (guildMember: GuildMember,
 	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 	const bountyUrl = envUrls.BOUNTY_BOARD_URL + dbBountyResult._id;
 	const createdByUser: GuildMember = guildMember.guild.members.cache.get(dbBountyResult.createdBy.discordId);
-	await createdByUser.send(`Hello <@${createdByUser.user.id}>! <@${guildMember.user.id}> from Bankless DAO needs some help with bounty ${bountyUrl}. Please reach out to them to check.`);
+	await createdByUser.send({ content: `Hello <@${createdByUser.user.id}>! <@${guildMember.user.id}> from Bankless DAO needs some help with bounty ${bountyUrl}. Please reach out to them to check.` });
 	await dbInstance.close();
 
 	console.log(`message sent requesting help for bounty ${bountyId} submitted by ${guildMember.user.tag}`);
-	return guildMember.send(`<@${guildMember.user.id}> Look out for a follow up message for bounty ${bountyUrl}`);
+	return guildMember.send({ content: `Look out for a follow up message for bounty ${bountyUrl}` });
 };

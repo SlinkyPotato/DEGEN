@@ -19,10 +19,10 @@ const BountyUtils = {
 	async validateBountyId(guildMember: GuildMember, bountyId: string): Promise<any> {
 		const BOUNTY_ID_REGEX = /^[a-f\d]{1,24}$/i;
 		if ((bountyId == null || !BOUNTY_ID_REGEX.test(bountyId))) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
+			await guildMember.send({ content: `<@${guildMember.user.id}>\n` +
 				'Please enter a valid bounty hash ID: \n' +
 				' - can be found on bountyboard website\n' +
-				` - ${envUrls.BOUNTY_BOARD_URL}`);
+				` - ${envUrls.BOUNTY_BOARD_URL}` });
 			throw new ValidationError('invalid bountyId');
 		}
 	},
@@ -35,12 +35,13 @@ const BountyUtils = {
 	async validateBountyType(guildMember: GuildMember, bountyType: string): Promise<any> {
 		const ALLOWED_BOUNTY_TYPES = ['OPEN', 'IN_PROGRESS', 'CREATED_BY_ME', 'CLAIMED_BY_ME', 'DRAFT_BY_ME'];
 		if (bountyType == null || !ALLOWED_BOUNTY_TYPES.includes(bountyType)) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid bounty type: \n' +
-				' - OPEN\n' +
-				' - CREATED_BY_ME\n' +
-				' - CLAIMED_BY_ME',
-			);
+			await guildMember.send({
+				content: `<@${guildMember.user.id}>\n` +
+					'Please enter a valid bounty type: \n' +
+					' - OPEN\n' +
+					' - CREATED_BY_ME\n' +
+					' - CLAIMED_BY_ME',
+			});
 			throw new ValidationError('invalid bounty type');
 		}
 	},
@@ -48,12 +49,13 @@ const BountyUtils = {
 	async validateSummary(guildMember: GuildMember, summary: string): Promise<any> {
 		const CREATE_SUMMARY_REGEX = /^[\w\s\W]{1,4000}$/;
 		if (summary == null || !CREATE_SUMMARY_REGEX.test(summary)) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid summary: \n' +
-				'- 4000 characters maximum\n ' +
-				'- alphanumeric\n ' +
-				'- special characters: .!@#$%&,?',
-			);
+			await guildMember.send({
+				content: `<@${guildMember.user.id}>\n` +
+					'Please enter a valid summary: \n' +
+					'- 4000 characters maximum\n ' +
+					'- alphanumeric\n ' +
+					'- special characters: .!@#$%&,?',
+			});
 			throw new ValidationError('invalid summary');
 		}
 	},
@@ -65,10 +67,12 @@ const BountyUtils = {
 
 		if (reward.amount === Number.NaN || reward.amount <= 0 || reward.amount > MAXIMUM_REWARD
 			|| !allowedRegex.test(reward.currencySymbol)) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid reward value: \n ' +
-				'- 100 million maximum currency\n ' +
-				'- accepted currencies: ETH, BANK');
+			await guildMember.send({
+				content: `<@${guildMember.user.id}>\n` +
+					'Please enter a valid reward value: \n ' +
+					'- 100 million maximum currency\n ' +
+					'- accepted currencies: ETH, BANK',
+			});
 			throw new ValidationError('invalid reward');
 		}
 	},
@@ -76,12 +80,13 @@ const BountyUtils = {
 	async validateTitle(guildMember: GuildMember, title: string): Promise<any> {
 		const CREATE_TITLE_REGEX = /^[\w\s\W]{1,250}$/;
 		if (title == null || !CREATE_TITLE_REGEX.test(title)) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid title: \n' +
-				'- 250 characters maximum\n ' +
-				'- alphanumeric\n ' +
-				'- special characters: .!@#$%&,?',
-			);
+			await guildMember.send({
+				content: `<@${guildMember.user.id}>\n` +
+					'Please enter a valid title: \n' +
+					'- 250 characters maximum\n ' +
+					'- alphanumeric\n ' +
+					'- special characters: .!@#$%&,?',
+			});
 			throw new ValidationError('invalid title');
 		}
 	},
@@ -89,12 +94,13 @@ const BountyUtils = {
 	async validateCriteria(guildMember: GuildMember, criteria: string): Promise<any> {
 		const CREATE_CRITERIA_REGEX = /^[\w\s\W]{1,1000}$/;
 		if (criteria == null || !CREATE_CRITERIA_REGEX.test(criteria)) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid criteria: \n' +
-				'- 1000 characters maximum\n ' +
-				'- alphanumeric\n ' +
-				'- special characters: .!@#$%&,?',
-			);
+			await guildMember.send({
+				content: `<@${guildMember.user.id}>\n` +
+					'Please enter a valid criteria: \n' +
+					'- 1000 characters maximum\n ' +
+					'- alphanumeric\n ' +
+					'- special characters: .!@#$%&,?',
+			});
 			throw new ValidationError('invalid criteria');
 		}
 	},
@@ -103,12 +109,13 @@ const BountyUtils = {
 		try {
 			new URL(url);
 		} catch (e) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid criteria: \n' +
-				'- 1000 characters maximum\n ' +
-				'- alphanumeric\n ' +
-				'- special characters: .!@#$%&,?',
-			);
+			await guildMember.send({
+				content: `<@${guildMember.user.id}>\n` +
+					'Please enter a valid criteria: \n' +
+					'- 1000 characters maximum\n ' +
+					'- alphanumeric\n ' +
+					'- special characters: .!@#$%&,?',
+			});
 			throw new ValidationError('invalid url');
 		}
 	},
@@ -116,7 +123,7 @@ const BountyUtils = {
 	async checkBountyExists(guildMember: GuildMember, dbBountyResult: any | null, bountyId: string): Promise<any> {
 		if (dbBountyResult == null) {
 			console.log(`${bountyId} bounty not found in db`);
-			await guildMember.send(`Sorry <@${guildMember.user.id}>, we're not able to find an open bounty with ID \`${bountyId}\`.`);
+			await guildMember.send({ content: `Sorry <@${guildMember.user.id}>, we're not able to find an open bounty with ID \`${bountyId}\`.` });
 			throw new ValidationError('Please try another bounty Id');
 		}
 		console.log(`found bounty ${bountyId} in db`);

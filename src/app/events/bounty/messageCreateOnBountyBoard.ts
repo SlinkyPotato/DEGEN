@@ -32,10 +32,10 @@ export default async (message: Message): Promise<any> => {
 
 	if (writeResult.modifiedCount != 1) {
 		console.log(`failed to update record ${bountyId} for user <@${guildMember.user.id}>`);
-		return guildMember.send(`<@${guildMember.user.id}> Sorry something is not working, our devs are looking into it.`);
+		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
 
 	await dbInstance.close();
 
-	return guildMember.send(`<@${guildMember.user.id}> Bounty published to #🧀-bounty-board and the website! ${envUrls.BOUNTY_BOARD_URL}${bountyId}`);
+	return guildMember.send({ content: `Bounty published to #🧀-bounty-board and the website! ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
 };

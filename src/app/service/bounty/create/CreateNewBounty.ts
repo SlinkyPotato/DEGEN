@@ -30,7 +30,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 
 	if (dbInsertResult == null) {
 		console.error('failed to insert bounty into DB');
-		return guildMember.send('Sorry something is not working, our devs are looking into it.');
+		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
 
 	console.log(`user ${guildMember.user.tag} inserted into db`);

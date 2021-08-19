@@ -59,7 +59,7 @@ export default async (client: DiscordClient): Promise<void> => {
 		}
 		console.log(`guest pass removed for ${expiredUserId} in db`);
 
-		await guildMember.send(`Hi <@${expiredUserId}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!`);
+		await guildMember.send({ content: `Hi <@${expiredUserId}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!` });
 
 		// discord api rate limit of 50 calls per second
 		await sleep(1000);
@@ -76,7 +76,7 @@ export default async (client: DiscordClient): Promise<void> => {
 		// Send out reminder for user
 		setTimeout(async () => {
 			const guildMember = await guild.members.fetch(activeUser._id);
-			await guildMember.send(`Hey <@${activeUser._id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!`);
+			await guildMember.send({ content: `Hey <@${activeUser._id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!` });
 
 			// Discord api rate limit of 50 calls per second
 			await sleep(1000);
@@ -102,7 +102,7 @@ export default async (client: DiscordClient): Promise<void> => {
 			await dbInstance.close();
 			console.log(`guest pass removed for ${activeUser._id} in db`);
 
-			await guildMember.send(`Hi <@${activeUser._id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
+			await guildMember.send({ content: `Hi <@${activeUser._id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!` });
 
 			// Discord api rate limit of 50 calls per second
 			await sleep(1000);

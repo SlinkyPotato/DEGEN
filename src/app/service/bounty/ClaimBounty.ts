@@ -25,12 +25,12 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 
 	if (dbBountyResult.claimedBy && dbBountyResult.status != 'Open') {
 		console.log(`${bountyId} bounty not open and is claimed by ${dbBountyResult.claimedBy.discordHandle}`);
-		return guildMember.send(`<@${guildMember.user.id}> Sorry bounty is not open. ${envUrls.BOUNTY_BOARD_URL}${bountyId}`);
+		return guildMember.send({ content: `Sorry bounty is not open. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
 	}
 
 	if (dbBountyResult.status != 'Open') {
 		console.log(`${bountyId} bounty is not open`);
-		return guildMember.send(`<@${guildMember.user.id}> Sorry bounty is not Open. ${envUrls.BOUNTY_BOARD_URL}${bountyId}`);
+		return guildMember.send({ content: `Sorry bounty is not Open. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
 	}
 
 	const currentDate = (new Date()).toISOString();
@@ -54,16 +54,16 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 
 	if (writeResult.modifiedCount != 1) {
 		console.log(`failed to update record ${bountyId} with claimed user  <@${guildMember.user.tag}>`);
-		return guildMember.send('Sorry something is not working, our devs are looking into it.');
+		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
 
 	const createdByUser: GuildMember = guildMember.guild.members.cache.get(dbBountyResult.createdBy.discordId);
-	await createdByUser.send(`<@${createdByUser.id}> Bounty has been claimed ${envUrls.BOUNTY_BOARD_URL}${bountyId} Please reach out to <@${guildMember.user.id}> with any questions`);
+	await createdByUser.send({ content: ` Bounty has been claimed ${envUrls.BOUNTY_BOARD_URL}${bountyId} Please reach out to <@${guildMember.user.id}> with any questions` });
 
 	console.log(`${bountyId} bounty claimed by ${guildMember.user.tag}`);
 	await claimBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 	await dbInstance.close();
-	return guildMember.send(`<@${guildMember.user.id}> Bounty claimed! If you have any questions, please reach out to <@${createdByUser.id}>. ${envUrls.BOUNTY_BOARD_URL}${bountyId}`);
+	return guildMember.send({ content: ` Bounty claimed! If you have any questions, please reach out to <@${createdByUser.id}>. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
 };
 
 export const claimBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {

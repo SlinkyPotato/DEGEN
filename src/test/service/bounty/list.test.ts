@@ -23,12 +23,10 @@ describe('BountyList', () => {
 
 	describe('Parameter Validation', () => {
 
-		it('should be invalid bounty-type', async function() {
-			try {
-				await list(guildMember, 'sadfasdfsdaf');
-			} catch (e) {
+		it('should be invalid bounty-type', function() {
+			list(guildMember, 'sadfasdfsdaf').catch(e => {
 				expect(e.message).toStrictEqual('invalid bounty type');
-			}
+			});
 		});
 	});
 

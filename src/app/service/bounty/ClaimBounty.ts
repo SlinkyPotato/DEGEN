@@ -58,7 +58,7 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 	}
 
 	const createdByUser: GuildMember = guildMember.guild.members.cache.get(dbBountyResult.createdBy.discordId);
-	await createdByUser.send({ content: ` Bounty has been claimed ${envUrls.BOUNTY_BOARD_URL}${bountyId} Please reach out to <@${guildMember.user.id}> with any questions` });
+	await createdByUser.send({ content: ` Bounty has been claimed ${envUrls.BOUNTY_BOARD_URL}${bountyId} Please reach out to <@${guildMember.user.id}> with any questions.` });
 
 	console.log(`${bountyId} bounty claimed by ${guildMember.user.tag}`);
 	await claimBountyMessage(guildMember, dbBountyResult.discordMessageId, message);

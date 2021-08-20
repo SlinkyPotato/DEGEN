@@ -93,7 +93,7 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 	scoapEmbed.getEmbed().footer = { text: 'react with emoji to claim a project role | ❌ - abort poll' };
 	const scoapChannel: TextChannel = await client.channels.fetch(channelIDs.scoapSquad) as TextChannel;
 	ScoapPoll(scoapChannel, scoapEmbed, botConvo);
-	return message.channel.send('SCOAP Squad assemble request has been posted in #scoap-squad-assemble');
+	return message.channel.send('SCOAP Squad assemble request has been posted in #🥷-scoap-squad-assemble');
 };
 
 const abortPublishScoapPoll = async (message: Message) => {

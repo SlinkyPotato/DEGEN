@@ -131,7 +131,7 @@ const BountyUtils = {
 	
 	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<Message> {
 		if (message == null) {
-			const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIds.bountyBoard) as TextChannel;
+			const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(channelIds.bountyBoard) as TextChannel;
 			return bountyChannel.messages.fetch(bountyMessageId).catch(e => {
 				console.log(e);
 				throw new BountyMessageNotFound('could not find bounty in discord #bounty-board channel');

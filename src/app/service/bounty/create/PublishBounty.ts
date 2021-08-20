@@ -31,7 +31,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 	}
 	const messageOptions: MessageEmbedOptions = generateEmbedMessage(dbBountyResult, 'Open');
 
-	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
+	const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(channelIDs.bountyBoard) as TextChannel;
 	const bountyMessage: Message = await bountyChannel.send({ embeds: [messageOptions] });
 	console.log('bounty published to #bounty-board');
 	addPublishReactions(bountyMessage);

@@ -72,7 +72,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	await submitBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 	
 	const bountyUrl = envUrls.BOUNTY_BOARD_URL + dbBountyResult._id;
-	const createdByUser: GuildMember = guildMember.guild.members.cache.get(dbBountyResult.createdBy.discordId);
+	const createdByUser: GuildMember = await guildMember.guild.members.fetch(dbBountyResult.createdBy.discordId);
 	await createdByUser.send({ content: `Please reach out to <@${guildMember.user.id}>. They are ready for bounty review ${bountyUrl}` });
 
 	await guildMember.send({ content: `Bounty in review! Expect a message from <@${dbBountyResult.createdBy.discordId}>` });

@@ -4,7 +4,7 @@
 1. Add queue for requests to Notion
 2. Add Dev Guild welcome mat
 3. Removed `api` directory in favor of `service` directory
-4. Upgrade discordjs v12 -> v13
+4. Upgrade discord.js v12 -> v13
 5. Add /help bounty, fix grammar for text, simplify bot commands
 6. Capture bounty description and criteria from bot interaction messages
 

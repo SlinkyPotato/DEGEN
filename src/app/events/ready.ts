@@ -10,7 +10,7 @@ module.exports = {
 	once: true,
 
 	async execute(client: Client) {
-		console.log('Discord bot ready!');
+		console.log('The Sun will never set on the DAO. Neither will I. DEGEN & Serendipity are ready for service.');
 		client.user.setActivity('Going Bankless, Doing the DAO');
 		await GuestPassService(client);
 	},

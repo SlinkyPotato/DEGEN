@@ -49,10 +49,11 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 				await guildMember.send({ content: 'Please try `UTC` date in format yyyy-mm-dd, i.e 2021-08-15' });
 			}
 		} else if (dueAtMessage === 'no') {
+			convertedDueDateFromMessage = null;
 			break;
 		}
 	} while (convertedDueDateFromMessage.toString() === 'Invalid Date');
-	params.dueAt = !convertedDueDateFromMessage ? convertedDueDateFromMessage : BountyUtils.getDateFromISOString(constants.BOUNTY_BOARD_END_OF_SEASON_DATE);
+	params.dueAt = convertedDueDateFromMessage ? convertedDueDateFromMessage : BountyUtils.getDateFromISOString(constants.BOUNTY_BOARD_END_OF_SEASON_DATE);
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);

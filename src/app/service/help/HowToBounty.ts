@@ -40,6 +40,17 @@ export default (): MessageOptions => {
 					inline: false,
 				},
 				{
+					name: '-> /bounty list',
+					value: 'View up to 10 bounties that can either be opened, claimed by you, created by you and more.',
+					inline: false,
+				},
+				{
+					name: '-> /bounty delete ❌',
+					value: 'Mark a bounty for deletion. Only drafted bounties or published bounties can be marked for deletion' +
+						' by the creator of the bounty. ',
+					inline: false,
+				},
+				{
 					name: '-> Useful Links',
 					value: `[Bounty Board Website](${envUrls.BOUNTY_BOARD_URL})\n` +
 					'[Commands Wiki](https://bankless.notion.site/The-Bounty-Board-Commands-and-Workflow-7f15bbc3f2c744afab1cb5f90daac4a2)\n' +

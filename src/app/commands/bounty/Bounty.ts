@@ -8,7 +8,7 @@ import {
 import ValidationError from '../../errors/ValidationError';
 import DeleteBounty from '../../service/bounty/DeleteBounty';
 import ServiceUtils from '../../utils/ServiceUtils';
-import roleIDs from '../../service/constants/roleIDs';
+import roleIds from '../../service/constants/roleIds';
 import { BountyCreateNew } from '../../types/bounty/BountyCreateNew';
 import ListBounty from '../../service/bounty/ListBounty';
 import CreateNewBounty from '../../service/bounty/create/CreateNewBounty';
@@ -190,22 +190,22 @@ module.exports = class Bounty extends SlashCommand {
 				[process.env.DISCORD_SERVER_ID]: [
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.level1,
+						id: roleIds.level1,
 						permission: true,
 					},
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.level2,
+						id: roleIds.level2,
 						permission: true,
 					},
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.level3,
+						id: roleIds.level3,
 						permission: true,
 					},
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.level4,
+						id: roleIds.level4,
 						permission: true,
 					},
 				],
@@ -267,7 +267,7 @@ module.exports = class Bounty extends SlashCommand {
 			if (e instanceof ValidationError) {
 				return ctx.send(e.message);
 			} else {
-				return ctx.send('Sorry something is not working and our devs are looking into it');
+				return ctx.send('Sorry something is not working and our devs are looking into it.');
 			}
 		});
 	}

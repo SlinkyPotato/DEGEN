@@ -1,5 +1,5 @@
 import { SlashCommand, CommandOptionType } from 'slash-create';
-import notionPageRefs from '../../api/notion/NotionGuildPages';
+import notionPageRefs from '../../service/notion/NotionGuildPages';
 
 module.exports = class NotionGuildPage extends SlashCommand {
 	constructor(creator) {

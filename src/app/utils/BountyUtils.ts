@@ -104,6 +104,15 @@ const BountyUtils = {
 			throw new ValidationError('invalid criteria');
 		}
 	},
+		
+	validateDate(guildMember: GuildMember, date: string): Date {
+		try {
+			return new Date(date + 'T00:00:00.000Z');
+		} catch (e) {
+			console.log(e);
+			throw new ValidationError('Please try `UTC` date in format yyyy-mm-dd, i.e 2021-08-15');
+		}
+	},
 
 	async validateUrl(guildMember: GuildMember, url: string): Promise<any> {
 		try {

@@ -62,18 +62,6 @@ module.exports = class Bounty extends SlashCommand {
 							required: true,
 						},
 						{
-							name: 'summary',
-							type: CommandOptionType.STRING,
-							description: 'What would you like to be worked on?',
-							required: true,
-						},
-						{
-							name: 'criteria',
-							type: CommandOptionType.STRING,
-							description: 'What is absolutely required for this bounty?',
-							required: true,
-						},
-						{
 							name: 'reward',
 							type: CommandOptionType.STRING,
 							description: 'What is the reward? (i.e 100 BANK)',
@@ -215,7 +203,7 @@ module.exports = class Bounty extends SlashCommand {
 			break;
 		case 'create':
 			params = this.buildBountyCreateNewParams(ctx.options.create);
-			console.log('/bounty create ' + params);
+			console.log('/bounty create ' + params.title);
 			command = CreateNewBounty(guildMember, params, ctx);
 			break;
 		case 'publish':
@@ -264,8 +252,6 @@ module.exports = class Bounty extends SlashCommand {
 		scale = (scale != null) ? scale : 0;
 		return {
 			title: ctxOptions.title,
-			summary: ctxOptions.summary,
-			criteria: ctxOptions.criteria,
 			reward: {
 				amount: reward.replace('.', ''),
 				currencySymbol: symbol,

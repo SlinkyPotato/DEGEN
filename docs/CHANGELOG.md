@@ -5,6 +5,7 @@
 2. Add Dev Guild welcome mat
 3. Removed `api` directory in favor of `service` directory
 4. Upgrade discord.js v12 -> v13
+5. Add /help bounty, fix grammar for text, simplify bot commands
 
 ## 1.2.1-RELEASE (2021-08-12)
 

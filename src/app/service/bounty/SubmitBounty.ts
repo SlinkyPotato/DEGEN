@@ -85,7 +85,7 @@ export const submitBountyMessage = async (guildMember: GuildMember, bountyMessag
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[3].value = 'In-Review';
 	embedMessage.setColor('#d39e00');
-	embedMessage.addField('Submitted By', guildMember.user.tag, true);
+	embedMessage.addField('Submitted by', guildMember.user.tag, true);
 	embedMessage.setFooter('✅ - complete | 🔄 - refresh | 🆘 - help');
 	await message.edit({ embeds: [embedMessage] });
 	addSubmitReactions(message);

@@ -73,7 +73,7 @@ export const claimBountyMessage = async (guildMember: GuildMember, bountyMessage
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[3].value = 'In-Progress';
 	embedMessage.setColor('#d39e00');
-	embedMessage.addField('Claimed By', guildMember.user.tag, true);
+	embedMessage.addField('Claimed by', guildMember.user.tag, true);
 	embedMessage.setFooter('📮 - submit | 🔄 - refresh | 🆘 - help');
 	await message.edit({ embeds: [embedMessage] });
 	addClaimReactions(message);

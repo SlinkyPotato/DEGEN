@@ -50,7 +50,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 				{ name: 'Status', value: 'Open', inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(newBounty.dueAt), inline: true },
 				{ name: 'Criteria', value: newBounty.criteria.toString() },
-				{ name: 'CreatedBy', value: newBounty.createdBy.discordHandle.toString(), inline: true },
+				{ name: 'Created by', value: newBounty.createdBy.discordHandle.toString(), inline: true },
 			],
 			timestamp: new Date().getTime(),
 			footer: {

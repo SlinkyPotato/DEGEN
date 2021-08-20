@@ -1,7 +1,7 @@
 import { CommandContext } from 'slash-create';
 import constants from '../../constants/constants';
 import BountyUtils from '../../../utils/BountyUtils';
-import { GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
+import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
 import { finalizeBounty } from './PublishBounty';
 import { Db, Int32 } from 'mongodb';
 import dbInstance from '../../../utils/db';
@@ -13,14 +13,47 @@ import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
 
 export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: CommandContext): Promise<any> => {
 	const title = params.title;
-	const summary = params.summary;
-	const criteria = params.criteria;
 	const reward = params.reward;
 	
 	await BountyUtils.validateReward(guildMember, reward);
-	await BountyUtils.validateSummary(guildMember, summary);
 	await BountyUtils.validateTitle(guildMember, title);
+
+	const workNeededMessage: Message = await guildMember.send({ content: `Hello <@${guildMember.id}>! Can you tell me a description of your bounty?` });
+	const dmChannel: DMChannel = await workNeededMessage.channel.fetch() as DMChannel;
+	const replyOptions: AwaitMessagesOptions = {
+		max: 1,
+		time: 180000,
+		errors: ['time'],
+	};
+	
+	const summary = (await dmChannel.awaitMessages(replyOptions)).first().content;
+	await BountyUtils.validateSummary(guildMember, summary);
+	params.summary = summary;
+	
+	await guildMember.send({ content: 'Awesome! Now what is absolutely required for the bounty to be complete?' });
+	
+	const criteria = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	await BountyUtils.validateCriteria(guildMember, criteria);
+	params.criteria = criteria;
+	
+	let convertedDueDateFromMessage: Date;
+	do {
+		await guildMember.send({ content: 'Is there a `UTC` due date `yyyy-MM-DD`? If not that\'s ok, please reply with **no** ' +
+				'and we\'ll set the end of the season as the due date.' });
+		const dueAtMessage = (await dmChannel.awaitMessages(replyOptions)).first().content;
+		if (dueAtMessage !== 'no') {
+			try {
+				convertedDueDateFromMessage = BountyUtils.validateDate(guildMember, dueAtMessage);
+			} catch(e) {
+				console.log(e);
+				await guildMember.send({ content: 'Please try `UTC` date in format yyyy-mm-dd, i.e 2021-08-15' });
+			}
+		} else if (dueAtMessage === 'no') {
+			convertedDueDateFromMessage = null;
+			break;
+		}
+	} while (convertedDueDateFromMessage.toString() === 'Invalid Date');
+	params.dueAt = convertedDueDateFromMessage ? convertedDueDateFromMessage : BountyUtils.getDateFromISOString(constants.BOUNTY_BOARD_END_OF_SEASON_DATE);
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
@@ -59,7 +92,9 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 		}],
 	};
 	await dbInstance.close();
-	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty! Please finalize bounty in DM`);
+	
+	await guildMember.send('Thank you! Does this look right?');
+	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty!`);
 	const message: Message = await guildMember.send(messageOptions);
 	
 	await message.react('👍');
@@ -94,7 +129,7 @@ export const generateBountyRecord = (bountyParams: BountyCreateNew, guildMember:
 			},
 		],
 		status: 'Draft',
-		dueAt: constants.BOUNTY_BOARD_END_OF_SEASON_DATE,
+		dueAt: bountyParams.dueAt.toISOString(),
 	};
 };
 

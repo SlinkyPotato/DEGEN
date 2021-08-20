@@ -10,7 +10,7 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
  * 
  * @param guildMember member that has added Developer's Guild role
  */
-export default async function sendGuildWelcomeMessage(guildMember: GuildMember) {
+export default async function sendGuildWelcomeMessage(guildMember: GuildMember): Promise<any> {
 	const response = await notionQueue.add(() => notion.databases.query({
 		database_id: process.env.NOTION_DEV_GUILD_PROJECTS_DATABASE_ID,
 		filter: {
@@ -23,7 +23,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember) 
 
 	let message = '';
 	message += 'Here are some resources to help you get started:\n';
-	message += `[Developer\'s Guild Notion](${notionPageRefs.developers})\n`;
+	message += `[Developer's Guild Notion](${notionPageRefs.developers})\n`;
 	message += '[Bankless DAO Github](https://github.com/BanklessDAO)\n';
 	message += '\n';
 	message += 'Here are the projects we are working on:\n';
@@ -99,5 +99,5 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember) 
 		.setColor(0xF1BD1B)
 		.setDescription(message);
 
-	guildMember.send(embed);
+	return guildMember.send({ embeds: [embed] });
 }

@@ -4,6 +4,7 @@
 1. Add queue for requests to Notion
 2. Add Dev Guild welcome mat
 3. Removed `api` directory in favor of `service` directory
+4. Upgrade discord.js v12 -> v13
 
 ## 1.2.1-RELEASE (2021-08-12)
 

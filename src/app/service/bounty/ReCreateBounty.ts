@@ -4,7 +4,7 @@ import mongo, { Db } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
 import BountyUtils from '../../utils/BountyUtils';
-import channelIDs from '../constants/channelIDs';
+import channelIds from '../constants/channelIds';
 import envUrls from '../constants/envUrls';
 import ServiceUtils from '../../utils/ServiceUtils';
 
@@ -27,32 +27,32 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 	}
 
 	const messageOptions: MessageOptions = generateEmbedMessage(bountyCollection, guildMember.user.avatarURL());
-	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
-	const embedMessage = messageOptions.embed;
+	const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(channelIds.bountyBoard) as TextChannel;
+	const embedMessage = messageOptions.embeds[0];
 	let message: Message;
 	
 	switch (bountyCollection.status) {
 	case 'Open':
 		embedMessage.color = '#1e7e34';
 		embedMessage.footer = { text: '🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete' };
-		embedMessage.fields[0].value = BountyUtils.formatBountyAmount(bountyCollection.reward.amount as number, bountyCollection.reward.scale as number) + ' ' + bountyCollection.reward.currency;
-		embedMessage.fields[3].value = bountyCollection.criteria;
-		message = await bountyChannel.send(messageOptions) as Message;
+		embedMessage.fields[2].value = BountyUtils.formatBountyAmount(bountyCollection.reward.amount as number, bountyCollection.reward.scale as number) + ' ' + bountyCollection.reward.currency;
+		embedMessage.fields[1].value = bountyCollection.criteria;
+		message = await bountyChannel.send(messageOptions);
 		break;
 	case 'In-Progress':
 		embedMessage.color = '#d39e00';
 		embedMessage.footer = { text: '📮 - submit | 🔄 - refresh | 🆘 - help' };
-		message = await bountyChannel.send(messageOptions) as Message;
+		message = await bountyChannel.send(messageOptions);
 		break;
 	case 'In-Review':
 		embedMessage.color = '#d39e00';
 		embedMessage.footer = { text: '✅ - complete | 🔄 - refresh | 🆘 - help' };
-		message = await bountyChannel.send(messageOptions) as Message;
+		message = await bountyChannel.send(messageOptions);
 		break;
 	case 'Completed':
 		embedMessage.title = '#1d2124';
 		embedMessage.footer = { text: '🆘 - help' };
-		message = await bountyChannel.send(messageOptions) as Message;
+		message = await bountyChannel.send(messageOptions);
 		break;
 	case 'Draft':
 	case 'Deleted':
@@ -67,7 +67,7 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 
 export const generateEmbedMessage = (bounty: BountyCollection, iconUrl: string): MessageOptions => {
 	return {
-		embed: {
+		embeds: [{
 			title: bounty.title,
 			url: envUrls.BOUNTY_BOARD_URL + bounty._id,
 			author: {
@@ -76,14 +76,14 @@ export const generateEmbedMessage = (bounty: BountyCollection, iconUrl: string):
 			},
 			description: bounty.description,
 			fields: [
+				{ name: 'HashId', value: bounty._id.toHexString() },
+				{ name: 'Criteria', value: bounty.criteria },
 				{ name: 'Reward', value: bounty.reward.amount + ' ' + bounty.reward.currency.toUpperCase(), inline: true },
 				{ name: 'Status', value: bounty.status, inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(bounty.dueAt), inline: true },
-				{ name: 'Criteria', value: bounty.criteria },
-				{ name: 'HashId', value: bounty._id },
 				{ name: 'Created By', value: bounty.createdBy.discordHandle, inline: true },
 			],
 			timestamp: new Date(),
-		},
+		}],
 	};
 };

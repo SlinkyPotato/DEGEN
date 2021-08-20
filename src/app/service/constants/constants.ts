@@ -9,4 +9,5 @@ export default Object.freeze({
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
 	
 	BOUNTY_BOARD_WEBSITE_WEBHOOK_NAME: 'bounty-board-website',
+	BOUNTY_BOARD_END_OF_SEASON_DATE: process.env.DAO_CURRENT_SEASON_END_DATE,
 });

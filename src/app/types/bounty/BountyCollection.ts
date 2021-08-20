@@ -19,6 +19,7 @@ export interface BountyCollection extends Collection {
 export type UserObject = {
 	discordHandle: string,
 	discordId: string,
+	iconUrl: string,
 };
 
 export type Reward = {

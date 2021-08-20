@@ -5,6 +5,7 @@ import dbInstance from '../../utils/db';
 import BountyUtils from '../../utils/BountyUtils';
 import { GuildMember, Message } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
+import BountyMessageNotFound from '../../errors/BountyMessageNotFound';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -43,8 +44,9 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 	const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
 		$set: {
 			deletedBy: {
-				'discordHandle': guildMember.user.tag,
-				'discordId': guildMember.user.id,
+				discordHandle: guildMember.user.tag,
+				discordId: guildMember.user.id,
+				iconUrl: guildMember.user.avatarURL(),
 			},
 			status: 'Deleted',
 		},
@@ -58,16 +60,24 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 
 	if (writeResult.modifiedCount != 1) {
 		console.log(`failed to update record ${bountyId} with claimed user  <@${guildMember.user.id}>`);
-		return guildMember.send('Sorry something is not working, our devs are looking into it.');
+		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
-	await dbInstance.close();
+	
 	console.log(`${bountyId} bounty deleted by ${guildMember.user.tag}`);
 	await deleteBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
-	
-	return guildMember.send(`<@${guildMember.user.id}> Bounty \`${bountyId}\` deleted, thanks.`);
+	await dbInstance.close();
+	return guildMember.send({ content: `Bounty \`${bountyId}\` deleted, thanks.` });
 };
 
 export const deleteBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
-	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
-	return message.delete();
+	return BountyUtils.getBountyMessage(guildMember, bountyMessageId, message)
+		.then(embedMessage => {
+			return embedMessage.delete();
+		})
+		.catch(e => {
+			console.log(e);
+			if (e instanceof BountyMessageNotFound) {
+				return;
+			}
+		});
 };

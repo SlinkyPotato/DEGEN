@@ -1,6 +1,6 @@
 import PQueue from 'p-queue';
 
-export const notionQueue = new PQueue({concurrency: 1, interval: 1000, intervalCap: 3});
+export const notionQueue = new PQueue({ concurrency: 1, interval: 1000, intervalCap: 3 });
 
 notionQueue.on('active', () => {
 	console.debug(`Queue is active. Size: ${notionQueue.size}  Pending: ${notionQueue.pending}`);

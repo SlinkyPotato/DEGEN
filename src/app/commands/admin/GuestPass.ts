@@ -1,7 +1,7 @@
 import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType, CommandContext } from 'slash-create';
 import client from '../../app';
-import roleIDs from '../../service/constants/roleIDs';
-import AddGuestPass from '../../service/guest-pass/AddGuestPass';
+import roleIds from '../../service/constants/roleIds';
+import { addGuestRoleToUser } from '../../service/guest-pass/AddGuestPass';
 
 module.exports = class GuestPass extends SlashCommand {
 	constructor(creator) {
@@ -26,12 +26,12 @@ module.exports = class GuestPass extends SlashCommand {
 				[process.env.DISCORD_SERVER_ID]: [
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.level2,
+						id: roleIds.level2,
 						permission: true,
 					},
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.admin,
+						id: roleIds.admin,
 						permission: true,
 					},
 				],
@@ -51,7 +51,7 @@ module.exports = class GuestPass extends SlashCommand {
 			return ctx.send('Bots don\'t need a guest pass!');
 		}
 		
-		await AddGuestPass(guestUser);
+		await addGuestRoleToUser(guestUser);
 
 		return ctx.send(`<@${ctx.user.id}> guest pass added and message sent!`);
 	}

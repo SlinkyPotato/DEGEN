@@ -1,4 +1,3 @@
-import client from '../../app';
 import { Db } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
@@ -16,7 +15,7 @@ export default async (guestUser: GuildMember): Promise<any> => {
 	await addGuestRoleToUser(guestUser);
 	notifyUserOfGuestExpiration(guestUser);
 	removeGuestRoleOnExpiration(guestUser);
-	return guestUser.send(`Hi <@${guestUser.user.id}>, You have been granted guest access at Bankless DAO. Let us know if you have any questions!`);
+	return guestUser.send({ content: `Hi <@${guestUser.user.id}>, You have been granted guest access at Bankless DAO. Let us know if you have any questions!` }).catch(console.error);
 };
 
 export const addGuestUserToDb = async (guestUser: GuildMember): Promise<any> => {
@@ -56,19 +55,19 @@ export const addGuestRoleToUser = async (guestUser: GuildMember): Promise<void> 
 
 export const notifyUserOfGuestExpiration = (guestUser: GuildMember): void =>{
 	// Send out notification on timer
-	client.setTimeout(async () => {
-		await guestUser.send(`Hey <@${guestUser.id}>, your guest pass is set to expire in 1 day. Let us know if you have any questions!`);
+	setTimeout(async () => {
+		await guestUser.send({ content: `Hey <@${guestUser.id}>, your guest pass is set to expire in 1 day. Let us know if you have any questions!` });
 	}, (expiresInHours * 1000 * 60 * 60) - (1000 * 60 * 60 * 24));
-
-	client.setTimeout(async () => {
-		await guestUser.send(`Hey <@${guestUser.id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!`);
+	
+	setTimeout(async () => {
+		await guestUser.send({ content: `Hey <@${guestUser.id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!` });
 	}, (expiresInHours * 1000 * 60 * 60) - (1000 * 60 * 15));
 
 };
 
-export const removeGuestRoleOnExpiration = (guestUser: GuildMember) => {
+export const removeGuestRoleOnExpiration = (guestUser: GuildMember): void => {
 	// Handle removal of guest pass
-	client.setTimeout(async () => {
+	setTimeout(async () => {
 		const timeoutDB: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 		const timeoutDBGuestUsers = timeoutDB.collection(constants.DB_COLLECTION_GUEST_USERS);
 		const guestDBQuery = {
@@ -88,6 +87,6 @@ export const removeGuestRoleOnExpiration = (guestUser: GuildMember) => {
 
 		console.log(`/guest-pass end; guest pass removed for ${guestUser.user.tag} in discord`);
 
-		return guestUser.send(`Hi <@${guestUser.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!`);
+		return guestUser.send({ content: `Hi <@${guestUser.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!` });
 	}, expiresInHours * 1000 * 60 * 60);
 };

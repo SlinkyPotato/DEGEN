@@ -3,6 +3,7 @@
  */
 
 import messageCreateOnBountyBoard from './bounty/messageCreateOnBountyBoard';
+import messageSetScoapRoles from './scoap-squad/messageSetScoapRoles';
 import { Message } from 'discord.js';
 
 module.exports = {
@@ -16,6 +17,10 @@ module.exports = {
 			message.channel.send({ content: `${greetings[Math.floor(Math.random() * greetings.length)]} ${message.author.username}!` });
 		}
 		messageCreateOnBountyBoard(message).catch(e => {
+			console.error('ERROR: ', e);
+		});
+
+		messageSetScoapRoles(message).catch(e => {
 			console.error('ERROR: ', e);
 		});
 	},

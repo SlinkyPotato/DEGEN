@@ -1,7 +1,7 @@
 // import constants from '../service/constants/constants';
 import { GuildMember, Message, TextChannel } from 'discord.js';
 import { BountyReward } from '../types/bounty/BountyReward';
-import channelIDs from '../service/constants/channelIDs';
+// import channelIDs from '../service/constants/channelIDs';
 import ValidationError from '../errors/ValidationError';
 import { URL } from 'url';
 

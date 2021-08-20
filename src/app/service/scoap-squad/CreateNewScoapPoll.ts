@@ -2,7 +2,7 @@ import { CommandContext, User } from 'slash-create';
 import { GuildMember, Message, MessageReaction, TextChannel } from 'discord.js';
 import { ScoapEmbed, BotConversation } from './ScoapClasses';
 import constants from '../constants/constants';
-import channelIDs from '../constants/channelIDs';
+import channelIds from '../constants/channelIds';
 import client from '../../app';
 import ScoapPoll from './ScoapPoll';
 import { scoapEmbedArray, botConvoArray } from '../../app';
@@ -10,12 +10,13 @@ import { scoapEmbedArray, botConvoArray } from '../../app';
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
 	const scoapEmbed = createNewScoapEmbed(guildMember, ctx);
 	ctx?.send(`Hi, ${ctx.user.mention}! I just sent you a draft SCOAP Squad request, please verify.`);
-	const message: Message = await guildMember.send(
+	const message: Message = await guildMember.send({
+		content:
 		'Please verify the information below. ' +
 		'If everything is correct, ' +
 		'hit the confirm emoji to start ' +
 		'defining roles for your SCOAP squad.\n',
-		{ embed: scoapEmbed.getEmbed() }) as Message;
+		embeds: [scoapEmbed.getEmbed()] }) as Message;
 	scoapEmbed.setCurrentChannel(message.channel);
 	scoapEmbed.setCurrentMessage(message);
 	scoapEmbedArray.push(scoapEmbed);
@@ -25,12 +26,13 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 };
 
 export const handleScoapDraftReaction = (option: string, params: Array<any>): Promise<any> => {
-	return params[0].awaitReactions((reaction, user: User) => {
-		return ['👍', '❌'].includes(reaction.emoji.name) && !user.bot;
-	}, {
+	return params[0].awaitReactions({
 		max: 1,
 		time: (constants.BOT_CONVERSATION_TIMEOUT_MS),
 		errors: ['time'],
+		filter: async (reaction, user: User) => {
+			return ['👍', '❌'].includes(reaction.emoji.name) && !user.bot;
+		},
 	}).then(async collected => {
 		const reaction: MessageReaction = collected.first();
 		if (reaction.emoji.name === '👍') {
@@ -91,7 +93,7 @@ const abortSetScoapRoles = async (message: Message) => {
 
 const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any): Promise<any> => {
 	scoapEmbed.getEmbed().footer = { text: 'react with emoji to claim a project role | ❌ - abort poll' };
-	const scoapChannel: TextChannel = await client.channels.fetch(channelIDs.scoapSquad) as TextChannel;
+	const scoapChannel: TextChannel = await client.channels.fetch(channelIds.scoapSquad) as TextChannel;
 	ScoapPoll(scoapChannel, scoapEmbed, botConvo);
 	return message.channel.send('SCOAP Squad assemble request has been posted in #🥷-scoap-squad-assemble');
 };

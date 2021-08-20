@@ -1,18 +1,18 @@
-import { Channel, Message } from 'discord.js';
+import { Channel, Message, TextBasedChannels } from 'discord.js';
 
 export class BotConversation {
 	timeout: number;
 	expired: boolean;
 	convo: any;
 	current_message_flow_index: string;
-	current_channel: Channel;
+	current_channel: TextBasedChannels;
 	current_message: Message;
 
-	getTimeout(): any {
+	getTimeout(): number {
 		return this.timeout;
 	}
 
-	getExpired(): any {
+	getExpired(): boolean {
 		return this.expired;
 	}
 
@@ -20,11 +20,11 @@ export class BotConversation {
 		return this.convo;
 	}
 
-	getCurrentMessageFlowIndex(): any {
+	getCurrentMessageFlowIndex(): string {
 		return this.current_message_flow_index;
 	}
 
-	getCurrentChannel(): Channel {
+	getCurrentChannel(): TextBasedChannels {
 		return this.current_channel;
 	}
 
@@ -32,7 +32,7 @@ export class BotConversation {
 		return this.current_message;
 	}
 
-	setCurrentChannel(current_channel: Channel): this {
+	setCurrentChannel(current_channel: TextBasedChannels): this {
 		this.current_channel = current_channel;
 		return this;
 	}

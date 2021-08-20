@@ -47,7 +47,7 @@ export default async (message: Message): Promise<any> => {
 							createScoapEmbedFields(botConvo, scoapEmbed, i);
 						});
 
-						const verifyMessage = await message.channel.send('Please verify the final draft', { embed: scoapEmbed.getEmbed() });
+						const verifyMessage = await message.channel.send({ content: 'Please verify the final draft', embeds: [scoapEmbed.getEmbed()] });
 						await verifyMessage.react('👍');
 						await verifyMessage.react('❌');
 

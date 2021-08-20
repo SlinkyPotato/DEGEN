@@ -11,12 +11,9 @@ const removeReaction = async (message, user_id, emoji, choice_valid) => {
 	});
 	try {
 		for (const reac of userReactions.values()) {
-			console.log('reac ', reac);
 			if (choice_valid === true) {
-				console.log('here');
 				// the selected choice is available, only remove choices that don't match current choice
 				if (reac.emoji.name !== emoji) {
-					console.log('here now');
 					await reac.users.remove(user_id);
 					// console.log('reaction removed by bot, case true');
 					break;
@@ -72,7 +69,7 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 
 	const voteRecord = new VoteRecord().setUserVoteLedger({}).setEmoteRequired(emoteRequired).setEmoteTotals(emoteTotals).setProgressStrings(progressStrings);
 
-	const embedMessage = await channel.send({ embed: scoapEmbed.getEmbed() });
+	const embedMessage = await channel.send({ embeds: [scoapEmbed.getEmbed()] });
 	scoapEmbed.setCurrentChannel(channel).setCurrentMessage(embedMessage);
 
 	for (const item of validEmojiArray) {
@@ -86,7 +83,7 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 		return emoji_valid;
 	};
 
-	const collector = embedMessage.createReactionCollector(filter, {
+	const collector = embedMessage.createReactionCollector({ filter,
 		dispose: true,
 	});
 
@@ -111,8 +108,6 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 
 
 				if (vote.getType() === 'CHANGEVOTE') {
-					console.log('invoking remove vote. choice vlaid = ', choiceValid, ' ', 'user id = ', vote.getUserId());
-					console.log('message reactions', embedMessage.reactions.cache);
 					await removeReaction(
 						embedMessage,
 						vote.getUserId(),
@@ -127,7 +122,7 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 						voteRecord.getProgressStrings()[key],
 					);
 				}
-				embedMessage.edit({ embed: scoapEmbed.getEmbed() });
+				embedMessage.edit({ embeds: [scoapEmbed.getEmbed()] });
 
 				break;
 			}
@@ -169,7 +164,7 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 					voteRecord.getProgressStrings()[key],
 				);
 			}
-			embedMessage.edit({ embed: scoapEmbed.getEmbed() });
+			embedMessage.edit({ embeds: [scoapEmbed.getEmbed()] });
 		}
 	});
 	return;

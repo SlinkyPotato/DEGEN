@@ -48,12 +48,6 @@ module.exports = class Bounty extends SlashCommand {
 							description: 'Hash ID of the bounty',
 							required: true,
 						},
-						{
-							name: 'is-complete',
-							type: CommandOptionType.BOOLEAN,
-							description: 'Is the bounty complete as per criteria?',
-							required: true,
-						},
 					],
 				},
 				{
@@ -226,11 +220,11 @@ module.exports = class Bounty extends SlashCommand {
 			break;
 		case 'publish':
 			console.log('/bounty publish ');
-			command = PublishBounty(guildMember, ctx.options.create.publish['bounty-id']);
+			command = PublishBounty(guildMember, ctx.options.publish['bounty-id']);
 			break;
 		case 'complete':
 			console.log('/bounty complete');
-			command = CompleteBounty(guildMember, ctx.options.complete['bounty-id'], ctx.options.complete['is-complete']);
+			command = CompleteBounty(guildMember, ctx.options.complete['bounty-id']);
 			break;
 		case 'delete':
 			console.log('/bounty delete');

@@ -22,9 +22,9 @@ export const seekHelpValidBountyId = async (guildMember: GuildMember,
 	});
 	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 	const bountyUrl = envUrls.BOUNTY_BOARD_URL + dbBountyResult._id;
-	const createdByUser: GuildMember = guildMember.guild.members.cache.get(dbBountyResult.createdBy.discordId);
-	const claimedByUser: GuildMember = guildMember.guild.members.cache.get(dbBountyResult.claimedBy.discordId);
-	const sosUser: GuildMember = guildMember.guild.members.cache.get(process.env.DISCORD_BOUNTY_BOARD_SOS_ID);
+	const createdByUser: GuildMember = await guildMember.guild.members.fetch(dbBountyResult.createdBy.discordId);
+	const claimedByUser: GuildMember = await guildMember.guild.members.fetch(dbBountyResult.claimedBy.discordId);
+	const sosUser: GuildMember = await guildMember.guild.members.fetch(process.env.DISCORD_BOUNTY_BOARD_SOS_ID);
 	
 	if (createdByUser.id === guildMember.id) {
 		await sosUser.send({ content: `<@${guildMember.user.id}> from bankless DAO needs some help with bounty ${bountyUrl}. Please reach out to them to check.` });

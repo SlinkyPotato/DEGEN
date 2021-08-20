@@ -27,7 +27,7 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 	}
 
 	const messageOptions: MessageOptions = generateEmbedMessage(bountyCollection, guildMember.user.avatarURL());
-	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIds.bountyBoard) as TextChannel;
+	const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(channelIds.bountyBoard) as TextChannel;
 	const embedMessage = messageOptions.embeds[0];
 	let message: Message;
 	

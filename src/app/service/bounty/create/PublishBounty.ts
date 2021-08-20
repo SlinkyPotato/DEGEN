@@ -84,7 +84,7 @@ export const generateEmbedMessage = (dbBounty: BountyCollection, newStatus: stri
 			{ name: 'Reward', value: dbBounty.reward.amount + ' ' + dbBounty.reward.currency.toUpperCase(), inline: true },
 			{ name: 'Status', value: newStatus, inline: true },
 			{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(dbBounty.dueAt), inline: true },
-			{ name: 'Created By', value: dbBounty.createdBy.discordHandle, inline: true },
+			{ name: 'Created by', value: dbBounty.createdBy.discordHandle, inline: true },
 		],
 		timestamp: new Date().getTime(),
 		footer: {

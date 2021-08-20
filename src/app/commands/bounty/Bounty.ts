@@ -58,52 +58,45 @@ module.exports = class Bounty extends SlashCommand {
 				},
 				{
 					name: 'create',
-					type: CommandOptionType.SUB_COMMAND_GROUP,
-					description: 'Create a bounty for the bounty board',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Create a new draft of a bounty and finalize on the website',
 					options: [
 						{
-							name: 'new',
-							type: CommandOptionType.SUB_COMMAND,
-							description: 'Create a new draft of a bounty and finalize on the website',
-							options: [
-								{
-									name: 'title',
-									type: CommandOptionType.STRING,
-									description: 'What should the bounty be called?',
-									required: true,
-								},
-								{
-									name: 'summary',
-									type: CommandOptionType.STRING,
-									description: 'What would you like to be worked on?',
-									required: true,
-								},
-								{
-									name: 'criteria',
-									type: CommandOptionType.STRING,
-									description: 'What is absolutely required for this bounty?',
-									required: true,
-								},
-								{
-									name: 'reward',
-									type: CommandOptionType.STRING,
-									description: 'What is the reward? (i.e 100 BANK)',
-									required: true,
-								},
-							],
+							name: 'title',
+							type: CommandOptionType.STRING,
+							description: 'What should the bounty be called?',
+							required: true,
 						},
 						{
-							name: 'publish',
-							type: CommandOptionType.SUB_COMMAND,
-							description: 'Validate discord handle drafted bounty from the website',
-							options: [
-								{
-									name: 'bounty-id',
-									type: CommandOptionType.STRING,
-									description: 'Bounty hash ID',
-									required: true,
-								},
-							],
+							name: 'summary',
+							type: CommandOptionType.STRING,
+							description: 'What would you like to be worked on?',
+							required: true,
+						},
+						{
+							name: 'criteria',
+							type: CommandOptionType.STRING,
+							description: 'What is absolutely required for this bounty?',
+							required: true,
+						},
+						{
+							name: 'reward',
+							type: CommandOptionType.STRING,
+							description: 'What is the reward? (i.e 100 BANK)',
+							required: true,
+						},
+					],
+				},
+				{
+					name: 'publish',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Validate discord handle drafted bounty from the website',
+					options: [
+						{
+							name: 'bounty-id',
+							type: CommandOptionType.STRING,
+							description: 'Bounty hash ID',
+							required: true,
 						},
 					],
 				},
@@ -215,26 +208,25 @@ module.exports = class Bounty extends SlashCommand {
 
 	async run(ctx: CommandContext) {
 		if (ctx.user.bot) return;
-		console.log(`/bounty start ${ctx.user.username}#${ctx.user.discriminator}`);
+		console.log(`start /bounty ${ctx.user.username}#${ctx.user.discriminator}`);
 
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		let command: Promise<any>;
+		let params;
+		
 		switch (ctx.subcommands[0]) {
 		case 'claim':
 			console.log('/bounty claim');
 			command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
 			break;
 		case 'create':
-			if (ctx.subcommands[1] === 'new') {
-				const params = this.buildBountyCreateNewParams(ctx.options.create.new);
-				console.log('/bounty create new ' + params);
-				command = CreateNewBounty(guildMember, params, ctx);
-			} else if (ctx.subcommands[1] === 'publish') {
-				console.log('/bounty create publish ');
-				command = PublishBounty(guildMember, ctx.options.create.publish['bounty-id']);
-			} else {
-				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
-			}
+			params = this.buildBountyCreateNewParams(ctx.options.create);
+			console.log('/bounty create ' + params);
+			command = CreateNewBounty(guildMember, params, ctx);
+			break;
+		case 'publish':
+			console.log('/bounty publish ');
+			command = PublishBounty(guildMember, ctx.options.create.publish['bounty-id']);
 			break;
 		case 'complete':
 			console.log('/bounty complete');
@@ -260,7 +252,7 @@ module.exports = class Bounty extends SlashCommand {
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
 		command.then(() => {
-			console.log(`/bounty end ${ctx.user.username}#${ctx.user.discriminator}`);
+			console.log(`end /bounty ${ctx.user.username}#${ctx.user.discriminator}`);
 			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 		}).catch(e => {
 			console.error('ERROR', e);

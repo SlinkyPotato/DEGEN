@@ -11,14 +11,14 @@ export default (): MessageOptions => {
 			fields: [
 				{
 					name: '-> /bounty create',
-					value: 'Draft a bounty for publication. This is the first step in the bounty creation process. Using this command in the channel #📬spammy-stuff will ' +
+					value: 'Draft a bounty for publication. This is the first step in the bounty creation process. Using this command in the channel `#📬spammy-stuff will` ' +
 						'create a draft of the bounty and send it to your DM for confirmation.',
 					inline: false,
 				},
 				{
 					name: '-> /bounty publish 👍',
 					value: 'Publish a bounty on the board. Using the same emoji or slash command, finalize the drafted bounty. ' +
-						'Once finalized, the bounty is posted onto the official #🧀-bounty-board and the ' +
+						'Once finalized, the bounty is posted onto the official `#🧀-bounty-board` and the ' +
 						`[website](${envUrls.BOUNTY_BOARD_URL}). The bounty is viewable publicly and can be claimed (started) by anyone.`,
 					inline: false,
 				},

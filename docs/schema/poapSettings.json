@@ -6,7 +6,7 @@
       "isActive",
       "startTime",
       "endTime",
-      "distributorDiscordHandle"
+      "distributorDiscordId"
     ],
     "properties": {
       "occasion": {
@@ -25,7 +25,7 @@
         "bsonType": "string",
         "description": "ISO8601 of when the meeting ended"
       },
-      "distributorDiscordHandle": {
+      "distributorDiscordId": {
         "bsonType": "string",
         "description": "Discord handle of the user that is configured to use this command"
       }

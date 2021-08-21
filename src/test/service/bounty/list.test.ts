@@ -25,7 +25,7 @@ describe('BountyList', () => {
 
 		it('should be invalid bounty-type', function() {
 			list(guildMember, 'sadfasdfsdaf').catch(e => {
-				expect(e.message).toStrictEqual('invalid bounty type');
+				expect(e.message).toStrictEqual('Please try another bounty type.');
 			});
 		});
 	});

@@ -28,7 +28,7 @@ describe('BountyUtils', () => {
 				await BountyUtils.validateBountyId(guildMember, null);
 				expect(false).toStrictEqual(true);
 			} catch (e) {
-				expect(e.message).toStrictEqual('invalid bountyId');
+				expect(e.message).toStrictEqual('Please try another bountyId.');
 			}
 		});
 
@@ -37,7 +37,7 @@ describe('BountyUtils', () => {
 				await BountyUtils.validateBountyId(guildMember, '!!!!');
 				expect(false).toStrictEqual(true);
 			} catch (e) {
-				expect(e.message).toStrictEqual('invalid bountyId');
+				expect(e.message).toStrictEqual('Please try another bountyId.');
 			}
 		});
 	});
@@ -53,7 +53,7 @@ describe('BountyUtils', () => {
 				await BountyUtils.validateBountyType(guildMember, 'open');
 				expect(false).toStrictEqual(true);
 			} catch (e) {
-				expect(e.message).toStrictEqual('invalid bounty type');
+				expect(e.message).toStrictEqual('Please try another bounty type.');
 			}
 		});
 
@@ -62,7 +62,7 @@ describe('BountyUtils', () => {
 				await BountyUtils.validateBountyType(guildMember, null);
 				expect(false).toStrictEqual(true);
 			} catch (e) {
-				expect(e.message).toStrictEqual('invalid bounty type');
+				expect(e.message).toStrictEqual('Please try another bounty type.');
 			}
 		});
 	});

@@ -27,7 +27,7 @@ describe('BountyClaim', () => {
 			try {
 				await claim(guildMember, null);
 			} catch (e) {
-				expect(e.message).toStrictEqual('invalid bountyId');
+				expect(e.message).toStrictEqual('Please try another bountyId.');
 			}
 		});
 
@@ -35,7 +35,7 @@ describe('BountyClaim', () => {
 			try {
 				await claim(guildMember, '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
 			} catch (e) {
-				expect(e.message).toStrictEqual('invalid bountyId');
+				expect(e.message).toStrictEqual('Please try another bountyId.');
 			}
 		});
 
@@ -43,7 +43,7 @@ describe('BountyClaim', () => {
 			try {
 				await claim(guildMember, '-10005');
 			} catch (e) {
-				expect(e.message).toStrictEqual('invalid bountyId');
+				expect(e.message).toStrictEqual('Please try another bountyId.');
 			}
 		});
 

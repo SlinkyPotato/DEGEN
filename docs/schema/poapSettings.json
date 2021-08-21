@@ -1,0 +1,34 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "occasion",
+      "isActive",
+      "startTime",
+      "endTime",
+      "distributorDiscordHandle"
+    ],
+    "properties": {
+      "occasion": {
+        "bsonType": "string",
+        "description": "The occasion for the discussion which should be an enum, COMMUNITY_CALL"
+      },
+      "isActive": {
+        "bsonType": "bool",
+        "description": "Indicator whether the call is currently active"
+      },
+      "startTime": {
+        "bsonType": "string",
+        "description": "ISO8601 of when the meeting started"
+      },
+      "endTime": {
+        "bsonType": "string",
+        "description": "ISO8601 of when the meeting ended"
+      },
+      "distributorDiscordHandle": {
+        "bsonType": "string",
+        "description": "Discord handle of the user that is configured to use this command"
+      }
+    }
+  }
+}

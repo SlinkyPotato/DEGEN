@@ -1,4 +1,3 @@
-import { CommandContext } from 'slash-create';
 import constants from '../../constants/constants';
 import BountyUtils from '../../../utils/BountyUtils';
 import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
@@ -11,7 +10,7 @@ import ServiceUtils from '../../../utils/ServiceUtils';
 import envUrls from '../../constants/envUrls';
 import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
 
-export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: CommandContext): Promise<any> => {
+export default async (guildMember: GuildMember, params: BountyCreateNew): Promise<any> => {
 	const title = params.title;
 	const reward = params.reward;
 	

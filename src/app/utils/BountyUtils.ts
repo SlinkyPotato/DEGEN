@@ -5,7 +5,6 @@ import ValidationError from '../errors/ValidationError';
 import { URL } from 'url';
 import envUrls from '../service/constants/envUrls';
 import BountyMessageNotFound from '../errors/BountyMessageNotFound';
-import roleIDs from '../service/constants/roleIds';
 import ServiceUtils from './ServiceUtils';
 
 /**

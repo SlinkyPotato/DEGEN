@@ -210,7 +210,7 @@ module.exports = class Bounty extends SlashCommand {
 		case 'create':
 			params = this.buildBountyCreateNewParams(ctx.options.create);
 			console.log('/bounty create ' + params.title);
-			command = CreateNewBounty(guildMember, params, ctx);
+			command = CreateNewBounty(guildMember, params);
 			break;
 		case 'publish':
 			console.log('/bounty publish ');

@@ -33,7 +33,7 @@ const BountyUtils = {
 	 * @param guildMember
 	 * @param bountyType
 	 */
-	async validateBountyType(guildMember: GuildMember, bountyType: string): Promise<any> {
+	async validateBountyType(guildMember: GuildMember, bountyType: string): Promise<void> {
 		const ALLOWED_BOUNTY_TYPES = ['OPEN', 'IN_PROGRESS', 'CREATED_BY_ME', 'CLAIMED_BY_ME', 'DRAFT_BY_ME'];
 		if (bountyType == null || !ALLOWED_BOUNTY_TYPES.includes(bountyType)) {
 			await guildMember.send({
@@ -42,7 +42,7 @@ const BountyUtils = {
 					' - OPEN\n' +
 					' - CREATED_BY_ME\n' +
 					' - CLAIMED_BY_ME',
-			});
+			}).catch(console.log);
 			throw new ValidationError('Please try another bounty type.');
 		}
 	},

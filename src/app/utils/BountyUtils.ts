@@ -79,7 +79,7 @@ const BountyUtils = {
 		}
 	},
 	
-	validateNumberOfCopies(guildMember: GuildMember, copies: number) {
+	validateNumberOfCopies(guildMember: GuildMember, copies: number): void {
 		const isLevel3 = ServiceUtils.isLevel3(guildMember);
 		const isLevel4 = ServiceUtils.isLevel4(guildMember);
 		const isAdmin = ServiceUtils.isAdmin(guildMember);

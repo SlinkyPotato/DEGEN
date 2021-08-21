@@ -260,9 +260,10 @@ module.exports = class Bounty extends SlashCommand {
 		return {
 			title: ctxOptions.title,
 			reward: {
-				amount: reward.replace('.', ''),
+				amount: reward,
 				currencySymbol: symbol,
 				scale: scale,
+				amountWithoutScale:  reward.replace('.', ''),
 			},
 			copies: copies,
 		};

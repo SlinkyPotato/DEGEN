@@ -36,11 +36,19 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 	const criteria = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	await BountyUtils.validateCriteria(guildMember, criteria);
 	params.criteria = criteria;
-	
+
+	if (params.copies > 1) {
+		const totalReward = params.reward.amount * params.copies;
+		await guildMember.send({ content: `Are you sure you want to publish bounties with a \`total\` reward of \`${totalReward} ${params.reward.currencySymbol}\`? (yes/no)` });
+		const amountConfirmation: string = (await dmChannel.awaitMessages(replyOptions)).first().content;
+		if (!(amountConfirmation == 'yes' || amountConfirmation === 'YES' || amountConfirmation === 'Y')) {
+			return guildMember.send({ content: 'Ok no problem, bounty deleted.' });
+		}
+	}
+
 	let convertedDueDateFromMessage: Date;
 	do {
-		await guildMember.send({ content: 'Is there a `UTC` due date `yyyy-MM-DD`? If not that\'s ok, please reply with **no** ' +
-				'and we\'ll set the end of the season as the due date.' });
+		await guildMember.send({ content: 'Is there a `UTC` due date `yyyy-mm-dd`? (default: no)' });
 		const dueAtMessage = (await dmChannel.awaitMessages(replyOptions)).first().content;
 		if (dueAtMessage !== 'no') {
 			try {

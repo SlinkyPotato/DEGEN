@@ -107,7 +107,8 @@ module.exports = class ScoapSquad extends SlashCommand {
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
 		command.then(() => {
 			console.log(`/scoap-squad end ${ctx.user.username}#${ctx.user.discriminator}`);
-			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+			// return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+			return 0;
 		}).catch(e => {
 			if (!(e instanceof ValidationError)) {
 				console.error('ERROR', e);

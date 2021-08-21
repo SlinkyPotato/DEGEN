@@ -1,5 +1,5 @@
 import { TextChannel } from 'discord.js';
-// import cloneDeep from 'lodash.clonedeep';
+import cloneDeep from 'lodash.clonedeep';
 import constants from '../constants/constants';
 import { Vote, VoteRecord } from './ScoapClasses';
 
@@ -15,14 +15,12 @@ const removeReaction = async (message, user_id, emoji, choice_valid) => {
 				// the selected choice is available, only remove choices that don't match current choice
 				if (reac.emoji.name !== emoji) {
 					await reac.users.remove(user_id);
-					// console.log('reaction removed by bot, case true');
 					break;
 				}
 			} else if (choice_valid === false) {
 				// the selected choice is not available, only remove choices that do match current choice
 				if (reac.emoji.name === emoji) {
 					await reac.users.remove(user_id);
-					// console.log('reaction removed by bot, case false');
 					break;
 				}
 			}
@@ -38,10 +36,8 @@ const emojiValid = (emoji, valid_emoji_array) => {
 
 const validateChoice = (emoji, totals, required) => {
 	if (totals[emoji] < required[emoji]) {
-		// console.log('selected choice available');
 		return true;
 	} else {
-		// console.log('selected choice invalid');
 		return false;
 	}
 };
@@ -52,7 +48,7 @@ const validateChoice = (emoji, totals, required) => {
 // Note: How to do correct type definition for request?
 export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Promise<any> => {
 
-	const validEmojiArray = scoapEmbed.getVotableEmojiArray();
+	const validEmojiArray = cloneDeep(scoapEmbed.getVotableEmojiArray());
 	validEmojiArray.push(constants.EMOJIS.cross_mark);
 
 	const emoteRequired = {};
@@ -67,7 +63,11 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 
 	});
 
-	const voteRecord = new VoteRecord().setUserVoteLedger({}).setEmoteRequired(emoteRequired).setEmoteTotals(emoteTotals).setProgressStrings(progressStrings);
+	const voteRecord = new VoteRecord()
+		.setUserVoteLedger({})
+		.setEmoteRequired(emoteRequired)
+		.setEmoteTotals(emoteTotals)
+		.setProgressStrings(progressStrings);
 
 	const embedMessage = await channel.send({ embeds: [scoapEmbed.getEmbed()] });
 	scoapEmbed.setCurrentChannel(channel).setCurrentMessage(embedMessage);
@@ -77,13 +77,14 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 		await embedMessage.react(item);
 	}
 
-	const filter = (reaction) => {
+	const filter = (reaction, user) => {
 		const emoji_valid = emojiValid(reaction.emoji.name, validEmojiArray);
-		// console.log('emoji valid? ', emoji_valid);
-		return emoji_valid;
+		const bot_reaction = user.bot;
+		return (emoji_valid && (!bot_reaction));
 	};
 
-	const collector = embedMessage.createReactionCollector({ filter,
+	const collector = embedMessage.createReactionCollector({
+		filter,
 		dispose: true,
 	});
 
@@ -94,7 +95,7 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 			voteRecord.getEmoteRequired(),
 		);
 
-		if (emojiValid(reaction.emoji.name, scoapEmbed.getVotableEmojiArray()) === true) {
+		if (emojiValid(reaction.emoji.name, scoapEmbed.getVotableEmojiArray())) {
 			switch (true) {
 			case choiceValid === true: {
 				const vote = new Vote(
@@ -157,6 +158,8 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 		);
 		if (vote.getType() === 'UNVOTE') {
 			voteRecord.update(vote);
+			console.log('removed vote from user: ', user.id, ' ', reaction.emoji.name);
+			console.log(voteRecord.getUserVoteLedger());
 			for (const key in voteRecord.getProgressStrings()) {
 				// console.log('key ', key, ' value ', voteRecord.getProgressStrings()[key]);
 				scoapEmbed.updateProgressString(

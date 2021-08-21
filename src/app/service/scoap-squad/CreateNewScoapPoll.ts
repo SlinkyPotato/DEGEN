@@ -1,5 +1,5 @@
 import { CommandContext, User } from 'slash-create';
-import { GuildMember, Message, MessageReaction, TextChannel } from 'discord.js';
+import { GuildMember, Message, MessageReaction, TextChannel, MessageEmbed } from 'discord.js';
 import { ScoapEmbed, BotConversation } from './ScoapClasses';
 import constants from '../constants/constants';
 import channelIds from '../constants/channelIds';
@@ -8,19 +8,80 @@ import ScoapPoll from './ScoapPoll';
 import { scoapEmbedArray, botConvoArray } from '../../app';
 
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
+
+	const exampleEmbed = {
+		title: 'Your Project Title goes here',
+		author: {
+			icon_url: guildMember.user.avatarURL(),
+			name: guildMember.user.tag,
+		},
+		fields: [
+			{ name: 'Summary', value: 'Here goes a summary of your project' },
+			{ name: 'Reward', value: 'reward you offer (e.g. 1000 BANK), this is optional' },
+			{ name: '\u200b', value: constants.SCOAP_SQUAD_EMBED_SPACER },
+			{
+				name: `${constants.EMOJIS['1']} Role 1 title`,
+				value: '☝️ This is a project role',
+				inline: true,
+			},
+			{
+				name: 'Number',
+				value: '☝️ How many people do you need in this role',
+				inline: true,
+			},
+			{
+				name: '\u200b',
+				value: '\u200b',
+				inline: false,
+			},
+
+			{
+				name: `${constants.EMOJIS['2']} Designer`,
+				value: '☝️ An example',
+				inline: true,
+			},
+			{
+				name: '2',
+				value: '☝️ You are looking for two designers',
+				inline: true,
+			},
+			{
+				name: '\u200b',
+				value: '\u200b',
+				inline: false,
+			},
+		],
+		timestamp: new Date(),
+		// footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
+	};
+
 	const scoapEmbed = createNewScoapEmbed(guildMember, ctx);
 	ctx?.send(`Hi, ${ctx.user.mention}! I just sent you a draft SCOAP Squad request, please verify.`);
 	const message: Message = await guildMember.send({
-		content:
-		'Please verify the information below. ' +
-		'If everything is correct, ' +
-		'hit the confirm emoji to start ' +
-		'defining roles for your SCOAP squad.\n',
-		embeds: [scoapEmbed.getEmbed()] }) as Message;
+		embeds: [
+			new MessageEmbed()
+				.setDescription(
+					`Hi ${ctx.user.mention}! ` +
+					'Below you can see an example of what your ' +
+					'SCOAP squad assemble request will look like.')
+				.setColor('#0099ff')
+				.setFooter(constants.SCOAP_SQUAD_EMBED_SPACER),
+			exampleEmbed,
+			new MessageEmbed()
+				.setDescription(
+					'I also prepared a draft layout with your inputs. ' +
+					'Please verify the information ' +
+					'to proceed to the definition of project roles.')
+				.setColor('#0099ff')
+				.setFooter(constants.SCOAP_SQUAD_EMBED_SPACER),
+			scoapEmbed.getEmbed(),
+		],
+	}) as Message;
 	scoapEmbed.setCurrentChannel(message.channel);
 	scoapEmbed.setCurrentMessage(message);
 	scoapEmbedArray.push(scoapEmbed);
 	await message.react('👍');
+	await message.react('📝');
 	await message.react('❌');
 	return handleScoapDraftReaction('SET_ROLES', [message]);
 };
@@ -31,7 +92,7 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 		time: (constants.BOT_CONVERSATION_TIMEOUT_MS),
 		errors: ['time'],
 		filter: async (reaction, user: User) => {
-			return ['👍', '❌'].includes(reaction.emoji.name) && !user.bot;
+			return ['👍', '❌', '📝'].includes(reaction.emoji.name) && !user.bot;
 		},
 	}).then(async collected => {
 		const reaction: MessageReaction = collected.first();
@@ -42,13 +103,16 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 			case 'PUBLISH':
 				return publishScoapPoll(params[0], params[1], params[2]);
 			}
-		} else {
+		} else if (reaction.emoji.name === '❌') {
 			switch (option) {
 			case 'SET_ROLES':
 				return abortSetScoapRoles(params[0]);
 			case 'PUBLISH':
 				return abortPublishScoapPoll(params[0]);
 			}
+		} else {
+			console.log('notepad given, launch edit');
+			// handle edit #TODO
 		}
 	}).catch(_ => {
 		console.log(_);
@@ -69,19 +133,26 @@ const createNewScoapEmbed = (guildMember: GuildMember, ctx?: CommandContext): an
 		},
 		fields: [{ name: 'Summary', value: summary }],
 		timestamp: new Date(),
-		footer: { text: '👍 - confirm | ❌ - delete draft and start over' },
+		footer: { text: '👍 - confirm | 📝 - edit | ❌ - delete' },
 	}).setScoapAuthor(guildMember.id).setVotableEmojiArray([]);
-	if (reward) { scoapEmbed.getEmbed().fields.push({ name: 'Reward', value: reward + ' ' + symbol }); };
+	if (reward) {
+		scoapEmbed.getEmbed().fields.push(
+			{ name: 'Reward', value: reward + ' ' + symbol },
+			{ name: '\u200b', value: constants.SCOAP_SQUAD_EMBED_SPACER });
+	} else {
+		scoapEmbed.getEmbed().fields.push({ name: '\u200b', value: constants.SCOAP_SQUAD_EMBED_SPACER });
+	};
 	return scoapEmbed;
 };
 
 const setScoapRoles = async (message: Message): Promise<any> => {
 	const botConvo = new BotConversation();
-	botConvo.setTimeout(constants.BOT_CONVERSATION_TIMEOUT_MS).setExpired(false).setConvo(createBotConversationParams()).setCurrentChannel(message.channel);
+	botConvo.setTimeout(constants.BOT_CONVERSATION_TIMEOUT_MS)
+		.setExpired(false)
+		.setConvo(createBotConversationParams())
+		.setCurrentChannel(message.channel);
 	botConvoArray.push(botConvo);
-	const roleMessage: Message = await message.channel.send('Let\'s define the roles of your SCOAP squad.') as Message;
 	botConvo.setCurrentMessageFlowIndex('1', message);
-	botConvo.setCurrentMessage(roleMessage);
 	return;
 };
 
@@ -95,7 +166,7 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 	scoapEmbed.getEmbed().footer = { text: 'react with emoji to claim a project role | ❌ - abort poll' };
 	const scoapChannel: TextChannel = await client.channels.fetch(channelIds.scoapSquad) as TextChannel;
 	ScoapPoll(scoapChannel, scoapEmbed, botConvo);
-	return message.channel.send('SCOAP Squad assemble request has been posted in #🥷-scoap-squad-assemble');
+	return message.channel.send(`All done! Your SCOAP Squad assemble request has been posted in <#${channelIds.scoapSquad}>`);
 };
 
 const abortPublishScoapPoll = async (message: Message) => {
@@ -117,7 +188,7 @@ const createBotConversationParams = () => {
 				 'specify how many people you\'ll need ' +
 				 'to fill each role in the proceeding prompts. ' +
 				 'How many roles do you want to define? ',
-			'2': 'Role title: ',
+			'2': 'Title of role # ',
 			'3': 'How many people do you need in this role: ',
 			'4': 'Thank you for your input, please verify layout..',
 		},

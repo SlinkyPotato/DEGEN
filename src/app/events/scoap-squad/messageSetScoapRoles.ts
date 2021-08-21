@@ -1,6 +1,6 @@
 import { handleScoapDraftReaction } from '../../service/scoap-squad/CreateNewScoapPoll';
 import { scoapEmbedArray, botConvoArray } from '../../app';
-import { Message } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import constants from '../../service/constants/constants';
 
 export default async (message: Message): Promise<any> => {
@@ -49,6 +49,7 @@ export default async (message: Message): Promise<any> => {
 
 						const verifyMessage = await message.channel.send({ content: 'Please verify the final draft', embeds: [scoapEmbed.getEmbed()] });
 						await verifyMessage.react('👍');
+						await verifyMessage.react('📝');
 						await verifyMessage.react('❌');
 
 						return handleScoapDraftReaction('PUBLISH', [verifyMessage, scoapEmbed, botConvo]);
@@ -117,11 +118,27 @@ const incrementMessageFlowIndex = async (botConvo, message, params) => {
 };
 
 const handleWrongInput = async (message, expected) => {
-	return await message.channel.send(`Expected ${expected}, but received input "${message.content}". Please try again.`);
+	return await message.channel.send({
+		embeds: [
+			new MessageEmbed()
+				.setDescription(`Expected ${expected}, but received input "${message.content}". Please try again.`)
+				.setColor('#bf1304')
+				.setFooter(constants.SCOAP_SQUAD_EMBED_SPACER),
+		],
+	});
+	// return await message.channel.send(`Expected ${expected}, but received input "${message.content}". Please try again.`);
 } ;
 
 const handleCorrectInput = async (message) => {
-	return await message.channel.send(`Received input "${message.content}".`);
+	return await message.channel.send({
+		embeds: [
+			new MessageEmbed()
+				.setDescription(`Received input "${message.content}".`)
+				.setColor('#32a852')
+				.setFooter(constants.SCOAP_SQUAD_EMBED_SPACER),
+		],
+	});
+	
 } ;
 
 const setUserResponseRecord = (record_entry, botConvo, option) => {

@@ -1,4 +1,5 @@
-import { Channel, Message, TextBasedChannels } from 'discord.js';
+import { Channel, Message, TextBasedChannels, MessageEmbed } from 'discord.js';
+import constants from '../constants/constants';
 
 export class BotConversation {
 	timeout: number;
@@ -59,11 +60,33 @@ export class BotConversation {
 
 	async setCurrentMessageFlowIndex(message_flow_index: string, message: Message): Promise<this> {
 		this.current_message_flow_index = message_flow_index;
-		const currMsg = await message.channel.send(this.convo.message_flow[message_flow_index]);
-		this.setCurrentMessage(currMsg);
+		let role_number = '1';
+		if (typeof this.getConvo().user_response_record.roles != 'undefined') {
+			role_number = (Object.keys(this.getConvo().user_response_record.roles).length).toString();
+		}
 
-		// await this.sleep(this.timeout);
-		// console.log('bot conversation timeout');
+		if (message_flow_index === '2') {
+			const currMsg = await message.channel.send({
+				embeds: [
+					new MessageEmbed()
+						.setDescription(this.convo.message_flow[message_flow_index] + role_number)
+						.setColor('#0099ff')
+						.setFooter(constants.SCOAP_SQUAD_EMBED_SPACER),
+				],
+			});
+			this.setCurrentMessage(currMsg);
+		} else {
+			const currMsg = await message.channel.send({
+				embeds: [
+					new MessageEmbed()
+						.setDescription(this.convo.message_flow[message_flow_index])
+						.setColor('#0099ff')
+						.setFooter(constants.SCOAP_SQUAD_EMBED_SPACER),
+				],
+			});
+			this.setCurrentMessage(currMsg);
+		}
+		
 		return this;
 	}
 

@@ -7,6 +7,7 @@
 4. Upgrade discord.js v12 -> v13
 5. Add /help bounty, fix grammar for text, simplify bot commands
 6. Capture bounty description and criteria from bot interaction messages
+7. Allow publication of the same bounty multiple times for level 3+ users
 
 ## 1.2.1-RELEASE (2021-08-12)
 

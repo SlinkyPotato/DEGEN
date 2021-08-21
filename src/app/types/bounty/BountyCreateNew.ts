@@ -5,5 +5,6 @@ export type BountyCreateNew = {
 	summary?: string,
 	criteria?: string,
 	reward: BountyReward,
-	dueAt?: Date
+	dueAt?: Date,
+	copies: number,
 };

@@ -84,11 +84,11 @@ const BountyUtils = {
 		const isAdmin = ServiceUtils.isAdmin(guildMember);
 		
 		if (!(isLevel3 || isLevel4 || isAdmin)) {
-			throw new ValidationError('Must be level 3+ to publish multiple copies');
+			throw new ValidationError('Must be `level 3+` to publish multiple copies.');
 		}
 		
 		if (copies > 100) {
-			throw new ValidationError('Max number of copies is 100.');
+			throw new ValidationError('Max number of copies is `100`.');
 		}
 	},
 

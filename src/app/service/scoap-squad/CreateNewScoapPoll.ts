@@ -1,6 +1,6 @@
 import { CommandContext, User } from 'slash-create';
 import { GuildMember, Message, MessageReaction, TextChannel, MessageEmbed, TextBasedChannels } from 'discord.js';
-import { ScoapEmbed, BotConversation } from './ScoapClasses';
+import { BotConversation } from './ScoapClasses';
 import constants from '../constants/constants';
 import channelIds from '../constants/channelIds';
 import client from '../../app';
@@ -54,6 +54,7 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 	});
 };
 
+
 const initiateScoapDraft = async (botConvo: any): Promise<any> => {
 	await botConvo.setCurrentMessageFlowIndex('1', botConvo.getCurrentChannel());
 	const message = botConvo.getCurrentMessage();
@@ -74,33 +75,6 @@ const createBotConversation = async (guildMember: GuildMember): Promise<any> => 
 	return botConvo;
 };
 
-
-const createNewScoapEmbed = (guildMember: GuildMember, ctx?: CommandContext): any => {
-	const title = ctx.options.assemble.new.title;
-	const summary = ctx.options.assemble.new.summary;
-	const [reward, symbol] = (ctx.options.assemble.new.reward != null) ? ctx.options.assemble.new.reward.split(' ') : [null, null];
-	const scoapEmbed = new ScoapEmbed();
-	scoapEmbed.setEmbed({
-		title: title,
-		author: {
-			icon_url: guildMember.user.avatarURL(),
-			name: guildMember.user.tag,
-		},
-		fields: [{ name: 'Summary', value: summary }],
-		timestamp: new Date(),
-		footer: { text: '👍 - confirm | 📝 - edit | ❌ - delete' },
-	}).setScoapAuthor(guildMember.id).setVotableEmojiArray([]);
-	if (reward) {
-		scoapEmbed.getEmbed().fields.push(
-			{ name: 'Reward', value: reward + ' ' + symbol },
-			{ name: '\u200b', value: constants.SCOAP_SQUAD_EMBED_SPACER });
-	} else {
-		scoapEmbed.getEmbed().fields.push({ name: '\u200b', value: constants.SCOAP_SQUAD_EMBED_SPACER });
-	};
-	return scoapEmbed;
-};
-
-
 const abortSetScoapRoles = async (message: Message) => {
 	await clearArray(scoapEmbedArray, message);
 	await message.delete();
@@ -108,7 +82,7 @@ const abortSetScoapRoles = async (message: Message) => {
 };
 
 const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any): Promise<any> => {
-	scoapEmbed.getEmbed().footer = { text: 'react with emoji to claim a project role | ❌ - abort poll' };
+	scoapEmbed.getEmbed()[0].footer = { text: 'react with emoji to claim a project role | ❌ - abort poll' };
 	const scoapChannel: TextChannel = await client.channels.fetch(channelIds.scoapSquad) as TextChannel;
 	ScoapPoll(scoapChannel, scoapEmbed, botConvo);
 	return message.channel.send(`All done! Your SCOAP Squad assemble request has been posted in <#${channelIds.scoapSquad}>`);
@@ -151,7 +125,7 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 				fields: [
 					{
 						name: '\u200b',
-						value: 'Define a title for your project',
+						value: 'What is the title of your project?',
 					},
 				],
 				footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
@@ -161,7 +135,7 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 				fields: [
 					{
 						name: '\u200b',
-						value: 'Write a short summary of your project.',
+						value: 'Write a short summary of your project:',
 					},
 				],
 				footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
@@ -187,6 +161,7 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 							 'How many roles do you want to define? ',
 					},
 				],
+				footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
 			}],
 			'6': [{
 				color: '#0099ff',
@@ -220,7 +195,19 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 			}],
 		},
 		commands: ['!cancel', '!help', '!skip'],
-		user_response_record: {},
+		user_response_record: {
+			embed: [{
+				title: '',
+				author: {
+					icon_url: guildMember.user.avatarURL(),
+					name: guildMember.user.tag,
+				},
+				fields: [],
+				footer: { text: '👍 - confirm | 📝 - edit | ❌ - delete' },
+			}],
+			number_of_roles: 0,
+			user: guildMember.user,
+		},
 		help_message_embeds: [
 			{
 				title: 'SCOAP Squad Assemble Command Help',

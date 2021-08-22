@@ -42,10 +42,6 @@ const validateChoice = (emoji, totals, required) => {
 	}
 };
 
-// type NewType = any;
-// request: NewType
-
-// Note: How to do correct type definition for request?
 export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Promise<any> => {
 
 	const validEmojiArray = cloneDeep(scoapEmbed.getVotableEmojiArray());
@@ -54,7 +50,7 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 	const emoteRequired = {};
 	const emoteTotals = {};
 	const progressStrings = {};
-	Array(parseInt(botConvo.getConvo().user_response_record['1'])).fill(0).map((_, i) => {
+	Array(botConvo.getConvo().user_response_record.number_of_roles).fill(0).map((_, i) => {
 		const role = botConvo.getConvo().user_response_record.roles[(i + 1).toString()];
 		const emoji = constants.EMOJIS[(i + 1).toString()];
 		emoteRequired[emoji] = parseInt(role.role_count);
@@ -69,7 +65,7 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 		.setEmoteTotals(emoteTotals)
 		.setProgressStrings(progressStrings);
 
-	const embedMessage = await channel.send({ embeds: [scoapEmbed.getEmbed()] });
+	const embedMessage = await channel.send({ embeds: scoapEmbed.getEmbed() });
 	scoapEmbed.setCurrentChannel(channel).setCurrentMessage(embedMessage);
 
 	for (const item of validEmojiArray) {

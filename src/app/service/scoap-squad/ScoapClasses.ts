@@ -65,15 +65,14 @@ export class BotConversation {
 			role_number = (Object.keys(this.getConvo().user_response_record.roles).length).toString();
 		}
 
-		if (message_flow_index === '5') {
+		if (message_flow_index === '6') {
+			const role_number_string_old = this.convo.message_flow[message_flow_index][0].fields[0].value;
+			const role_number_string_new = role_number_string_old + role_number;
+			this.convo.message_flow[message_flow_index][0].fields[0].value = role_number_string_new;
 			const currMsg = await channel.send({
-				embeds: [
-					new MessageEmbed()
-						.setDescription(this.convo.message_flow[message_flow_index] + role_number)
-						.setColor('#0099ff')
-						.setFooter(constants.SCOAP_SQUAD_EMBED_SPACER),
-				],
+				embeds: this.convo.message_flow[message_flow_index],
 			});
+			this.convo.message_flow[message_flow_index][0].fields[0].value = role_number_string_old;
 			this.setCurrentMessage(currMsg);
 		} else {
 			const currMsg = await channel.send({

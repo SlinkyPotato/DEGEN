@@ -1,5 +1,6 @@
 export type BountyReward = {
 	amount: number,
 	currencySymbol: string,
-	scale: number
+	scale: number,
+	amountWithoutScale: number
 };

@@ -6,7 +6,7 @@
     "private": true,
     "scripts": {
         "build": "tsc -p tsconfig.json",
-        "test": "jest --forceExit",
+        "test": "jest",
         "qa": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa",
         "prod": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.prod",
         "prestart": "yarn install && yarn build",

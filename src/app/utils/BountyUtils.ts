@@ -5,6 +5,7 @@ import ValidationError from '../errors/ValidationError';
 import { URL } from 'url';
 import envUrls from '../service/constants/envUrls';
 import BountyMessageNotFound from '../errors/BountyMessageNotFound';
+import ServiceUtils from './ServiceUtils';
 
 /**
  * Utilities file for bounty commands
@@ -23,7 +24,7 @@ const BountyUtils = {
 				'Please enter a valid bounty hash ID: \n' +
 				' - can be found on bountyboard website\n' +
 				` - ${envUrls.BOUNTY_BOARD_URL}` });
-			throw new ValidationError('invalid bountyId');
+			throw new ValidationError('Please try another bountyId.');
 		}
 	},
 
@@ -32,7 +33,7 @@ const BountyUtils = {
 	 * @param guildMember
 	 * @param bountyType
 	 */
-	async validateBountyType(guildMember: GuildMember, bountyType: string): Promise<any> {
+	async validateBountyType(guildMember: GuildMember, bountyType: string): Promise<void> {
 		const ALLOWED_BOUNTY_TYPES = ['OPEN', 'IN_PROGRESS', 'CREATED_BY_ME', 'CLAIMED_BY_ME', 'DRAFT_BY_ME'];
 		if (bountyType == null || !ALLOWED_BOUNTY_TYPES.includes(bountyType)) {
 			await guildMember.send({
@@ -41,8 +42,8 @@ const BountyUtils = {
 					' - OPEN\n' +
 					' - CREATED_BY_ME\n' +
 					' - CLAIMED_BY_ME',
-			});
-			throw new ValidationError('invalid bounty type');
+			}).catch(console.log);
+			throw new ValidationError('Please try another bounty type.');
 		}
 	},
 
@@ -73,7 +74,21 @@ const BountyUtils = {
 					'- 100 million maximum currency\n ' +
 					'- accepted currencies: ETH, BANK',
 			});
-			throw new ValidationError('invalid reward');
+			throw new ValidationError('Please try another reward.');
+		}
+	},
+	
+	validateNumberOfCopies(guildMember: GuildMember, copies: number): void {
+		const isLevel3 = ServiceUtils.isLevel3(guildMember);
+		const isLevel4 = ServiceUtils.isLevel4(guildMember);
+		const isAdmin = ServiceUtils.isAdmin(guildMember);
+		
+		if (!(isLevel3 || isLevel4 || isAdmin)) {
+			throw new ValidationError('Must be `level 3+` to publish multiple copies.');
+		}
+		
+		if (copies > 100) {
+			throw new ValidationError('Max number of copies is `100`.');
 		}
 	},
 
@@ -87,7 +102,7 @@ const BountyUtils = {
 					'- alphanumeric\n ' +
 					'- special characters: .!@#$%&,?',
 			});
-			throw new ValidationError('invalid title');
+			throw new ValidationError('Please try another title.');
 		}
 	},
 
@@ -101,7 +116,7 @@ const BountyUtils = {
 					'- alphanumeric\n ' +
 					'- special characters: .!@#$%&,?',
 			});
-			throw new ValidationError('invalid criteria');
+			throw new ValidationError('Please try another criteria.');
 		}
 	},
 		
@@ -125,7 +140,7 @@ const BountyUtils = {
 					'- alphanumeric\n ' +
 					'- special characters: .!@#$%&,?',
 			});
-			throw new ValidationError('invalid url');
+			throw new ValidationError('Please try another url.');
 		}
 	},
 	

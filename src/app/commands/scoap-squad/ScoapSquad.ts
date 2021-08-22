@@ -19,39 +19,41 @@ module.exports = class ScoapSquad extends SlashCommand {
 			options: [
 				{
 					name: 'assemble',
-					type: CommandOptionType.SUB_COMMAND_GROUP,
+					type: CommandOptionType.SUB_COMMAND,
 					description: 'Create a SCOAP Squad request',
-					options: [
-						{
-							name: 'new',
-							type: CommandOptionType.SUB_COMMAND,
-							description: 'Initialize a new SCOAP Squad request',
-							options: [
-								{
-									name: 'title',
-									type: CommandOptionType.STRING,
-									description: 'What is the title of your project?',
-									required: true,
-								},
-								{
-									name: 'summary',
-									type: CommandOptionType.STRING,
-									description: 'Describe the project in more detail',
-									required: true,
-								},
+					options: [],
+					// options: [
+					// 	{
+					// 		name: 'new',
+					// 		type: CommandOptionType.SUB_COMMAND,
+					// 		description: 'Initialize a new SCOAP Squad request',
+					// 		// options:[],
+					// 		options: [
+					// 			{
+					// 				name: 'title',
+					// 				type: CommandOptionType.STRING,
+					// 				description: 'What is the title of your project?',
+					// 				required: true,
+					// 			},
+					// 			{
+					// 				name: 'summary',
+					// 				type: CommandOptionType.STRING,
+					// 				description: 'Describe the project in more detail',
+					// 				required: true,
+					// 			},
 
-								{
-									name: 'reward',
-									type: CommandOptionType.STRING,
-									description: 'If this project becomes a bounty, what will be the reward? (i.e 100 BANK)',
-									required: false,
-								},
+					// 			{
+					// 				name: 'reward',
+					// 				type: CommandOptionType.STRING,
+					// 				description: 'If this project becomes a bounty, what will be the reward? (i.e 100 BANK)',
+					// 				required: false,
+					// 			},
 
 
-							],
-						},
+					// 		],
+					// 	},
 
-					],
+					// ],
 				},
 				
 			],
@@ -75,7 +77,7 @@ module.exports = class ScoapSquad extends SlashCommand {
 			// 	],
 			// },
 		});
-		// this.filePath = __filename;
+		this.filePath = __filename;
 	}
 
 	async run(ctx: CommandContext) {
@@ -89,13 +91,13 @@ module.exports = class ScoapSquad extends SlashCommand {
 		let command: Promise<any>;
 		switch (ctx.subcommands[0]) {
 		case 'assemble':
-			if (ctx.subcommands[1] === 'new') {
-				// const params = this.buildScoapCreateNewParams(ctx.options.assemble);
-				console.log('/scoap-squad assemble new ');
-				command = CreateNewScoapPoll(guildMember, ctx);
-			} else {
-				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
-			}
+			// if (ctx.subcommands[1] === 'new') {
+			// const params = this.buildScoapCreateNewParams(ctx.options.assemble);
+			console.log('/scoap-squad assemble new ');
+			command = CreateNewScoapPoll(guildMember, ctx);
+			// } else {
+			// 	return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
+			// }
 			break;
 		default:
 			return ctx.send(`${ctx.user.mention} Please try again.`);

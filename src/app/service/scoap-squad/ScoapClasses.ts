@@ -58,15 +58,15 @@ export class BotConversation {
 		return this;
 	}
 
-	async setCurrentMessageFlowIndex(message_flow_index: string, message: Message): Promise<this> {
+	async setCurrentMessageFlowIndex(message_flow_index: string, channel: TextBasedChannels): Promise<this> {
 		this.current_message_flow_index = message_flow_index;
 		let role_number = '1';
 		if (typeof this.getConvo().user_response_record.roles != 'undefined') {
 			role_number = (Object.keys(this.getConvo().user_response_record.roles).length).toString();
 		}
 
-		if (message_flow_index === '2') {
-			const currMsg = await message.channel.send({
+		if (message_flow_index === '5') {
+			const currMsg = await channel.send({
 				embeds: [
 					new MessageEmbed()
 						.setDescription(this.convo.message_flow[message_flow_index] + role_number)
@@ -76,13 +76,8 @@ export class BotConversation {
 			});
 			this.setCurrentMessage(currMsg);
 		} else {
-			const currMsg = await message.channel.send({
-				embeds: [
-					new MessageEmbed()
-						.setDescription(this.convo.message_flow[message_flow_index])
-						.setColor('#0099ff')
-						.setFooter(constants.SCOAP_SQUAD_EMBED_SPACER),
-				],
+			const currMsg = await channel.send({
+				embeds: this.convo.message_flow[message_flow_index],
 			});
 			this.setCurrentMessage(currMsg);
 		}

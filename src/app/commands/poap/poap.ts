@@ -22,7 +22,7 @@ module.exports = class poap extends SlashCommand {
 				{
 					name: 'start',
 					type: CommandOptionType.SUB_COMMAND,
-					description: 'Begin POAP tracking for the discussion specified by authorized POAP managers.',
+					description: 'Begin POAP event and start tracking participants.',
 					options: [
 						{
 							name: 'event',
@@ -40,7 +40,7 @@ module.exports = class poap extends SlashCommand {
 				{
 					name: 'end',
 					type: CommandOptionType.SUB_COMMAND,
-					description: 'End POAP tracking for the discussion specified by authorized POAP managers.',
+					description: 'End POAP event and receive a list of participants.',
 					options: [
 						{
 							name: 'event',

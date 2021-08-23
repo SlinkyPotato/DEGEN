@@ -13,7 +13,7 @@ export default async (oldState: VoiceState, newState: VoiceState): Promise<any> 
 		return;
 	}
 	
-	if (newState.channelId !== channelIds.DEV_WORKROOM) {
+	if (newState.channelId !== channelIds.COMMUNITY_CALLS_STAGE) {
 		// user did not join community stage
 		return;
 	}

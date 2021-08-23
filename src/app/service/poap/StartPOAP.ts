@@ -20,20 +20,23 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 		return dbInstance.close();
 	} else if (poapSettingsDoc.isActive) {
 		console.log('unable to start due to active event');
-		throw new ValidationError(`Sorry, ${event} active. Please try /poap end`);
+		throw new ValidationError(`Sorry, ${event} is active. Please try \`/poap end\`.`);
 	}
 	
 	await clearPOAPParticipants(db, event);
-	
+	const currentDateStr = (new Date()).toISOString();
+	console.log(currentDateStr);
 	if (!poapSettingsDoc.isActive) {
 		await poapSettingsDB.updateOne({
 			event: event,
 		}, {
 			$set: {
 				isActive: true,
+				startTime: currentDateStr,
 			},
 		});
 	}
+	await guildMember.send({ content: `POAP tracking started for ${event}! Use \`/poap end\` to end event and retrieve list of participants` });
 	return dbInstance.close();
 };
 

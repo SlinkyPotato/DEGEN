@@ -1,4 +1,3 @@
-import { CommandContext } from 'slash-create';
 import constants from '../../constants/constants';
 import BountyUtils from '../../../utils/BountyUtils';
 import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
@@ -11,12 +10,13 @@ import ServiceUtils from '../../../utils/ServiceUtils';
 import envUrls from '../../constants/envUrls';
 import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
 
-export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: CommandContext): Promise<any> => {
+export default async (guildMember: GuildMember, params: BountyCreateNew): Promise<any> => {
 	const title = params.title;
 	const reward = params.reward;
 	
 	await BountyUtils.validateReward(guildMember, reward);
 	await BountyUtils.validateTitle(guildMember, title);
+	BountyUtils.validateNumberOfCopies(guildMember, params.copies);
 
 	const workNeededMessage: Message = await guildMember.send({ content: `Hello <@${guildMember.id}>! Can you tell me a description of your bounty?` });
 	const dmChannel: DMChannel = await workNeededMessage.channel.fetch() as DMChannel;
@@ -35,11 +35,19 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 	const criteria = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	await BountyUtils.validateCriteria(guildMember, criteria);
 	params.criteria = criteria;
-	
+
+	if (params.copies > 1) {
+		const totalReward = params.reward.amount * params.copies;
+		await guildMember.send({ content: `Are you sure you want to publish bounties with a \`total\` reward of \`${totalReward} ${params.reward.currencySymbol}\`? (yes/no)` });
+		const amountConfirmation: string = (await dmChannel.awaitMessages(replyOptions)).first().content;
+		if (!(amountConfirmation == 'yes' || amountConfirmation === 'YES' || amountConfirmation === 'Y')) {
+			return guildMember.send({ content: 'Ok no problem, bounty deleted.' });
+		}
+	}
+
 	let convertedDueDateFromMessage: Date;
 	do {
-		await guildMember.send({ content: 'Is there a `UTC` due date `yyyy-MM-DD`? If not that\'s ok, please reply with **no** ' +
-				'and we\'ll set the end of the season as the due date.' });
+		await guildMember.send({ content: 'Is there a `UTC` due date `yyyy-mm-dd`? (default: no)' });
 		const dueAtMessage = (await dmChannel.awaitMessages(replyOptions)).first().content;
 		if (dueAtMessage !== 'no') {
 			try {
@@ -57,28 +65,31 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
-	const newBounty = generateBountyRecord(params, guildMember);
-
-	const dbInsertResult = await dbBounty.insertOne(newBounty);
-
+	
+	const listOfPrepBounties = [];
+	for (let i = 0; i < params.copies; i++) {
+		listOfPrepBounties.push(generateBountyRecord(params, guildMember));
+	}
+	
+	const dbInsertResult = await dbBounty.insertMany(listOfPrepBounties, { ordered: false });
 	if (dbInsertResult == null) {
-		console.error('failed to insert bounty into DB');
+		console.error('failed to insert bounties into DB');
 		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
-
 	console.log(`user ${guildMember.user.tag} inserted into db`);
-
+	const listOfBountyIds = Object.values(dbInsertResult.insertedIds).map(String);
+	const newBounty = listOfPrepBounties[0];
 	const messageOptions: MessageOptions = {
 		embeds: [{
 			title: newBounty.title,
-			url: (envUrls.BOUNTY_BOARD_URL + dbInsertResult.insertedId),
+			url: (envUrls.BOUNTY_BOARD_URL + listOfBountyIds[0]),
 			author: {
 				icon_url: guildMember.user.avatarURL(),
 				name: newBounty.createdBy.discordHandle,
 			},
 			description: newBounty.description,
 			fields: [
-				{ name: 'HashId', value: dbInsertResult.insertedId.toString(), inline: false },
+				{ name: 'HashId', value: listOfBountyIds[0], inline: false },
 				{ name: 'Reward', value: BountyUtils.formatBountyAmount(newBounty.reward.amount, newBounty.reward.scale) + ' ' + newBounty.reward.currency.toUpperCase(), inline: true },
 				{ name: 'Status', value: 'Open', inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(newBounty.dueAt), inline: true },
@@ -94,14 +105,13 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: C
 	await dbInstance.close();
 	
 	await guildMember.send('Thank you! Does this look right?');
-	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty!`);
 	const message: Message = await guildMember.send(messageOptions);
 	
 	await message.react('👍');
 	await message.react('📝');
 	await message.react('❌');
-
-	return handleBountyReaction(message, guildMember, dbInsertResult.insertedId);
+	
+	return handleBountyReaction(message, guildMember, listOfBountyIds);
 };
 
 export const generateBountyRecord = (bountyParams: BountyCreateNew, guildMember: GuildMember): any => {
@@ -133,7 +143,7 @@ export const generateBountyRecord = (bountyParams: BountyCreateNew, guildMember:
 	};
 };
 
-const handleBountyReaction = (message: Message, guildMember: GuildMember, bountyId: string): Promise<any> => {
+const handleBountyReaction = (message: Message, guildMember: GuildMember, bountyIds: string[]): Promise<any> => {
 	return message.awaitReactions({
 		max: 1,
 		time: (6000 * 60),
@@ -141,17 +151,35 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, bounty
 		filter: async (reaction, user) => {
 			return ['📝', '👍', '❌'].includes(reaction.emoji.name) && !user.bot;
 		},
-	}).then(collected => {
+	}).then(async collected => {
 		const reaction: MessageReaction = collected.first();
 		if (reaction.emoji.name === '👍') {
 			console.log('/bounty create new | :thumbsup: up given');
-			return finalizeBounty(guildMember, bountyId);
+			for (const bountyId of bountyIds) {
+				await finalizeBounty(guildMember, bountyId);
+			}
+			return;
 		} else if (reaction.emoji.name === '📝') {
 			console.log('/bounty create new | :pencil: given');
-			return UpdateEditKeyBounty(guildMember, bountyId);
+			if (bountyIds.length > 1) {
+				// TODO: add support to edit multiple bounties in UI
+				await guildMember.send({ content: 'Sorry, edit not available for multiple bounties' });
+				for (const bountyId of bountyIds) {
+					await deleteBountyForValidId(guildMember, bountyId);
+				}
+				return;
+			} else {
+				for (const bountyId of bountyIds) {
+					await UpdateEditKeyBounty(guildMember, bountyId);
+				}
+			}
+			return;
 		} else {
 			console.log('/bounty create new | delete given');
-			return deleteBountyForValidId(guildMember, bountyId);
+			for (const bountyId of bountyIds) {
+				await deleteBountyForValidId(guildMember, bountyId);
+			}
+			return;
 		}
 	}).catch(console.error);
 };

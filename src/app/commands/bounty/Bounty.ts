@@ -67,6 +67,12 @@ module.exports = class Bounty extends SlashCommand {
 							description: 'What is the reward? (i.e 100 BANK)',
 							required: true,
 						},
+						{
+							name: 'copies',
+							type: CommandOptionType.INTEGER,
+							description: 'How many bounties should be published? (level 3+, max 100)',
+							required: false,
+						},
 					],
 				},
 				{
@@ -204,7 +210,7 @@ module.exports = class Bounty extends SlashCommand {
 		case 'create':
 			params = this.buildBountyCreateNewParams(ctx.options.create);
 			console.log('/bounty create ' + params.title);
-			command = CreateNewBounty(guildMember, params, ctx);
+			command = CreateNewBounty(guildMember, params);
 			break;
 		case 'publish':
 			console.log('/bounty publish ');
@@ -248,15 +254,18 @@ module.exports = class Bounty extends SlashCommand {
 	
 	buildBountyCreateNewParams(ctxOptions): BountyCreateNew {
 		const [reward, symbol] = (ctxOptions.reward != null) ? ctxOptions.reward.split(' ') : [null, null];
+		const copies = (ctxOptions.copies == null || ctxOptions.copies <= 0) ? 1 : ctxOptions.copies;
 		let scale = reward.split('.')[1]?.length;
 		scale = (scale != null) ? scale : 0;
 		return {
 			title: ctxOptions.title,
 			reward: {
-				amount: reward.replace('.', ''),
+				amount: reward,
 				currencySymbol: symbol,
 				scale: scale,
+				amountWithoutScale:  reward.replace('.', ''),
 			},
+			copies: copies,
 		};
 	}
 };

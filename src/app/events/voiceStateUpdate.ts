@@ -1,5 +1,5 @@
 import { VoiceState } from 'discord.js';
-import addUserForCommunityCall from './poap/addUserForCommunityCall';
+import addUserForEvent from './poap/addUserForEvent';
 
 /**
  * voiceStateUpdate
@@ -15,7 +15,7 @@ module.exports = {
 	 * @param newState The voice state after the update
 	 */
 	execute(oldState: VoiceState, newState: VoiceState): void {
-		addUserForCommunityCall(oldState, newState).catch(console.error);
+		addUserForEvent(oldState, newState).catch(console.error);
 		return;
 	},
 };

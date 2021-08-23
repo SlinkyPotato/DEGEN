@@ -77,12 +77,12 @@ module.exports = class poap extends SlashCommand {
 		try {
 			switch (ctx.subcommands[0]) {
 			case 'start':
-				console.log('/poap start');
+				console.log(`/poap start event:${ctx.options.start.event}`);
 				command = StartPOAP(guildMember, ctx.options.start.event);
 				break;
 			case 'end':
-				console.log('/poap end');
-				command = EndPOAP(guildMember);
+				console.log(`/poap end event:${ctx.options.end.event}`);
+				command = EndPOAP(guildMember, ctx.options.end.event);
 				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);

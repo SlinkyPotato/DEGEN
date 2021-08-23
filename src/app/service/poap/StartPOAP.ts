@@ -5,27 +5,35 @@ import constants from '../constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import ValidationError from '../../errors/ValidationError';
 
-export default async (guildMember: GuildMember, occasion: string): Promise<any> => {
+export default async (guildMember: GuildMember, event: string): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
-		occasion: occasion,
+		event: event,
 	});
-	
+	console.log('settings found');
 	if (poapSettingsDoc == null) {
 		console.log(`setting up first time poap configuration for ${guildMember.user.tag}`);
-		await setupPoapSetting(guildMember, poapSettingsDB, occasion);
+		await setupPoapSetting(guildMember, poapSettingsDB, event);
+		await clearPOAPParticipants(db, event);
+		return dbInstance.close();
 	} else if (poapSettingsDoc.isActive) {
-		console.log('unable to start due to active occasion');
-		throw new ValidationError(`Sorry, ${occasion} active. Please try /poap end`);
+		console.log('unable to start due to active event');
+		throw new ValidationError(`Sorry, ${event} active. Please try /poap end`);
 	}
 	
-	console.log(`attempting to delete all previous participants for occasion: ${occasion}`);
-	const poapParticipantsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
-	await poapParticipantsDB.deleteMany({
-		event: occasion,
-	});
+	await clearPOAPParticipants(db, event);
+	
+	if (!poapSettingsDoc.isActive) {
+		await poapSettingsDB.updateOne({
+			event: event,
+		}, {
+			$set: {
+				isActive: true,
+			},
+		});
+	}
 	return dbInstance.close();
 };
 
@@ -42,4 +50,13 @@ export const setupPoapSetting = async (guildMember: GuildMember, poapSettingsDB:
 		throw new MongoError('failed to insert poapSettings');
 	}
 	return result.ops.pop();
+};
+
+export const clearPOAPParticipants = async (db: Db, event: string): Promise<void> => {
+	console.log(`attempting to delete all previous participants for event: ${event}...`);
+	const poapParticipantsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
+	await poapParticipantsDB.deleteMany({
+		event: event,
+	});
+	console.log('removed all previous participants.');
 };

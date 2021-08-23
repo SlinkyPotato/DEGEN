@@ -2,16 +2,16 @@
   "$jsonSchema": {
     "bsonType": "object",
     "required": [
-      "occasion",
+      "event",
       "isActive",
       "startTime",
       "poapManagerId",
       "poapManagerTag"
     ],
     "properties": {
-      "occasion": {
+      "event": {
         "bsonType": "string",
-        "description": "The occasion for the discussion which should be an enum, COMMUNITY_CALL."
+        "description": "The event for the discussion which should be an enum, COMMUNITY_CALL."
       },
       "isActive": {
         "bsonType": "bool",

@@ -23,15 +23,16 @@ export default async (guildMember: GuildMember, occasion: string): Promise<any> 
 	
 	console.log(`attempting to delete all previous participants for occasion: ${occasion}`);
 	const poapParticipantsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
-	return poapParticipantsDB.deleteMany({
-		occasion: occasion,
+	await poapParticipantsDB.deleteMany({
+		event: occasion,
 	});
+	return dbInstance.close();
 };
 
 export const setupPoapSetting = async (guildMember: GuildMember, poapSettingsDB: Collection, occasion: string): Promise<POAPSettings> => {
 	const currentDateStr = (new Date()).toISOString();
 	const result: InsertOneWriteOpResult<POAPSettings> = await poapSettingsDB.insertOne({
-		occasion: occasion,
+		event: occasion,
 		isActive: true,
 		startTime: currentDateStr,
 		poapManagerId: guildMember.user.id,

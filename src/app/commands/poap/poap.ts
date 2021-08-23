@@ -25,9 +25,9 @@ module.exports = class poap extends SlashCommand {
 					description: 'Begin POAP tracking for the discussion specified by authorized POAP managers.',
 					options: [
 						{
-							name: 'occasion',
+							name: 'event',
 							type: CommandOptionType.STRING,
-							description: 'The occasion for the discussion, most likely a guild or community call',
+							description: 'The event for the discussion, most likely a guild or community call',
 							choices: [
 								{
 									name: 'Community Call',
@@ -43,9 +43,9 @@ module.exports = class poap extends SlashCommand {
 					description: 'End POAP tracking for the discussion specified by authorized POAP managers.',
 					options: [
 						{
-							name: 'occasion',
+							name: 'event',
 							type: CommandOptionType.STRING,
-							description: 'The occasion for the discussion, most likely a guild or community call',
+							description: 'The event for the discussion, most likely a guild or community call',
 							choices: [
 								{
 									name: 'Community Call',
@@ -78,7 +78,7 @@ module.exports = class poap extends SlashCommand {
 			switch (ctx.subcommands[0]) {
 			case 'start':
 				console.log('/poap start');
-				command = StartPOAP(guildMember, ctx.options.start.occasion);
+				command = StartPOAP(guildMember, ctx.options.start.event);
 				break;
 			case 'end':
 				console.log('/poap end');

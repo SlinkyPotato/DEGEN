@@ -5,8 +5,8 @@
       "occasion",
       "isActive",
       "startTime",
-      "endTime",
-      "distributorDiscordId"
+      "poapManagerId",
+      "poapManagerTag"
     ],
     "properties": {
       "occasion": {
@@ -25,7 +25,11 @@
         "bsonType": "string",
         "description": "ISO8601 of when the meeting ended"
       },
-      "distributorDiscordId": {
+      "poapManagerId": {
+        "bsonType": "string",
+        "description": "Discord Id of the user that is configured to use this command"
+      },
+      "poapManagerTag": {
         "bsonType": "string",
         "description": "Discord handle of the user that is configured to use this command"
       }

@@ -11,27 +11,27 @@
     "properties": {
       "occasion": {
         "bsonType": "string",
-        "description": "The occasion for the discussion which should be an enum, COMMUNITY_CALL"
+        "description": "The occasion for the discussion which should be an enum, COMMUNITY_CALL."
       },
       "isActive": {
         "bsonType": "bool",
-        "description": "Indicator whether the call is currently active"
+        "description": "Indicator whether the call is currently active."
       },
       "startTime": {
         "bsonType": "string",
-        "description": "ISO8601 of when the meeting started"
+        "description": "ISO8601 of when the meeting started."
       },
       "endTime": {
         "bsonType": "string",
-        "description": "ISO8601 of when the meeting ended"
+        "description": "ISO8601 of when the meeting ended."
       },
       "poapManagerId": {
         "bsonType": "string",
-        "description": "Discord Id of the user that is configured to use this command"
+        "description": "Discord Id of the user that is configured to use this command."
       },
       "poapManagerTag": {
         "bsonType": "string",
-        "description": "Discord handle of the user that is configured to use this command"
+        "description": "Discord handle of the user that is configured to use this command."
       }
     }
   }

@@ -1,19 +1,19 @@
 import { CommandContext, User } from 'slash-create';
-import { GuildMember, Message, MessageReaction, TextChannel, MessageEmbed, TextBasedChannels } from 'discord.js';
+import { GuildMember, Message, MessageReaction, TextChannel } from 'discord.js';
 import { BotConversation } from './ScoapClasses';
 import constants from '../constants/constants';
 import channelIds from '../constants/channelIds';
 import client from '../../app';
 import ScoapPoll from './ScoapPoll';
 import { scoapEmbedArray, botConvoArray } from '../../app';
+import { scoapEmbedEdit } from './EditScoapDraft';
+
 
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
 	ctx?.send(`Hi, ${ctx.user.mention}! I sent you a DM with more information.`);
 	const botConvo = await createBotConversation(guildMember);
 	return initiateScoapDraft(botConvo);
 };
-
-// handleDmReaction
 
 export const handleScoapDraftReaction = (option: string, params: Array<any>): Promise<any> => {
 	return params[0].awaitReactions({
@@ -26,13 +26,14 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 	}).then(async collected => {
 		const message = params[0];
 		const botConvo = params[1];
+		const scoapEmbed = params[2];
 		const reaction: MessageReaction = collected.first();
 		if (reaction.emoji.name === '👍') {
 			switch (option) {
 			case 'SET_ROLES':
 				return botConvo.setCurrentMessageFlowIndex('2', message.channel);
 			case 'PUBLISH':
-				return publishScoapPoll(message, botConvo, params[2]);
+				return publishScoapPoll(message, scoapEmbed, botConvo);
 			}
 		} else if (reaction.emoji.name === '❌') {
 			switch (option) {
@@ -44,6 +45,12 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 		} else if (reaction.emoji.name === 'ℹ️') {
 			await message.channel.send({ embeds: botConvo.getConvo().help_message_embeds });
 			return initiateScoapDraft(botConvo);
+		} else if (reaction.emoji.name === '📝') {
+			const edit_message_object = scoapEmbedEdit(scoapEmbed);
+			const select_input_msg = await message.channel.send(edit_message_object);
+			botConvo.setCurrentMessage(select_input_msg);
+
+			// return initiateScoapDraft(botConvo);
 		} else {
 			console.log('notepad given, launch edit');
 			// handle edit #TODO
@@ -52,6 +59,16 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 		console.log(_);
 		console.log('did not react');
 	});
+};
+
+export const publishDraftScoapEmbed = async (botConvo, scoapEmbed, channel): Promise<any> => {
+	const verifyMessage = await channel.send({ embeds: scoapEmbed.getEmbed() });
+	scoapEmbed.setCurrentMessage(verifyMessage);
+	await verifyMessage.react('👍');
+	await verifyMessage.react('📝');
+	await verifyMessage.react('❌');
+
+	return handleScoapDraftReaction('PUBLISH', [verifyMessage, botConvo, scoapEmbed]);
 };
 
 
@@ -70,7 +87,8 @@ const createBotConversation = async (guildMember: GuildMember): Promise<any> => 
 	botConvo.setTimeout(constants.BOT_CONVERSATION_TIMEOUT_MS)
 		.setExpired(false)
 		.setConvo(createBotConversationParams(guildMember))
-		.setCurrentChannel(channel);
+		.setCurrentChannel(channel)
+		.setEdit(false);
 	botConvoArray.push(botConvo);
 	return botConvo;
 };
@@ -113,9 +131,7 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 							'the creation of your SCOAP Squad. ' +
 							'If you want to learn more about the setup process ' +
 							'and what the final product will look like, ' +
-							'click the **help** emoji. ' +
-							'You can abort the setup ' +
-							'process any time by responding with **!cancel**.',
+							'click the **help** emoji. ',
 					},
 				],
 				footer: { text: '👍 - start | ℹ️ - help | ❌ - cancel' },
@@ -145,7 +161,7 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 				fields: [
 					{
 						name: '\u200b',
-						value: 'Enter a reward (e.g. 1000 BANK) or respond with !skip to skip this step',
+						value: 'Enter a reward (e.g. 1000 BANK) or respond with **!skip** to skip this step',
 					},
 				],
 				footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
@@ -168,7 +184,7 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 				fields: [
 					{
 						name: '\u200b',
-						value: 'What is the title of role # ',
+						value: 'Title of role ',
 					},
 				],
 				footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
@@ -178,7 +194,7 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 				fields: [
 					{
 						name: '\u200b',
-						value: 'How many people do you need in this role: ',
+						value: 'How many people do you need in this role? ',
 					},
 				],
 				footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
@@ -188,7 +204,9 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 				fields: [
 					{
 						name: '\u200b',
-						value: 'SCOAP Squad setup complete, please verify the layout: ',
+						value: 'SCOAP Squad setup complete. Below you can see the layout. ' +
+							   'If you want to make changes you can do so now by hitting the edit emoji. ' +
+							   '**Once you hit publish, editing will no longer be possible**',
 					},
 				],
 				footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
@@ -203,7 +221,7 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 					name: guildMember.user.tag,
 				},
 				fields: [],
-				footer: { text: '👍 - confirm | 📝 - edit | ❌ - delete' },
+				footer: { text: '👍 - publish | 📝 - edit | ❌ - delete' },
 			}],
 			number_of_roles: 0,
 			user: guildMember.user,

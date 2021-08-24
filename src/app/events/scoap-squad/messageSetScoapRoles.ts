@@ -1,9 +1,9 @@
-import { handleScoapDraftReaction } from '../../service/scoap-squad/CreateNewScoapPoll';
+import { publishDraftScoapEmbed } from '../../service/scoap-squad/CreateNewScoapPoll';
 import { scoapEmbedArray, botConvoArray } from '../../app';
-import { Message, MessageEmbed } from 'discord.js';
+import { Message } from 'discord.js';
 import constants from '../../service/constants/constants';
 import { ScoapEmbed } from '../../service/scoap-squad/ScoapClasses';
-
+import { scoapEmbedUpdate } from '../../service/scoap-squad/EditScoapDraft';
 
 export default async (message: Message): Promise<any> => {
 
@@ -11,8 +11,12 @@ export default async (message: Message): Promise<any> => {
 	if (botConvoIndex === -1) return;
 	const botConvo = botConvoArray[botConvoIndex];
 
-	
 	if (messageIsValid(message, botConvo)) {
+
+		if (botConvo.getEdit()) {
+			scoapEmbedUpdate(botConvo, message.content);
+		};
+
 		switch (true) {
 		case (botConvo.getCurrentMessageFlowIndex() === '2'):
 			setUserResponseRecord(message.content, botConvo, 'TITLE');
@@ -63,13 +67,8 @@ export default async (message: Message): Promise<any> => {
 							createScoapEmbedFields(botConvo, scoapEmbed, i);
 							// console.log('AYE', i);
 						});
-						const verifyMessage = await message.channel.send({ content: 'Please verify the final draft', embeds: scoapEmbed.getEmbed() });
-						await verifyMessage.react('👍');
-						await verifyMessage.react('📝');
-						await verifyMessage.react('❌');
 
-						return handleScoapDraftReaction('PUBLISH', [verifyMessage, scoapEmbed, botConvo]);
-
+						return publishDraftScoapEmbed(botConvo, scoapEmbed, message.channel);
 					};
 					break;
 				}
@@ -85,7 +84,9 @@ const createNewScoapEmbed = (botConvo): any => {
 	const scoapEmbed = new ScoapEmbed();
 	scoapEmbed.setEmbed(botConvo.getConvo().user_response_record.embed)
 		.setScoapAuthor(botConvo.getConvo().user_response_record.user)
-		.setVotableEmojiArray([]);
+		.setVotableEmojiArray([])
+		.setCurrentChannel(botConvo.getCurrentChannel())
+		.setCurrentMessage(botConvo.getCurrentMessage());
 	scoapEmbed.getEmbed()[0].fields.push({ name: '\u200b', value: constants.SCOAP_SQUAD_EMBED_SPACER });
 	scoapEmbedArray.push(scoapEmbed);
 	return scoapEmbed;
@@ -222,58 +223,3 @@ const retrieveObjectFromArray = (array, channel) => {
 const isInteger = (value) => {
 	return /^\d+$/.test(value);
 };
-
-
-
-// const hasUserResponse = (botConvo) => {
-// 	return ('1' in botConvo.getConvo().user_response_record);
-// };
-
-		// if ((hasUserResponse(botConvo))) {
-		// 	switch (true) {
-		// 	case (validateTotalNumberOfRoles(message.content)):
-		// 		setUserResponseRecord(message.content, botConvo, 'TOTAL_ROLES');
-		// 		incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
-		// 		return;
-		// 	default:
-		// 		incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'number between 1 and 9']);
-		// 		return;
-		// 	}
-		// } else if (hasUserResponse(botConvo)) {
-		// 	if (!('roles' in botConvo.getConvo().user_response_record)) {
-		// 		initiateRolesRecord(botConvo);
-		// 	}
-		// 	if (getNumberOfRolesRecorded(botConvo) <= getTotalNumberOfRoles(botConvo)) {
-		// 		switch (true) {
-		// 		case (botConvo.getCurrentMessageFlowIndex() === '2'):
-		// 			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
-		// 			setUserResponseRecord(message.content, botConvo, 'ROLE_TITLE');
-		// 			break;
-		// 		case (botConvo.getCurrentMessageFlowIndex() === '3'):
-		// 			setUserResponseRecord(message.content, botConvo, 'ROLE_COUNT');
-		// 			// if true we continue the loop
-		// 			if (getNumberOfRolesRecorded(botConvo) < getTotalNumberOfRoles(botConvo)) {
-		// 				setUserResponseRecord({}, botConvo, 'NEW_ROLE');
-		// 				incrementMessageFlowIndex(botConvo, message, ['CORRECT', -1]);
-		// 			// if true this is last iteration
-		// 			} else if (getNumberOfRolesRecorded(botConvo) == getTotalNumberOfRoles(botConvo)) {
-		// 				incrementMessageFlowIndex(botConvo, message, ['FINAL', +1]);
-		// 				const scoapEmbedIndex = retrieveObjectFromArray(scoapEmbedArray, message.channel);
-		// 				const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
-						
-		// 				Array(parseInt(botConvo.getConvo().user_response_record['1'])).fill(0).map((_, i) => {
-		// 					createScoapEmbedFields(botConvo, scoapEmbed, i);
-		// 				});
-
-		// 				const verifyMessage = await message.channel.send({ content: 'Please verify the final draft', embeds: [scoapEmbed.getEmbed()] });
-		// 				await verifyMessage.react('👍');
-		// 				await verifyMessage.react('📝');
-		// 				await verifyMessage.react('❌');
-
-		// 				return handleScoapDraftReaction('PUBLISH', [verifyMessage, scoapEmbed, botConvo]);
-
-		// 			};
-		// 			break;
-		// 		}
-		// 	}
-		// }

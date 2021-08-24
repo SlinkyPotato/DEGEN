@@ -8,6 +8,16 @@ export class BotConversation {
 	current_message_flow_index: string;
 	current_channel: TextBasedChannels;
 	current_message: Message;
+	edit: boolean;
+	edit_value: any;
+
+	getEditValue(): any {
+		return this.edit_value;
+	}
+
+	getEdit(): boolean {
+		return this.edit;
+	}
 
 	getTimeout(): number {
 		return this.timeout;
@@ -32,6 +42,17 @@ export class BotConversation {
 	getCurrentMessage(): Message {
 		return this.current_message;
 	}
+
+	setEditValue(edit_value: any): this {
+		this.edit_value = edit_value;
+		return this;
+	}
+
+	setEdit(edit: boolean): this {
+		this.edit = edit;
+		return this;
+	}
+
 
 	setCurrentChannel(current_channel: TextBasedChannels): this {
 		this.current_channel = current_channel;

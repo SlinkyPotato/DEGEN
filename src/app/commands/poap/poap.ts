@@ -16,7 +16,7 @@ module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'poap',
-			description: 'Receive a list of all attendees in the specified voice channel',
+			description: 'Receive a list of all attendees in the specified voice channel and optionally send out POAP links',
 			guildIDs: process.env.DISCORD_SERVER_ID,
 			options: [
 				{
@@ -32,6 +32,10 @@ module.exports = class poap extends SlashCommand {
 								{
 									name: 'Community Call',
 									value: 'COMMUNITY_CALL',
+								},
+								{
+									name: 'Dev Guild',
+									value: 'DEV_GUILD',
 								},
 							],
 						},
@@ -50,6 +54,10 @@ module.exports = class poap extends SlashCommand {
 								{
 									name: 'Community Call',
 									value: 'COMMUNITY_CALL',
+								},
+								{
+									name: 'Dev Guild',
+									value: 'DEV_GUILD',
 								},
 							],
 						},

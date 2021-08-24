@@ -25,7 +25,6 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	
 	await clearPOAPParticipants(db, event);
 	const currentDateStr = (new Date()).toISOString();
-	console.log(currentDateStr);
 	if (!poapSettingsDoc.isActive) {
 		await poapSettingsDB.updateOne({
 			event: event,

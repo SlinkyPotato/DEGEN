@@ -22,7 +22,7 @@ module.exports = class Help extends SlashCommand {
 				{
 					name: 'poap',
 					type: CommandOptionType.SUB_COMMAND,
-					description: 'Information on how to start, stop, and optionall send out POAP links',
+					description: 'Information on how to start, stop, and optionally send out POAP links',
 				},
 			],
 			throttling: {

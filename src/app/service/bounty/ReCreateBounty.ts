@@ -27,7 +27,7 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 	}
 
 	const messageOptions: MessageOptions = generateEmbedMessage(bountyCollection, guildMember.user.avatarURL());
-	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIds.bountyBoard) as TextChannel;
+	const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(channelIds.bountyBoard) as TextChannel;
 	const embedMessage = messageOptions.embeds[0];
 	let message: Message;
 	
@@ -81,7 +81,7 @@ export const generateEmbedMessage = (bounty: BountyCollection, iconUrl: string):
 				{ name: 'Reward', value: bounty.reward.amount + ' ' + bounty.reward.currency.toUpperCase(), inline: true },
 				{ name: 'Status', value: bounty.status, inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(bounty.dueAt), inline: true },
-				{ name: 'Created By', value: bounty.createdBy.discordHandle, inline: true },
+				{ name: 'Created by', value: bounty.createdBy.discordHandle, inline: true },
 			],
 			timestamp: new Date(),
 		}],

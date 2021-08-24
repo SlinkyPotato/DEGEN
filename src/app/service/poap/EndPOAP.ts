@@ -41,7 +41,7 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	};
 	const sendOutPOAPYN = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
-		await guildMember.send({ content: 'Please send a file of the POAP links (url per line).' });
+		await guildMember.send({ content: 'Ok! Please send a file of the POAP links (url per line).' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 		await sendOutPOAPLinks(guildMember.guild, listOfParticipants, poapLinksFile);
 	} else {

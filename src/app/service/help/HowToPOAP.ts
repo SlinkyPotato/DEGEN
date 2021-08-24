@@ -5,7 +5,7 @@ export default (): MessageOptions => {
 		embeds: [{
 			title: 'POAP Distribution Information',
 			description: 'Thank you for checking out POAP distribution!\n\n' +
-				'This bot can be used to record attendees and distribute POAP links to those same attendees.',
+				'I can record attendees and distribute POAP links to those same attendees.',
 			fields: [
 				{
 					name: '-> /poap start',

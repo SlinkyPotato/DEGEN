@@ -5,6 +5,7 @@ import {
 	SlashCreator,
 } from 'slash-create';
 import HowToBounty from '../../service/help/HowToBounty';
+import HowToPOAP from '../../service/help/HowToPOAP';
 
 module.exports = class Help extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -17,6 +18,11 @@ module.exports = class Help extends SlashCommand {
 					name: 'bounty',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'Information on how to create, claim, complete, and delete bounties',
+				},
+				{
+					name: 'poap',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Information on how to start, stop, and optionally send out POAP links',
 				},
 			],
 			throttling: {
@@ -35,6 +41,10 @@ module.exports = class Help extends SlashCommand {
 		case 'bounty':
 			console.log('/help bounty');
 			messageOptions = HowToBounty();
+			break;
+		case 'poap':
+			console.log('/help poap');
+			messageOptions = HowToPOAP();
 			break;
 		}
 

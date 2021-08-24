@@ -46,6 +46,7 @@ function initializeClient(): Client {
 			Intents.FLAGS.GUILDS,
 			Intents.FLAGS.GUILD_MEMBERS,
 			Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
+			Intents.FLAGS.GUILD_VOICE_STATES,
 			Intents.FLAGS.GUILD_PRESENCES,
 			Intents.FLAGS.GUILD_MESSAGES,
 			Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
@@ -61,10 +62,14 @@ function initializeEvents(): void {
 	const eventFiles = fs.readdirSync(path.join(__dirname, '/events')).filter(file => file.endsWith('.js'));
 	eventFiles.forEach(file => {
 		const event = require(`./events/${file}`);
-		if (event.once) {
-			client.once(event.name, (...args) => event.execute(...args, client));
-		} else {
-			client.on(event.name, (...args) => event.execute(...args, client));
+		try {
+			if (event.once) {
+				client.once(event.name, (...args) => event.execute(...args, client));
+			} else {
+				client.on(event.name, (...args) => event.execute(...args, client));
+			}
+		} catch (e) {
+			console.error(e);
 		}
 	});
 }

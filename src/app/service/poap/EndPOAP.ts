@@ -32,7 +32,7 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 		files: [{ name: `${event}_${listOfParticipants.length}_participants.txt`, attachment: bufferFile }],
 	});
 
-	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Would you like me send out POAP links to participants? `(default: no)`' });
+	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Would you like me send out POAP links to participants? `(yes/no)`' });
 	const dmChannel: DMChannel = await sendOutPOAPReplyMessage.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,

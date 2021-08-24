@@ -25,7 +25,7 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	}
 	console.log(`event ${event} ended`);
 	const listOfParticipants = await getListOfParticipants(guildMember, db, event);
-	const bufferFile = await getBufferFromParticipants(listOfParticipants);
+	const bufferFile = await getBufferFromParticipants(listOfParticipants, event);
 	const currentDate = (new Date()).toISOString();
 	await guildMember.send({
 		content: `Hello! Below is a list of the participants for ${event} on \`${currentDate} UTC\`.`,
@@ -70,7 +70,7 @@ export const getListOfParticipants = async (guildMember: GuildMember, db: Db, ev
 	return participants;
 };
 
-export const getBufferFromParticipants = async (participants: {id: string, tag: string}[]): Promise<Buffer> => {
+export const getBufferFromParticipants = async (participants: {id: string, tag: string}[], event: string): Promise<Buffer> => {
 	if (participants.length === 0) {
 		console.log(`no participants found for ${event}`);
 		return Buffer.from('', 'utf-8');

@@ -28,8 +28,8 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	const bufferFile = await getBufferFromParticipants(listOfParticipants);
 	const currentDate = (new Date()).toISOString();
 	await guildMember.send({
-		content: `Hello! Below is a list of the participants for ${event} on \`${currentDate} UTC\`.`,
-		files: [{ name: `${event}_participants.txt`, attachment: bufferFile }],
+		content: `Hello! There were a total of \`${listOfParticipants.length} participants\` for ${event} on \`${currentDate} UTC\`.`,
+		files: [{ name: `${event}_${listOfParticipants.length}_participants.txt`, attachment: bufferFile }],
 	});
 
 	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Would you like me send out POAP links to participants? `(default: no)`' });
@@ -41,7 +41,7 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	};
 	const sendOutPOAPYN = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
-		await guildMember.send({ content: 'Please send a file of the POAP links (url per line).' });
+		await guildMember.send({ content: `Please send the POAP links file with \`${listOfParticipants.length} links\` (1 url per line).` });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 		await sendOutPOAPLinks(guildMember.guild, listOfParticipants, poapLinksFile);
 	} else {

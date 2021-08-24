@@ -12,8 +12,8 @@
         "prestart": "yarn install && yarn build",
         "pretest": "yarn install && yarn build",
         "start": "node --trace-warnings -r dotenv/config dist/app/app.js",
-        "lint": "eslint src/**/*.ts --fix",
-        "format": "prettier --write src/**/*",
+        "lint": "eslint src/**/*.ts",
+        "format": "eslint src/**/*.ts --fix",
         "watch": "tsc -p tsconfig.json -w"
     },
     "repository": {

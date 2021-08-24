@@ -55,8 +55,7 @@ module.exports = class NotionFAQs extends SlashCommand {
 				});
 				ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 				return guildMember.send(replyStr.substring(0, 1950));
-			}
-			else {
+			} else {
 				// Try to find the answer to the given question
 				const validQuestion = faqQuestion.replace(/[^\w\s]/gi, '');
 

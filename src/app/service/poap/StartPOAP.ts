@@ -1,12 +1,12 @@
-import {Guild, GuildMember, VoiceChannel} from 'discord.js';
+import { Guild, GuildMember, VoiceChannel } from 'discord.js';
 import { Collection, Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import ValidationError from '../../errors/ValidationError';
 import poapEvents from '../constants/poapEvents';
-import channelIds from "../constants/channelIds";
-import {storeUserForPOAP} from "../../events/poap/addUserForEvent";
+import channelIds from '../constants/channelIds';
+import { storeUserForPOAP } from '../../events/poap/addUserForEvent';
 
 export default async (guildMember: GuildMember, event: string): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);

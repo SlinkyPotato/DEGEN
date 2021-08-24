@@ -2,7 +2,7 @@ import constants from '../constants/constants';
 import { Cursor, Db } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
 import dbInstance from '../../utils/db';
-import {GuildMember, MessageEmbedOptions } from 'discord.js';
+import { GuildMember, MessageEmbedOptions } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import { generateEmbedMessage } from './create/PublishBounty';
 

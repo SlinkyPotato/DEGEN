@@ -6,7 +6,7 @@ import {
 } from 'slash-create';
 import HowToBounty from '../../service/help/HowToBounty';
 
-module.exports = class Help extends SlashCommand {
+export default class Help extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'help',

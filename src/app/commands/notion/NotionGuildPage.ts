@@ -1,7 +1,7 @@
 import { SlashCommand, CommandOptionType } from 'slash-create';
 import notionPageRefs from '../../service/notion/NotionGuildPages';
 
-module.exports = class NotionGuildPage extends SlashCommand {
+export default class NotionGuildPage extends SlashCommand {
 	constructor(creator) {
 		super(creator, {
 			name: 'notion',
@@ -74,8 +74,6 @@ module.exports = class NotionGuildPage extends SlashCommand {
 				duration: 1,
 			},
 		});
-
-		this.filePath = __filename;
 	}
 
 	async run(ctx) {

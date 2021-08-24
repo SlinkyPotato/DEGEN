@@ -25,7 +25,7 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	}
 	console.log(`event ${event} ended`);
 	const listOfParticipants = await getListOfParticipants(guildMember, db, event);
-	const bufferFile = await getBufferFromParticipants(listOfParticipants);
+	const bufferFile = await getBufferFromParticipants(listOfParticipants, event);
 	const currentDate = (new Date()).toISOString();
 	await guildMember.send({
 		content: `Hello! There were a total of \`${listOfParticipants.length} participants\` for ${event} on \`${currentDate} UTC\`.`,
@@ -41,7 +41,7 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	};
 	const sendOutPOAPYN = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
-		await guildMember.send({ content: `Please send the POAP links file with \`${listOfParticipants.length} links\` (1 url per line).` });
+		await guildMember.send({ content: 'Ok! Please send a file of the POAP links (url per line).' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 		await sendOutPOAPLinks(guildMember.guild, listOfParticipants, poapLinksFile);
 	} else {
@@ -70,7 +70,7 @@ export const getListOfParticipants = async (guildMember: GuildMember, db: Db, ev
 	return participants;
 };
 
-export const getBufferFromParticipants = async (participants: {id: string, tag: string}[]): Promise<Buffer> => {
+export const getBufferFromParticipants = async (participants: {id: string, tag: string}[], event: string): Promise<Buffer> => {
 	if (participants.length === 0) {
 		console.log(`no participants found for ${event}`);
 		return Buffer.from('', 'utf-8');

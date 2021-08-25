@@ -15,7 +15,6 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
 		event: event,
 	});
-	console.log('settings found');
 
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
 		console.log('unable to start due to active event');

@@ -1,10 +1,11 @@
 import { botConvoArray } from '../../app';
 import { SelectMenuInteraction } from 'discord.js';
+import ScoapUtils from '../../utils/ScoapUtils';
 // import { retrieveFieldValues, retrieveRoleFields } from '../../service/scoap-squad/EditScoapDraft';
 // import { scoapEmbedUpdate } from '../../service/scoap-squad/EditScoapDraft';
 
 export default async (interaction: SelectMenuInteraction): Promise<any> => {
-	const botConvoIndex = retrieveObjectFromArray(botConvoArray, interaction.channel);
+	const botConvoIndex = ScoapUtils.retrieveObjectFromArray(botConvoArray, interaction.channel);
 	const botConvo = botConvoArray[botConvoIndex];
 	if (interactionIsValid(interaction, botConvo)) {
 		botConvo.setEdit(true);
@@ -35,7 +36,7 @@ const interactionIsValid = (interaction, botConvo) => {
 	return (interaction.channel.messages.cache.lastKey(1)[0] === botConvo.getCurrentMessage().id);
 };
 
-const retrieveObjectFromArray = (array, channel) => {
-	// map message to correct botConvo / scoapEmbed object
-	return array.map(x => x.current_channel).indexOf(channel);
-};
+// const retrieveObjectFromArray = (array, channel) => {
+// 	// map message to correct botConvo / scoapEmbed object
+// 	return array.map(x => x.current_channel).indexOf(channel);
+// };

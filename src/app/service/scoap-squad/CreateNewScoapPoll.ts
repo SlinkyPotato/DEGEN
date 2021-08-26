@@ -94,8 +94,12 @@ const createBotConversation = async (guildMember: GuildMember): Promise<any> => 
 };
 
 const abortSetScoapRoles = async (message: Message) => {
-	await clearArray(scoapEmbedArray, message);
+	console.log('SCOAPEMBED ARRAY', scoapEmbedArray);
+	console.log('BOTCONVO ARRAY', botConvoArray);
+	await clearArray(botConvoArray, message);
 	await message.delete();
+	console.log('SCOAPEMBED ARRAY', scoapEmbedArray);
+	console.log('BOTCONVO ARRAY', botConvoArray);
 	return message.channel.send('Message deleted, let\'s start over.');
 };
 
@@ -107,9 +111,13 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 };
 
 const abortPublishScoapPoll = async (message: Message) => {
+	console.log('SCOAPEMBED ARRAY', scoapEmbedArray);
+	console.log('BOTCONVO ARRAY', botConvoArray);
 	await clearArray(scoapEmbedArray, message);
 	await clearArray(botConvoArray, message);
 	await message.delete();
+	console.log('SCOAPEMBED ARRAY', scoapEmbedArray);
+	console.log('BOTCONVO ARRAY', botConvoArray);
 	return message.channel.send('Message deleted, let\'s start over.');
 };
 
@@ -295,7 +303,7 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 					},
 					{
 						name: '0%0/2',
-						value: '☝️ You are looking for two designers. This field also shows the progress once roles filled',
+						value: '☝️ You are looking for two designers. This field also shows the progress, once roles get filled',
 						inline: true,
 					},
 					{
@@ -310,51 +318,3 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 	};
 	return convo;
 };
-
-
-
-
-
-			// 'Welcome to SCOAP Squad Assemble. I will walk you through ' +
-			// 	 'the creation of your SCOAP Squad. ' +
-			// 	 'If you want to learn more about the setup process ' +
-			// 	 'and what the final product will look like, ' +
-			// 	 'react with the ℹ️ emoji.' +
-			// 	 'You can abort the setup ' +
-			// 	 'process any time by responding with !cancel. \n' +
-			// 	 '👍 - start | ℹ️ - help | ❌ - cancel',
-			// '2': 'Define a title for your project',
-			// '3': 'Write a short summary of your project.',
-			// '4': 'Enter a reward (e.g. 1000 BANK) or respond with !skip to skip this step',
-			// '5': 'Let\'s go over your project roles. You\'ll give each role a title, and ' +
-			// 	 'specify how many people you\'ll need ' +
-			// 	 'to fill each role in the proceeding prompts. ' +
-			// 	 'How many roles do you want to define? ',
-			// '6': 'What is the title of role # ',
-			// '7': 'How many people do you need in this role: ',
-			// '8': 'SCOAP Squad setup complete, please verify the layout: ',
-
-
-				// const message: Message = await guildMember.send({
-	// 	embeds: [
-	// 		new MessageEmbed()
-	// 			.setDescription(
-	// 				`Hi ${ctx.user.mention}! ` +
-	// 				'Below you can see an example of what your ' +
-	// 				'SCOAP squad assemble request will look like.')
-	// 			.setColor('#0099ff')
-	// 			.setFooter(constants.SCOAP_SQUAD_EMBED_SPACER),
-	// 		exampleEmbed,
-	// 		new MessageEmbed()
-	// 			.setDescription(
-	// 				'I also prepared a draft layout with your inputs. ' +
-	// 				'Please verify the information ' +
-	// 				'to proceed to the definition of project roles.')
-	// 			.setColor('#0099ff')
-	// 			.setFooter(constants.SCOAP_SQUAD_EMBED_SPACER),
-	// 		scoapEmbed.getEmbed(),
-	// 	],
-	// }) as Message;
-	// scoapEmbed.setCurrentChannel(message.channel);
-	// scoapEmbed.setCurrentMessage(message);
-	// scoapEmbedArray.push(scoapEmbed);

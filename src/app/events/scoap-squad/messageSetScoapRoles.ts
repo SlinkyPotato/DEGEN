@@ -4,10 +4,11 @@ import { Message } from 'discord.js';
 import constants from '../../service/constants/constants';
 import { ScoapEmbed } from '../../service/scoap-squad/ScoapClasses';
 import { scoapEmbedUpdate } from '../../service/scoap-squad/EditScoapDraft';
+import ScoapUtils from '../../utils/ScoapUtils';
 
 export default async (message: Message): Promise<any> => {
 
-	const botConvoIndex = retrieveObjectFromArray(botConvoArray, message.channel);
+	const botConvoIndex = ScoapUtils.retrieveObjectFromArray(botConvoArray, message.channel);
 	if (botConvoIndex === -1) return;
 	const botConvo = botConvoArray[botConvoIndex];
 
@@ -64,7 +65,7 @@ export default async (message: Message): Promise<any> => {
 						// console.log('USER RESPONSE', botConvo.getConvo().user_response_record);
 						const scoapEmbed = createNewScoapEmbed(botConvo);
 						Array(botConvo.getConvo().user_response_record.number_of_roles).fill(0).map((_, i) => {
-							createScoapEmbedFields(botConvo, scoapEmbed, i);
+							createScoapEmbedRoleFields(botConvo, scoapEmbed, i);
 							// console.log('AYE', i);
 						});
 
@@ -92,7 +93,7 @@ const createNewScoapEmbed = (botConvo): any => {
 	return scoapEmbed;
 };
 
-const createScoapEmbedFields = (botConvo, scoapEmbed, i) => {
+const createScoapEmbedRoleFields = (botConvo, scoapEmbed, i) => {
 	const role = botConvo.getConvo().user_response_record.roles[(i + 1).toString()];
 	const emoji = constants.EMOJIS[(i + 1).toString()];
 	scoapEmbed.getVotableEmojiArray().push(emoji);
@@ -215,10 +216,10 @@ const messageIsValid = (message, botConvo) => {
 	return (message.channel.messages.cache.lastKey(2)[0] === botConvo.getCurrentMessage().id);
 };
 
-const retrieveObjectFromArray = (array, channel) => {
-	// map message to correct botConvo / scoapEmbed object
-	return array.map(x => x.current_channel).indexOf(channel);
-};
+// const retrieveObjectFromArray = (array, channel) => {
+// 	// map message to correct botConvo / scoapEmbed object
+// 	return array.map(x => x.current_channel).indexOf(channel);
+// };
 
 const isInteger = (value) => {
 	return /^\d+$/.test(value);

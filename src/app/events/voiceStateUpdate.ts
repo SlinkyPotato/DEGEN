@@ -19,6 +19,7 @@ module.exports = {
 	execute(oldState: VoiceState, newState: VoiceState): void {
 		addUserForEvent(oldState, newState, { id: channelIds.COMMUNITY_CALLS_STAGE, value: poapEvents.COMMUNITY_CALL }).catch(console.error);
 		addUserForEvent(oldState, newState, { id: channelIds.DEV_WORKROOM, value: poapEvents.DEV_GUILD }).catch(console.error);
+		addUserForEvent(oldState, newState, { id: channelIds.WRITERS_ROOM, value: poapEvents.WRITERS_GUILD }).catch(console.error);
 		return;
 	},
 };

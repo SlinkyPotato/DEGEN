@@ -6,7 +6,7 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import ValidationError from '../../errors/ValidationError';
 import poapEvents from '../constants/poapEvents';
 import channelIds from '../constants/channelIds';
-import { storeUserForPOAP } from '../../events/poap/addUserForEvent';
+import { updateUserForPOAP } from '../../events/poap/addUserForEvent';
 
 export default async (guildMember: GuildMember, event: string): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
@@ -85,7 +85,7 @@ export const storePresentMembers = async (guild: Guild, event: string, db: Db): 
 	try {
 		const voiceChannel: VoiceChannel = await guild.channels.fetch(channelId) as VoiceChannel;
 		voiceChannel.members.forEach((member: GuildMember) => {
-			storeUserForPOAP(member, db, event);
+			updateUserForPOAP(member, db, event, true);
 		});
 	} catch (e) {
 		console.error(e);

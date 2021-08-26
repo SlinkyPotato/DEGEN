@@ -11,6 +11,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import StartPOAP from '../../service/poap/StartPOAP';
 import EndPOAP from '../../service/poap/EndPOAP';
 import ValidationError from '../../errors/ValidationError';
+import poapEvents from '../../service/constants/poapEvents';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -31,11 +32,15 @@ module.exports = class poap extends SlashCommand {
 							choices: [
 								{
 									name: 'Community Call',
-									value: 'COMMUNITY_CALL',
+									value: poapEvents.COMMUNITY_CALL,
 								},
 								{
 									name: 'Dev Guild',
-									value: 'DEV_GUILD',
+									value: poapEvents.DEV_GUILD,
+								},
+								{
+									name: 'Writer\'s Guild',
+									value: poapEvents.WRITERS_GUILD,
 								},
 							],
 						},
@@ -53,11 +58,15 @@ module.exports = class poap extends SlashCommand {
 							choices: [
 								{
 									name: 'Community Call',
-									value: 'COMMUNITY_CALL',
+									value: poapEvents.COMMUNITY_CALL,
 								},
 								{
 									name: 'Dev Guild',
-									value: 'DEV_GUILD',
+									value: poapEvents.DEV_GUILD,
+								},
+								{
+									name: 'Writer\'s Guild',
+									value: poapEvents.WRITERS_GUILD,
 								},
 							],
 						},

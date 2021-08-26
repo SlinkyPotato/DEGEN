@@ -12,8 +12,8 @@
         "prestart": "yarn install && yarn build",
         "pretest": "yarn install && yarn build",
         "start": "node --trace-warnings -r dotenv/config dist/app/app.js",
-        "lint": "eslint src/**/*.ts --fix",
-        "format": "prettier --write src/**/*",
+        "lint": "eslint src/**/*.ts",
+        "format": "eslint src/**/*.ts --fix",
         "watch": "tsc -p tsconfig.json -w"
     },
     "repository": {
@@ -35,6 +35,7 @@
     "dependencies": {
         "@notionhq/client": "0.2.0",
         "@types/node": "^16.7.1",
+        "axios": "^0.21.1",
         "discord.js": "^13.1.0",
         "dotenv": "^10.0.0",
         "fastify": "^3.20.2",

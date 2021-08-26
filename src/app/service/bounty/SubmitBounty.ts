@@ -72,7 +72,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	await submitBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 	
 	const bountyUrl = envUrls.BOUNTY_BOARD_URL + dbBountyResult._id;
-	const createdByUser: GuildMember = guildMember.guild.members.cache.get(dbBountyResult.createdBy.discordId);
+	const createdByUser: GuildMember = await guildMember.guild.members.fetch(dbBountyResult.createdBy.discordId);
 	await createdByUser.send({ content: `Please reach out to <@${guildMember.user.id}>. They are ready for bounty review ${bountyUrl}` });
 
 	await guildMember.send({ content: `Bounty in review! Expect a message from <@${dbBountyResult.createdBy.discordId}>` });
@@ -85,7 +85,7 @@ export const submitBountyMessage = async (guildMember: GuildMember, bountyMessag
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[3].value = 'In-Review';
 	embedMessage.setColor('#d39e00');
-	embedMessage.addField('Submitted By', guildMember.user.tag, true);
+	embedMessage.addField('Submitted by', guildMember.user.tag, true);
 	embedMessage.setFooter('✅ - complete | 🔄 - refresh | 🆘 - help');
 	await message.edit({ embeds: [embedMessage] });
 	addSubmitReactions(message);

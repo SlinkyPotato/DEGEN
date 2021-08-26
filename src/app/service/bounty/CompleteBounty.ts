@@ -3,15 +3,10 @@ import BountyUtils from '../../utils/BountyUtils';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
-import { seekHelpValidBountyId } from './SeekHelpBounty';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 
-export default async (guildMember: GuildMember, bountyId: string, isComplete: boolean): Promise<any> => {
+export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
-
-	if (!isComplete) {
-		return seekHelpValidBountyId(guildMember, bountyId);
-	}
 	
 	return completeBountyForValidId(guildMember, bountyId);
 };
@@ -74,7 +69,7 @@ export const completeBountyMessage = async (guildMember: GuildMember, bountyMess
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[3].value = 'Completed';
 	embedMessage.setColor('#1d2124');
-	embedMessage.addField('Reviewed By', guildMember.user.tag, true);
+	embedMessage.addField('Reviewed by', guildMember.user.tag, true);
 	embedMessage.setFooter('🆘 - help');
 	await message.edit({ embeds: [embedMessage] });
 	addCompletedReactions(message);

@@ -31,7 +31,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 	}
 	const messageOptions: MessageEmbedOptions = generateEmbedMessage(dbBountyResult, 'Open');
 
-	const bountyChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.bountyBoard) as TextChannel;
+	const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(channelIDs.bountyBoard) as TextChannel;
 	const bountyMessage: Message = await bountyChannel.send({ embeds: [messageOptions] });
 	console.log('bounty published to #bounty-board');
 	addPublishReactions(bountyMessage);
@@ -84,7 +84,7 @@ export const generateEmbedMessage = (dbBounty: BountyCollection, newStatus: stri
 			{ name: 'Reward', value: dbBounty.reward.amount + ' ' + dbBounty.reward.currency.toUpperCase(), inline: true },
 			{ name: 'Status', value: newStatus, inline: true },
 			{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(dbBounty.dueAt), inline: true },
-			{ name: 'Created By', value: dbBounty.createdBy.discordHandle, inline: true },
+			{ name: 'Created by', value: dbBounty.createdBy.discordHandle, inline: true },
 		],
 		timestamp: new Date().getTime(),
 		footer: {

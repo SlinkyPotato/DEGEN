@@ -57,8 +57,8 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
 
-	const createdByUser: GuildMember = guildMember.guild.members.cache.get(dbBountyResult.createdBy.discordId);
-	await createdByUser.send({ content: ` Bounty has been claimed ${envUrls.BOUNTY_BOARD_URL}${bountyId} Please reach out to <@${guildMember.user.id}> with any questions` });
+	const createdByUser: GuildMember = await guildMember.guild.members.fetch(dbBountyResult.createdBy.discordId);
+	await createdByUser.send({ content: ` Bounty has been claimed ${envUrls.BOUNTY_BOARD_URL}${bountyId} Please reach out to <@${guildMember.user.id}> with any questions.` });
 
 	console.log(`${bountyId} bounty claimed by ${guildMember.user.tag}`);
 	await claimBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
@@ -73,7 +73,7 @@ export const claimBountyMessage = async (guildMember: GuildMember, bountyMessage
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[3].value = 'In-Progress';
 	embedMessage.setColor('#d39e00');
-	embedMessage.addField('Claimed By', guildMember.user.tag, true);
+	embedMessage.addField('Claimed by', guildMember.user.tag, true);
 	embedMessage.setFooter('📮 - submit | 🔄 - refresh | 🆘 - help');
 	await message.edit({ embeds: [embedMessage] });
 	addClaimReactions(message);

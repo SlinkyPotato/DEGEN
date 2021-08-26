@@ -8,7 +8,9 @@ export interface BountyCollection extends Collection {
 	criteria: string,
 	reward: Reward,
 	createdBy: UserObject,
-	claimedBy: UserObject
+	claimedBy: UserObject,
+	submittedBy: UserObject,
+	reviewedBy: UserObject,
 	createdAt: string,
 	dueAt: string,
 	status: string,

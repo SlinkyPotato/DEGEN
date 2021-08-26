@@ -202,40 +202,44 @@ module.exports = class Bounty extends SlashCommand {
 		let command: Promise<any>;
 		let params;
 		
-		switch (ctx.subcommands[0]) {
-		case 'claim':
-			console.log('/bounty claim');
-			command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
-			break;
-		case 'create':
-			params = this.buildBountyCreateNewParams(ctx.options.create);
-			console.log('/bounty create ' + params.title);
-			command = CreateNewBounty(guildMember, params);
-			break;
-		case 'publish':
-			console.log('/bounty publish ');
-			command = PublishBounty(guildMember, ctx.options.publish['bounty-id']);
-			break;
-		case 'complete':
-			console.log('/bounty complete');
-			command = CompleteBounty(guildMember, ctx.options.complete['bounty-id']);
-			break;
-		case 'delete':
-			console.log('/bounty delete');
-			command = DeleteBounty(guildMember, ctx.options.delete['bounty-id']);
-			break;
-		case 'list':
-			console.log('/bounty list');
-			command = ListBounty(guildMember, ctx.options.list['list-type']);
-			break;
-		case 'submit':
-			console.log('/bounty submit');
-			command = SubmitBounty(guildMember, ctx.options.submit['bounty-id'], ctx.options.submit['url'], ctx.options.submit['notes']);
-			break;
-		default:
-			return ctx.send(`${ctx.user.mention} Please try again.`);
+		try {
+			switch (ctx.subcommands[0]) {
+			case 'claim':
+				console.log('/bounty claim');
+				command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
+				break;
+			case 'create':
+				params = this.buildBountyCreateNewParams(ctx.options.create);
+				console.log('/bounty create ' + params.title);
+				command = CreateNewBounty(guildMember, params);
+				break;
+			case 'publish':
+				console.log('/bounty publish ');
+				command = PublishBounty(guildMember, ctx.options.publish['bounty-id']);
+				break;
+			case 'complete':
+				console.log('/bounty complete');
+				command = CompleteBounty(guildMember, ctx.options.complete['bounty-id']);
+				break;
+			case 'delete':
+				console.log('/bounty delete');
+				command = DeleteBounty(guildMember, ctx.options.delete['bounty-id']);
+				break;
+			case 'list':
+				console.log('/bounty list');
+				command = ListBounty(guildMember, ctx.options.list['list-type']);
+				break;
+			case 'submit':
+				console.log('/bounty submit');
+				command = SubmitBounty(guildMember, ctx.options.submit['bounty-id'], ctx.options.submit['url'], ctx.options.submit['notes']);
+				break;
+			default:
+				return ctx.send(`${ctx.user.mention} Please try again.`);
+			}
+			this.handleCommandError(ctx, command);
+		} catch (e) {
+			console.error(e);
 		}
-		this.handleCommandError(ctx, command);
 	}
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {

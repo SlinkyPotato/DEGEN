@@ -1,4 +1,4 @@
-import {GuildMember, Message, MessageOptions, TextChannel} from 'discord.js';
+import { GuildMember, Message, MessageOptions, TextChannel } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import mongo, { Db } from 'mongodb';
 import dbInstance from '../../utils/db';

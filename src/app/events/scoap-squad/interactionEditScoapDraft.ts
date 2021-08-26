@@ -28,7 +28,6 @@ export default async (interaction: SelectMenuInteraction): Promise<any> => {
 			}
 		}
 	}
-
 };
 
 const interactionIsValid = (interaction, botConvo) => {

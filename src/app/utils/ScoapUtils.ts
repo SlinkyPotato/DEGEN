@@ -1,13 +1,11 @@
 // import constants from '../service/constants/constants';
 import { GuildMember, Message, TextChannel } from 'discord.js';
-import { BountyReward } from '../types/bounty/BountyReward';
 // import channelIDs from '../service/constants/channelIDs';
 import ValidationError from '../errors/ValidationError';
 import { URL } from 'url';
 
 
 const ScoapUtils = {
-
 
 	async validateSummary(guildMember: GuildMember, summary: string): Promise<any> {
 		const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,4000}$/;
@@ -62,25 +60,6 @@ const ScoapUtils = {
 			throw new ValidationError('invalid url');
 		}
 	},
-
-	// async validateCriteria(guildMember: GuildMember, criteria: string): Promise<any> {
-	// 	const CREATE_CRITERIA_REGEX = /^[\w\s.!@#$%&,?']{1,1000}$/;
-	// 	if (criteria == null || !CREATE_CRITERIA_REGEX.test(criteria)) {
-	// 		await guildMember.send(`<@${guildMember.user.id}>\n` +
-	// 			'Please enter a valid criteria: \n' +
-	// 			'- 1000 characters maximum\n ' +
-	// 			'- alphanumeric\n ' +
-	// 			'- special characters: .!@#$%&,?',
-	// 		);
-	// 		throw new ValidationError('invalid criteria');
-	// 	}
-	// },
-
-	
-	// async getScoapMessage(guildMember: GuildMember, scoapMessageId: string): Promise<Message> {
-	// 	const scoapChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.scoapSquadAssemble) as TextChannel;
-	// 	return await scoapChannel.messages.fetch(scoapMessageId);
-	// },
 };
 
 export default ScoapUtils;

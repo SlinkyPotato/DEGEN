@@ -83,7 +83,11 @@ export class BotConversation {
 		this.current_message_flow_index = message_flow_index;
 		let role_number = '1';
 		if (typeof this.getConvo().user_response_record.roles != 'undefined') {
-			role_number = (Object.keys(this.getConvo().user_response_record.roles).length).toString();
+			if (!this.getEdit()) {
+				role_number = (Object.keys(this.getConvo().user_response_record.roles).length).toString();
+			} else {
+				role_number = '';
+			}
 		}
 
 		if (message_flow_index === '6') {
@@ -164,9 +168,9 @@ export class ScoapEmbed {
 	}
 
 	updateProgressString(emoji: string, update_progress_string: string): this {
-		for (const [i, field] of this.embed.fields.entries()) {
+		for (const [i, field] of this.embed[0].fields.entries()) {
 			if (field.name.includes(emoji)) {
-				this.embed.fields[i + 1].name = update_progress_string;
+				this.embed[0].fields[i + 1].name = update_progress_string;
 				return this;
 			}
 		}

@@ -8,31 +8,39 @@ export const scoapEmbedUpdate = async (botConvo, user_input): Promise<any> => {
 	const scoapEmbedIndex = ScoapUtils.retrieveObjectFromArray(scoapEmbedArray, botConvo.getCurrentChannel());
 	const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
 	const scoapEmbed_fields = scoapEmbed.getEmbed()[0].fields;
+	const botConvoResponseRecord_fields = botConvo.getConvo().user_response_record.embed[0].fields;
 	const interaction_value = botConvo.getEditValue();
 	switch (interaction_value) {
 	case 'title':
 		scoapEmbed.getEmbed()[0].title = user_input;
 		botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 		publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+		botConvo.getConvo().user_response_record.embed[0].title = user_input;
 		botConvo.setEdit(false);
 		break;
 	case 'summary':
 		updateFieldValues(scoapEmbed_fields, 'Summary', user_input);
 		botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 		publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+		botConvoResponseRecord_fields.Summary = user_input;
 		botConvo.setEdit(false);
 		break;
 	case 'reward' :
 		updateFieldValues(scoapEmbed_fields, 'Reward', user_input);
 		botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 		publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+		botConvoResponseRecord_fields.Reward = user_input;
 		botConvo.setEdit(false);
 		break;
 	default:
 		if (botConvo.getCurrentMessageFlowIndex() === '6') {
 			updateRoleFields(scoapEmbed_fields, interaction_value, user_input, 'ROLE_TITLE');
+			const user_response_record_key = getKeyByValue(constants.EMOJIS, interaction_value);
+			updateRoleFieldsBotConvoRecord(botConvo, user_response_record_key, user_input, 'ROLE_TITLE');
 		} else if (botConvo.getCurrentMessageFlowIndex() === '7') {
 			updateRoleFields(scoapEmbed_fields, interaction_value, user_input, 'ROLE_COUNT');
+			const user_response_record_key = getKeyByValue(constants.EMOJIS, interaction_value);
+			updateRoleFieldsBotConvoRecord(botConvo, user_response_record_key, user_input, 'ROLE_COUNT');
 			botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
 			botConvo.setEdit(false);
@@ -113,7 +121,19 @@ const updateRoleFields = (array, key, input, option) => {
 		role.name = key + ' ' + input;
 		return;
 	case 'ROLE_COUNT':
-		role_count.name = `0%0/${input}`;
+		role_count.name = `0%(0/${input})`;
+		return;
+	}
+};
+
+const updateRoleFieldsBotConvoRecord = (botConvo, key, input, option) => {
+	const role = botConvo.getConvo().user_response_record.roles[key];
+	switch(option) {
+	case 'ROLE_TITLE':
+		role.name = input;
+		return;
+	case 'ROLE_COUNT':
+		role.role_count = input;
 		return;
 	}
 };
@@ -136,7 +156,6 @@ export const retrieveRoleFields = (array, key) => {
 	return [role, role_count];
 };
 
-// const retrieveObjectFromArray = (array, channel) => {
-// 	// map message to correct botConvo / scoapEmbed object
-// 	return array.map(x => x.current_channel).indexOf(channel);
-// };
+const getKeyByValue = (object, value) => {
+	return Object.keys(object).find(key => object[key] === value);
+};

@@ -7,6 +7,7 @@ import client from '../../app';
 import ScoapPoll from './ScoapPoll';
 import { scoapEmbedArray, botConvoArray } from '../../app';
 import { scoapEmbedEdit } from './EditScoapDraft';
+import ScoapUtils from '../../utils/ScoapUtils';
 
 
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
@@ -49,11 +50,6 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 			const edit_message_object = scoapEmbedEdit(scoapEmbed);
 			const select_input_msg = await message.channel.send(edit_message_object);
 			botConvo.setCurrentMessage(select_input_msg);
-
-			// return initiateScoapDraft(botConvo);
-		} else {
-			console.log('notepad given, launch edit');
-			// handle edit #TODO
 		}
 	}).catch(_ => {
 		console.log(_);
@@ -94,12 +90,8 @@ const createBotConversation = async (guildMember: GuildMember): Promise<any> => 
 };
 
 const abortSetScoapRoles = async (message: Message) => {
-	console.log('SCOAPEMBED ARRAY', scoapEmbedArray);
-	console.log('BOTCONVO ARRAY', botConvoArray);
-	await clearArray(botConvoArray, message);
+	await ScoapUtils.clearArray(botConvoArray, message);
 	await message.delete();
-	console.log('SCOAPEMBED ARRAY', scoapEmbedArray);
-	console.log('BOTCONVO ARRAY', botConvoArray);
 	return message.channel.send('Message deleted, let\'s start over.');
 };
 
@@ -111,20 +103,16 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 };
 
 const abortPublishScoapPoll = async (message: Message) => {
-	console.log('SCOAPEMBED ARRAY', scoapEmbedArray);
-	console.log('BOTCONVO ARRAY', botConvoArray);
-	await clearArray(scoapEmbedArray, message);
-	await clearArray(botConvoArray, message);
+	await ScoapUtils.clearArray(scoapEmbedArray, message);
+	await ScoapUtils.clearArray(botConvoArray, message);
 	await message.delete();
-	console.log('SCOAPEMBED ARRAY', scoapEmbedArray);
-	console.log('BOTCONVO ARRAY', botConvoArray);
 	return message.channel.send('Message deleted, let\'s start over.');
 };
 
-const clearArray = async (array, message) => {
-	const removeIndex = array.map(item => item.getCurrentChannel()).indexOf(message.channel);
-	~removeIndex && array.splice(removeIndex, 1);
-};
+// const clearArray = async (array, message) => {
+// 	const removeIndex = array.map(item => item.getCurrentChannel()).indexOf(message.channel);
+// 	~removeIndex && array.splice(removeIndex, 1);
+// };
 
 const createBotConversationParams = (guildMember: GuildMember) => {
 	const convo = {

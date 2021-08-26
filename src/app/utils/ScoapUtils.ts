@@ -2,7 +2,7 @@
 import { GuildMember, Message, TextChannel, TextBasedChannels} from 'discord.js';
 // import channelIDs from '../service/constants/channelIDs';
 import ValidationError from '../errors/ValidationError';
-import { URL } from 'url';
+// import { URL } from 'url';
 
 
 const ScoapUtils = {
@@ -11,15 +11,20 @@ const ScoapUtils = {
 		return array.map(x => x.current_channel).indexOf(channel);
 	},
 
-	async validateSummary(guildMember: GuildMember, summary: string): Promise<any> {
+	async clearArray(array: Array<any>, message: Message): Promise<any> {
+		const removeIndex = array.map(item => item.getCurrentChannel()).indexOf(message.channel);
+		~removeIndex && array.splice(removeIndex, 1);
+	},
+
+	async validateSummary(summary: string): Promise<any> {
 		const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,4000}$/;
 		if (summary == null || !CREATE_SUMMARY_REGEX.test(summary)) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid summary: \n' +
-				'- 4000 characters maximum\n ' +
-				'- alphanumeric\n ' +
-				'- special characters: .!@#$%&,?',
-			);
+			// await guildMember.send(`<@${guildMember.user.id}>\n` +
+			// 	'Please enter a valid summary: \n' +
+			// 	'- 4000 characters maximum\n ' +
+			// 	'- alphanumeric\n ' +
+			// 	'- special characters: .!@#$%&,?',
+			// );
 			throw new ValidationError('invalid summary');
 		}
 	},
@@ -48,20 +53,6 @@ const ScoapUtils = {
 				'- special characters: .!@#$%&,?',
 			);
 			throw new ValidationError('invalid title');
-		}
-	},
-
-	async validateUrl(guildMember: GuildMember, url: string): Promise<any> {
-		try {
-			new URL(url);
-		} catch (e) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid criteria: \n' +
-				'- 1000 characters maximum\n ' +
-				'- alphanumeric\n ' +
-				'- special characters: .!@#$%&,?',
-			);
-			throw new ValidationError('invalid url');
 		}
 	},
 };

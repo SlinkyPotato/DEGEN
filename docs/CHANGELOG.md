@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1-RELEASE (2021-08-27)
+
+1. Fix for when a user is banned during call
+
 ## 1.3.0-RELEASE (2021-08-26)
 
 1. Add queue for requests to Notion

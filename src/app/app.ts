@@ -20,7 +20,7 @@ creator.on('synced', () => console.info('Commands synced!'));
 creator.on('commandRegister', (command) => console.info(`Registered command ${command.commandName}`));
 creator.on('commandError', (command, error) => console.error(`Command ${command.commandName}:`, error));
 creator.on('commandRun', (command, _, ctx) =>
-  console.info(`${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) ran command ${command.commandName}`)
+	console.info(`${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) ran command ${command.commandName}`),
 );
 
 // Register command handlers

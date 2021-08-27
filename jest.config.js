@@ -4,22 +4,20 @@
  */
 
 module.exports = {
-	preset: 'ts-jest',
-	testEnvironment: 'node',
-	clearMocks: true,
-	collectCoverage: true,
-	coverageDirectory: 'coverage',
-	coverageProvider: 'v8',
-	transform: {
-		"^.+\\.(ts|tsx)$": "ts-jest",
-	},
-	roots: [
-		"<rootDir>/src"
-	],
-	testMatch: [
-		"**/__tests__/**/*.+(ts|tsx|js)",
-		"**/?(*.)+(spec|test).+(ts|tsx|js)"
-	],
+    preset: 'ts-jest',
+    testEnvironment: 'node',
+    clearMocks: true,
+    collectCoverage: true,
+    coverageDirectory: 'coverage',
+    coverageProvider: 'v8',
+    transform: {
+        '^.+\\.(ts|tsx)$': 'ts-jest',
+    },
+    roots: ['<rootDir>/src'],
+    testMatch: [
+        '**/__tests__/**/*.+(ts|tsx|js)',
+        '**/?(*.)+(spec|test).+(ts|tsx|js)',
+    ],
 };
 
 /*
@@ -27,7 +25,8 @@ module.exports = {
  */
 process.env.DISCORD_BOT_APPLICATION_ID = '234324234234';
 process.env.DISCORD_BOT_PUBLIC_KEY = 'sdafsdafasdfsdaf';
-process.env.DISCORD_BOT_TOKEN = 'asfsadf.YLsadfvgyg.106GODufx1masdfsdaf8JwsPdru0KWuG8BY';
+process.env.DISCORD_BOT_TOKEN =
+    'asfsadf.YLsadfvgyg.106GODufx1masdfsdaf8JwsPdru0KWuG8BY';
 process.env.DISCORD_OWNER_ID = '23432434';
 process.env.MONGODB_USERNAME = 'user';
 process.env.MONGODB_PASS = 'asfsdfasf';
@@ -40,4 +39,3 @@ process.env.NOTION_GUEST_PASS_DATABASE_ID = '3453453245345';
 process.env.DAO_CURRENT_SEASON = '1';
 process.env.DISCORD_ROLE_LEVEL_2 = '34523454352';
 process.env.MONGODB_URI = 'someURI';
-

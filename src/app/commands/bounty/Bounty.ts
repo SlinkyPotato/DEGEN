@@ -8,7 +8,7 @@ import {
 import ValidationError from '../../errors/ValidationError';
 import DeleteBounty from '../../service/bounty/DeleteBounty';
 import ServiceUtils from '../../utils/ServiceUtils';
-import roleIDs from '../../service/constants/roleIDs';
+import roleIds from '../../service/constants/roleIds';
 import { BountyCreateNew } from '../../types/bounty/BountyCreateNew';
 import ListBounty from '../../service/bounty/ListBounty';
 import CreateNewBounty from '../../service/bounty/create/CreateNewBounty';
@@ -17,7 +17,7 @@ import ClaimBounty from '../../service/bounty/ClaimBounty';
 import SubmitBounty from '../../service/bounty/SubmitBounty';
 import CompleteBounty from '../../service/bounty/CompleteBounty';
 
-module.exports = class Bounty extends SlashCommand {
+export default class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'bounty',
@@ -48,62 +48,43 @@ module.exports = class Bounty extends SlashCommand {
 							description: 'Hash ID of the bounty',
 							required: true,
 						},
-						{
-							name: 'is-complete',
-							type: CommandOptionType.BOOLEAN,
-							description: 'Is the bounty complete as per criteria?',
-							required: true,
-						},
 					],
 				},
 				{
 					name: 'create',
-					type: CommandOptionType.SUB_COMMAND_GROUP,
-					description: 'Create a bounty for the bounty board',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Create a new draft of a bounty and finalize on the website',
 					options: [
 						{
-							name: 'new',
-							type: CommandOptionType.SUB_COMMAND,
-							description: 'Create a new draft of a bounty and finalize on the website',
-							options: [
-								{
-									name: 'title',
-									type: CommandOptionType.STRING,
-									description: 'What should the bounty be called?',
-									required: true,
-								},
-								{
-									name: 'summary',
-									type: CommandOptionType.STRING,
-									description: 'What would you like to be worked on?',
-									required: true,
-								},
-								{
-									name: 'criteria',
-									type: CommandOptionType.STRING,
-									description: 'What is absolutely required for this bounty?',
-									required: true,
-								},
-								{
-									name: 'reward',
-									type: CommandOptionType.STRING,
-									description: 'What is the reward? (i.e 100 BANK)',
-									required: true,
-								},
-							],
+							name: 'title',
+							type: CommandOptionType.STRING,
+							description: 'What should the bounty be called?',
+							required: true,
 						},
 						{
-							name: 'publish',
-							type: CommandOptionType.SUB_COMMAND,
-							description: 'Validate discord handle drafted bounty from the website',
-							options: [
-								{
-									name: 'bounty-id',
-									type: CommandOptionType.STRING,
-									description: 'Bounty hash ID',
-									required: true,
-								},
-							],
+							name: 'reward',
+							type: CommandOptionType.STRING,
+							description: 'What is the reward? (i.e 100 BANK)',
+							required: true,
+						},
+						{
+							name: 'copies',
+							type: CommandOptionType.INTEGER,
+							description: 'How many bounties should be published? (level 3+, max 100)',
+							required: false,
+						},
+					],
+				},
+				{
+					name: 'publish',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Validate discord handle drafted bounty from the website',
+					options: [
+						{
+							name: 'bounty-id',
+							type: CommandOptionType.STRING,
+							description: 'Bounty hash ID',
+							required: true,
 						},
 					],
 				},
@@ -190,22 +171,22 @@ module.exports = class Bounty extends SlashCommand {
 				[process.env.DISCORD_SERVER_ID]: [
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.level1,
+						id: roleIds.level1,
 						permission: true,
 					},
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.level2,
+						id: roleIds.level2,
 						permission: true,
 					},
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.level3,
+						id: roleIds.level3,
 						permission: true,
 					},
 					{
 						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIDs.level4,
+						id: roleIds.level4,
 						permission: true,
 					},
 				],
@@ -215,76 +196,80 @@ module.exports = class Bounty extends SlashCommand {
 
 	async run(ctx: CommandContext) {
 		if (ctx.user.bot) return;
-		console.log(`/bounty start ${ctx.user.username}#${ctx.user.discriminator}`);
+		console.log(`start /bounty ${ctx.user.username}#${ctx.user.discriminator}`);
 
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		let command: Promise<any>;
-		switch (ctx.subcommands[0]) {
-		case 'claim':
-			console.log('/bounty claim');
-			command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
-			break;
-		case 'create':
-			if (ctx.subcommands[1] === 'new') {
-				const params = this.buildBountyCreateNewParams(ctx.options.create.new);
-				console.log('/bounty create new ' + params);
-				command = CreateNewBounty(guildMember, params, ctx);
-			} else if (ctx.subcommands[1] === 'publish') {
-				console.log('/bounty create publish ');
-				command = PublishBounty(guildMember, ctx.options.create.publish['bounty-id']);
-			} else {
-				return ctx.send(`<@${ctx.user.id}> Sorry command not found, please try again`);
+		let params;
+		
+		try {
+			switch (ctx.subcommands[0]) {
+			case 'claim':
+				console.log('/bounty claim');
+				command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
+				break;
+			case 'create':
+				params = this.buildBountyCreateNewParams(ctx.options.create);
+				console.log('/bounty create ' + params.title);
+				command = CreateNewBounty(guildMember, params);
+				break;
+			case 'publish':
+				console.log('/bounty publish ');
+				command = PublishBounty(guildMember, ctx.options.publish['bounty-id']);
+				break;
+			case 'complete':
+				console.log('/bounty complete');
+				command = CompleteBounty(guildMember, ctx.options.complete['bounty-id']);
+				break;
+			case 'delete':
+				console.log('/bounty delete');
+				command = DeleteBounty(guildMember, ctx.options.delete['bounty-id']);
+				break;
+			case 'list':
+				console.log('/bounty list');
+				command = ListBounty(guildMember, ctx.options.list['list-type']);
+				break;
+			case 'submit':
+				console.log('/bounty submit');
+				command = SubmitBounty(guildMember, ctx.options.submit['bounty-id'], ctx.options.submit['url'], ctx.options.submit['notes']);
+				break;
+			default:
+				return ctx.send(`${ctx.user.mention} Please try again.`);
 			}
-			break;
-		case 'complete':
-			console.log('/bounty complete');
-			command = CompleteBounty(guildMember, ctx.options.complete['bounty-id'], ctx.options.complete['is-complete']);
-			break;
-		case 'delete':
-			console.log('/bounty delete');
-			command = DeleteBounty(guildMember, ctx.options.delete['bounty-id']);
-			break;
-		case 'list':
-			console.log('/bounty list');
-			command = ListBounty(guildMember, ctx.options.list['list-type']);
-			break;
-		case 'submit':
-			console.log('/bounty submit');
-			command = SubmitBounty(guildMember, ctx.options.submit['bounty-id'], ctx.options.submit['url'], ctx.options.submit['notes']);
-			break;
-		default:
-			return ctx.send(`${ctx.user.mention} Please try again.`);
+			this.handleCommandError(ctx, command);
+		} catch (e) {
+			console.error(e);
 		}
-		this.handleCommandError(ctx, command);
 	}
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
 		command.then(() => {
-			console.log(`/bounty end ${ctx.user.username}#${ctx.user.discriminator}`);
+			console.log(`end /bounty ${ctx.user.username}#${ctx.user.discriminator}`);
 			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 		}).catch(e => {
 			console.error('ERROR', e);
 			if (e instanceof ValidationError) {
 				return ctx.send(e.message);
 			} else {
-				return ctx.send('Sorry something is not working and our devs are looking into it');
+				return ctx.send('Sorry something is not working and our devs are looking into it.');
 			}
 		});
 	}
 	
 	buildBountyCreateNewParams(ctxOptions): BountyCreateNew {
 		const [reward, symbol] = (ctxOptions.reward != null) ? ctxOptions.reward.split(' ') : [null, null];
+		const copies = (ctxOptions.copies == null || ctxOptions.copies <= 0) ? 1 : ctxOptions.copies;
 		let scale = reward.split('.')[1]?.length;
 		scale = (scale != null) ? scale : 0;
 		return {
 			title: ctxOptions.title,
-			summary: ctxOptions.summary,
-			criteria: ctxOptions.criteria,
 			reward: {
-				amount: reward.replace('.', ''),
+				amount: reward,
 				currencySymbol: symbol,
 				scale: scale,
+				amountWithoutScale:  reward.replace('.', ''),
 			},
+			copies: copies,
 		};
 	}
 };

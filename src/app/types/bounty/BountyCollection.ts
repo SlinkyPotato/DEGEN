@@ -8,7 +8,9 @@ export interface BountyCollection extends Collection {
 	criteria: string,
 	reward: Reward,
 	createdBy: UserObject,
-	claimedBy: UserObject
+	claimedBy: UserObject,
+	submittedBy: UserObject,
+	reviewedBy: UserObject,
 	createdAt: string,
 	dueAt: string,
 	status: string,
@@ -19,6 +21,7 @@ export interface BountyCollection extends Collection {
 export type UserObject = {
 	discordHandle: string,
 	discordId: string,
+	iconUrl: string,
 };
 
 export type Reward = {

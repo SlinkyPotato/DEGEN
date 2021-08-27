@@ -1,7 +1,6 @@
-import { CommandContext, User } from 'slash-create';
 import constants from '../../constants/constants';
 import BountyUtils from '../../../utils/BountyUtils';
-import { GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
+import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
 import { finalizeBounty } from './PublishBounty';
 import { Db, Int32 } from 'mongodb';
 import dbInstance from '../../../utils/db';
@@ -11,72 +10,112 @@ import ServiceUtils from '../../../utils/ServiceUtils';
 import envUrls from '../../constants/envUrls';
 import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
 
-const END_OF_SEASON = new Date(2021, 8, 31).toISOString();
-
-export default async (guildMember: GuildMember, params: BountyCreateNew, ctx?: CommandContext): Promise<any> => {
+export default async (guildMember: GuildMember, params: BountyCreateNew): Promise<any> => {
 	const title = params.title;
-	const summary = params.summary;
-	const criteria = params.criteria;
 	const reward = params.reward;
-	
+
 	await BountyUtils.validateReward(guildMember, reward);
-	await BountyUtils.validateSummary(guildMember, summary);
 	await BountyUtils.validateTitle(guildMember, title);
+	BountyUtils.validateNumberOfCopies(guildMember, params.copies);
+
+	const workNeededMessage: Message = await guildMember.send({ content: `Hello <@${guildMember.id}>! Can you tell me a description of your bounty?` });
+	const dmChannel: DMChannel = await workNeededMessage.channel.fetch() as DMChannel;
+	const replyOptions: AwaitMessagesOptions = {
+		max: 1,
+		time: 180000,
+		errors: ['time'],
+	};
+
+	const summary = (await dmChannel.awaitMessages(replyOptions)).first().content;
+	await BountyUtils.validateSummary(guildMember, summary);
+	params.summary = summary;
+
+	await guildMember.send({ content: 'Awesome! Now what is absolutely required for the bounty to be complete?' });
+
+	const criteria = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	await BountyUtils.validateCriteria(guildMember, criteria);
+	params.criteria = criteria;
+
+	if (params.copies > 1) {
+		const totalReward = params.reward.amount * params.copies;
+		await guildMember.send({ content: `Are you sure you want to publish bounties with a \`total\` reward of \`${totalReward} ${params.reward.currencySymbol}\`? (yes/no)` });
+		const amountConfirmation: string = (await dmChannel.awaitMessages(replyOptions)).first().content;
+		if (!(amountConfirmation == 'yes' || amountConfirmation === 'YES' || amountConfirmation === 'Y')) {
+			return guildMember.send({ content: 'Ok no problem, bounty deleted.' });
+		}
+	}
+
+	let convertedDueDateFromMessage: Date;
+	do {
+		await guildMember.send({ content: 'Is there a `UTC` due date `yyyy-mm-dd`? (yes/no)' });
+		const dueAtMessage = (await dmChannel.awaitMessages(replyOptions)).first().content;
+		if (dueAtMessage !== 'no') {
+			try {
+				convertedDueDateFromMessage = BountyUtils.validateDate(guildMember, dueAtMessage);
+			} catch(e) {
+				console.log(e);
+				await guildMember.send({ content: 'Please try `UTC` date in format yyyy-mm-dd, i.e 2021-08-15' });
+			}
+		} else if (dueAtMessage === 'no') {
+			convertedDueDateFromMessage = null;
+			break;
+		}
+	} while (convertedDueDateFromMessage.toString() === 'Invalid Date');
+	params.dueAt = convertedDueDateFromMessage ? convertedDueDateFromMessage : BountyUtils.getDateFromISOString(constants.BOUNTY_BOARD_END_OF_SEASON_DATE);
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
-	const newBounty = generateBountyRecord(
-		params, guildMember.user.tag, guildMember.user.id,
-	);
 
-	const dbInsertResult = await dbBounty.insertOne(newBounty);
-
-	if (dbInsertResult == null) {
-		console.error('failed to insert bounty into DB');
-		return guildMember.send('Sorry something is not working, our devs are looking into it.');
+	const listOfPrepBounties = [];
+	for (let i = 0; i < params.copies; i++) {
+		listOfPrepBounties.push(generateBountyRecord(params, guildMember));
 	}
-	await dbInstance.close();
 
+	const dbInsertResult = await dbBounty.insertMany(listOfPrepBounties, { ordered: false });
+	if (dbInsertResult == null) {
+		console.error('failed to insert bounties into DB');
+		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
+	}
 	console.log(`user ${guildMember.user.tag} inserted into db`);
-
+	const listOfBountyIds = Object.values(dbInsertResult.insertedIds).map(String);
+	const newBounty = listOfPrepBounties[0];
 	const messageOptions: MessageOptions = {
-		embed: {
+		embeds: [{
 			title: newBounty.title,
-			url: (envUrls.BOUNTY_BOARD_URL + dbInsertResult.insertedId),
+			url: (envUrls.BOUNTY_BOARD_URL + listOfBountyIds[0]),
 			author: {
 				icon_url: guildMember.user.avatarURL(),
 				name: newBounty.createdBy.discordHandle,
 			},
 			description: newBounty.description,
 			fields: [
+				{ name: 'HashId', value: listOfBountyIds[0], inline: false },
 				{ name: 'Reward', value: BountyUtils.formatBountyAmount(newBounty.reward.amount, newBounty.reward.scale) + ' ' + newBounty.reward.currency.toUpperCase(), inline: true },
 				{ name: 'Status', value: 'Open', inline: true },
 				{ name: 'Deadline', value: ServiceUtils.formatDisplayDate(newBounty.dueAt), inline: true },
-				{ name: 'Criteria', value: newBounty.criteria },
-				{ name: 'HashId', value: dbInsertResult.insertedId },
-				{ name: 'CreatedBy', value: newBounty.createdBy.discordHandle, inline: true },
+				{ name: 'Criteria', value: newBounty.criteria.toString() },
+				{ name: 'Created by', value: newBounty.createdBy.discordHandle.toString(), inline: true },
 			],
-			timestamp: new Date(),
+			timestamp: new Date().getTime(),
 			footer: {
 				text: '👍 - publish | 📝 - edit | ❌ - delete | Please reply within 60 minutes',
 			},
-		},
+		}],
 	};
-	ctx?.send(`${ctx.user.mention} Sent you draft of the bounty! Please finalize bounty in DM`);
-	const message: Message = await guildMember.send(messageOptions) as Message;
-	
+	await dbInstance.close();
+
+	await guildMember.send('Thank you! Does this look right?');
+	const message: Message = await guildMember.send(messageOptions);
+
 	await message.react('👍');
 	await message.react('📝');
 	await message.react('❌');
 
-	return handleBountyReaction(message, guildMember, dbInsertResult.insertedId);
+	return handleBountyReaction(message, guildMember, listOfBountyIds);
 };
 
-export const generateBountyRecord = (bountyParams: BountyCreateNew, discordHandle: string, discordId: string): any => {
+export const generateBountyRecord = (bountyParams: BountyCreateNew, guildMember: GuildMember): any => {
 	const currentDate = (new Date()).toISOString();
-	const precision = (bountyParams.reward.amount);
-	console.log(precision);
 	return {
 		season: new Int32(Number(process.env.DAO_CURRENT_SEASON)),
 		title: bountyParams.title,
@@ -88,8 +127,9 @@ export const generateBountyRecord = (bountyParams: BountyCreateNew, discordHandl
 			scale: new Int32(bountyParams.reward.scale),
 		},
 		createdBy: {
-			discordHandle: discordHandle,
-			discordId: discordId,
+			discordHandle: guildMember.user.tag,
+			discordId: guildMember.user.id,
+			iconUrl: guildMember.user.avatarURL(),
 		},
 		createdAt: currentDate,
 		statusHistory: [
@@ -99,28 +139,47 @@ export const generateBountyRecord = (bountyParams: BountyCreateNew, discordHandl
 			},
 		],
 		status: 'Draft',
-		dueAt: END_OF_SEASON,
+		dueAt: bountyParams.dueAt.toISOString(),
 	};
 };
 
-const handleBountyReaction = (message: Message, guildMember: GuildMember, bountyId: string): Promise<any> => {
-	return message.awaitReactions((reaction, user: User) => {
-		return ['📝', '👍', '❌'].includes(reaction.emoji.name) && !user.bot;
-	}, {
+const handleBountyReaction = (message: Message, guildMember: GuildMember, bountyIds: string[]): Promise<any> => {
+	return message.awaitReactions({
 		max: 1,
-		time: (60000 * 60),
+		time: (6000 * 60),
 		errors: ['time'],
-	}).then(collected => {
+		filter: async (reaction, user) => {
+			return ['📝', '👍', '❌'].includes(reaction.emoji.name) && !user.bot;
+		},
+	}).then(async collected => {
 		const reaction: MessageReaction = collected.first();
 		if (reaction.emoji.name === '👍') {
 			console.log('/bounty create new | :thumbsup: up given');
-			return finalizeBounty(guildMember, bountyId);
+			for (const bountyId of bountyIds) {
+				await finalizeBounty(guildMember, bountyId);
+			}
+			return;
 		} else if (reaction.emoji.name === '📝') {
 			console.log('/bounty create new | :pencil: given');
-			return UpdateEditKeyBounty(guildMember, bountyId);
+			if (bountyIds.length > 1) {
+				// TODO: add support to edit multiple bounties in UI
+				await guildMember.send({ content: 'Sorry, edit not available for multiple bounties' });
+				for (const bountyId of bountyIds) {
+					await deleteBountyForValidId(guildMember, bountyId);
+				}
+				return;
+			} else {
+				for (const bountyId of bountyIds) {
+					await UpdateEditKeyBounty(guildMember, bountyId);
+				}
+			}
+			return;
 		} else {
 			console.log('/bounty create new | delete given');
-			return deleteBountyForValidId(guildMember, bountyId);
+			for (const bountyId of bountyIds) {
+				await deleteBountyForValidId(guildMember, bountyId);
+			}
+			return;
 		}
 	}).catch(console.error);
 };

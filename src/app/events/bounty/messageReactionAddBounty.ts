@@ -1,5 +1,5 @@
 import { GuildMember, Message, MessageReaction, User } from 'discord.js';
-import channelIDs from '../../service/constants/channelIDs';
+import channelIds from '../../service/constants/channelIds';
 import { claimBountyForValidId } from '../../service/bounty/ClaimBounty';
 import { deleteBountyForValidId } from '../../service/bounty/DeleteBounty';
 import { submitBountyForValidId } from '../../service/bounty/SubmitBounty';
@@ -11,19 +11,20 @@ import UpdateEditKeyBounty from '../../service/bounty/UpdateEditKeyBounty';
 import ReCreateBounty from '../../service/bounty/ReCreateBounty';
 
 export default async (reaction: MessageReaction, user: User): Promise<any> | null => {
-	if (reaction.message.channel.id !== channelIDs.bountyBoard) {
+	if (reaction.message.channel.id !== channelIds.bountyBoard) {
 		return;
 	}
-	let message: Message = reaction.message;
+	
+	let message: Message = await reaction.message.fetch();
 	
 	if (message.embeds == null || message.embeds[0] == null || message.embeds[0].fields[4] == null) {
 		return;
 	}
 	
 	const bountyId: string = BountyUtils.getBountyIdFromEmbedMessage(message);
-	const guildMember: GuildMember = reaction.message.guild.member(user);
+	const guildMember: GuildMember = await reaction.message.guild.members.fetch(user);
 	
-	if (message.webhookID !== null) {
+	if (message.webhookId !== null) {
 		console.log('message created by webhook');
 		await message.delete();
 		message = await ReCreateBounty(guildMember, bountyId).catch(console.error) as Message;

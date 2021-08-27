@@ -1,7 +1,7 @@
-import AddGuestPass from '../../../app/service/guest-pass/AddGuestPass';
+// import AddGuestPass from '../../../app/service/guest-pass/AddGuestPass';
 
 describe('GuestPass', () => {
-	let guestUser;
+	// let guestUser;
 
 	beforeEach(() => {
 		// ctx = {

@@ -2,7 +2,7 @@ import constants from '../constants/constants';
 import { Cursor, Db } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
 import dbInstance from '../../utils/db';
-import { GuildMember, MessageOptions } from 'discord.js';
+import { GuildMember, MessageEmbedOptions } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import { generateEmbedMessage } from './create/PublishBounty';
 
@@ -33,22 +33,23 @@ export default async (guildMember: GuildMember, listType: string): Promise<any> 
 		break;
 	default:
 		console.log('invalid list-type');
-		return guildMember.send(`<@${guildMember.user.id}> Please use a valid list-type`);
+		return guildMember.send({ content: 'Please use a valid list-type' });
 	}
 	if (!await dbRecords.hasNext()) {
 		await dbInstance.close();
-		return guildMember.send(`<@${guildMember.user.id}> We couldn't find any bounties!`);
+		return guildMember.send({ content: 'We couldn\'t find any bounties!' });
 	}
 	await sendMultipleMessages(guildMember, dbRecords);
-	await dbInstance.close();
+	return dbInstance.close();
 };
 
 const sendMultipleMessages = async (guildMember: GuildMember, dbRecords: Cursor): Promise<any> => {
-
-	while (await dbRecords.hasNext()) {
+	const listOfBounties = [];
+	while (listOfBounties.length < 10 && await dbRecords.hasNext()) {
 		const record: BountyCollection = await dbRecords.next();
-		const messageOptions: MessageOptions = generateEmbedMessage(record, record.status);
-		await (guildMember.send(messageOptions));
+		const messageOptions: MessageEmbedOptions = generateEmbedMessage(record, record.status);
+		listOfBounties.push(messageOptions);
 	}
-	await guildMember.send(`<@${guildMember.user.id}> Please go to #🧀-bounty-board to take action.`);
+	await (guildMember.send({ embeds: listOfBounties }));
+	await guildMember.send({ content: 'Please go to #🧀-bounty-board to take action.' });
 };

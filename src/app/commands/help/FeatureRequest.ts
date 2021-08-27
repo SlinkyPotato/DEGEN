@@ -1,6 +1,6 @@
 import { SlashCommand } from 'slash-create';
 
-module.exports = class FeatureRequest extends SlashCommand {
+export default class FeatureRequest extends SlashCommand {
 	constructor(creator) {
 		super(creator, {
 			name: 'feature-request',
@@ -11,8 +11,6 @@ module.exports = class FeatureRequest extends SlashCommand {
 				duration: 1,
 			},
 		});
-
-		this.filePath = __filename;
 	}
 
 	async run(ctx) {

@@ -33,7 +33,7 @@ export default class NotionFAQs extends SlashCommand {
 			const guild = await client.guilds.fetch(ctx.guildID);
 			const guildMember = await guild.members.fetch(ctx.user.id);
 
-			const faqs = await module.exports.retrieveFAQsPromise();
+			const faqs = await RetrieveFAQs();
 			const faqQuestion = String(ctx.options.question);
 			let replyStr = '**Frequently Asked Questions**: ' + FAQ_URL + ' \n\n';
 			if (
@@ -60,9 +60,9 @@ export default class NotionFAQs extends SlashCommand {
 
 				// Search for existing question
 				for (let i = 0; i++; i < faqs.length) {
-					const cleanQuestion = faqs.question.substring(3, faqs.question.length - 1);
+					const cleanQuestion = faqs['question'].substring(3, faqs['question'].length - 1);
 					if (cleanQuestion === validQuestion) {
-						replyStr += cleanQuestion + '\n' + 'Answer: ' + faqs.answer + '\n';
+						replyStr += cleanQuestion + '\n' + 'Answer: ' + faqs['answer'] + '\n';
 						return ctx.send(replyStr);
 					}
 				}

@@ -74,8 +74,8 @@ export const sendOutPOAPLinks = async (guildMember: GuildMember, listOfParticipa
 		return guildMember.send({ content: 'Could not process the links.txt file. Please make sure the file that is uploaded has every URL on a new line.' });
 	}
 	for (let i = 0; i < listOfParticipants.length; i++) {
-		const participantMember: GuildMember = await guildMember.guild.members.fetch(listOfParticipants[i].id);
 		try {
+			const participantMember: GuildMember = await guildMember.guild.members.fetch(listOfParticipants[i].id);
 			console.log(`sending POAP for ${participantMember.user.tag}`);
 			await participantMember.send({ content: `Thank you for participating in BanklessDAO! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch(console.error);
 		} catch (e) {

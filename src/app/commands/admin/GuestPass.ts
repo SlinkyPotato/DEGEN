@@ -49,8 +49,12 @@ export default class GuestPass extends SlashCommand {
 		if (guestUser.user.bot) {
 			return ctx.send('Bots don\'t need a guest pass!');
 		}
-		
-		await addGuestRoleToUser(guestUser);
+
+		try {
+			await addGuestRoleToUser(guestUser);
+		} catch (e) {
+			console.error(e);
+		}
 
 		return ctx.send(`<@${ctx.user.id}> guest pass added and message sent!`);
 	}

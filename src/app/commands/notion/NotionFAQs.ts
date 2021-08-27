@@ -29,73 +29,77 @@ export default class NotionFAQs extends SlashCommand {
 		if (ctx.user.bot) return;
 		console.log('/faqs start');
 
-		const guild = await client.guilds.fetch(ctx.guildID);
-		const guildMember = await guild.members.fetch(ctx.user.id);
+		try {
+			const guild = await client.guilds.fetch(ctx.guildID);
+			const guildMember = await guild.members.fetch(ctx.user.id);
 
-		const faqs = await RetrieveFAQs();
-		const faqQuestion = String(ctx.options.question);
-		let replyStr = '**Frequently Asked Questions**: ' + FAQ_URL + ' \n\n';
-		if (
-			faqQuestion === 'n' ||
-            faqQuestion === 'no' ||
-            faqQuestion === 'nah' ||
-            faqQuestion === '' ||
-            faqQuestion === 'undefined'
-		) {
-			// No question asked, return a few FAQs
-			faqs.forEach((faq) => {
-				const question = '**' + faq.question + '**';
-				const answer = '\n' + faq.answer.trim() + '\n';
-				replyStr = replyStr + question + answer + '\n';
-			});
-			ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
-			return guildMember.send(replyStr.substring(0, 1950));
-		} else {
-			// Try to find the answer to the given question
-			const validQuestion = faqQuestion.replace(/[^\w\s]/gi, '');
+			const faqs = await module.exports.retrieveFAQsPromise();
+			const faqQuestion = String(ctx.options.question);
+			let replyStr = '**Frequently Asked Questions**: ' + FAQ_URL + ' \n\n';
+			if (
+				faqQuestion === 'n' ||
+				faqQuestion === 'no' ||
+				faqQuestion === 'nah' ||
+				faqQuestion === '' ||
+				faqQuestion === 'undefined'
+			) {
+				// No question asked, return a few FAQs
+				faqs.forEach((faq) => {
+					const question = '**' + faq.question + '**';
+					const answer = '\n' + faq.answer.trim() + '\n';
+					replyStr = replyStr + question + answer + '\n';
+				});
+				ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+				return guildMember.send(replyStr.substring(0, 1950));
+			} else {
+				// Try to find the answer to the given question
+				const validQuestion = faqQuestion.replace(/[^\w\s]/gi, '');
 
-			// Prepare answer
-			replyStr += 'Question: ';
+				// Prepare answer
+				replyStr += 'Question: ';
 
-			// Search for existing question
-			for (let i = 0; i++; i < faqs.length) {
-				const cleanQuestion = faqs['question'].substring(3, faqs['question'].length - 1);
-				if (cleanQuestion === validQuestion) {
-					replyStr += cleanQuestion + '\n' + 'Answer: ' + faqs['answer'] + '\n';
-					return ctx.send(replyStr);
+				// Search for existing question
+				for (let i = 0; i++; i < faqs.length) {
+					const cleanQuestion = faqs.question.substring(3, faqs.question.length - 1);
+					if (cleanQuestion === validQuestion) {
+						replyStr += cleanQuestion + '\n' + 'Answer: ' + faqs.answer + '\n';
+						return ctx.send(replyStr);
+					}
 				}
-			}
-			// Search for close enough answer
-			const words = validQuestion.split(' ');
-			let highestMatchingIndex = 0;
-			let highestMatchingNum = 0;
-			faqs.forEach((faq, i) => {
-				const cleanQuestion = faq.question
-					.substring(3, faq.question.length - 1)
-					.toLowerCase();
-				let numberOfMatches = 0;
-				words.forEach((word) => {
-					const cleanWord = word.toLowerCase();
-					const isIncluded = cleanQuestion
-						.split(' ')
-						.includes(cleanWord);
-					if (isIncluded) {
-						numberOfMatches += 1;
+				// Search for close enough answer
+				const words = validQuestion.split(' ');
+				let highestMatchingIndex = 0;
+				let highestMatchingNum = 0;
+				faqs.forEach((faq, i) => {
+					const cleanQuestion = faq.question
+						.substring(3, faq.question.length - 1)
+						.toLowerCase();
+					let numberOfMatches = 0;
+					words.forEach((word) => {
+						const cleanWord = word.toLowerCase();
+						const isIncluded = cleanQuestion
+							.split(' ')
+							.includes(cleanWord);
+						if (isIncluded) {
+							numberOfMatches += 1;
+						}
+					});
+					faq.numberOfMatches = numberOfMatches;
+					if (numberOfMatches > highestMatchingNum) {
+						highestMatchingNum = numberOfMatches;
+						highestMatchingIndex = i;
 					}
 				});
-				faq.numberOfMatches = numberOfMatches;
-				if (numberOfMatches > highestMatchingNum) {
-					highestMatchingNum = numberOfMatches;
-					highestMatchingIndex = i;
-				}
-			});
-			replyStr +=
-                faqs[highestMatchingIndex].question +
-                '\n' +
-                'Answer: ' +
-                faqs[highestMatchingIndex].answer +
-                '\n';
-			return ctx.send(replyStr.substring(0, 1950));
+				replyStr +=
+					faqs[highestMatchingIndex].question +
+					'\n' +
+					'Answer: ' +
+					faqs[highestMatchingIndex].answer +
+					'\n';
+				return ctx.send(replyStr.substring(0, 1950));
+			}
+		} catch (e) {
+			console.error(e);
 		}
 	}
 };

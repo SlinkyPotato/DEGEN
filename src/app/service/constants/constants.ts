@@ -4,6 +4,8 @@ export default Object.freeze({
 	
 	DB_COLLECTION_GUEST_USERS: 'guestUsers',
 	DB_COLLECTION_BOUNTIES: 'bounties',
+	DB_COLLECTION_POAP_SETTINGS: 'poapSettings',
+	DB_COLLECTION_POAP_PARTICIPANTS: 'poapParticipants',
 
 	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',

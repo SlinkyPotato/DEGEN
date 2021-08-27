@@ -1,28 +1,28 @@
-import claim from '../../../app/service/bounty/ClaimBounty';
+// import claim from '../../../app/service/bounty/ClaimBounty';
 
 describe('BountyClaim', () => {
 	// let serviceUtilsMock;
-	let guildMember;
+	// let guildMember;
 
 	beforeEach(() => {
-		guildMember = {
-			send: (message: string) => {
-				return message;
-			},
-			user: {
-				id: '567865362541182987',
-			},
-		};
-		
+		// guildMember = {
+		// 	send: (message: string) => {
+		// 		return message;
+		// 	},
+		// 	user: {
+		// 		id: '567865362541182987',
+		// 	},
+		// };
+
 		// serviceUtilsMock = sinon.mock(ServiceUtils);
 		// serviceUtilsMock.expects('getGuildAndMember').returns({
 		// 	guild: {},
 		// 	guildMember: { send: (message) => { return message; } },
 		// });
 	});
-	
+
 	describe('blank', () => {
-		it('nothing', () => { expect(true).toStrictEqual(true) });
+		it('nothing', () => { expect(true).toStrictEqual(true); });
 	});
 
 	// describe('Parameter Validation', () => {
@@ -62,7 +62,7 @@ describe('BountyClaim', () => {
 	// 		// const result = await claim(guildMember, null).catch(_ => {
 	// 		// 	return 'Sorry something is not working and our devs are looking into it';
 	// 		// });
-	//		
+	//
 	// 		// assert.equal(result, 'Sorry something is not working and our devs are looking into it');
 	// 	});
 	//

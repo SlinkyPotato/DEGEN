@@ -1,0 +1,33 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "event",
+      "discordTag",
+      "discordId",
+      "startTime"
+    ],
+    "properties": {
+      "event": {
+        "bsonType": "string",
+        "description": "The event for the discussion which should be an enum, COMMUNITY_CALL."
+      },
+      "discordTag": {
+        "bsonType": "bool",
+        "description": "Discord tag of the participant."
+      },
+      "discordId": {
+        "bsonType": "string",
+        "description": "Discord Id of the participant."
+      },
+      "startTime": {
+        "bsonType": "string",
+        "description": "ISO8601 of when the meeting started."
+      },
+      "endTime": {
+        "bsonType": "string",
+        "description": "ISO8601 of when the meeting ended."
+      }
+    }
+  }
+}

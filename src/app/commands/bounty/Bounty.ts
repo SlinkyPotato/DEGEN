@@ -17,7 +17,7 @@ import ClaimBounty from '../../service/bounty/ClaimBounty';
 import SubmitBounty from '../../service/bounty/SubmitBounty';
 import CompleteBounty from '../../service/bounty/CompleteBounty';
 
-module.exports = class Bounty extends SlashCommand {
+export default class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'bounty',

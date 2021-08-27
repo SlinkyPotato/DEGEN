@@ -117,6 +117,11 @@ export const sendOutPOAPLinks = async (guildMember: GuildMember, listOfParticipa
 	}
 	for (let i = 0; i < listOfParticipants.length; i++) {
 		const participantMember: GuildMember = await guildMember.guild.members.fetch(listOfParticipants[i].id);
-		await participantMember.send({ content: `Thank you for participating in BanklessDAO! Here is your POAP: ${listOfPOAPLinks[i]}` });
+		try {
+			console.log(`sending POAP for ${participantMember.user.tag}`);
+			await participantMember.send({ content: `Thank you for participating in BanklessDAO! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch(console.error);
+		} catch (e) {
+			console.log('user might have been banned');
+		}
 	}
 };

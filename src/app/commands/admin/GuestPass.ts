@@ -3,7 +3,7 @@ import client from '../../app';
 import roleIds from '../../service/constants/roleIds';
 import { addGuestRoleToUser } from '../../service/guest-pass/AddGuestPass';
 
-module.exports = class GuestPass extends SlashCommand {
+export default class GuestPass extends SlashCommand {
 	constructor(creator) {
 		super(creator, {
 			name: 'guest-pass',
@@ -37,7 +37,6 @@ module.exports = class GuestPass extends SlashCommand {
 				],
 			},
 		});
-		this.filePath = __filename;
 	}
 
 	async run(ctx: CommandContext) {

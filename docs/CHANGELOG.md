@@ -10,6 +10,7 @@
 7. Allow publication of the same bounty multiple times for level 3+ users
 8. Add POAP tracking command for CC call
 9. Extend POAP tracking for writer's guild
+10. Upgrade commands to ES6 and clean up testing
 
 ## 1.2.1-RELEASE (2021-08-12)
 

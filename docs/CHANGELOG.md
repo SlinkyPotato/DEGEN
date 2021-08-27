@@ -1,6 +1,15 @@
 # Changelog
 
-## 1.3.0-SNAPSHOT
+## 1.3.2-RELEASE (2021-08-27)
+
+1. Wrap all of guildmember in try/catch block
+
+## 1.3.1-RELEASE (2021-08-27)
+
+1. Fix for when a user is banned during call
+
+## 1.3.0-RELEASE (2021-08-26)
+
 1. Add queue for requests to Notion
 2. Add Dev Guild welcome mat
 3. Removed `api` directory in favor of `service` directory

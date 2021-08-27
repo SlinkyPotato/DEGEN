@@ -12,6 +12,7 @@ import StartPOAP from '../../service/poap/StartPOAP';
 import EndPOAP from '../../service/poap/EndPOAP';
 import ValidationError from '../../errors/ValidationError';
 import poapEvents from '../../service/constants/poapEvents';
+import DistributePOAP from '../../service/poap/DistributePOAP';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -72,6 +73,32 @@ module.exports = class poap extends SlashCommand {
 						},
 					],
 				},
+				{
+					name: 'distribute',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Distribute links to existing attendees',
+					options: [
+						{
+							name: 'event',
+							type: CommandOptionType.STRING,
+							description: 'The event for the discussion, most likely a guild or community call',
+							choices: [
+								{
+									name: 'Community Call',
+									value: poapEvents.COMMUNITY_CALL,
+								},
+								{
+									name: 'Dev Guild',
+									value: poapEvents.DEV_GUILD,
+								},
+								{
+									name: 'Writer\'s Guild',
+									value: poapEvents.WRITERS_GUILD,
+								},
+							],
+						},
+					],
+				},
 			],
 			throttling: {
 				usages: 1,
@@ -100,6 +127,10 @@ module.exports = class poap extends SlashCommand {
 			case 'end':
 				console.log(`/poap end event:${ctx.options.end.event}`);
 				command = EndPOAP(guildMember, ctx.options.end.event);
+				break;
+			case 'distribute':
+				console.log(`/poap distribute event:${ctx.options.distribute.event}`);
+				command = DistributePOAP(guildMember, ctx.options.distribute.event);
 				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);

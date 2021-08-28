@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   bot:
+    container_name: degen_bot
     build: .
-    restart: always
     volumes:
       - .:/app
       - /app/node_modules
@@ -11,8 +11,14 @@ services:
     working_dir: /app
     ports:
       - 80:3000
+    environment: 
+      MONGODB_PREFIX: mongodb
+      MONGODB_USERNAME: dev
+      MONGODB_PASS: pass
+      MONGODB_CLUSTER: mongo
 
   mongo:
+    container_name: degen_mongo
     image: mongo:4.4.6
     environment:
       MONGO_INITDB_ROOT_USERNAME: dev
@@ -21,6 +27,7 @@ services:
       - 27017:27017
     volumes:
       - mongodb:/data/db
+      - ./src/app/utils/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
       
 volumes:
   mongodb:

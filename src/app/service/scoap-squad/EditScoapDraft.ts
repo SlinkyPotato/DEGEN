@@ -35,11 +35,11 @@ export const scoapEmbedUpdate = async (botConvo, user_input): Promise<any> => {
 	default:
 		if (botConvo.getCurrentMessageFlowIndex() === '6') {
 			updateRoleFields(scoapEmbed_fields, interaction_value, user_input, 'ROLE_TITLE');
-			const user_response_record_key = getKeyByValue(constants.EMOJIS, interaction_value);
+			const user_response_record_key = ScoapUtils.getKeyByValue(constants.EMOJIS, interaction_value);
 			updateRoleFieldsBotConvoRecord(botConvo, user_response_record_key, user_input, 'ROLE_TITLE');
 		} else if (botConvo.getCurrentMessageFlowIndex() === '7') {
 			updateRoleFields(scoapEmbed_fields, interaction_value, user_input, 'ROLE_COUNT');
-			const user_response_record_key = getKeyByValue(constants.EMOJIS, interaction_value);
+			const user_response_record_key = ScoapUtils.getKeyByValue(constants.EMOJIS, interaction_value);
 			updateRoleFieldsBotConvoRecord(botConvo, user_response_record_key, user_input, 'ROLE_COUNT');
 			botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
@@ -154,8 +154,4 @@ export const retrieveRoleFields = (array, key) => {
 	const index = array.indexOf(role);
 	const role_count = array[index + 1];
 	return [role, role_count];
-};
-
-const getKeyByValue = (object, value) => {
-	return Object.keys(object).find(key => object[key] === value);
 };

@@ -1,9 +1,11 @@
 import { TextChannel, MessageReaction } from 'discord.js';
 import cloneDeep from 'lodash.clonedeep';
+import isEqual from 'lodash.isequal';
 import constants from '../constants/constants';
 import { Vote, VoteRecord } from './ScoapClasses';
 import { scoapEmbedArray, botConvoArray } from '../../app';
 import ScoapUtils from '../../utils/ScoapUtils';
+// import { Client } from '@notionhq/client';
 
 // Note - make sure to get rid of embed-objects and bot-convo objects in array after scoap poll is completed
 
@@ -14,14 +16,12 @@ const removeReaction = async (reaction, user_id, emoji, choice_valid) => {
 	try {
 		for (const reac of userReactions.values()) {
 			if (choice_valid === true) {
-				console.log('choice valid');
 				// the selected choice is available, only remove choices that don't match current choice
 				if (reac.emoji.name !== emoji) {
 					await reac.users.remove(user_id);
 					break;
 				}
 			} else if (choice_valid === false) {
-				console.log('choice invalid');
 				// the selected choice is not available, only remove choices that do match current choice
 				if (reac.emoji.name === emoji) {
 					await reac.users.remove(user_id);
@@ -95,10 +95,9 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 			voteRecord.getEmoteRequired(),
 		);
 
-		console.log('EEEEEEEEEEEEEEEEEEEEEEEE', reaction.emoji.name);
-
 		if (reaction.emoji.name === '❌') {
 			return handleDeletePoll(user, scoapEmbed, botConvo, embedMessage);
+
 		} else if (emojiValid(reaction.emoji.name, scoapEmbed.getVotableEmojiArray())) {
 			
 			switch (true) {
@@ -112,7 +111,6 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 				voteRecord.update(vote);
 				console.log('received vote from user: ', user.tag, ' ', reaction.emoji.name);
 				console.log(voteRecord.getUserVoteLedger());
-
 
 				if (vote.getType() === 'CHANGEVOTE') {
 					await removeReaction(
@@ -131,6 +129,11 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 				}
 				embedMessage.edit({ embeds: scoapEmbed.getEmbed() });
 
+				if (isEqual(voteRecord.getEmoteTotals(), voteRecord.getEmoteRequired())) {
+					console.log('POLL COMPLETE ');
+					collector.stop();
+				}
+
 				break;
 			}
 			case choiceValid === false: {
@@ -146,8 +149,18 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 		}
 	});
 
-	collector.on('end', (collected) => {
-		console.log(`Collected ${collected.size} items`);
+	collector.on('end', async (collected) => {
+		for (const reaction of collected.values()) {
+			console.log('EMOJI ', reaction.emoji.name);
+			for (const user of reaction.users.cache) {
+				if (!user[1].bot) {
+					const user_response_record_key = ScoapUtils.getKeyByValue(constants.EMOJIS, reaction.emoji.name);
+					const role = botConvo.getConvo().user_response_record.roles[user_response_record_key];
+					const dm_channel = await user[1].createDM();
+					dm_channel.send(`Congratulations, you are part of the SCOAP Squad for role ${role.name}!`);
+				}
+			}
+		}
 	});
 
 	collector.on('remove', async (reaction, user) => {
@@ -175,8 +188,6 @@ export default async (channel: TextChannel, scoapEmbed: any, botConvo: any): Pro
 
 
 const handleDeletePoll = async (user, scoapEmbed, botConvo, embedMessage) => {
-	console.log('here trigered');
-	console.log('user id ', user.id, ' scoap author ', scoapEmbed.getAuthor());
 	if (user.id === scoapEmbed.getAuthor().id) {
 		console.log('in here');
 		const dm_channel = await user.createDM();
@@ -196,12 +207,8 @@ const handleDeletePoll = async (user, scoapEmbed, botConvo, embedMessage) => {
 			const del_reaction: MessageReaction = collected.first();
 			if (del_reaction.emoji.name === '👍') {
 				embedMessage.delete();
-				console.log('BOT ARRAY ', botConvoArray);
-				console.log('SCOAP ARRAY ', scoapEmbedArray);
 				await ScoapUtils.clearArray(scoapEmbedArray, scoapEmbed.getCurrentMessage());
 				await ScoapUtils.clearArray(botConvoArray, botConvo.getCurrentMessage());
-				console.log('BOT ARRAY AFTER', botConvoArray);
-				console.log('SCOAP ARRAY AFTER', scoapEmbedArray);
 			} else if (del_reaction.emoji.name === '❌') {
 				return;
 			}
@@ -212,3 +219,4 @@ const handleDeletePoll = async (user, scoapEmbed, botConvo, embedMessage) => {
 	}
 	return;
 };
+

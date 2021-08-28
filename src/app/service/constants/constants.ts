@@ -21,6 +21,34 @@ export default Object.freeze({
 	SCOAP_SQUAD_CHANNEL_ID: '854401837566001192',
 	SCOAP_SQUAD_EMBED_SPACER: '\u2800'.repeat(60),
 
+	SCOAP_SQUAD_NOTION_FIELDS: {
+		project: {
+			type: 'title',
+			field_name: 'Project',
+		},
+		author_discord_handle: {
+			type: 'rich_text',
+			field_name: 'Author Discord Handle',
+		},
+		scoap_squad_discord_handles: {
+			type: 'multi_select',
+			field_name: 'Scoap Squad Discord Handles',
+		},
+		status: {
+			type: 'select',
+			field_name: 'Status',
+			categories: {
+				open: 'Open',
+				filled: 'Filled (Ongoing)',
+				closed: 'Project Completed',
+			},
+		},
+		date_created: {
+			type: 'date',
+			field_name: 'Date Created',
+		},
+	},
+
 	BOTPLAYS_BOT_USER_ID: '867605079811817483',
 
 	BOT_CONVERSATION_TIMEOUT_MS: 1000 * 60 * 60,

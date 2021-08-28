@@ -16,6 +16,10 @@ const ScoapUtils = {
 		~removeIndex && array.splice(removeIndex, 1);
 	},
 
+	getKeyByValue(object: any, value: string): any {
+		return Object.keys(object).find(key => object[key] === value);
+	},
+
 	async validateSummary(summary: string): Promise<any> {
 		const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,4000}$/;
 		if (summary == null || !CREATE_SUMMARY_REGEX.test(summary)) {

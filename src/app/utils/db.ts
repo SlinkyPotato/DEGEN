@@ -1,7 +1,7 @@
 import { Db, MongoClient, MongoClientOptions } from 'mongodb';
 import constants from '../service/constants/constants';
 
-const state: {dbMap: Map<string, Db>, clientMap: Map<string, MongoClient> } = {
+const state: { dbMap: Map<string, Db>, clientMap: Map<string, MongoClient> } = {
 	dbMap: new Map(),
 	clientMap: new Map(),
 };

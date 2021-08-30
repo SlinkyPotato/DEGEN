@@ -23,8 +23,7 @@ export const removeGuestUserFromDb = async (guestUser: GuildMember): Promise<any
 		console.error('Failed to delete guestUser');
 		return;
 	}
-
-	await dbInstance.close();
+	
 	console.log(`${guestUser.user.tag} removed from db`);
 };
 

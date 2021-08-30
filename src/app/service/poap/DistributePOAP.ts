@@ -32,8 +32,7 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 		errors: ['time'],
 	};
 	const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
-	await sendOutPOAPLinks(poapGuildManager, listOfParticipants, poapLinksFile);
-	return dbInstance.close();
+	return sendOutPOAPLinks(poapGuildManager, listOfParticipants, poapLinksFile);
 };
 
 export const getListOfParticipants = async (guildMember: GuildMember, db: Db, event: string)

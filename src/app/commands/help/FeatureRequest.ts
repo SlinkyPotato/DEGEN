@@ -1,7 +1,7 @@
-import { SlashCommand } from 'slash-create';
+import { CommandContext, SlashCommand, SlashCreator } from 'slash-create';
 
 export default class FeatureRequest extends SlashCommand {
-	constructor(creator) {
+	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'feature-request',
 			description: 'Pull up the form to submit a new feature request',
@@ -13,7 +13,7 @@ export default class FeatureRequest extends SlashCommand {
 		});
 	}
 
-	async run(ctx) {
+	async run(ctx: CommandContext): Promise<any> {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
 		console.log('/featureRequest start');
@@ -21,4 +21,4 @@ export default class FeatureRequest extends SlashCommand {
 		console.log('/featureRequest end');
 		return `Here you are ${ctx.user.mention}, the DEGEN feature request form: ${form}`;
 	}
-};
+}

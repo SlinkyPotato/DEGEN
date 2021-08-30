@@ -102,7 +102,6 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 			},
 		}],
 	};
-	await dbInstance.close();
 
 	await guildMember.send('Thank you! Does this look right?');
 	const message: Message = await guildMember.send(messageOptions);

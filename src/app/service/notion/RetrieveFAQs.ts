@@ -1,5 +1,5 @@
 import { Client as NotionClient } from '@notionhq/client';
-import { notionQueue } from "./NotionQueue";
+import { notionQueue } from './NotionQueue';
 const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
 
 export default async (): Promise<Array<any>> => {

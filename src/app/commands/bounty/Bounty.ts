@@ -194,7 +194,7 @@ export default class Bounty extends SlashCommand {
 		});
 	}
 
-	async run(ctx: CommandContext) {
+	async run(ctx: CommandContext): Promise<any> {
 		if (ctx.user.bot) return;
 		console.log(`start /bounty ${ctx.user.username}#${ctx.user.discriminator}`);
 
@@ -242,7 +242,7 @@ export default class Bounty extends SlashCommand {
 		}
 	}
 
-	handleCommandError(ctx: CommandContext, command: Promise<any>) {
+	handleCommandError(ctx: CommandContext, command: Promise<any>): void {
 		command.then(() => {
 			console.log(`end /bounty ${ctx.user.username}#${ctx.user.discriminator}`);
 			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
@@ -256,7 +256,7 @@ export default class Bounty extends SlashCommand {
 		});
 	}
 	
-	buildBountyCreateNewParams(ctxOptions): BountyCreateNew {
+	buildBountyCreateNewParams(ctxOptions: { [key: string]: any }): BountyCreateNew {
 		const [reward, symbol] = (ctxOptions.reward != null) ? ctxOptions.reward.split(' ') : [null, null];
 		const copies = (ctxOptions.copies == null || ctxOptions.copies <= 0) ? 1 : ctxOptions.copies;
 		let scale = reward.split('.')[1]?.length;
@@ -272,4 +272,4 @@ export default class Bounty extends SlashCommand {
 			copies: copies,
 		};
 	}
-};
+}

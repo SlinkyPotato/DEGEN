@@ -2,7 +2,9 @@
 
 ## 1.4.0-SNAPSHOT
 
-1. Use mongodb connection pools
+1. Fix docker db connection
+2. Use mongodb connection pools
+
 
 ## 1.3.2-RELEASE (2021-08-27)
 

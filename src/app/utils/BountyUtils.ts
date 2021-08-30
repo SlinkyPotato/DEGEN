@@ -77,16 +77,17 @@ const BountyUtils = {
 			throw new ValidationError('Please try another reward.');
 		}
 	},
-	
+
 	validateNumberOfCopies(guildMember: GuildMember, copies: number): void {
+		const isLevel2 = ServiceUtils.isLevel2(guildMember);
 		const isLevel3 = ServiceUtils.isLevel3(guildMember);
 		const isLevel4 = ServiceUtils.isLevel4(guildMember);
 		const isAdmin = ServiceUtils.isAdmin(guildMember);
-		
-		if (!(isLevel3 || isLevel4 || isAdmin)) {
-			throw new ValidationError('Must be `level 3+` to publish multiple copies.');
+
+		if (!(isLevel2 || isLevel3 || isLevel4 || isAdmin)) {
+			throw new ValidationError('Must be `level 2+` to publish multiple copies.');
 		}
-		
+
 		if (copies > 100) {
 			throw new ValidationError('Max number of copies is `100`.');
 		}
@@ -119,7 +120,7 @@ const BountyUtils = {
 			throw new ValidationError('Please try another criteria.');
 		}
 	},
-		
+
 	validateDate(guildMember: GuildMember, date: string): Date {
 		try {
 			return new Date(date + 'T00:00:00.000Z');
@@ -143,7 +144,7 @@ const BountyUtils = {
 			throw new ValidationError('Please try another url.');
 		}
 	},
-	
+
 	async checkBountyExists(guildMember: GuildMember, dbBountyResult: any | null, bountyId: string): Promise<any> {
 		if (dbBountyResult == null) {
 			console.log(`${bountyId} bounty not found in db`);
@@ -152,7 +153,7 @@ const BountyUtils = {
 		}
 		console.log(`found bounty ${bountyId} in db`);
 	},
-	
+
 	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<Message> {
 		if (message == null) {
 			const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(channelIds.bountyBoard) as TextChannel;
@@ -164,15 +165,15 @@ const BountyUtils = {
 			return message;
 		}
 	},
-	
+
 	getBountyIdFromEmbedMessage(message: Message): string {
 		return message.embeds[0].fields[0].value;
 	},
-	
+
 	formatBountyAmount(amount: number, scale: number): string {
 		return (amount / 10 ** scale).toString();
 	},
-	
+
 	getDateFromISOString(date: string): Date {
 		return new Date(date);
 	},

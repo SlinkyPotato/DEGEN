@@ -4,7 +4,7 @@
 
 1. Fix docker db connection
 2. Use mongodb connection pools
-
+3. Expand bounty copies to lvl2+
 
 ## 1.3.2-RELEASE (2021-08-27)
 

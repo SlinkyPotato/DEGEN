@@ -1,7 +1,6 @@
-
 import assert from 'assert';
 import RetrieveFAQs from '../../../app/service/notion/RetrieveFAQs';
-jest.mock('../../../app/service/notion/RetrieveFAQs')
+jest.mock('../../../app/service/notion/RetrieveFAQs');
 
 describe('NotionFAQs', () => {
 	beforeEach(() => {

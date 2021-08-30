@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0-SNAPSHOT
+
+1. Use mongodb connection pools
+
 ## 1.3.2-RELEASE (2021-08-27)
 
 1. Wrap all of guildmember in try/catch block

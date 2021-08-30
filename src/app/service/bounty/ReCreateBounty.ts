@@ -60,7 +60,6 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 		console.log(`bounty ${bountyId} is deleted`);
 		throw new Error('bounty not valid');
 	}
-	await dbInstance.close();
 	console.log('bounty recreated to #bounty-board');
 	return message;
 };

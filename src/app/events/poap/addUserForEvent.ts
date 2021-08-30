@@ -29,7 +29,7 @@ export default async (oldState: VoiceState, newState: VoiceState, event: { id: s
 		await updateUserForPOAP(newState.member, db, event.value, false).catch(console.error);
 	}
 
-	return dbInstance.close();
+	return;
 };
 
 export const isPOAPTrackingActive = async (db: Db, eventValue: string): Promise<boolean> => {

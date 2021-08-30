@@ -41,6 +41,5 @@ export default async (guildMember: GuildMember, bountyId: string, message?: Mess
 		return guildMember.send({ content: 'Sorry something is not working, can you try again?' });
 	}
 	
-	await dbInstance.close();
 	return guildMember.send({ content: `Bounty can be edited at ${envUrls.BOUNTY_BOARD_URL}${bountyId}/edit?key=${secretEditKey}` });
 };

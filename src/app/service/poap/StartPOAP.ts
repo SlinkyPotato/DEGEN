@@ -39,8 +39,7 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 		},
 	});
 	await storePresentMembers(guildMember.guild, event, db);
-	await guildMember.send({ content: `POAP tracking started for \`${event}\`.` });
-	return dbInstance.close();
+	return guildMember.send({ content: `POAP tracking started for \`${event}\`.` });
 };
 
 export const setupPoapSetting = async (guildMember: GuildMember, poapSettingsDB: Collection, occasion: string): Promise<POAPSettings> => {

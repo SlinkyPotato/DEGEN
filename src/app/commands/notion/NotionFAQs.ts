@@ -1,11 +1,11 @@
-import { SlashCommand, CommandOptionType } from 'slash-create';
+import { SlashCommand, CommandOptionType, CommandContext, SlashCreator } from 'slash-create';
 import client from '../../app';
 import RetrieveFAQs from '../../service/notion/RetrieveFAQs';
 const trimPageId = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageId}`;
 
 export default class NotionFAQs extends SlashCommand {
-	constructor(creator) {
+	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'faqs',
 			description: 'Get frequently asked questions',
@@ -24,7 +24,7 @@ export default class NotionFAQs extends SlashCommand {
 		});
 	}
 
-	async run(ctx) {
+	async run(ctx: CommandContext): Promise<any> {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
 		console.log('/faqs start');
@@ -102,4 +102,4 @@ export default class NotionFAQs extends SlashCommand {
 			console.error(e);
 		}
 	}
-};
+}

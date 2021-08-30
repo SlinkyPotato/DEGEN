@@ -32,6 +32,5 @@ export const seekHelpValidBountyId = async (guildMember: GuildMember,
 		await createdByUser.send({ content: `<@${guildMember.user.id}> from Bankless DAO needs some help with bounty ${bountyUrl}. Please reach out to them to check.` });
 	}
 	console.log(`message sent requesting help for bounty ${bountyId} submitted by ${guildMember.user.tag}`);
-	await guildMember.send({ content: `SOS sent, look out for a follow up message for bounty ${bountyUrl}` });
-	return dbInstance.close();
+	return guildMember.send({ content: `SOS sent, look out for a follow up message for bounty ${bountyUrl}` });
 };

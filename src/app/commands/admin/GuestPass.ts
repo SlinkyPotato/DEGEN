@@ -1,10 +1,16 @@
-import { SlashCommand, CommandOptionType, ApplicationCommandPermissionType, CommandContext } from 'slash-create';
+import {
+	SlashCommand,
+	CommandOptionType,
+	ApplicationCommandPermissionType,
+	CommandContext,
+	SlashCreator,
+} from 'slash-create';
 import client from '../../app';
 import roleIds from '../../service/constants/roleIds';
 import { addGuestRoleToUser } from '../../service/guest-pass/AddGuestPass';
 
 export default class GuestPass extends SlashCommand {
-	constructor(creator) {
+	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'guest-pass',
 			description: 'Grant a temporary guest pass to a user',
@@ -39,7 +45,7 @@ export default class GuestPass extends SlashCommand {
 		});
 	}
 
-	async run(ctx: CommandContext) {
+	async run(ctx: CommandContext): Promise<any> {
 		if (ctx.user.bot) return;
 		
 		console.log('/guest-pass start');
@@ -58,5 +64,5 @@ export default class GuestPass extends SlashCommand {
 
 		return ctx.send(`<@${ctx.user.id}> guest pass added and message sent!`);
 	}
-};
+}
 

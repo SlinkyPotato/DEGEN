@@ -5,6 +5,7 @@
 1. Fix docker db connection
 2. Use mongodb connection pools
 3. Expand bounty copies to lvl2+
+4. Add Pradhumna Pancholi#3700 to POAP manager list
 
 ## 1.3.2-RELEASE (2021-08-27)
 

@@ -42,7 +42,9 @@
       "**/discord-bot",
       "**/discord-bot/**",
       "**/hardhat",
-      "**/hardhat/**"
+      "**/hardhat/**",
+      "**/express-server",
+      "**/express-server/**"
     ]
   },
   "dependencies": {}

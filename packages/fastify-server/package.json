@@ -1,17 +1,28 @@
 {
-  "name": "@discord-bots/express-server",
+  "name": "@discord-bots/fastify-server",
   "version": "1.0.0",
   "description": "Backend API server for DEGEN",
-  "main": "src/app.ts",
+  "main": "src/server.ts",
   "repository": "https://github.com/BanklessDAO/discord-bots",
   "author": "Bankless DAO",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "nodemon",
+    "start": "node dist/server.js",
+    "prestart": "yarn install && yarn build",
+    "pretest": "yarn install && yarn build",
+    "lint": "eslint src/**/*.ts"
+  },
   "dependencies": {
+    "@types/node": "^16.7.9",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
     "eslint": "^7.32.0",
     "express": "^4.17.1",
+    "fastify": "^3.20.2",
+    "nodemon": "^2.0.12",
     "typescript": "^4.4.2"
   },
   "engines": {

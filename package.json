@@ -15,6 +15,9 @@
     "discord-bot:build": "yarn workspace @discord-bots/degen build",
     "discord-bot:start": "yarn workspace @discord-bots/degen start",
     "discord-bot:test": "yarn workspace @discord-bots/degen test",
+    "server:start": "yarn workspace @discord-bots/fastify-server start",
+    "server:build": "yarn workspace @discord-bots/fastify-server build",
+    "server:dev": "yarn workspace @discord-bots/fastify-server dev",
     "build": "yarn workspace @discord-bots/degen build",
     "chain": "yarn workspace @discord-bots/hardhat chain",
     "fork": "yarn workspace @discord-bots/hardhat fork",
@@ -43,8 +46,8 @@
       "**/discord-bot/**",
       "**/hardhat",
       "**/hardhat/**",
-      "**/express-server",
-      "**/express-server/**"
+      "**/fastify-server",
+      "**/fastify-server/**"
     ]
   },
   "dependencies": {}

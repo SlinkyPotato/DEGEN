@@ -13,6 +13,10 @@ import EndPOAP from '../../service/poap/EndPOAP';
 import ValidationError from '../../errors/ValidationError';
 import poapEvents from '../../service/constants/poapEvents';
 import DistributePOAP from '../../service/poap/DistributePOAP';
+import roleIds from '../../service/constants/roleIds';
+import { Collection, VoiceChannel } from 'discord.js';
+import { ChannelTypes } from 'discord.js/typings/enums';
+import client from '../../app';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -82,20 +86,7 @@ module.exports = class poap extends SlashCommand {
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event for the discussion, most likely a guild or community call',
-							choices: [
-								{
-									name: 'Community Call',
-									value: poapEvents.COMMUNITY_CALL,
-								},
-								{
-									name: 'Dev Guild',
-									value: poapEvents.DEV_GUILD,
-								},
-								{
-									name: 'Writer\'s Guild',
-									value: poapEvents.WRITERS_GUILD,
-								},
-							],
+							choices: [],
 						},
 					],
 				},
@@ -106,7 +97,33 @@ module.exports = class poap extends SlashCommand {
 			},
 			defaultPermission: false,
 			permissions: {
-				[process.env.DISCORD_SERVER_ID]: getAllowedUsers(),
+				[process.env.DISCORD_SERVER_ID]: [
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level2,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level3,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level4,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.admin,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.genesisSquad,
+						permission: true,
+					},
+				],
 			},
 		});
 	}
@@ -172,4 +189,16 @@ export const getAllowedUsers = (): ApplicationCommandPermissions[] =>{
 		permission: true,
 	});
 	return allowedPermissions;
+};
+
+export const getAllVoiceChannels = (): any[] => {
+	const voiceChannels: Collection<string, VoiceChannel> = client.channels.cache.filter(guildChannel => guildChannel.type === ChannelTypes.GUILD_VOICE.toString()) as Collection<string, VoiceChannel>;
+	const choices = [];
+	for (const channel of voiceChannels.values()) {
+		choices.push({
+			name: channel.name,
+			value: channel.id,
+		});
+	}
+	return choices;
 };

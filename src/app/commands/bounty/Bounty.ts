@@ -189,6 +189,16 @@ export default class Bounty extends SlashCommand {
 						id: roleIds.level4,
 						permission: true,
 					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.admin,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.genesisSquad,
+						permission: true,
+					},
 				],
 			},
 		});

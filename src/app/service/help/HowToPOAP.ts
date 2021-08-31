@@ -9,9 +9,7 @@ export default (): MessageOptions => {
 			fields: [
 				{
 					name: '-> /poap start',
-					value: 'Start keeping track of attendees in the voice channel. The voice channel depends on the event.\n\n ' +
-						'Community Call: Community Calls (stage)\n' +
-						'Dev Guild: dev workroom',
+					value: 'Start keeping track of attendees in the voice channel. Once started it must be stopped by the same user.',
 					inline: false,
 				},
 				{

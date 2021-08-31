@@ -14,9 +14,6 @@ import ValidationError from '../../errors/ValidationError';
 import poapEvents from '../../service/constants/poapEvents';
 import DistributePOAP from '../../service/poap/DistributePOAP';
 import roleIds from '../../service/constants/roleIds';
-import { Collection, VoiceChannel } from 'discord.js';
-import { ChannelTypes } from 'discord.js/typings/enums';
-import client from '../../app';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -86,7 +83,20 @@ module.exports = class poap extends SlashCommand {
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event for the discussion, most likely a guild or community call',
-							choices: [],
+							choices: [
+								{
+									name: 'Community Call',
+									value: poapEvents.COMMUNITY_CALL,
+								},
+								{
+									name: 'Dev Guild',
+									value: poapEvents.DEV_GUILD,
+								},
+								{
+									name: 'Writer\'s Guild',
+									value: poapEvents.WRITERS_GUILD,
+								},
+							],
 						},
 					],
 				},
@@ -127,14 +137,14 @@ module.exports = class poap extends SlashCommand {
 			},
 		});
 	}
-	
+
 	async run(ctx: CommandContext) {
 		if (ctx.user.bot) return;
 		console.log(`start /poap ${ctx.user.username}#${ctx.user.discriminator}`);
-		
+
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		let command: Promise<any>;
-		
+
 		try {
 			switch (ctx.subcommands[0]) {
 			case 'start':
@@ -191,14 +201,19 @@ export const getAllowedUsers = (): ApplicationCommandPermissions[] =>{
 	return allowedPermissions;
 };
 
-export const getAllVoiceChannels = (): any[] => {
-	const voiceChannels: Collection<string, VoiceChannel> = client.channels.cache.filter(guildChannel => guildChannel.type === ChannelTypes.GUILD_VOICE.toString()) as Collection<string, VoiceChannel>;
-	const choices = [];
-	for (const channel of voiceChannels.values()) {
-		choices.push({
-			name: channel.name,
-			value: channel.id,
-		});
-	}
-	return choices;
-};
+// TODO: pass this as a DM conversation... looks like client is not available until after slash commands are set
+// export const getAllVoiceChannels = async (): Promise<any[]> => {
+// 	// const voiceChannels: Collection<string, Channel> = client.channels.cache.filter(guildChannel => guildChannel.type === ChannelTypes.GUILD_VOICE.toString());
+// 	// const choices = [];
+// 	// for (const channel of voiceChannels.values()) {
+// 	// 	choices.push({
+// 	// 		name: channel.type,
+// 	// 		value: channel.id,
+// 	// 	});
+// 	// }
+// 	// return choices;
+// 	return [{
+// 		name: 'blank',
+// 		value: 'asdfsdf',
+// 	}];
+// };

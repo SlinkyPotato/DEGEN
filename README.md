@@ -13,7 +13,7 @@ please connect with any package maintainer for details on workflow.
 ## Getting Started
 
 If you're interested in helping with development, follow the steps outlined under docs/
-in [CONTRIBUTING.md](docs/CONTRIBUTING.md). This consists of setting up your own bot, having it added
+in [CONTRIBUTING.md](packages/discord-bot/docs/CONTRIBUTING.md). This consists of setting up your own bot, having it added
 to the test server, and acquiring the tokens to connect with the test Notion
 and database.
 

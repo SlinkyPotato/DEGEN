@@ -44,10 +44,10 @@ DISCORD_SERVER_ID=834499078434979890
 Create your own discord application and then create your own bot API key.
 
 Retrieve the App's client ID
-![](images/create_app.png)
+![](packages/discord-bot/docs/images/create_app.png)
 
 Retrieve the bot token
-![](images/create_bot.png)
+![](packages/discord-bot/docs/images/create_bot.png)
 
 ### 3. Invite bot to your personal discord
 
@@ -62,7 +62,7 @@ https://discord.com/oauth2/authorize?client_id=REPLACE_THIS_HERE&scope=bot+appli
 
 There should be a small cog near your icon photo labeled "User Settings". Hitting that there should be an option to enable
 developer mode
-![](images/discord_developer_mode.png)
+![](packages/discord-bot/docs/images/discord_developer_mode.png)
 
  ### 5. Create Mongo DB
 
@@ -70,7 +70,7 @@ A free cloud hosted mongodb solution can be created at [https://www.mongodb.com/
 Alternatively a locally hosted mongodb can also be used.
 
 Once created, the url should be passed which has the username:password combination.
-![](images/mongodb_url.png)
+![](packages/discord-bot/docs/images/mongodb_url.png)
 
 If using Docker, a local instance of mongo is included when using `docker-compose`
 
@@ -78,7 +78,7 @@ If using Docker, a local instance of mongo is included when using `docker-compos
 
 [https://developers.notion.com/docs/getting-started](https://developers.notion.com/docs/getting-started)
 
-![](images/notion_integration.png)
+![](packages/discord-bot/docs/images/notion_integration.png)
 
 ### 7. Run application
 

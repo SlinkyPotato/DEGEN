@@ -3,8 +3,8 @@ version: '3.8'
 services:
   bot:
     container_name: degen_bot
-    build: .
-    environment: 
+    build: ../..
+    environment:
       MONGODB_PREFIX: mongodb
       MONGODB_USERNAME: dev
       MONGODB_PASS: pass
@@ -21,6 +21,6 @@ services:
     volumes:
       - mongodb:/data/db
       - ./src/app/utils/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-      
+
 volumes:
   mongodb:

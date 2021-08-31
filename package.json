@@ -1,65 +1,49 @@
 {
-    "name": "degen",
-    "version": "1.4.0",
-    "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
-    "main": "app.js",
-    "private": true,
-    "scripts": {
-        "build": "tsc -p tsconfig.json",
-        "test": "jest",
-        "qa": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa",
-        "prod": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.prod",
-        "prestart": "yarn install && yarn build",
-        "pretest": "yarn install && yarn build",
-        "start": "node --trace-warnings -r dotenv/config dist/app/app.js",
-        "lint": "eslint src/**/*.ts",
-        "format": "eslint src/**/*.ts --fix",
-        "watch": "tsc -p tsconfig.json -w"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/BanklessDAO/discord-bots"
-    },
-    "keywords": [
-        "bankless",
-        "discord",
-        "bot",
-        "crypto"
+  "name": "@discord-bots/monorepo",
+  "version": "1.0.0",
+  "keywords": [
+    "ethereum",
+    "react",
+    "discord",
+    "workspaces",
+    "yarn",
+    "banklessDAO",
+    "bankless"
+  ],
+  "private": true,
+  "scripts": {
+    "discord-bot:build": "yarn workspace @discord-bots/degen build",
+    "discord-bot:start": "yarn workspace @discord-bots/degen start",
+    "discord-bot:test": "yarn workspace @discord-bots/degen test",
+    "build": "yarn workspace @discord-bots/degen build",
+    "chain": "yarn workspace @discord-bots/hardhat chain",
+    "fork": "yarn workspace @discord-bots/hardhat fork",
+    "node": "yarn workspace @discord-bots/hardhat chain",
+    "test": "yarn workspace @discord-bots/hardhat test",
+    "start": "yarn workspace @discord-bots/degen start",
+    "compile": "yarn workspace @discord-bots/hardhat compile",
+    "deploy": "yarn workspace @discord-bots/hardhat deploy",
+    "verify": "yarn workspace @discord-bots/hardhat etherscan-verify",
+    "watch": "yarn workspace @discord-bots/hardhat watch",
+    "accounts": "yarn workspace @discord-bots/hardhat accounts",
+    "balance": "yarn workspace @discord-bots/hardhat balance",
+    "send": "yarn workspace @discord-bots/hardhat send",
+    "generate": "yarn workspace @discord-bots/hardhat generate",
+    "account": "yarn workspace @discord-bots/hardhat account",
+    "fundedwallet": "cd packages/hardhat && npx hardhat fundedwallet",
+    "flatten": "cd packages/hardhat && npx hardhat flatten",
+    "clean": "cd packages/hardhat && npx hardhat clean"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*"
     ],
-    "author": "BANKLESS DAO",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/BanklessDAO/discord-bots/issues"
-    },
-    "homepage": "https://github.com/BanklessDAO/discord-bots/blob/main/README.md",
-    "dependencies": {
-        "@notionhq/client": "0.2.0",
-        "@types/node": "^16.7.1",
-        "axios": "^0.21.1",
-        "discord.js": "^13.1.0",
-        "dotenv": "^10.0.0",
-        "mongodb": "^3.6.9",
-        "p-queue": "^6.6.2",
-        "slash-create": "^4.0.1"
-    },
-    "devDependencies": {
-        "@types/jest": "^27.0.1",
-        "@types/mongodb": "^3.6.20",
-        "@typescript-eslint/eslint-plugin": "^4.26.0",
-        "@typescript-eslint/parser": "^4.26.0",
-        "eslint": "^7.27.0",
-        "eslint-config-prettier": "^8.3.0",
-        "jest": "^27.0.6",
-        "prettier": "2.3.0",
-        "ts-jest": "^27.0.5",
-        "ts-loader": "^9.2.3",
-        "typescript": "^4.3.5",
-        "webpack": "^5.44.0",
-        "webpack-cli": "^4.7.2"
-    },
-    "engines": {
-        "yarn": "1.x",
-        "node": ">=16.6.2"
-    },
-    "engineStrict": true
+    "nohoist": [
+      "**/discord-bot",
+      "**/discord-bot/**",
+      "**/hardhat",
+      "**/hardhat/**"
+    ]
+  },
+  "dependencies": {}
 }

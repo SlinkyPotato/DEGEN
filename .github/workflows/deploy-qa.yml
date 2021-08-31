@@ -33,7 +33,7 @@ jobs:
                   heroku_api_key: ${{secrets.QA_HEROKU_API_KEY}}
                   heroku_app_name: 'serendipity-mk1'
                   heroku_email: 'bankless@nonsensecodes.io'
-                  procfile: 'worker: yarn qa'
+                  procfile: 'worker: yarn start:qa'
               env:
                   HD_DISCORD_BOT_TOKEN: ${{secrets.QA_DISCORD_TOKEN}}
                   HD_DISCORD_BOT_PUBLIC_KEY: ${{secrets.QA_BOT_PUBLIC_KEY}}

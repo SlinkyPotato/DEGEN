@@ -1,5 +1,6 @@
-import { Channel, Message, TextBasedChannels, MessageEmbed } from 'discord.js';
-import constants from '../constants/constants';
+import { Channel, Message, TextBasedChannels } from 'discord.js';
+// import constants from '../constants/constants';
+import { v1 as uuidv1 } from 'uuid';
 
 export class BotConversation {
 	timeout: number;
@@ -10,6 +11,25 @@ export class BotConversation {
 	current_message: Message;
 	edit: boolean;
 	edit_value: any;
+	conversation_id: string;
+	user_id: string;
+	scoap_embed_id: string;
+
+	constructor() {
+		this.conversation_id = uuidv1();
+	}
+
+	getScoapEmbedId(): string {
+		return this.scoap_embed_id;
+	}
+
+	getUserId(): string {
+		return this.user_id;
+	}
+
+	getId(): string {
+		return this.conversation_id;
+	}
 
 	getEditValue(): any {
 		return this.edit_value;
@@ -43,6 +63,16 @@ export class BotConversation {
 		return this.current_message;
 	}
 
+	setScoapEmbedId(scoap_embed_id: any): this {
+		this.scoap_embed_id = scoap_embed_id;
+		return this;
+	}
+
+	setUserId(user_id: any): this {
+		this.user_id = user_id;
+		return this;
+	}
+
 	setEditValue(edit_value: any): this {
 		this.edit_value = edit_value;
 		return this;
@@ -60,6 +90,7 @@ export class BotConversation {
 	}
 
 	setCurrentMessage(current_message: Message): this {
+		console.log('SET CURRENT MESSAGE: SET TO ID ', current_message.id);
 		this.current_message = current_message;
 		return this;
 	}
@@ -98,11 +129,13 @@ export class BotConversation {
 				embeds: this.convo.message_flow[message_flow_index],
 			});
 			this.convo.message_flow[message_flow_index][0].fields[0].value = role_number_string_old;
+			console.log('SETTING CUURENT MESSAGE ON BOT CONVO TO ', currMsg.id);
 			this.setCurrentMessage(currMsg);
 		} else {
 			const currMsg = await channel.send({
 				embeds: this.convo.message_flow[message_flow_index],
 			});
+			console.log('SETTING CUURENT MESSAGE ON BOT CONVO TO ', currMsg.id);
 			this.setCurrentMessage(currMsg);
 		}
 		
@@ -121,12 +154,27 @@ export class ScoapEmbed {
 	current_channel: Channel;
 	current_message: Message;
 	votable_emoji_array: Array<any>;
+	notion_page_id: string;
+	id: string;
+	bot_convo_record: any;
+
+	constructor() {
+		this.id = uuidv1();
+	}
+
+	getId(): string {
+		return this.id;
+	}
 
 	getEmbed(): any {
 		return this.embed;
 	}
 
 	getAuthor(): string {
+		return this.scoap_author;
+	}
+
+	getUserId(): string {
 		return this.scoap_author;
 	}
 
@@ -141,6 +189,18 @@ export class ScoapEmbed {
 	getVotableEmojiArray(): Array<any> {
 		return this.votable_emoji_array;
 	}
+
+	getNotionPageId(): string {
+		return this.notion_page_id;
+	}
+
+	getBotConvoResponseRecord(): string {
+		return this.bot_convo_record;
+	}
+
+	// getNotionChildId(): string {
+	// 	return this.notion_child_id;
+	// }
 
 	setEmbed(embed: any): this {
 		this.embed = embed;
@@ -166,6 +226,21 @@ export class ScoapEmbed {
 		this.votable_emoji_array = votable_emoji_array;
 		return this;
 	}
+
+	setNotionPageId(notion_page_id: string): this {
+		this.notion_page_id = notion_page_id;
+		return this;
+	}
+
+	setBotConvoResponseRecord(bot_convo_record: any): this {
+		this.bot_convo_record = bot_convo_record;
+		return this;
+	}
+
+	// setNotionChildId(notion_child_id: string): this {
+	// 	this.notion_child_id = notion_child_id;
+	// 	return this;
+	// }
 
 	updateProgressString(emoji: string, update_progress_string: string): this {
 		for (const [i, field] of this.embed[0].fields.entries()) {
@@ -308,7 +383,7 @@ export class VoteRecord {
 
 	_updateProgressStrings(vote: Record<string, any>): this {
 		const old_emoji = this.user_vote_ledger[vote.user_id];
-		console.log(`updating progress string, inputs: ${vote.emoji}, ${old_emoji}, ${vote.type}`, this.emote_totals, this.emote_required);
+		// console.log(`updating progress string, inputs: ${vote.emoji}, ${old_emoji}, ${vote.type}`, this.emote_totals, this.emote_required);
 		if (vote.type === 'CHANGEVOTE') {
 			this.progress_strings[old_emoji] = this._generateProgressString(old_emoji);
 			this.progress_strings[vote.emoji] = this._generateProgressString(vote.emoji);

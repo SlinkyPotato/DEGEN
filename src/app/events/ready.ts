@@ -7,36 +7,35 @@ import ScoapFastifyServer from '../service/scoap-squad/ScoapFastifyServer';
 import { Client } from 'discord.js';
 
 
-import { Client as NotionClient, APIErrorCode, ClientErrorCode, isNotionClientError } from '@notionhq/client';
-import {
-	InputPropertyValueMap,
-	PropertyMap,
-} from '@notionhq/client/build/src/api-endpoints';
-import {
-	PropertyValueWithoutId,
-	SelectFilter,
-	TextFilter,
-	UserBase,
-	RichText,
-	Block,
-	ParagraphBlock,
-	SelectOption,
-	SelectOptionWithId,
-	MultiSelectPropertyValue,
-	SelectPropertyValue,
-	DatePropertyValue,
-	TitlePropertyValue,
-	RichTextPropertyValue,
-	PropertyValue,
-	InputPropertyValue,
-	TitleInputPropertyValue,
-} from '@notionhq/client/build/src/api-types';
-import constants from '../service/constants/constants';
+// import { Client as NotionClient, APIErrorCode, ClientErrorCode, isNotionClientError } from '@notionhq/client';
+// import {
+// 	InputPropertyValueMap,
+// 	PropertyMap,
+// } from '@notionhq/client/build/src/api-endpoints';
+// import {
+// 	PropertyValueWithoutId,
+// 	SelectFilter,
+// 	TextFilter,
+// 	UserBase,
+// 	RichText,
+// 	Block,
+// 	ParagraphBlock,
+// 	SelectOption,
+// 	SelectOptionWithId,
+// 	MultiSelectPropertyValue,
+// 	SelectPropertyValue,
+// 	DatePropertyValue,
+// 	TitlePropertyValue,
+// 	RichTextPropertyValue,
+// 	PropertyValue,
+// 	InputPropertyValue,
+// 	TitleInputPropertyValue,
+// } from '@notionhq/client/build/src/api-types';
+// import constants from '../service/constants/constants';
 // import api-types from '@notionhq/client';
 // import * as notion from 'notion-types';
 
 // import { NotionAPI } from 'notion-client';
-
 
 
 module.exports = {
@@ -49,201 +48,204 @@ module.exports = {
 		await GuestPassService(client);
 		ScoapFastifyServer();
 
-		const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
-		const databaseId = process.env.NOTION_SCOAP_SQUAD_DB_ID;
-		const db_properties = await getNotionDatabaseProperties(notion, databaseId);
-		const select_option_open = retrieveSelectOption(db_properties, constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.open);
-		console.log('SELECT option Open ', select_option_open);
-		const discord_handles = ['handle 1', 'handle 2', 'mynewhandle'];
-		const m_select_options = retrieveMultiSelectOptions(db_properties, constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name, discord_handles);
-		console.log('MULTI options ', m_select_options);
-		const new_m_select_options = createNewMultiSelectOptions(m_select_options[0], discord_handles);
-		console.log('EXISTING m SEelect options: ', m_select_options[1]);
-		console.log('NEW m SEelect options: ', new_m_select_options);
-		const value_map = createNotionProperties(databaseId, m_select_options[1], select_option_open, 'title', 'author');
-		console.log('VALUE MAP ', value_map);
-		const newPageId = await createNewNotionPage(notion, databaseId, value_map);
-		console.log(newPageId);
-		appendBlockToPage(notion, newPageId, 'SUMMARY');
-		const select_option_filled = retrieveSelectOption(db_properties, constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.filled);
-		console.log(select_option_filled);
-		setTimeout(function() {
-			console.log('updateing...');
-		    // updateStatusSelectField(notion, newPageId, select_option_filled);
-		    const multi_select_options = new_m_select_options.concat(m_select_options[1]);
-		    updateDiscordHandleMultiSelectField(notion, newPageId, multi_select_options);
-		}, 5000);
-		// updateStatusSelectField(notion, newPageId, select_option_filled);
+		// const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
+		// const databaseId = process.env.NOTION_SCOAP_SQUAD_DB_ID;
+		// const db_properties = await getNotionDatabaseProperties(notion, databaseId);
+		// const select_option_open = retrieveSelectOption(db_properties, constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.open);
+		// console.log('SELECT option Open ', select_option_open);
+		// const discord_handles = ['handle 1', 'handle 2', 'mynewhandle', 'newagain', 'newinadifferentcolor'];
+		// const m_select_options = retrieveMultiSelectOptions(db_properties, constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name, discord_handles);
+		// console.log('MULTI options ', m_select_options);
+		// const new_m_select_options = createNewMultiSelectOptions(m_select_options[0], discord_handles);
+		// console.log('EXISTING m SEelect options: ', m_select_options[1]);
+		// console.log('NEW m SEelect options: ', new_m_select_options);
+		// const value_map = createNotionProperties(databaseId, m_select_options[1], select_option_open, 'title', 'author');
+		// console.log('VALUE MAP ', value_map);
+		// const newPageId = await createNewNotionPage(notion, databaseId, value_map);
+		// console.log(newPageId);
+		// appendBlockToPage(notion, newPageId, 'SUMMARY');
+		// const select_option_filled = retrieveSelectOption(db_properties, constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.filled);
+		// console.log(select_option_filled);
+		// setTimeout(function() {
+		// 	console.log('updateing...');
+		//     // updateStatusSelectField(notion, newPageId, select_option_filled);
+		//     const multi_select_options = new_m_select_options.concat(m_select_options[1]);
+		//     updateDiscordHandleMultiSelectField(notion, newPageId, multi_select_options);
+		// }, 5000);
 		
 	},
 };
 
+// const getRandomColor = () => {
+// 	return constants.NOTION_COLORS[Math.floor(Math.random() * constants.NOTION_COLORS.length)];
+// };
 
-const updateStatusSelectField = async (notion, page_id, select_option) => {
-	const propertyValues: InputPropertyValueMap = {};
-	const pageId = page_id;
-	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name] = {
-		type: constants.SCOAP_SQUAD_NOTION_FIELDS.status.type,
-		id: select_option.id,
-		select: select_option,
-	} as SelectPropertyValue;
-	const response = await notion.pages.update({
-		page_id: pageId,
-		properties: propertyValues,
-	});
-};
+// const updateStatusSelectField = async (notion, page_id, select_option) => {
+// 	const propertyValues: InputPropertyValueMap = {};
+// 	const pageId = page_id;
+// 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name] = {
+// 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.status.type,
+// 		id: select_option.id,
+// 		select: select_option,
+// 	} as SelectPropertyValue;
+// 	const response = await notion.pages.update({
+// 		page_id: pageId,
+// 		properties: propertyValues,
+// 	});
+// };
 
-const updateDiscordHandleMultiSelectField = async (notion, page_id, multi_select_options) => {
-	const propertyValues: InputPropertyValueMap = {};
-	const pageId = page_id;
-	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name] = {
-		type: constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.type,
-		multi_select: multi_select_options,
-	} as MultiSelectPropertyValue;
-	const response = await notion.pages.update({
-		page_id: pageId,
-		properties: propertyValues,
-	});
-};
+// const updateDiscordHandleMultiSelectField = async (notion, page_id, multi_select_options) => {
+// 	const propertyValues: InputPropertyValueMap = {};
+// 	const pageId = page_id;
+// 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name] = {
+// 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.type,
+// 		multi_select: multi_select_options,
+// 	} as MultiSelectPropertyValue;
+// 	const response = await notion.pages.update({
+// 		page_id: pageId,
+// 		properties: propertyValues,
+// 	});
+// };
 
-const retrieveSelectOption = (properties: PropertyMap, field_name: string, option: string): any => {
-	let select_option_result = {};
-	Object.entries(properties).forEach(([name, property]) => {
-	    if (property.type === 'select' && property.name === field_name) {
-	    	Object.entries(property.select.options).forEach(([idx, select_option]) => {
-	    		if (select_option.name === option) {
-	    			select_option_result = select_option;
-	    		};
-	    	});
+// const retrieveSelectOption = (properties: PropertyMap, field_name: string, option: string): any => {
+// 	let select_option_result = {};
+// 	Object.entries(properties).forEach(([name, property]) => {
+// 	    if (property.type === 'select' && property.name === field_name) {
+// 	    	Object.entries(property.select.options).forEach(([idx, select_option]) => {
+// 	    		if (select_option.name === option) {
+// 	    			select_option_result = select_option;
+// 	    		};
+// 	    	});
 
-		};
-	});
-	return select_option_result;
-};
+// 		};
+// 	});
+// 	return select_option_result;
+// };
 
-const retrieveMultiSelectOptions = (properties: PropertyMap, field_name: string, options): any => {
-	const existing_multi_select_options = [];
-	const existing_options_name_mapping = {};
-	Object.entries(properties).forEach(([name, property]) => {
-	    if (property.type === 'multi_select') {
-	    	console.log(property.multi_select.options);
-	    	Object.entries(property.multi_select.options).forEach(([idx, m_select_option]) => {
-	    		if (options.includes(m_select_option.name)) {
-	    			existing_options_name_mapping[m_select_option.name] = m_select_option.id;
-	    			existing_multi_select_options.push(m_select_option);
-	    		};
-	    	});
-		}
-	});
-	return [existing_options_name_mapping, existing_multi_select_options];
-};
+// const retrieveMultiSelectOptions = (properties: PropertyMap, field_name: string, options): any => {
+// 	const existing_multi_select_options = [];
+// 	const existing_options_name_mapping = {};
+// 	Object.entries(properties).forEach(([name, property]) => {
+// 	    if (property.type === 'multi_select') {
+// 	    	console.log(property.multi_select.options);
+// 	    	Object.entries(property.multi_select.options).forEach(([idx, m_select_option]) => {
+// 	    		if (options.includes(m_select_option.name)) {
+// 	    			existing_options_name_mapping[m_select_option.name] = m_select_option.id;
+// 	    			existing_multi_select_options.push(m_select_option);
+// 	    		};
+// 	    	});
+// 		}
+// 	});
+// 	return [existing_options_name_mapping, existing_multi_select_options];
+// };
 
-const createNewMultiSelectOptions = (existing_options_name_mapping, options) => {
-	const new_multi_slect_options = [];
-	for (const option of options) {
-		if (!(option in existing_options_name_mapping)) {
-			const multi_select = {
-				name: option,
-			};
-			new_multi_slect_options.push(multi_select);
-		}
-	}
-	return new_multi_slect_options;
-};
+// const createNewMultiSelectOptions = (existing_options_name_mapping, options) => {
+// 	const new_multi_slect_options = [];
+// 	for (const option of options) {
+// 		if (!(option in existing_options_name_mapping)) {
+// 			const multi_select = {
+// 				name: option,
+// 				color: getRandomColor(),
+// 			};
+// 			new_multi_slect_options.push(multi_select);
+// 		}
+// 	}
+// 	return new_multi_slect_options;
+// };
 
-const getNotionDatabaseProperties = async (notion, databaseId): Promise<PropertyMap> => {
-	const { properties } = await notion.databases.retrieve({ database_id: databaseId });
-	console.log('PROPERTIES', properties);
-	return properties;
-};
+// const getNotionDatabaseProperties = async (notion, databaseId): Promise<PropertyMap> => {
+// 	const { properties } = await notion.databases.retrieve({ database_id: databaseId });
+// 	console.log('PROPERTIES', properties);
+// 	return properties;
+// };
 
-const createNewNotionPage = async (notion, databaseId: string, properties: InputPropertyValueMap): Promise<string> => {
-	const response = await notion.pages.create({
-		parent: {
-			database_id: databaseId,
-		},
-		properties: properties,
-	});
-	return response.id;
-};
+// const createNewNotionPage = async (notion, databaseId: string, properties: InputPropertyValueMap): Promise<string> => {
+// 	const response = await notion.pages.create({
+// 		parent: {
+// 			database_id: databaseId,
+// 		},
+// 		properties: properties,
+// 	});
+// 	return response.id;
+// };
 
-const appendBlockToPage = async (notion, page_id, summary) => {
-	await notion.blocks.children.append({
-		block_id: page_id,
-		children: [
-		  {
-		    object: 'block',
-		    type: 'paragraph',
-		    paragraph: {
-		      text: [
-		        {
-		          type: 'text',
-		          text: {
-		            content: summary,
-		            // link: {
-		            //   type: 'url',
-		            //   url: 'https://bankless.com',
-		            // },
-		          },
-		        },
-		      ],
-		    },
-		  } as ParagraphBlock,
-		],
-	});
-};
+// const appendBlockToPage = async (notion, page_id, summary) => {
+// 	await notion.blocks.children.append({
+// 		block_id: page_id,
+// 		children: [
+// 		  {
+// 		    object: 'block',
+// 		    type: 'paragraph',
+// 		    paragraph: {
+// 		      text: [
+// 		        {
+// 		          type: 'text',
+// 		          text: {
+// 		            content: summary,
+// 		            // link: {
+// 		            //   type: 'url',
+// 		            //   url: 'https://bankless.com',
+// 		            // },
+// 		          },
+// 		        },
+// 		      ],
+// 		    },
+// 		  } as ParagraphBlock,
+// 		],
+// 	});
+// };
 
-const createNotionProperties = (databaseId: string, multi_select_options, selectOption, scoap_title: string, scoap_author: string): InputPropertyValueMap => {
-	const propertyValues: InputPropertyValueMap = {};
+// const createNotionProperties = (databaseId: string, multi_select_options, selectOption, scoap_title: string, scoap_author: string): InputPropertyValueMap => {
+// 	const propertyValues: InputPropertyValueMap = {};
 
-	// title (Page)
-	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.project.field_name] = {
-		type: constants.SCOAP_SQUAD_NOTION_FIELDS.project.type,
-		title: [
-		    {
-				type: 'text',
-				text: {
-					content: scoap_title,
-				},
-			},
-		],
-	} as TitlePropertyValue;
+// 	// title (Page)
+// 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.project.field_name] = {
+// 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.project.type,
+// 		title: [
+// 		    {
+// 				type: 'text',
+// 				text: {
+// 					content: scoap_title,
+// 				},
+// 			},
+// 		],
+// 	} as TitlePropertyValue;
 
-	// scoap author
-	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.author_discord_handle.field_name] = {
-		type: constants.SCOAP_SQUAD_NOTION_FIELDS.author_discord_handle.type,
-		// id: property.id,
-		rich_text: [
-		  {
-		    type: 'text',
-		    text: { content: scoap_author },
-		  },
-		],
-	} as RichTextPropertyValue;
+// 	// scoap author
+// 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.author_discord_handle.field_name] = {
+// 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.author_discord_handle.type,
+// 		// id: property.id,
+// 		rich_text: [
+// 		  {
+// 		    type: 'text',
+// 		    text: { content: scoap_author },
+// 		  },
+// 		],
+// 	} as RichTextPropertyValue;
 
-	// multi select input
-	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name] = {
-		type: constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.type,
-		multi_select: multi_select_options,
-	} as MultiSelectPropertyValue;
+// 	// multi select input
+// 	// propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name] = {
+// 	// 	type: constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.type,
+// 	// 	multi_select: multi_select_options,
+// 	// } as MultiSelectPropertyValue;
 
-	// select
-	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name] = {
-		type: constants.SCOAP_SQUAD_NOTION_FIELDS.status.type,
-		id: selectOption.id,
-		select: selectOption,
-	} as SelectPropertyValue;
+// 	// select
+// 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name] = {
+// 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.status.type,
+// 		id: selectOption.id,
+// 		select: selectOption,
+// 	} as SelectPropertyValue;
 
-	// date input
-	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.date_created.field_name] = {
-		type: constants.SCOAP_SQUAD_NOTION_FIELDS.date_created.type,
-		date: {
-			start: new Date().toISOString(),
-		},
-	} as DatePropertyValue;
+// 	// date input
+// 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.date_created.field_name] = {
+// 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.date_created.type,
+// 		date: {
+// 			start: new Date().toISOString(),
+// 		},
+// 	} as DatePropertyValue;
 
-	return propertyValues;
-};
+// 	return propertyValues;
+// };
 
 
 // const createNewNotionPage = async (notion, databaseId, input_values) => {

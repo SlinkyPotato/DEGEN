@@ -5,8 +5,8 @@ import path from 'path';
 import fs from 'fs';
 // import { server } from './service/ScoapFastifyServer';
 
-export const scoapEmbedArray = [];
-export const botConvoArray = [];
+export const scoapEmbedState = [];
+export const botConvoState = {};
 
 const client: Client = initializeClient();
 initializeEvents();

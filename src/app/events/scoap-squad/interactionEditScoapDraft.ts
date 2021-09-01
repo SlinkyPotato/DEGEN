@@ -1,10 +1,9 @@
-import { botConvoArray } from '../../app';
+import { botConvoState } from '../../app';
 import { SelectMenuInteraction } from 'discord.js';
-import ScoapUtils from '../../utils/ScoapUtils';
 
 export default async (interaction: SelectMenuInteraction): Promise<any> => {
-	const botConvoIndex = ScoapUtils.retrieveObjectFromArray(botConvoArray, interaction.channel);
-	const botConvo = botConvoArray[botConvoIndex];
+
+	const botConvo = botConvoState[interaction.user.id];
 	if (interactionIsValid(interaction, botConvo)) {
 		botConvo.setEdit(true);
 		botConvo.setEditValue(interaction.values[0]);

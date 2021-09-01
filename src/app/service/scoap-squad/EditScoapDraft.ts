@@ -1,12 +1,13 @@
 import { MessageActionRow, MessageSelectMenu } from 'discord.js';
 import constants from '../constants/constants';
-import { scoapEmbedArray } from '../../app';
+import { scoapEmbedState } from '../../app';
 import { publishDraftScoapEmbed } from '../../service/scoap-squad/CreateNewScoapPoll';
 import ScoapUtils from '../../utils/ScoapUtils';
 
 export const scoapEmbedUpdate = async (botConvo, user_input): Promise<any> => {
-	const scoapEmbedIndex = ScoapUtils.retrieveObjectFromArray(scoapEmbedArray, botConvo.getCurrentChannel());
-	const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
+	// const scoapEmbedIndex = ScoapUtils.retrieveObjectFromArray(scoapEmbedArray, botConvo.getUserId());
+	// const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
+	const scoapEmbed = scoapEmbedState[botConvo.getScoapEmbedId()];
 	const scoapEmbed_fields = scoapEmbed.getEmbed()[0].fields;
 	const botConvoResponseRecord_fields = botConvo.getConvo().user_response_record.embed[0].fields;
 	const interaction_value = botConvo.getEditValue();
@@ -80,9 +81,7 @@ export const scoapEmbedEdit = (scoapEmbed): any => {
 	];
 
 	for (const emoji of scoapEmbed.getVotableEmojiArray()) {
-		console.log('EMOJI ', emoji);
 		const role = retrieveRoleFields(scoapEmbed_fields, emoji);
-		console.log('ROLE : ', role[0], role[1]);
 		const role_count_str = `Wanted: ${role[1].name.substring(role[1].name.lastIndexOf('/') + 1, role[1].name.lastIndexOf(')'))}`;
 		select_options.push({ label: role[0].name, description: role_count_str, value:emoji });
 	}

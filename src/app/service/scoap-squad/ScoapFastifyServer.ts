@@ -35,8 +35,8 @@ server.post('/scoap', opts, async (request) => {
 		constants.SCOAP_SQUAD_CHANNEL_ID,
 	)) as TextChannel;
 	// const requestBody: object = request.body;
-	const formData = await ScoapPoll(channel, request, {});
-	return formData;
+	// const formData = await ScoapPoll(channel, request, {});
+	// return formData;
 });
 
 export default async (): Promise<void> => {

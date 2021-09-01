@@ -1,34 +1,66 @@
 import { publishDraftScoapEmbed } from './CreateNewScoapPoll';
-import { scoapEmbedArray } from '../../app';
+import { scoapEmbedState } from '../../app';
 import constants from '../constants/constants';
 import { ScoapEmbed } from './ScoapClasses';
 import { Message } from 'discord.js';
+import ScoapUtils from '../../utils/ScoapUtils';
 
 
 export default async (message: Message, botConvo: any): Promise<any> => {
 
+	console.log('EDIT ', botConvo.getEdit());
+	console.log('MESSAGE FLOW INDEX ', botConvo.getCurrentMessageFlowIndex());
 	switch (true) {
 	case (botConvo.getCurrentMessageFlowIndex() === '2'):
-		if (!botConvo.getEdit()) {
-			setUserResponseRecord(message.content, botConvo, 'TITLE');
+		switch (true) {
+		case (ScoapUtils.validateTitle(message.content)):
+			if (!botConvo.getEdit()) {
+				setUserResponseRecord(message.content, botConvo, 'TITLE');
+			}
+			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
+			return;
+		default:
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'Please enter a valid title: \n' +
+																		'- 250 characters maximum\n ' +
+																		'- alphanumeric\n ' +
+																		'- special characters: .!@#$%&,?']);
+			return;
 		}
-		incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 		break;
 	case (botConvo.getCurrentMessageFlowIndex() === '3'):
-		if (!botConvo.getEdit()) {
-			setUserResponseRecord(message.content, botConvo, 'SUMMARY');
+		switch (true) {
+		case (ScoapUtils.validateSummary(message.content)):
+			if (!botConvo.getEdit()) {
+				setUserResponseRecord(message.content, botConvo, 'SUMMARY');
+			}
+			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
+			return;
+		default:
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'Please enter a valid summary: \n' +
+																		'- 4000 characters maximum\n ' +
+																		'- alphanumeric\n ' +
+																		'- special characters: .!@#$%&,?']);
+			return;
 		}
-		incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 		break;
 	case (botConvo.getCurrentMessageFlowIndex() === '4'):
-		if (!botConvo.getEdit()) {
-			setUserResponseRecord(message.content, botConvo, 'REWARD');
+		switch (true) {
+		case (ScoapUtils.validateReward(message.content)):
+			if (!botConvo.getEdit()) {
+				setUserResponseRecord(message.content, botConvo, 'REWARD');
+			}
+			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
+			return;
+		default:
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'Please enter a valid reward value: \n ' +
+																		'- 100 million maximum currency\n ' +
+																		'- accepted currencies: ETH, BANK']);
+			return;
 		}
-		incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 		break;
 	case (botConvo.getCurrentMessageFlowIndex() === '5'):
 		switch (true) {
-		case (validateTotalNumberOfRoles(message.content)):
+		case (ScoapUtils.validateTotalNumberOfRoles(message.content)):
 			if (!botConvo.getEdit()) {
 				setUserResponseRecord(message.content, botConvo, 'NUMBER_OF_ROLES');
 			}
@@ -45,31 +77,48 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 		if (getNumberOfRolesRecorded(botConvo) <= getTotalNumberOfRoles(botConvo)) {
 			switch (true) {
 			case (botConvo.getCurrentMessageFlowIndex() === '6'):
-				if (!botConvo.getEdit()) {
-					setUserResponseRecord(message.content, botConvo, 'ROLE_TITLE');
+				switch (true) {
+				case (ScoapUtils.validateTitle(message.content)):
+					if (!botConvo.getEdit()) {
+						setUserResponseRecord(message.content, botConvo, 'ROLE_TITLE');
+					}
+					incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
+					break;
+				default:
+					incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'Please enter a valid title: \n' +
+																				'- 250 characters maximum\n ' +
+																				'- alphanumeric\n ' +
+																				'- special characters: .!@#$%&,?']);
+					return;
 				}
-				incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 				break;
 			case (botConvo.getCurrentMessageFlowIndex() === '7'):
-				if (!botConvo.getEdit()) {
-					setUserResponseRecord(message.content, botConvo, 'ROLE_COUNT');
-				}
-				// if true we continue the loop
-				if (getNumberOfRolesRecorded(botConvo) < getTotalNumberOfRoles(botConvo)) {
+				switch (true) {
+				case (ScoapUtils.validateTotalNumberOfPeoplePerRole(message.content)):
 					if (!botConvo.getEdit()) {
-						setUserResponseRecord({}, botConvo, 'NEW_ROLE');
+						setUserResponseRecord(message.content, botConvo, 'ROLE_COUNT');
 					}
-					incrementMessageFlowIndex(botConvo, message, ['CORRECT', -1]);
-				// if true this is last iteration
-				} else if (getNumberOfRolesRecorded(botConvo) == getTotalNumberOfRoles(botConvo)) {
-					incrementMessageFlowIndex(botConvo, message, ['FINAL', +1]);
-					const scoapEmbed = createNewScoapEmbed(botConvo);
-					Array(botConvo.getConvo().user_response_record.number_of_roles).fill(0).map((_, i) => {
-						createScoapEmbedRoleFields(botConvo, scoapEmbed, i);
-					});
+					// if true we continue the loop
+					if (getNumberOfRolesRecorded(botConvo) < getTotalNumberOfRoles(botConvo)) {
+						if (!botConvo.getEdit()) {
+							setUserResponseRecord({}, botConvo, 'NEW_ROLE');
+						}
+						incrementMessageFlowIndex(botConvo, message, ['CORRECT', -1]);
+					// if true this is last iteration
+					} else if (getNumberOfRolesRecorded(botConvo) == getTotalNumberOfRoles(botConvo)) {
+						incrementMessageFlowIndex(botConvo, message, ['FINAL', +1]);
+						const scoapEmbed = createNewScoapEmbed(botConvo);
+						Array(botConvo.getConvo().user_response_record.number_of_roles).fill(0).map((_, i) => {
+							createScoapEmbedRoleFields(botConvo, scoapEmbed, i);
+						});
 
-					return publishDraftScoapEmbed(botConvo, scoapEmbed, message.channel);
-				};
+						return publishDraftScoapEmbed(botConvo, scoapEmbed, message.channel);
+					};
+					return;
+				default:
+					incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'number between 1 and 1000']);
+					return;
+				}
 				break;
 			}
 		}
@@ -86,7 +135,8 @@ const createNewScoapEmbed = (botConvo): any => {
 		.setCurrentChannel(botConvo.getCurrentChannel())
 		.setCurrentMessage(botConvo.getCurrentMessage());
 	scoapEmbed.getEmbed()[0].fields.push({ name: '\u200b', value: constants.SCOAP_SQUAD_EMBED_SPACER });
-	scoapEmbedArray.push(scoapEmbed);
+	scoapEmbedState[scoapEmbed.getId()] = scoapEmbed;
+	botConvo.setScoapEmbedId(scoapEmbed.getId());
 	return scoapEmbed;
 };
 
@@ -201,12 +251,4 @@ const setUserResponseRecord = (record_entry, botConvo, option) => {
 		botConvo.getConvo().user_response_record.roles[(getNumberOfRolesRecorded(botConvo) + 1).toString()] = record_entry;
 		break;
 	}
-};
-
-const validateTotalNumberOfRoles = (message_content) => {
-	return (isInteger(message_content) && (parseInt(message_content) < 10) && (parseInt(message_content) >= 1));
-};
-
-const isInteger = (value) => {
-	return /^\d+$/.test(value);
 };

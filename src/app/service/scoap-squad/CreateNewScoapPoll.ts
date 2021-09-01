@@ -5,9 +5,10 @@ import constants from '../constants/constants';
 import channelIds from '../constants/channelIds';
 import client from '../../app';
 import ScoapPoll from './ScoapPoll';
-import { scoapEmbedArray, botConvoArray } from '../../app';
+import { scoapEmbedState, botConvoState } from '../../app';
 import { scoapEmbedEdit } from './EditScoapDraft';
 import ScoapUtils from '../../utils/ScoapUtils';
+import { createNewScoapOnNotion } from './ScoapNotion';
 
 
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
@@ -39,9 +40,9 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 		} else if (reaction.emoji.name === '❌') {
 			switch (option) {
 			case 'SET_ROLES':
-				return abortSetScoapRoles(message);
+				return abortSetScoapRoles(message, botConvo.getUserId());
 			case 'PUBLISH':
-				return abortPublishScoapPoll(message);
+				return abortPublishScoapPoll(message, botConvo, scoapEmbed);
 			}
 		} else if (reaction.emoji.name === 'ℹ️') {
 			await message.channel.send({ embeds: botConvo.getConvo().help_message_embeds });
@@ -84,13 +85,14 @@ const createBotConversation = async (guildMember: GuildMember): Promise<any> => 
 		.setExpired(false)
 		.setConvo(createBotConversationParams(guildMember))
 		.setCurrentChannel(channel)
-		.setEdit(false);
-	botConvoArray.push(botConvo);
+		.setEdit(false)
+		.setUserId(guildMember.user.id);
+	botConvoState[guildMember.user.id] = botConvo;
 	return botConvo;
 };
 
-const abortSetScoapRoles = async (message: Message) => {
-	await ScoapUtils.clearArray(botConvoArray, message);
+const abortSetScoapRoles = async (message: Message, user_id) => {
+	delete botConvoState[user_id];
 	await message.delete();
 	return message.channel.send('Message deleted, let\'s start over.');
 };
@@ -98,13 +100,23 @@ const abortSetScoapRoles = async (message: Message) => {
 const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any): Promise<any> => {
 	scoapEmbed.getEmbed()[0].footer = { text: 'react with emoji to claim a project role | ❌ - abort poll' };
 	const scoapChannel: TextChannel = await client.channels.fetch(channelIds.scoapSquad) as TextChannel;
-	ScoapPoll(scoapChannel, scoapEmbed, botConvo);
-	return message.channel.send(`All done! Your SCOAP Squad assemble request has been posted in <#${channelIds.scoapSquad}>`);
+	scoapEmbed.setBotConvoResponseRecord(botConvo.getConvo().user_response_record);
+	delete botConvoState[botConvo.getUserId()];
+	ScoapPoll(scoapChannel, scoapEmbed);
+	message.channel.send(`All done! Your SCOAP Squad assemble request has been posted in <#${channelIds.scoapSquad}>`);
+	const notion_inputs = {
+		title: scoapEmbed.getEmbed()[0].title,
+		author: scoapEmbed.getEmbed()[0].author.name,
+		summary: scoapEmbed.getEmbed()[0].fields.find(o => o.name === 'Summary').value,
+	};
+	const notion_page_id = await createNewScoapOnNotion(notion_inputs);
+	scoapEmbed.setNotionPageId(notion_page_id);
 };
 
-const abortPublishScoapPoll = async (message: Message) => {
-	await ScoapUtils.clearArray(scoapEmbedArray, message);
-	await ScoapUtils.clearArray(botConvoArray, message);
+const abortPublishScoapPoll = async (message: Message, botConvo: any, scoapEmbed: any) => {
+	delete scoapEmbedState[scoapEmbed.getId()];
+	delete botConvoState[botConvo.getUserId()];
+	// await ScoapUtils.clearArray(botConvoArray, message);
 	await message.delete();
 	return message.channel.send('Message deleted, let\'s start over.');
 };

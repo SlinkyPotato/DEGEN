@@ -13,9 +13,9 @@ const creator = new SlashCreator({
 	token: process.env.DISCORD_BOT_TOKEN,
 });
 
-creator.on('debug', (message) => console.log(message));
-creator.on('warn', (message) => console.warn(message));
-creator.on('error', (error) => console.error(error));
+creator.on('debug', (message) => console.log(`debug: ${ message }`));
+creator.on('warn', (message) => console.warn(`warn: ${ message }`));
+creator.on('error', (error) => console.error(`error: ${ error }`));
 creator.on('synced', () => console.info('Commands synced!'));
 creator.on('commandRegister', (command) => console.info(`Registered command ${command.commandName}`));
 creator.on('commandError', (command, error) => console.error(`Command ${command.commandName}:`, error));

@@ -1,6 +1,6 @@
 {
     "name": "degen",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
     "main": "app.js",
     "private": true,
@@ -12,7 +12,6 @@
         "prestart": "yarn install && yarn build",
         "pretest": "yarn install && yarn build",
         "start": "node --trace-warnings -r dotenv/config dist/app/app.js",
-        "dev": "nodemon",
         "lint": "eslint src/**/*.ts",
         "format": "eslint src/**/*.ts --fix",
         "watch": "tsc -p tsconfig.json -w"

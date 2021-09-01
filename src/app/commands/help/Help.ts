@@ -32,7 +32,7 @@ export default class Help extends SlashCommand {
 		});
 	}
 	
-	async run(ctx: CommandContext) {
+	async run(ctx: CommandContext): Promise<any> {
 		if (ctx.user.bot) return;
 		console.log(`/help start ${ctx.user.username}#${ctx.user.discriminator}`);
 		
@@ -51,4 +51,4 @@ export default class Help extends SlashCommand {
 		console.log(`/bounty end ${ctx.user.username}#${ctx.user.discriminator}`);
 		return ctx.send(messageOptions);
 	}
-};
+}

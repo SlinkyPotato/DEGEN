@@ -89,5 +89,5 @@ export default async (guildMember: GuildMember, bountyId: string, message: Messa
 		console.log(`bounty ${bountyId} is deleted`);
 		return message.delete();
 	}
-	return dbInstance.close();
+	return;
 };

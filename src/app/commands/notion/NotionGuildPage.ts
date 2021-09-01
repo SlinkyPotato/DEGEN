@@ -1,8 +1,8 @@
-import { SlashCommand, CommandOptionType } from 'slash-create';
+import { SlashCommand, CommandOptionType, CommandContext, SlashCreator } from 'slash-create';
 import notionPageRefs from '../../service/notion/NotionGuildPages';
 
 export default class NotionGuildPage extends SlashCommand {
-	constructor(creator) {
+	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'notion',
 			description: 'View a Guild\'s notion page',
@@ -76,7 +76,7 @@ export default class NotionGuildPage extends SlashCommand {
 		});
 	}
 
-	async run(ctx) {
+	async run(ctx: CommandContext): Promise<any> {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
 		console.log('/notion start');
@@ -85,4 +85,4 @@ export default class NotionGuildPage extends SlashCommand {
 		console.log('/notion end');
 		return `Here you are ${ctx.user.mention}, the ${ctx.options.guild} Guild Notion Page: ${page}`;
 	}
-};
+}

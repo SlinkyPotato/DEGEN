@@ -7,7 +7,7 @@ export default Object.freeze({
 	DB_COLLECTION_POAP_SETTINGS: 'poapSettings',
 	DB_COLLECTION_POAP_PARTICIPANTS: 'poapParticipants',
 
-	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
+	MONGODB_URI_PARTIAL: `${process.env.MONGODB_PREFIX}://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
 	
 	BOUNTY_BOARD_WEBSITE_WEBHOOK_NAME: 'bounty-board-website',

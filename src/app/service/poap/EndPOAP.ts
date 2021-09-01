@@ -1,4 +1,4 @@
-import { AwaitMessagesOptions, DMChannel, Guild, GuildMember, MessageAttachment } from 'discord.js';
+import { AwaitMessagesOptions, DMChannel, GuildMember, MessageAttachment } from 'discord.js';
 import { Collection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
@@ -61,7 +61,7 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	} else {
 		await poapGuildManager.send({ content: 'You got it!' });
 	}
-	return dbInstance.close();
+	return;
 };
 
 export const getListOfParticipants = async (guildMember: GuildMember, db: Db, event: string)

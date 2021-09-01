@@ -13,6 +13,7 @@ import EndPOAP from '../../service/poap/EndPOAP';
 import ValidationError from '../../errors/ValidationError';
 import poapEvents from '../../service/constants/poapEvents';
 import DistributePOAP from '../../service/poap/DistributePOAP';
+import roleIds from '../../service/constants/roleIds';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -106,18 +107,44 @@ module.exports = class poap extends SlashCommand {
 			},
 			defaultPermission: false,
 			permissions: {
-				[process.env.DISCORD_SERVER_ID]: getAllowedUsers(),
+				[process.env.DISCORD_SERVER_ID]: [
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level2,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level3,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level4,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.admin,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.genesisSquad,
+						permission: true,
+					},
+				],
 			},
 		});
 	}
-	
+
 	async run(ctx: CommandContext) {
 		if (ctx.user.bot) return;
 		console.log(`start /poap ${ctx.user.username}#${ctx.user.discriminator}`);
-		
+
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		let command: Promise<any>;
-		
+
 		try {
 			switch (ctx.subcommands[0]) {
 			case 'start':
@@ -173,3 +200,20 @@ export const getAllowedUsers = (): ApplicationCommandPermissions[] =>{
 	});
 	return allowedPermissions;
 };
+
+// TODO: pass this as a DM conversation... looks like client is not available until after slash commands are set
+// export const getAllVoiceChannels = async (): Promise<any[]> => {
+// 	// const voiceChannels: Collection<string, Channel> = client.channels.cache.filter(guildChannel => guildChannel.type === ChannelTypes.GUILD_VOICE.toString());
+// 	// const choices = [];
+// 	// for (const channel of voiceChannels.values()) {
+// 	// 	choices.push({
+// 	// 		name: channel.type,
+// 	// 		value: channel.id,
+// 	// 	});
+// 	// }
+// 	// return choices;
+// 	return [{
+// 		name: 'blank',
+// 		value: 'asdfsdf',
+// 	}];
+// };

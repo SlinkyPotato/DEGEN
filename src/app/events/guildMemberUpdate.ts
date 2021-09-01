@@ -13,7 +13,6 @@ module.exports = {
 	once: false,
 
 	async execute(oldMember: GuildMember, newMember: GuildMember) {
-		console.debug('Guild member updated');
 		const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
 		if (removedRoles.size > 0) {
 			console.debug(`The roles ${removedRoles.map(r => r.name)} were removed from ${oldMember.displayName}.`);

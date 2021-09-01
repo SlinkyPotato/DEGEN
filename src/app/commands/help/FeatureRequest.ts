@@ -5,11 +5,11 @@ export default class FeatureRequest extends SlashCommand {
 		super(creator, {
 			name: 'feature-request',
 			description: 'Pull up the form to submit a new feature request',
-			guildIDs: process.env.DISCORD_SERVER_ID,
 			throttling: {
 				usages: 2,
 				duration: 1,
 			},
+			defaultPermission: true,
 		});
 	}
 

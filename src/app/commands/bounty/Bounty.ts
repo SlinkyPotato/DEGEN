@@ -16,13 +16,14 @@ import PublishBounty from '../../service/bounty/create/PublishBounty';
 import ClaimBounty from '../../service/bounty/ClaimBounty';
 import SubmitBounty from '../../service/bounty/SubmitBounty';
 import CompleteBounty from '../../service/bounty/CompleteBounty';
+import discordServerIds from '../../service/constants/discordServerIds';
 
 export default class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'bounty',
 			description: 'List, create, claimBounty, delete, and mark bounties complete',
-			guildIDs: process.env.DISCORD_SERVER_ID,
+			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
 			options: [
 				{
 					name: 'claim',
@@ -168,7 +169,39 @@ export default class Bounty extends SlashCommand {
 			},
 			defaultPermission: false,
 			permissions: {
-				[process.env.DISCORD_SERVER_ID]: [
+				[discordServerIds.banklessDAO]: [
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level1,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level2,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level3,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level4,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.admin,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.genesisSquad,
+						permission: true,
+					},
+				],
+				[discordServerIds.discordBotGarage]: [
 					{
 						type: ApplicationCommandPermissionType.ROLE,
 						id: roleIds.level1,

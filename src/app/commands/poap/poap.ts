@@ -1,26 +1,21 @@
 import {
-	ApplicationCommandPermissions,
-	ApplicationCommandPermissionType,
 	CommandContext,
 	CommandOptionType,
 	SlashCommand,
 	SlashCreator,
 } from 'slash-create';
-import roleIDs from '../../service/constants/roleIds';
 import ServiceUtils from '../../utils/ServiceUtils';
 import StartPOAP from '../../service/poap/StartPOAP';
 import EndPOAP from '../../service/poap/EndPOAP';
 import ValidationError from '../../errors/ValidationError';
 import poapEvents from '../../service/constants/poapEvents';
 import DistributePOAP from '../../service/poap/DistributePOAP';
-import roleIds from '../../service/constants/roleIds';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'poap',
 			description: 'Receive a list of all attendees in the specified voice channel and optionally send out POAP links',
-			guildIDs: process.env.DISCORD_SERVER_ID,
 			options: [
 				{
 					name: 'start',
@@ -105,36 +100,7 @@ module.exports = class poap extends SlashCommand {
 				usages: 1,
 				duration: 1,
 			},
-			defaultPermission: false,
-			permissions: {
-				[process.env.DISCORD_SERVER_ID]: [
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level2,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level3,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level4,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.admin,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.genesisSquad,
-						permission: true,
-					},
-				],
-			},
+			defaultPermission: true,
 		});
 	}
 
@@ -183,23 +149,23 @@ module.exports = class poap extends SlashCommand {
 	}
 };
 
-export const getAllowedUsers = (): ApplicationCommandPermissions[] =>{
-	const poapManagers: string[] = (process.env.DISCORD_POAP_MANAGERS).split(',');
-	const allowedPermissions: ApplicationCommandPermissions[] = [];
-	for (const poapManagerId of poapManagers) {
-		allowedPermissions.push({
-			type: ApplicationCommandPermissionType.USER,
-			id: poapManagerId,
-			permission: true,
-		});
-	}
-	allowedPermissions.push({
-		type: ApplicationCommandPermissionType.ROLE,
-		id: roleIDs.admin,
-		permission: true,
-	});
-	return allowedPermissions;
-};
+// export const getAllowedUsers = (): ApplicationCommandPermissions[] =>{
+// 	const poapManagers: string[] = (process.env.DISCORD_POAP_MANAGERS).split(',');
+// 	const allowedPermissions: ApplicationCommandPermissions[] = [];
+// 	for (const poapManagerId of poapManagers) {
+// 		allowedPermissions.push({
+// 			type: ApplicationCommandPermissionType.USER,
+// 			id: poapManagerId,
+// 			permission: true,
+// 		});
+// 	}
+// 	allowedPermissions.push({
+// 		type: ApplicationCommandPermissionType.ROLE,
+// 		id: roleIDs.admin,
+// 		permission: true,
+// 	});
+// 	return allowedPermissions;
+// };
 
 // TODO: pass this as a DM conversation... looks like client is not available until after slash commands are set
 // export const getAllVoiceChannels = async (): Promise<any[]> => {

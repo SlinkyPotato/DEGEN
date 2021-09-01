@@ -1,10 +1,16 @@
 # Changelog
 
-## 1.4.0-SNAPSHOT
+## 1.5.0-SNAPSHOT
+
+1. Add gnosis integration
+
+## 1.4.0-RELEASE (2021-08-31)
 
 1. Fix docker db connection
 2. Use mongodb connection pools
 3. Expand bounty copies to lvl2+
+4. Add Pradhumna Pancholi#3700 to POAP manager list
+5. Allow lvl2+ contributors, admin, and genesis squad to use /poap command
 
 ## 1.3.2-RELEASE (2021-08-27)
 

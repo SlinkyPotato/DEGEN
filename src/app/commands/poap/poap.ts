@@ -26,6 +26,7 @@ module.exports = class poap extends SlashCommand {
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event for the discussion, most likely a guild or community call',
+							required: true,
 							choices: [
 								{
 									name: 'Community Call',
@@ -52,6 +53,7 @@ module.exports = class poap extends SlashCommand {
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event for the discussion, most likely a guild or community call',
+							required: true,
 							choices: [
 								{
 									name: 'Community Call',
@@ -78,6 +80,7 @@ module.exports = class poap extends SlashCommand {
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event for the discussion, most likely a guild or community call',
+							required: true,
 							choices: [
 								{
 									name: 'Community Call',

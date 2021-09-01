@@ -35,6 +35,11 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	const poapGuildManager: GuildMember = await guildMember.guild.members.fetch(poapSettingsDoc.poapManagerId);
 
 	const listOfParticipants = await getListOfParticipants(poapGuildManager, db, event);
+	
+	if (listOfParticipants.length <= 0) {
+		return guildMember.send({ content: `No participants found for ${event}.` });
+	}
+	
 	const bufferFile = await getBufferFromParticipants(listOfParticipants, event);
 	const currentDate = (new Date()).toISOString();
 	await poapGuildManager.send({

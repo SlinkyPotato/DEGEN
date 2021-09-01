@@ -17,6 +17,16 @@ const creator = new SlashCreator({
 	token: process.env.DISCORD_BOT_TOKEN,
 });
 
+creator.on('debug', (message) => console.log(`debug: ${ message }`));
+creator.on('warn', (message) => console.warn(`warn: ${ message }`));
+creator.on('error', (error) => console.error(`error: ${ error }`));
+creator.on('synced', () => console.info('Commands synced!'));
+creator.on('commandRegister', (command) => console.info(`Registered command ${command.commandName}`));
+creator.on('commandError', (command, error) => console.error(`Command ${command.commandName}:`, error));
+creator.on('commandRun', (command, _, ctx) =>
+	console.info(`${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) ran command ${command.commandName}`),
+);
+
 // Register command handlers
 creator
 	.withServer(
@@ -26,14 +36,6 @@ creator
 	)
 	.registerCommandsIn(path.join(__dirname, 'commands'))
 	.syncCommands();
-
-// Handle command errors
-creator.on('commandError', async (cmd, err, ctx) => {
-	console.error(err);
-	if (!ctx.expired && !ctx.initiallyResponded) {
-		return ctx.send('An error occurred while running the command.', { ephemeral: true });
-	}
-});
 
 // Log client errors
 client.on('error', console.error);

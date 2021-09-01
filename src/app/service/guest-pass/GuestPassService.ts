@@ -64,8 +64,6 @@ export default async (client: DiscordClient): Promise<void> => {
 		// discord api rate limit of 50 calls per second
 		await sleep(1000);
 	}
-	
-	await dbInstance.close();
 
 	// Begin reminder of active guest users
 	listOfActiveGuests.forEach(activeUser => {
@@ -99,7 +97,6 @@ export default async (client: DiscordClient): Promise<void> => {
 				console.error('Failed to remove user from DB');
 				return;
 			}
-			await dbInstance.close();
 			console.log(`guest pass removed for ${activeUser._id} in db`);
 
 			await guildMember.send({ content: `Hi <@${activeUser._id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!` });

@@ -17,7 +17,7 @@ import ClaimBounty from '../../service/bounty/ClaimBounty';
 import SubmitBounty from '../../service/bounty/SubmitBounty';
 import CompleteBounty from '../../service/bounty/CompleteBounty';
 
-module.exports = class Bounty extends SlashCommand {
+export default class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'bounty',
@@ -189,12 +189,22 @@ module.exports = class Bounty extends SlashCommand {
 						id: roleIds.level4,
 						permission: true,
 					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.admin,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.genesisSquad,
+						permission: true,
+					},
 				],
 			},
 		});
 	}
 
-	async run(ctx: CommandContext) {
+	async run(ctx: CommandContext): Promise<any> {
 		if (ctx.user.bot) return;
 		console.log(`start /bounty ${ctx.user.username}#${ctx.user.discriminator}`);
 
@@ -242,7 +252,7 @@ module.exports = class Bounty extends SlashCommand {
 		}
 	}
 
-	handleCommandError(ctx: CommandContext, command: Promise<any>) {
+	handleCommandError(ctx: CommandContext, command: Promise<any>): void {
 		command.then(() => {
 			console.log(`end /bounty ${ctx.user.username}#${ctx.user.discriminator}`);
 			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
@@ -256,7 +266,7 @@ module.exports = class Bounty extends SlashCommand {
 		});
 	}
 	
-	buildBountyCreateNewParams(ctxOptions): BountyCreateNew {
+	buildBountyCreateNewParams(ctxOptions: { [key: string]: any }): BountyCreateNew {
 		const [reward, symbol] = (ctxOptions.reward != null) ? ctxOptions.reward.split(' ') : [null, null];
 		const copies = (ctxOptions.copies == null || ctxOptions.copies <= 0) ? 1 : ctxOptions.copies;
 		let scale = reward.split('.')[1]?.length;
@@ -272,4 +282,4 @@ module.exports = class Bounty extends SlashCommand {
 			copies: copies,
 		};
 	}
-};
+}

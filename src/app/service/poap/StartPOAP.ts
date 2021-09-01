@@ -6,7 +6,7 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import ValidationError from '../../errors/ValidationError';
 import poapEvents from '../constants/poapEvents';
 import channelIds from '../constants/channelIds';
-import { storeUserForPOAP } from '../../events/poap/addUserForEvent';
+import { updateUserForPOAP } from '../../events/poap/addUserForEvent';
 
 export default async (guildMember: GuildMember, event: string): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
@@ -18,7 +18,7 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
 		console.log('unable to start due to active event');
-		throw new ValidationError(`Sorry, ${event} is active. Please try \`/poap end\`.`);
+		throw new ValidationError(`\`${event}\` is already active by <@${poapSettingsDoc.poapManagerId}>.`);
 	}
 
 	if (poapSettingsDoc == null) {
@@ -39,8 +39,7 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 		},
 	});
 	await storePresentMembers(guildMember.guild, event, db);
-	await guildMember.send({ content: `POAP tracking started for ${event}! Use \`/poap end\` to end event and retrieve list of participants` });
-	return dbInstance.close();
+	return guildMember.send({ content: `POAP tracking started for \`${event}\`.` });
 };
 
 export const setupPoapSetting = async (guildMember: GuildMember, poapSettingsDB: Collection, occasion: string): Promise<POAPSettings> => {
@@ -76,13 +75,16 @@ export const storePresentMembers = async (guild: Guild, event: string, db: Db): 
 	case poapEvents.COMMUNITY_CALL:
 		channelId = channelIds.COMMUNITY_CALLS_STAGE;
 		break;
+	case poapEvents.WRITERS_GUILD:
+		channelId = channelIds.WRITERS_ROOM;
+		break;
 	default:
-		throw new ValidationError('Event not available');
+		throw new ValidationError('Event not available.');
 	}
 	try {
 		const voiceChannel: VoiceChannel = await guild.channels.fetch(channelId) as VoiceChannel;
 		voiceChannel.members.forEach((member: GuildMember) => {
-			storeUserForPOAP(member, db, event);
+			updateUserForPOAP(member, db, event, true);
 		});
 	} catch (e) {
 		console.error(e);

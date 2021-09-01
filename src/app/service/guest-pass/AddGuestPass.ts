@@ -42,8 +42,6 @@ export const addGuestUserToDb = async (guestUser: GuildMember): Promise<any> => 
 		console.error('Failed to insert into DB');
 		return;
 	}
-
-	await dbInstance.close();
 	console.log(`/guest-pass end user ${guestUser.user.tag} inserted into guestUsers`);
 };
 
@@ -78,7 +76,6 @@ export const removeGuestRoleOnExpiration = (guestUser: GuildMember): void => {
 			console.error('Failed to remove from DB');
 			return;
 		}
-		await dbInstance.close();
 		console.log(`guest pass removed for ${guestUser.user.tag} in db`);
 
 		// Remove guest pass role

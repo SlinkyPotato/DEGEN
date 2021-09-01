@@ -1,4 +1,5 @@
 export default Object.freeze({
 	COMMUNITY_CALL: 'COMMUNITY_CALL',
 	DEV_GUILD: 'DEV_GUILD',
+	WRITERS_GUILD: 'WRITERS_GUILD',
 });

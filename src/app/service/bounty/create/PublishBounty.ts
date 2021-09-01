@@ -55,8 +55,6 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
 
-	await dbInstance.close();
-
 	return guildMember.send({ content: `Bounty published to #🧀-bounty-board and the website! ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
 };
 

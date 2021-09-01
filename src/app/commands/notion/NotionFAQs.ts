@@ -1,13 +1,11 @@
-import { SlashCommand, CommandOptionType } from 'slash-create';
-import { Client as NotionClient } from '@notionhq/client';
+import { SlashCommand, CommandOptionType, CommandContext, SlashCreator } from 'slash-create';
 import client from '../../app';
-import { notionQueue } from '../../service/notion/NotionQueue';
+import RetrieveFAQs from '../../service/notion/RetrieveFAQs';
 const trimPageId = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageId}`;
-const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
 
-module.exports = class NotionFAQs extends SlashCommand {
-	constructor(creator) {
+export default class NotionFAQs extends SlashCommand {
+	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'faqs',
 			description: 'Get frequently asked questions',
@@ -24,11 +22,9 @@ module.exports = class NotionFAQs extends SlashCommand {
 				duration: 1,
 			},
 		});
-
-		this.filePath = __filename;
 	}
 
-	async run(ctx) {
+	async run(ctx: CommandContext): Promise<any> {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
 		console.log('/faqs start');
@@ -37,7 +33,7 @@ module.exports = class NotionFAQs extends SlashCommand {
 			const guild = await client.guilds.fetch(ctx.guildID);
 			const guildMember = await guild.members.fetch(ctx.user.id);
 
-			const faqs = await module.exports.retrieveFAQsPromise();
+			const faqs = await RetrieveFAQs();
 			const faqQuestion = String(ctx.options.question);
 			let replyStr = '**Frequently Asked Questions**: ' + FAQ_URL + ' \n\n';
 			if (
@@ -64,9 +60,9 @@ module.exports = class NotionFAQs extends SlashCommand {
 
 				// Search for existing question
 				for (let i = 0; i++; i < faqs.length) {
-					const cleanQuestion = faqs.question.substring(3, faqs.question.length - 1);
+					const cleanQuestion = faqs['question'].substring(3, faqs['question'].length - 1);
 					if (cleanQuestion === validQuestion) {
-						replyStr += cleanQuestion + '\n' + 'Answer: ' + faqs.answer + '\n';
+						replyStr += cleanQuestion + '\n' + 'Answer: ' + faqs['answer'] + '\n';
 						return ctx.send(replyStr);
 					}
 				}
@@ -106,44 +102,4 @@ module.exports = class NotionFAQs extends SlashCommand {
 			console.error(e);
 		}
 	}
-};
-
-module.exports.retrieveFAQsPromise = async (): Promise<Array<any>> => {
-	const faqs = [];
-	const numberRegex = /^[0-9]./;
-	const response = await notionQueue.add(() => notion.blocks.children.list({
-		block_id: process.env.FAQS_PAGE_ID,
-	}));
-	response.results.forEach((obj) => {
-		if (obj.type === 'paragraph' && obj.paragraph.text.length > 0) {
-			// Check and add question to list
-			if (numberRegex.test(obj.paragraph.text[0].plain_text)) {
-				faqs.push({
-					question: obj.paragraph.text[0].plain_text,
-					answer: '',
-				});
-				return;
-			} else {
-				// This is an answer
-				const paragraphContent = obj.paragraph.text
-					.map((element) => {
-						return element.plain_text;
-					})
-					.join(' ');
-				faqs[faqs.length - 1].answer += ' ' + paragraphContent;
-			}
-		} else if (
-			obj.type === 'bulleted_list_item' &&
-            obj.bulleted_list_item.text.length > 0
-		) {
-			// Bulleted answers
-			const bulletedContent = obj.bulleted_list_item.text
-				.map((element) => {
-					return element.plain_text;
-				})
-				.join(' ');
-			faqs[faqs.length - 1].answer += '\n - ' + bulletedContent;
-		}
-	});
-	return faqs;
-};
+}

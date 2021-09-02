@@ -1,27 +1,24 @@
 # Events
 
-This directory contains event handlers for Discord events. Each handled Discord 
-event must have a file in this directory named *exactly* like the Discord event 
-that is emitted, e.g. `guildMemberAdd.js` handles the Discord event 
-`guildMemberAdd`. Files in this folder will automatically be registered to 
-listen to the Discord event specified by `modules.exports.name`.
+This directory contains event handlers for Discord events. Files in this folder will automatically 
+be registered to listen to the Discord event specified by `name`.
 
 A full list of available Discord events can be found on the
 [discord.js documentation](https://discord.js.org/#/docs/main/stable/class/Client).
 
 Evant handlers are structured as follows:
 ```typescript
-module.exports = {
+export default class implements Event = {
     /*
      * Name of the Discord event to handle.
      */
-    name: 'guildMemberAdd',
+    name = 'guildMemberAdd';
 
     /*
      * Optional field. Indicates if this is a one time listener. If true, event
      * will be registered with `client.once` instead of `client.on`
      */
-    once: true,
+    once = true;
 
     /* 
      * Function that is called when event is emitted, Different events pass in a 
@@ -31,6 +28,6 @@ module.exports = {
      */
     async execute(...args, client) { 
         // Code to handle event
-    }
+    };
 }
 ```

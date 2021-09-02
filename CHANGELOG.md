@@ -2,7 +2,8 @@
 
 ## 1.5.0-SNAPSHOT
 
-1. Expand poap distribution to all voice channels
+1. Convert event files to classes
+2. Expand poap distribution to all voice channels
 
 ## 1.4.0-RELEASE (2021-08-31)
 

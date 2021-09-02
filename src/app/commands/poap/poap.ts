@@ -6,9 +6,7 @@ import {
 } from 'slash-create';
 import ServiceUtils from '../../utils/ServiceUtils';
 import StartPOAP from '../../service/poap/StartPOAP';
-import EndPOAP from '../../service/poap/EndPOAP';
 import ValidationError from '../../errors/ValidationError';
-import DistributePOAP from '../../service/poap/DistributePOAP';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {

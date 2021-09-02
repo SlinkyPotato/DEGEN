@@ -1,16 +1,17 @@
 import { VoiceState } from 'discord.js';
-import addUserForEvent from './poap/addUserForEvent';
+import addUserForEvent from './poap/AddUserForEvent';
 import poapEvents from '../service/constants/poapEvents';
 import channelIds from '../service/constants/channelIds';
+import { DiscordEvent } from '../types/discord/DiscordEvent';
 
 /**
  * voiceStateUpdate
  * Emitted whenever a member changes voice state - e.g. joins/leaves a channel, mutes/unmutes.
  *
  */
-module.exports = {
-	name: 'voiceStateUpdate',
-	once: false,
+export default class implements DiscordEvent {
+	name = 'voiceStateUpdate';
+	once = false;
 
 	/**
 	 * @param oldState The voice state before the update
@@ -25,5 +26,5 @@ module.exports = {
 			console.error(e);
 		}
 		return;
-	},
-};
+	}
+}

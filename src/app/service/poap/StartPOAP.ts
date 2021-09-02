@@ -2,7 +2,7 @@ import {
 	AwaitMessagesOptions,
 	Collection as DiscordCollection, DMChannel, EmbedField,
 	Guild,
-	GuildMember, Message, MessageEmbed, MessageEmbedOptions,
+	GuildMember, Message, MessageEmbedOptions,
 	StageChannel,
 	VoiceChannel,
 } from 'discord.js';
@@ -13,7 +13,7 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import ValidationError from '../../errors/ValidationError';
 import poapEvents from '../constants/poapEvents';
 import channelIds from '../constants/channelIds';
-import { updateUserForPOAP } from '../../events/poap/addUserForEvent';
+import { updateUserForPOAP } from '../../events/poap/AddUserForEvent';
 import ServiceUtils from '../../utils/ServiceUtils';
 
 export default async (guildMember: GuildMember, event: string): Promise<any> => {

@@ -57,7 +57,7 @@ function initializeClient(): Client {
 function initializeEvents(): void {
 	const eventFiles = fs.readdirSync(path.join(__dirname, '/events')).filter(file => file.endsWith('.js'));
 	eventFiles.forEach(file => {
-		const event = require(`./events/${file}`);
+		const event = new (require(`./events/${file}`).default)();
 		try {
 			if (event.once) {
 				client.once(event.name, (...args) => event.execute(...args, client));

@@ -4,7 +4,7 @@ import { v1 as uuidv1 } from 'uuid';
 
 export class BotConversation {
 	timeout: number;
-	expired: boolean;
+	// expired: boolean;
 	convo: any;
 	current_message_flow_index: string;
 	current_channel: TextBasedChannels;
@@ -43,9 +43,9 @@ export class BotConversation {
 		return this.timeout;
 	}
 
-	getExpired(): boolean {
-		return this.expired;
-	}
+	// getExpired(): boolean {
+	// 	return this.expired;
+	// }
 
 	getConvo(): any {
 		return this.convo;
@@ -83,7 +83,6 @@ export class BotConversation {
 		return this;
 	}
 
-
 	setCurrentChannel(current_channel: TextBasedChannels): this {
 		this.current_channel = current_channel;
 		return this;
@@ -100,10 +99,10 @@ export class BotConversation {
 		return this;
 	}
 
-	setExpired(expired: boolean): this {
-		this.expired = expired;
-		return this;
-	}
+	// setExpired(expired: boolean): this {
+	// 	this.expired = expired;
+	// 	return this;
+	// }
 
 	setConvo(convo: any): this {
 		this.convo = convo;
@@ -157,6 +156,7 @@ export class ScoapEmbed {
 	notion_page_id: string;
 	id: string;
 	bot_convo_record: any;
+	vote_record_id: string;
 
 	constructor() {
 		this.id = uuidv1();
@@ -198,9 +198,18 @@ export class ScoapEmbed {
 		return this.bot_convo_record;
 	}
 
+	getVoteRecordId(): string {
+		return this.vote_record_id;
+	}
+
 	// getNotionChildId(): string {
 	// 	return this.notion_child_id;
 	// }
+
+	setId(uuid: string): this {
+		this.id = uuid;
+		return this;
+	};
 
 	setEmbed(embed: any): this {
 		this.embed = embed;
@@ -234,6 +243,11 @@ export class ScoapEmbed {
 
 	setBotConvoResponseRecord(bot_convo_record: any): this {
 		this.bot_convo_record = bot_convo_record;
+		return this;
+	}
+
+	setVoteRecordId(vote_record_id: string): this {
+		this.vote_record_id = vote_record_id;
 		return this;
 	}
 
@@ -309,6 +323,15 @@ export class VoteRecord {
 	emote_totals: any;
 	// {emoji<unicode>: required_total<int>}
 	emote_required: any;
+	id: string;
+
+	constructor() {
+		this.id = uuidv1();
+	}
+
+	getId(): any {
+		return this.id;
+	}
 	
 	getUserVoteLedger(): any {
 		return this.user_vote_ledger;
@@ -324,6 +347,11 @@ export class VoteRecord {
 
 	getEmoteRequired(): any {
 		return this.emote_required;
+	}
+
+	setId(uuid: string): this {
+		this.id = uuid;
+		return this;
 	}
 
 	setUserVoteLedger(user_vote_ledger: any): this {

@@ -20,8 +20,7 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'Please enter a valid title: \n' +
-																		'- 250 characters maximum\n ' +
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '- 250 characters maximum\n ' +
 																		'- alphanumeric\n ' +
 																		'- special characters: .!@#$%&,?']);
 			return;
@@ -36,8 +35,7 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'Please enter a valid summary: \n' +
-																		'- 4000 characters maximum\n ' +
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '- 4000 characters maximum\n ' +
 																		'- alphanumeric\n ' +
 																		'- special characters: .!@#$%&,?']);
 			return;
@@ -52,8 +50,7 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'Please enter a valid reward value: \n ' +
-																		'- 100 million maximum currency\n ' +
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '- 100 million maximum currency\n ' +
 																		'- accepted currencies: ETH, BANK']);
 			return;
 		}
@@ -85,8 +82,7 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 					incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 					break;
 				default:
-					incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'Please enter a valid title: \n' +
-																				'- 250 characters maximum\n ' +
+					incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '- 250 characters maximum\n ' +
 																				'- alphanumeric\n ' +
 																				'- special characters: .!@#$%&,?']);
 					return;
@@ -231,7 +227,6 @@ const setUserResponseRecord = (record_entry, botConvo, option) => {
 		botConvo.getConvo().user_response_record.embed[0].fields.push({ name: 'Summary', value: record_entry });
 		break;
 	case 'REWARD':
-		// const [reward, symbol] = (ctx.options.assemble.new.reward != null) ? ctx.options.assemble.new.reward.split(' ') : [null, null];
 		if (record_entry === '!skip' || record_entry === '!Skip') {
 			break;
 		} else {

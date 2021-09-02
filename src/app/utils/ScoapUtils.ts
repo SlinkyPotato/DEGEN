@@ -1,4 +1,4 @@
-// import constants from '../service/constants/constants';
+import constants from '../service/constants/constants';
 // import { GuildMember, Message } from 'discord.js';
 
 const isInteger = (value: any): boolean => {
@@ -36,6 +36,39 @@ const ScoapUtils = {
 
 	getKeyByValue(object: any, value: string): any {
 		return Object.keys(object).find(key => object[key] === value);
+	},
+
+	purgeExpiredBotConvo(bot_convo_state) {
+		if (Object.keys(bot_convo_state).length === 0 && bot_convo_state.constructor === Object) {
+			// console.log('NO CONVO');
+			return;
+		}
+		// console.log('BOT CONVO STATE ', bot_convo_state);
+		
+		for (const key of Object.keys(bot_convo_state)) {
+		    const dtnow = +new Date();
+			const dtold = bot_convo_state[key].getTimeout();
+			const deltat = dtnow - dtold;
+			if (deltat > constants.BOT_CONVERSATION_TIMEOUT_MS) {
+				console.log('BOT CONVO TIMED OUT, DELTA T = ', deltat);
+				bot_convo_state[key].getCurrentChannel().send('Conversation timed out. please try again.');
+				delete bot_convo_state[bot_convo_state[key].getUserId()];
+			}
+		}
+		// for (const botConvo of bot_convo_state) {
+		// 	console.log('BOT CONVO ', botConvo);
+		// 	const dtnow = +new Date();
+		// 	const dtold = botConvo.getTimeout();
+		// 	const deltat = dtnow - dtold;
+		// 	console.log(dtnow);
+		// 	console.log(dtold);
+		// 	console.log(deltat);
+		// 	// if (deltat > constants.BOT_CONVERSATION_TIMEOUT_MS) {
+		// 	// 	console.log('BOT CONVO TIMED OUT, DELTA T = ', (dtnow - botConvo.getTimeout()));
+		// 	// 	// delete botConvoState[botConvo.getUserId()];
+		// 	// }
+		// }
+		return;
 	},
 };
 

@@ -7,7 +7,7 @@ import client from '../../app';
 import ScoapPoll from './ScoapPoll';
 import { scoapEmbedState, botConvoState } from '../../app';
 import { scoapEmbedEdit } from './EditScoapDraft';
-import ScoapUtils from '../../utils/ScoapUtils';
+// import ScoapUtils from '../../utils/ScoapUtils';
 import { createNewScoapOnNotion } from './ScoapNotion';
 
 
@@ -55,6 +55,13 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 	}).catch(_ => {
 		console.log(_);
 		console.log('did not react');
+		// params[1].getCurrentChannel().send('Conversation timed out. please try again.');
+		// try {
+		// 	delete scoapEmbedState[params[2].getId()];
+		// } catch {
+		// 	return;
+		// }
+		// delete botConvoState[params[1].getUserId()];
 	});
 };
 
@@ -81,8 +88,7 @@ const initiateScoapDraft = async (botConvo: any): Promise<any> => {
 const createBotConversation = async (guildMember: GuildMember): Promise<any> => {
 	const channel = await guildMember.createDM();
 	const botConvo = new BotConversation();
-	botConvo.setTimeout(constants.BOT_CONVERSATION_TIMEOUT_MS)
-		.setExpired(false)
+	botConvo.setTimeout(+new Date())
 		.setConvo(createBotConversationParams(guildMember))
 		.setCurrentChannel(channel)
 		.setEdit(false)
@@ -116,7 +122,6 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 const abortPublishScoapPoll = async (message: Message, botConvo: any, scoapEmbed: any) => {
 	delete scoapEmbedState[scoapEmbed.getId()];
 	delete botConvoState[botConvo.getUserId()];
-	// await ScoapUtils.clearArray(botConvoArray, message);
 	await message.delete();
 	return message.channel.send('Message deleted, let\'s start over.');
 };

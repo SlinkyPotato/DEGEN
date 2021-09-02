@@ -3,11 +3,9 @@ import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
 import constants from '../constants/constants';
 import { Vote, VoteRecord } from './ScoapClasses';
-import { scoapEmbedState, botConvoState } from '../../app';
+import { scoapEmbedState } from '../../app';
 import ScoapUtils from '../../utils/ScoapUtils';
 import { updateScoapOnNotion } from './ScoapNotion';
-
-// Note - make sure to get rid of embed-objects and bot-convo objects in array after scoap poll is completed
 
 export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 
@@ -17,7 +15,6 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 	const emoteRequired = {};
 	const emoteTotals = {};
 	const progressStrings = {};
-	// Array(botConvo.getConvo().user_response_record.number_of_roles).fill(0).map((_, i) => {
 	Array(scoapEmbed.getBotConvoResponseRecord().number_of_roles).fill(0).map((_, i) => {
 		const role = scoapEmbed.getBotConvoResponseRecord().roles[(i + 1).toString()];
 		const emoji = constants.EMOJIS[(i + 1).toString()];
@@ -50,7 +47,7 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 	const collector = embedMessage.createReactionCollector({
 		filter,
 		dispose: true,
-		// time: 
+		time: constants.SCOAP_POLL_TIMEOUT_MS,
 	});
 
 	collector.on('collect', async (reaction, user) => {

@@ -3,10 +3,13 @@ import { SlashCreator, GatewayServer } from 'slash-create';
 import Discord, { Client, ClientOptions, Intents, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
-// import { server } from './service/ScoapFastifyServer';
+import ScoapUtils from './utils/ScoapUtils';
 
+// ScoapSquad state management
 export const scoapEmbedState = [];
 export const botConvoState = {};
+setInterval(function() { ScoapUtils.purgeExpiredBotConvo(botConvoState); }, 60000);
+// end
 
 const client: Client = initializeClient();
 initializeEvents();

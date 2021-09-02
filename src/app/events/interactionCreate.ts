@@ -7,8 +7,6 @@ module.exports = {
 
 	execute(interaction: Interaction) {
 		if (interaction.isSelectMenu()) {
-			// console.log(interaction);
-			// await interaction.deferUpdate();
 			interactionEditScoapDraft(interaction).catch(e => {
 				console.error('ERROR: ', e);
 			});

@@ -38,9 +38,13 @@
         "axios": "^0.21.1",
         "discord.js": "^13.1.0",
         "dotenv": "^10.0.0",
+        "fastify": "^3.20.2",
+        "fastify-cors": "^6.0.2",
+        "fastify-helmet": "^5.3.2",
         "mongodb": "^3.6.9",
         "p-queue": "^6.6.2",
-        "slash-create": "^4.0.1"
+        "slash-create": "^4.0.1",
+        "uuid": "^8.3.2"
     },
     "devDependencies": {
         "@types/jest": "^27.0.1",

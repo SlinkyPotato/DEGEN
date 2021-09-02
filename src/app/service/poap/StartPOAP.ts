@@ -1,7 +1,7 @@
 import {
 	AwaitMessagesOptions,
 	Collection as DiscordCollection, DMChannel, EmbedField,
-	Guild,
+	Guild, GuildChannel,
 	GuildMember, Message, MessageEmbedOptions,
 	StageChannel,
 	VoiceChannel,
@@ -15,14 +15,13 @@ import poapEvents from '../constants/poapEvents';
 import channelIds from '../constants/channelIds';
 import { updateUserForPOAP } from '../../events/poap/AddUserForEvent';
 import ServiceUtils from '../../utils/ServiceUtils';
+import EarlyTermination from '../../errors/EarlyTermination';
 
 export default async (guildMember: GuildMember, event: string): Promise<any> => {
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
 	const message: Message = await guildMember.send({ embeds: [generateVoiceChannelEmbedMessage(voiceChannels)] });
-	const channelChoice = await askUserForChannelNumber(guildMember, message, voiceChannels);
-	if (channelChoice == null) {
-		return;
-	}
+	const channelChoice: GuildChannel = await askUserForChannel(guildMember, message, voiceChannels);
+	console.log(channelChoice);
 	return;
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
@@ -124,7 +123,7 @@ export const generateVoiceChannelEmbedMessage = (voiceChannels: DiscordCollectio
 	};
 };
 
-export const askUserForChannelNumber = async (guildMember: GuildMember, dmMessage: Message, voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>): Promise<number | null> => {
+export const askUserForChannel = async (guildMember: GuildMember, dmMessage: Message, voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>): Promise<GuildChannel> => {
 	const dmChannel: DMChannel = await dmMessage.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -136,8 +135,8 @@ export const askUserForChannelNumber = async (guildMember: GuildMember, dmMessag
 	do {
 		channelChoice = (await dmChannel.awaitMessages(replyOptions)).first().content;
 		if (channelChoice === 'no') {
-			await guildMember.send({ content: 'Ok no problem!' });
-			return;
+			await guildMember.send({ content: '👍' });
+			throw new EarlyTermination('Command terminated early.');
 		}
 		channelNumber = Number(channelChoice);
 		if (isNaN(channelNumber) || channelNumber <= 0 || channelNumber > voiceChannels.size) {
@@ -146,6 +145,13 @@ export const askUserForChannelNumber = async (guildMember: GuildMember, dmMessag
 			break;
 		}
 	} while (channelChoice != 'no');
-	return channelNumber;
+	
+	let i = 1;
+	for (const voiceChannel of voiceChannels.values()) {
+		if (channelNumber === i) {
+			return voiceChannel;
+		}
+		i++;
+	}
 };
 

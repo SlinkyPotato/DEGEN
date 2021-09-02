@@ -7,6 +7,7 @@ import {
 import ServiceUtils from '../../utils/ServiceUtils';
 import StartPOAP from '../../service/poap/StartPOAP';
 import ValidationError from '../../errors/ValidationError';
+import EarlyTermination from '../../errors/EarlyTermination';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -82,6 +83,8 @@ module.exports = class poap extends SlashCommand {
 		}).catch(e => {
 			console.error('ERROR', e);
 			if (e instanceof ValidationError) {
+				return ctx.send(e.message);
+			} else if (e instanceof EarlyTermination) {
 				return ctx.send(e.message);
 			} else {
 				return ctx.send('Sorry something is not working and our devs are looking into it.');

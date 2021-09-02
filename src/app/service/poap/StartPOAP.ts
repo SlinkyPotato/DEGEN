@@ -1,4 +1,11 @@
-import { Guild, GuildMember, VoiceChannel } from 'discord.js';
+import {
+	AwaitMessagesOptions,
+	Collection as DiscordCollection, DMChannel, EmbedField,
+	Guild,
+	GuildMember, Message, MessageEmbed, MessageEmbedOptions,
+	StageChannel,
+	VoiceChannel,
+} from 'discord.js';
 import { Collection, Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
@@ -7,8 +14,16 @@ import ValidationError from '../../errors/ValidationError';
 import poapEvents from '../constants/poapEvents';
 import channelIds from '../constants/channelIds';
 import { updateUserForPOAP } from '../../events/poap/addUserForEvent';
+import ServiceUtils from '../../utils/ServiceUtils';
 
 export default async (guildMember: GuildMember, event: string): Promise<any> => {
+	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
+	const message: Message = await guildMember.send({ embeds: [generateVoiceChannelEmbedMessage(voiceChannels)] });
+	const channelChoice = await askUserForChannelNumber(guildMember, message, voiceChannels);
+	if (channelChoice == null) {
+		return;
+	}
+	return;
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 
@@ -90,3 +105,47 @@ export const storePresentMembers = async (guild: Guild, event: string, db: Db): 
 		console.error(e);
 	}
 };
+
+export const generateVoiceChannelEmbedMessage = (voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>): MessageEmbedOptions => {
+	const fields: EmbedField[] = [];
+	let i = 1;
+	for (const channel of voiceChannels.values()) {
+		fields.push({
+			name: channel.name,
+			value: `${i}`,
+			inline: true,
+		});
+		i++;
+	}
+	return {
+		title: 'Available Voice Channels',
+		description: 'For which voice channel would you like to start POAP tracking? Please reply with a number.',
+		fields: fields,
+	};
+};
+
+export const askUserForChannelNumber = async (guildMember: GuildMember, dmMessage: Message, voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>): Promise<number | null> => {
+	const dmChannel: DMChannel = await dmMessage.channel.fetch() as DMChannel;
+	const replyOptions: AwaitMessagesOptions = {
+		max: 1,
+		time: 180000,
+		errors: ['time'],
+	};
+	let channelNumber: number;
+	let channelChoice: string;
+	do {
+		channelChoice = (await dmChannel.awaitMessages(replyOptions)).first().content;
+		if (channelChoice === 'no') {
+			await guildMember.send({ content: 'Ok no problem!' });
+			return;
+		}
+		channelNumber = Number(channelChoice);
+		if (isNaN(channelNumber) || channelNumber <= 0 || channelNumber > voiceChannels.size) {
+			await guildMember.send({ content: 'Please enter a valid channel number or `no` to exit.' });
+		} else {
+			break;
+		}
+	} while (channelChoice != 'no');
+	return channelNumber;
+};
+

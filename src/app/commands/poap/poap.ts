@@ -8,7 +8,6 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import StartPOAP from '../../service/poap/StartPOAP';
 import EndPOAP from '../../service/poap/EndPOAP';
 import ValidationError from '../../errors/ValidationError';
-import poapEvents from '../../service/constants/poapEvents';
 import DistributePOAP from '../../service/poap/DistributePOAP';
 
 module.exports = class poap extends SlashCommand {
@@ -25,22 +24,7 @@ module.exports = class poap extends SlashCommand {
 						{
 							name: 'event',
 							type: CommandOptionType.STRING,
-							description: 'The event for the discussion, most likely a guild or community call',
-							required: true,
-							choices: [
-								{
-									name: 'Community Call',
-									value: poapEvents.COMMUNITY_CALL,
-								},
-								{
-									name: 'Dev Guild',
-									value: poapEvents.DEV_GUILD,
-								},
-								{
-									name: 'Writer\'s Guild',
-									value: poapEvents.WRITERS_GUILD,
-								},
-							],
+							description: 'The event name for the discussion',
 						},
 					],
 				},
@@ -48,55 +32,11 @@ module.exports = class poap extends SlashCommand {
 					name: 'end',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'End POAP event and receive a list of participants.',
-					options: [
-						{
-							name: 'event',
-							type: CommandOptionType.STRING,
-							description: 'The event for the discussion, most likely a guild or community call',
-							required: true,
-							choices: [
-								{
-									name: 'Community Call',
-									value: poapEvents.COMMUNITY_CALL,
-								},
-								{
-									name: 'Dev Guild',
-									value: poapEvents.DEV_GUILD,
-								},
-								{
-									name: 'Writer\'s Guild',
-									value: poapEvents.WRITERS_GUILD,
-								},
-							],
-						},
-					],
 				},
 				{
 					name: 'distribute',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'Distribute links to existing attendees',
-					options: [
-						{
-							name: 'event',
-							type: CommandOptionType.STRING,
-							description: 'The event for the discussion, most likely a guild or community call',
-							required: true,
-							choices: [
-								{
-									name: 'Community Call',
-									value: poapEvents.COMMUNITY_CALL,
-								},
-								{
-									name: 'Dev Guild',
-									value: poapEvents.DEV_GUILD,
-								},
-								{
-									name: 'Writer\'s Guild',
-									value: poapEvents.WRITERS_GUILD,
-								},
-							],
-						},
-					],
 				},
 			],
 			throttling: {
@@ -108,12 +48,12 @@ module.exports = class poap extends SlashCommand {
 	}
 
 	async run(ctx: CommandContext) {
-		if (ctx.user.bot) return;
+		if (ctx.user.bot || ctx.guildID == undefined) return 'Please try /poap within discord channel.';
 		console.log(`start /poap ${ctx.user.username}#${ctx.user.discriminator}`);
-
+		
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
+		
 		let command: Promise<any>;
-
 		try {
 			switch (ctx.subcommands[0]) {
 			case 'start':
@@ -122,11 +62,11 @@ module.exports = class poap extends SlashCommand {
 				break;
 			case 'end':
 				console.log(`/poap end event:${ctx.options.end.event}`);
-				command = EndPOAP(guildMember, ctx.options.end.event);
+				// command = EndPOAP(guildMember);
 				break;
 			case 'distribute':
 				console.log(`/poap distribute event:${ctx.options.distribute.event}`);
-				command = DistributePOAP(guildMember, ctx.options.distribute.event);
+				// command = DistributePOAP(guildMember);
 				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);
@@ -168,21 +108,4 @@ module.exports = class poap extends SlashCommand {
 // 		permission: true,
 // 	});
 // 	return allowedPermissions;
-// };
-
-// TODO: pass this as a DM conversation... looks like client is not available until after slash commands are set
-// export const getAllVoiceChannels = async (): Promise<any[]> => {
-// 	// const voiceChannels: Collection<string, Channel> = client.channels.cache.filter(guildChannel => guildChannel.type === ChannelTypes.GUILD_VOICE.toString());
-// 	// const choices = [];
-// 	// for (const channel of voiceChannels.values()) {
-// 	// 	choices.push({
-// 	// 		name: channel.type,
-// 	// 		value: channel.id,
-// 	// 	});
-// 	// }
-// 	// return choices;
-// 	return [{
-// 		name: 'blank',
-// 		value: 'asdfsdf',
-// 	}];
 // };

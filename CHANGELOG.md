@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0-SNAPSHOT
+
+1. Convert event modules to classes
+
 ## 1.4.0-RELEASE (2021-08-31)
 
 1. Fix docker db connection

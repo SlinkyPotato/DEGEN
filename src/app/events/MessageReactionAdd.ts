@@ -1,9 +1,10 @@
 import { MessageReaction, PartialUser, User } from 'discord.js';
-import messageReactionAddBounty from './bounty/messageReactionAddBounty';
+import { Event } from '../types/Event';
+import messageReactionAddBounty from './bounty/MessageReactionAddBounty';
 
-module.exports = {
-	name: 'messageReactionAdd',
-	once: false,
+export default class implements Event {
+	name = 'messageReactionAdd';
+	once = false;
 	
 	async execute(reaction: MessageReaction, user: User | PartialUser) {
 		// When a reaction is received, check if the structure is partial
@@ -31,5 +32,5 @@ module.exports = {
 		}
 		
 		await messageReactionAddBounty(reaction, user as User);
-	},
+	};
 };

@@ -1,13 +1,10 @@
-/**
- * Handler for Discord event `message`.
- */
-
-import messageCreateOnBountyBoard from './bounty/messageCreateOnBountyBoard';
+import messageCreateOnBountyBoard from './bounty/MessageCreateOnBountyBoard';
 import { Message } from 'discord.js';
+import { Event } from '../types/Event';
 
-module.exports = {
-	name: 'messageCreate',
-	once: false,
+export default class implements Event {
+	name = 'messageCreate';
+	once = false;
 
 	execute(message: Message) {
 		if(message.author.bot && message.webhookId === null) return;
@@ -18,5 +15,5 @@ module.exports = {
 		messageCreateOnBountyBoard(message).catch(e => {
 			console.error('ERROR: ', e);
 		});
-	},
+	};
 };

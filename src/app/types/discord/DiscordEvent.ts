@@ -1,4 +1,4 @@
-export interface Event {
+export interface DiscordEvent {
     name: string,
     once: boolean,
     execute(...args: any[]): void

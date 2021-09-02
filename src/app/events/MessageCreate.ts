@@ -1,8 +1,8 @@
 import messageCreateOnBountyBoard from './bounty/MessageCreateOnBountyBoard';
 import { Message } from 'discord.js';
-import { Event } from '../types/Event';
+import { DiscordEvent } from '../types/discord/DiscordEvent';
 
-export default class implements Event {
+export default class implements DiscordEvent {
 	name = 'messageCreate';
 	once = false;
 

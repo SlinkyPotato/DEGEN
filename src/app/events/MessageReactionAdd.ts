@@ -1,8 +1,8 @@
 import { MessageReaction, PartialUser, User } from 'discord.js';
-import { Event } from '../types/Event';
+import { DiscordEvent } from '../types/discord/DiscordEvent';
 import messageReactionAddBounty from './bounty/MessageReactionAddBounty';
 
-export default class implements Event {
+export default class implements DiscordEvent {
 	name = 'messageReactionAdd';
 	once = false;
 	

@@ -2,10 +2,10 @@ import { Collection, GuildMember, Role, Snowflake } from 'discord.js';
 import roleIds from '../service/constants/roleIds';
 import AddGuestPass from '../service/guest-pass/AddGuestPass';
 import RemoveGuestPass from '../service/guest-pass/RemoveGuestPass';
-import { Event } from '../types/Event';
+import { DiscordEvent } from '../types/discord/DiscordEvent';
 import sendGuildWelcomeMessage from './welcomeMats/GuildMats';
 
-export default class implements Event {
+export default class implements DiscordEvent {
 	name = 'guildMemberUpdate';
 	once = false;
 

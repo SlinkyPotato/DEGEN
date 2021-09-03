@@ -1,4 +1,4 @@
-import { Collection, GuildMember, Role, Snowflake } from 'discord.js';
+import { Collection, GuildMember, PartialGuildMember, Role, Snowflake } from 'discord.js';
 import roleIds from '../service/constants/roleIds';
 import AddGuestPass from '../service/guest-pass/AddGuestPass';
 import RemoveGuestPass from '../service/guest-pass/RemoveGuestPass';
@@ -9,21 +9,32 @@ export default class implements DiscordEvent {
 	name = 'guildMemberUpdate';
 	once = false;
 
-	async execute(oldMember: GuildMember, newMember: GuildMember) {
-		console.debug('Guild member updated');
+	async execute(oldMember: GuildMember | PartialGuildMember, newMember: GuildMember | PartialGuildMember): Promise<any> {
+		try {
+			if (oldMember.partial) {
+				oldMember = await oldMember.fetch();
+			}
+			if (newMember.partial) {
+				newMember = await newMember.fetch();
+			}
+		} catch (e) {
+			console.error('Retrieving member partial failed');
+			return;
+		}
+		
 		const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
 		if (removedRoles.size > 0) {
 			console.debug(`The roles ${removedRoles.map(r => r.name)} were removed from ${oldMember.displayName}.`);
-			this.handleRolesRemoved(newMember, removedRoles);
+			this.handleRolesRemoved(newMember as GuildMember, removedRoles);
 			return;
 		}
 
 		const addedRoles = newMember.roles.cache.filter(role => !oldMember.roles.cache.has(role.id));
 		if (addedRoles.size > 0) {
 			console.debug(`The roles ${addedRoles.map(r => r.name)} were added to ${oldMember.displayName}.`);
-			this.handleRolesAdded(newMember, addedRoles);
+			this.handleRolesAdded(newMember as GuildMember, addedRoles);
 		}
-	};
+	}
 
 	/**
 	 * Handler for when roles are added to a member.
@@ -42,7 +53,7 @@ export default class implements DiscordEvent {
 				break;
 			}
 		});
-	};
+	}
 
 	/**
 	 * Handler for when roles are removed from a member.
@@ -50,7 +61,7 @@ export default class implements DiscordEvent {
 	 * @param guildMember member that roles were removed from
 	 * @param roles roles that were removed from member
 	 */
-	 handleRolesRemoved = (guildMember: GuildMember, roles: Collection<Snowflake, Role>): void => {
+	handleRolesRemoved = (guildMember: GuildMember, roles: Collection<Snowflake, Role>): void => {
 		roles.each(role => {
 			switch (role.id) {
 			case roleIds.guestPass:
@@ -58,5 +69,5 @@ export default class implements DiscordEvent {
 				break;
 			}
 		});
-	};
-};
+	}
+}

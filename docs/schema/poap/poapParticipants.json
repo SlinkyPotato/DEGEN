@@ -10,11 +10,11 @@
     ],
     "properties": {
       "event": {
-        "bsonType": "string",
+        "bsonType": ["string", "null"],
         "description": "The event for the discussion which should be an enum, COMMUNITY_CALL."
       },
       "discordUserTag": {
-        "bsonType": "bool",
+        "bsonType": "string",
         "description": "Discord tag of the participant."
       },
       "discordUserId": {
@@ -26,7 +26,7 @@
         "description": "ISO8601 of when the meeting started."
       },
       "endTime": {
-        "bsonType": "string",
+        "bsonType": ["string", "null"],
         "description": "ISO8601 of when the meeting ended."
       },
       "voiceChannelId": {

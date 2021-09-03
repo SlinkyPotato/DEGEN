@@ -34,7 +34,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 	const listOfParticipants = await POAPUtils.getListOfParticipants(guildMember, db, channel);
 	
 	if (listOfParticipants.length <= 0) {
-		return guildMember.send({ content: `No participants found for ${channel.name} in ${channel.guild.name}` });
+		return guildMember.send({ content: `No participants found for ${channel.name} in ${channel.guild.name}.` });
 	}
 	
 	const bufferFile = await getBufferFromParticipants(listOfParticipants, channel);

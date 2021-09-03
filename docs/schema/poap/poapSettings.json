@@ -14,7 +14,7 @@
     "properties": {
       "event": {
         "bsonType": ["string", "null"],
-        "description": "The event for the discussion which should be an enum, COMMUNITY_CALL.",
+        "description": "The event for the discussion which should be an enum, COMMUNITY_CALL."
       },
       "isActive": {
         "bsonType": "bool",

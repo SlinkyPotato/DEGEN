@@ -3,6 +3,7 @@ import roleIds from '../service/constants/roleIds';
 import AddGuestPass from '../service/guest-pass/AddGuestPass';
 import RemoveGuestPass from '../service/guest-pass/RemoveGuestPass';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
+import ServiceUtils from '../utils/ServiceUtils';
 import sendGuildWelcomeMessage from './welcomeMats/GuildMats';
 
 export default class implements DiscordEvent {
@@ -11,6 +12,12 @@ export default class implements DiscordEvent {
 
 	async execute(oldMember: GuildMember, newMember: GuildMember) {
 		console.debug('Guild member updated');
+
+		if ((oldMember.nickname !== newMember.nickname) 
+				&& ServiceUtils.runUsernameSpamFilter(newMember)) {
+			return;
+		}
+
 		const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
 		if (removedRoles.size > 0) {
 			console.debug(`The roles ${removedRoles.map(r => r.name)} were removed from ${oldMember.displayName}.`);

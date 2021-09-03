@@ -33,7 +33,7 @@ const POAPUtils = {
 			try {
 				result = await poapParticipants.updateOne(participant, {
 					$set: {
-						endDate: currentDateStr,
+						endTime: currentDateStr,
 					},
 				});
 			} catch (e) {
@@ -86,6 +86,7 @@ const POAPUtils = {
 							console.error(e);
 						});
 					});
+				console.log(`Links sent to ${listOfParticipants.length} participants.`);
 			} catch (e) {
 				console.log('user might have been banned');
 			}

@@ -51,7 +51,7 @@ export const addUserToDb = async (
 };
 
 export const updateUserForPOAP = async (
-	guildMember: GuildMember, db: Db, channel: GuildChannel, hasJoined: boolean,
+	member: GuildMember, db: Db, channel: GuildChannel, hasJoined: boolean,
 ): Promise<any> => {
 	const poapParticipantsDb: Collection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
 	const currentDateStr = (new Date()).toISOString();
@@ -59,11 +59,11 @@ export const updateUserForPOAP = async (
 	const poapParticipant: POAPParticipant = await poapParticipantsDb.findOne({
 		discordServerId: channel.guild.id,
 		voiceChannelId: channel.id,
-		discordUserId: guildMember.user.id,
+		discordUserId: member.user.id,
 	});
 
 	if (!hasJoined) {
-		console.log(`${guildMember.user.tag} | left ${channel.name} from ${channel.guild.name}`);
+		console.log(`${member.user.tag} | left ${channel.name} from ${channel.guild.name}`);
 		return poapParticipantsDb.updateOne(poapParticipant, {
 			$set: {
 				endTime: (new Date).toISOString(),
@@ -71,8 +71,8 @@ export const updateUserForPOAP = async (
 		});
 	}
 
-	if (poapParticipant !== null && poapParticipant.discordUserId === guildMember.user.id) {
-		console.log(`${guildMember.user.tag} | rejoined ${channel.name} from ${channel.guild.name}`);
+	if (poapParticipant !== null && poapParticipant.discordUserId === member.user.id) {
+		console.log(`${member.user.tag} | rejoined ${channel.name} from ${channel.guild.name}`);
 		return poapParticipantsDb.updateOne(poapParticipant, {
 			$unset: {
 				endTime: null,
@@ -81,8 +81,8 @@ export const updateUserForPOAP = async (
 	}
 
 	const result: InsertOneWriteOpResult<POAPParticipant> = await poapParticipantsDb.insertOne({
-		discordUserId: guildMember.user.id,
-		discordUserTag: guildMember.user.tag,
+		discordUserId: member.user.id,
+		discordUserTag: member.user.tag,
 		startTime: currentDateStr,
 		voiceChannelId: channel.id,
 		discordServerId: channel.guild.id,
@@ -90,5 +90,5 @@ export const updateUserForPOAP = async (
 	if (result == null || result.insertedCount !== 1) {
 		throw new MongoError('failed to insert poapParticipant');
 	}
-	console.log(`${guildMember.user.tag} | joined ${channel.name} from ${channel.guild.name}`);
+	console.log(`${member.user.tag} | joined ${channel.name} from ${channel.guild.name}`);
 };

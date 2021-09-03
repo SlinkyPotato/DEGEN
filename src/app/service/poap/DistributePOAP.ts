@@ -1,42 +1,12 @@
 import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageAttachment } from 'discord.js';
-import { Collection, Db } from 'mongodb';
-import dbInstance from '../../utils/db';
-import constants from '../constants/constants';
-import ValidationError from '../../errors/ValidationError';
-import { POAPSettings } from '../../types/poap/POAPSettings';
 import axios from 'axios';
-import { POAPFileParticipant } from '../../utils/POAPUtils';
+import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
 
 export default async (guildMember: GuildMember): Promise<any> => {
 	
-	await askForParticipantsList(guildMember);
-	return;
-	
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
-	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
-
-	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
-		event: event,
-		isActive: false,
-	});
-
-	if (poapSettingsDoc == null) {
-		throw new ValidationError(`\`${event}\` is active.`);
-	}
-
-	const poapGuildManager: GuildMember = await guildMember.guild.members.fetch(poapSettingsDoc.poapManagerId);
-
-	// const listOfParticipants = await getListOfParticipants(poapGuildManager, db, event);
-
-	const sendOutPOAPReplyMessage = await poapGuildManager.send({ content: 'Please upload links.txt file.' });
-	const dmChannel: DMChannel = await sendOutPOAPReplyMessage.channel.fetch() as DMChannel;
-	const replyOptions: AwaitMessagesOptions = {
-		max: 1,
-		time: 180000,
-		errors: ['time'],
-	};
-	const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
-	// return sendOutPOAPLinks(poapGuildManager, listOfParticipants, poapLinksFile);
+	const participantsList: POAPFileParticipant[] = await askForParticipantsList(guildMember);
+	const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
+	await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, linksMessageAttachment);
 };
 
 export const askForParticipantsList = async (guildMember: GuildMember): Promise<POAPFileParticipant[]> => {
@@ -59,10 +29,23 @@ export const askForParticipantsList = async (guildMember: GuildMember): Promise<
 				duration: values[2],
 			};
 		});
-		console.log(participantsList);
+		// remove first and last object
+		participantsList.shift();
+		participantsList.pop();
 	} catch (e) {
 		console.log(e);
 		await guildMember.send({ content: 'Invalid attachment. Please try the command again.' });
 	}
 	return participantsList;
+};
+
+export const askForLinksMessageAttachment = async (guildMember: GuildMember): Promise<MessageAttachment> => {
+	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Please upload links.txt file from POAP.' });
+	const dmChannel: DMChannel = await sendOutPOAPReplyMessage.channel.fetch() as DMChannel;
+	const replyOptions: AwaitMessagesOptions = {
+		max: 1,
+		time: 180000,
+		errors: ['time'],
+	};
+	return (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 };

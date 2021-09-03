@@ -290,10 +290,10 @@ export default class Bounty extends SlashCommand {
 			console.log(`end /bounty ${ctx.user.username}#${ctx.user.discriminator}`);
 			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 		}).catch(e => {
-			console.error('ERROR', e);
 			if (e instanceof ValidationError) {
 				return ctx.send(e.message);
 			} else {
+				console.error('ERROR', e);
 				return ctx.send('Sorry something is not working and our devs are looking into it.');
 			}
 		});

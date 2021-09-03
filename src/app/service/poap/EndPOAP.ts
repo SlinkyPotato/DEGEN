@@ -1,5 +1,5 @@
 import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
-import { Collection as MongoCollection, Collection, Db, UpdateWriteOpResult } from 'mongodb';
+import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';

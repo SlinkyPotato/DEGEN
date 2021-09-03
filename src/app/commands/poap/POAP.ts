@@ -82,12 +82,12 @@ module.exports = class poap extends SlashCommand {
 			console.log(`end /poap ${ctx.user.username}#${ctx.user.discriminator}`);
 			return ctx.send(`${ctx.user.mention} DM sent!`);
 		}).catch(e => {
-			console.error('ERROR', e);
 			if (e instanceof ValidationError) {
 				return ctx.send(e.message);
 			} else if (e instanceof EarlyTermination) {
 				return ctx.send(e.message);
 			} else {
+				console.error(e);
 				return ctx.send('Sorry something is not working and our devs are looking into it.');
 			}
 		});

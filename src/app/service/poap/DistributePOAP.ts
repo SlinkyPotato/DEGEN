@@ -1,6 +1,7 @@
 import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageAttachment } from 'discord.js';
 import axios from 'axios';
 import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
+import ValidationError from '../../errors/ValidationError';
 
 export default async (guildMember: GuildMember): Promise<any> => {
 	
@@ -35,6 +36,7 @@ export const askForParticipantsList = async (guildMember: GuildMember): Promise<
 	} catch (e) {
 		console.log(e);
 		await guildMember.send({ content: 'Invalid attachment. Please try the command again.' });
+		throw new ValidationError('Please try again.');
 	}
 	return participantsList;
 };

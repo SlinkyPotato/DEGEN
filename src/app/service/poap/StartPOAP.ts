@@ -16,7 +16,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import EarlyTermination from '../../errors/EarlyTermination';
 import POAPUtils from '../../utils/POAPUtils';
 
-export default async (guildMember: GuildMember, event: string): Promise<any> => {
+export default async (guildMember: GuildMember, event?: string): Promise<any> => {
 	await POAPUtils.validateEvent(guildMember, event);
 	
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);

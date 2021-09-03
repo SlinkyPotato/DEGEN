@@ -93,7 +93,7 @@ const POAPUtils = {
 		}
 	},
 
-	async validateEvent(guildMember: GuildMember, event: string): Promise<any> {
+	async validateEvent(guildMember: GuildMember, event?: string): Promise<any> {
 		if (event == null) {
 			return;
 		}

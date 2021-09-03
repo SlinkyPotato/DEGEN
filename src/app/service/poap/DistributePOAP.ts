@@ -56,7 +56,7 @@ export const getListOfParticipants = async (guildMember: GuildMember, db: Db, ev
 		let durationInMinutes: number = (endTime - (new Date(participant.startTime)).getTime());
 		durationInMinutes = (durationInMinutes <= 0) ? 0 : durationInMinutes / (1000 * 60);
 		if (durationInMinutes >= 5) {
-			participants.push({ id: participant.discordId, tag: participant.discordTag, duration: durationInMinutes });
+			participants.push({ id: participant.discordUserId, tag: participant.discordUserTag, duration: durationInMinutes });
 		}
 	});
 

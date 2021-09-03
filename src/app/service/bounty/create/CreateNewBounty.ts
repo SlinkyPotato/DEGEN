@@ -47,14 +47,14 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 
 	let convertedDueDateFromMessage: Date;
 	do {
-		await guildMember.send({ content: 'Is there a `UTC` due date `yyyy-mm-dd`? (yes/no)' });
+		await guildMember.send({ content: 'Please enter `UTC` date in format `yyyy-mm-dd`, i.e 2021-08-15`? (no to exit)' });
 		const dueAtMessage = (await dmChannel.awaitMessages(replyOptions)).first().content;
 		if (dueAtMessage !== 'no') {
 			try {
 				convertedDueDateFromMessage = BountyUtils.validateDate(guildMember, dueAtMessage);
 			} catch(e) {
 				console.log(e);
-				await guildMember.send({ content: 'Please try `UTC` date in format yyyy-mm-dd, i.e 2021-08-15' });
+				await guildMember.send({ content: 'Please try `UTC` date in format `yyyy-mm-dd`, i.e 2021-08-15' });
 			}
 		} else if (dueAtMessage === 'no') {
 			convertedDueDateFromMessage = null;

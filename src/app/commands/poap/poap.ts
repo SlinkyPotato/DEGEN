@@ -8,6 +8,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import StartPOAP from '../../service/poap/StartPOAP';
 import ValidationError from '../../errors/ValidationError';
 import EarlyTermination from '../../errors/EarlyTermination';
+import EndPOAP from '../../service/poap/EndPOAP';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -48,7 +49,6 @@ module.exports = class poap extends SlashCommand {
 
 	async run(ctx: CommandContext) {
 		if (ctx.user.bot || ctx.guildID == undefined) return 'Please try /poap within discord channel.';
-		console.log(`start /poap ${ctx.user.username}#${ctx.user.discriminator}`);
 		
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		
@@ -56,15 +56,15 @@ module.exports = class poap extends SlashCommand {
 		try {
 			switch (ctx.subcommands[0]) {
 			case 'start':
-				console.log(`/poap start event:${ctx.options.start.event}`);
+				console.log(`/poap start ${ctx.user.username}#${ctx.user.discriminator}`);
 				command = StartPOAP(guildMember, ctx.options.start.event);
 				break;
 			case 'end':
-				console.log(`/poap end event:${ctx.options.end.event}`);
-				// command = EndPOAP(guildMember);
+				console.log(`/poap end ${ctx.user.username}#${ctx.user.discriminator}`);
+				command = EndPOAP(guildMember);
 				break;
 			case 'distribute':
-				console.log(`/poap distribute event:${ctx.options.distribute.event}`);
+				console.log(`/poap distribute ${ctx.user.username}#${ctx.user.discriminator}`);
 				// command = DistributePOAP(guildMember);
 				break;
 			default:
@@ -92,21 +92,3 @@ module.exports = class poap extends SlashCommand {
 		});
 	}
 };
-
-// export const getAllowedUsers = (): ApplicationCommandPermissions[] =>{
-// 	const poapManagers: string[] = (process.env.DISCORD_POAP_MANAGERS).split(',');
-// 	const allowedPermissions: ApplicationCommandPermissions[] = [];
-// 	for (const poapManagerId of poapManagers) {
-// 		allowedPermissions.push({
-// 			type: ApplicationCommandPermissionType.USER,
-// 			id: poapManagerId,
-// 			permission: true,
-// 		});
-// 	}
-// 	allowedPermissions.push({
-// 		type: ApplicationCommandPermissionType.ROLE,
-// 		id: roleIDs.admin,
-// 		permission: true,
-// 	});
-// 	return allowedPermissions;
-// };

@@ -1,26 +1,25 @@
-import { AwaitMessagesOptions, DMChannel, GuildMember, MessageAttachment } from 'discord.js';
-import { Collection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
+import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
+import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
-import { POAPParticipant } from '../../types/poap/POAPParticipant';
-import axios from 'axios';
 import { POAPSettings } from '../../types/poap/POAPSettings';
+import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
 
-export default async (guildMember: GuildMember, event: string): Promise<any> => {
+export default async (guildMember: GuildMember): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
-		event: event,
+		poapManagerId: guildMember.user.id,
+		discordServerId: guildMember.guild.id,
 		isActive: true,
 	});
-
+	
 	if (poapSettingsDoc == null) {
-		throw new ValidationError(`\`${event}\` is not active.`);
+		throw new ValidationError(`No active event found for <@${guildMember.id}>.`);
 	}
-
 	const updateSettingsResult: UpdateWriteOpResult = await poapSettingsDB.updateOne(poapSettingsDoc, {
 		$set: {
 			isActive: false,
@@ -28,30 +27,32 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	});
 
 	if (updateSettingsResult.modifiedCount !== 1) {
-		throw new ValidationError(`\`${event}\` is not active.`);
+		throw new ValidationError('Event is not active.');
 	}
-	console.log(`event ${event} ended`);
-
-	const poapGuildManager: GuildMember = await guildMember.guild.members.fetch(poapSettingsDoc.poapManagerId);
-
-	const listOfParticipants = await getListOfParticipants(poapGuildManager, db, event);
+	console.log(`event ${poapSettingsDoc.event} ended in ${poapSettingsDoc.discordServerName} for ${poapSettingsDoc.voiceChannelName}`);
+	const channel: GuildChannel = await guildMember.guild.channels.fetch(poapSettingsDoc.voiceChannelId);
+	const listOfParticipants = await POAPUtils.getListOfParticipants(guildMember, db, channel);
 	
 	if (listOfParticipants.length <= 0) {
-		return guildMember.send({ content: `No participants found for ${event}.` });
+		return guildMember.send({ content: `No participants found for ${channel.name} in ${channel.guild.name}` });
 	}
 	
-	const bufferFile = await getBufferFromParticipants(listOfParticipants, event);
+	const bufferFile = await getBufferFromParticipants(listOfParticipants, channel);
 	const currentDate = (new Date()).toISOString();
-	await poapGuildManager.send({
-		content: `Total Participants: \`${listOfParticipants.length} participants\`\n Event: \`${event}\`\n Date: \`${currentDate} UTC\`.`,
-		files: [{ name: `${event}_${listOfParticipants.length}_participants.txt`, attachment: bufferFile }],
+	const fileName = `${channel.guild.name}_${channel.name}_${listOfParticipants.length}_participants.csv`;
+	await guildMember.send({
+		content: `Total Participants: \`${listOfParticipants.length} participants\`\n` +
+			`Guild: \`${channel.guild.name}\`\n` +
+			`Channel: \`${channel.name}\`\n` +
+			`Date: \`${currentDate} UTC\`.`,
+		files: [{ name: fileName, attachment: bufferFile }],
 	});
 
-	if (poapGuildManager.id !== guildMember.user.id) {
-		return guildMember.send({ content: `Previous event ended for <@${poapGuildManager.id}>.` });
+	if (guildMember.id !== guildMember.user.id) {
+		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` });
 	}
 
-	const sendOutPOAPReplyMessage = await poapGuildManager.send({ content: 'Would you like me send out POAP links to participants? `(yes/no)`' });
+	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Would you like me send out POAP links to participants? `(yes/no)`' });
 	const dmChannel: DMChannel = await sendOutPOAPReplyMessage.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -60,46 +61,18 @@ export default async (guildMember: GuildMember, event: string): Promise<any> => 
 	};
 	const sendOutPOAPYN = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
-		await poapGuildManager.send({ content: 'Ok! Please upload the POAP links.txt file.' });
+		await guildMember.send({ content: 'Ok! Please upload the POAP links.txt file.' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
-		await sendOutPOAPLinks(poapGuildManager, listOfParticipants, poapLinksFile);
+		await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile);
 	} else {
-		await poapGuildManager.send({ content: 'You got it!' });
+		await guildMember.send({ content: 'You got it!' });
 	}
 	return;
 };
 
-export const getListOfParticipants = async (guildMember: GuildMember, db: Db, event: string)
-	: Promise<{id: string, tag: string, duration: number}[]> => {
-	const poapParticipants: Collection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
-	const resultCursor: Cursor<POAPParticipant> = await poapParticipants.find({
-		event: event,
-	});
-
-	if ((await resultCursor.count()) === 0) {
-		console.log(`no participants found for ${event}`);
-		return [];
-	}
-
-	let endTime: number = Date.now();
-	const participants = [];
-	await resultCursor.forEach((participant: POAPParticipant) => {
-		if (participant.endTime) {
-			endTime = new Date(participant.endTime).getTime();
-		}
-		let durationInMinutes: number = (endTime - (new Date(participant.startTime)).getTime());
-		durationInMinutes = (durationInMinutes <= 0) ? 0 : durationInMinutes / (1000 * 60);
-		if (durationInMinutes >= 5) {
-			participants.push({ id: participant.discordId, tag: participant.discordTag, duration: durationInMinutes });
-		}
-	});
-
-	return participants;
-};
-
-export const getBufferFromParticipants = async (participants: {id: string, tag: string, duration: number}[], event: string): Promise<Buffer> => {
+export const getBufferFromParticipants = async (participants: POAPFileParticipant[], voiceChannel: GuildChannel): Promise<Buffer> => {
 	if (participants.length === 0) {
-		console.log(`no participants found for ${event}`);
+		console.log(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
 		return Buffer.from('', 'utf-8');
 	}
 
@@ -109,24 +82,4 @@ export const getBufferFromParticipants = async (participants: {id: string, tag: 
 	});
 
 	return Buffer.from(participantsStr, 'utf-8');
-};
-
-export const sendOutPOAPLinks = async (guildMember: GuildMember, listOfParticipants: any[], attachment: MessageAttachment): Promise<any> => {
-	let listOfPOAPLinks;
-	try {
-		const response = await axios.get(attachment.url);
-		listOfPOAPLinks = response.data.split('\n');
-	} catch (e) {
-		console.error(e);
-		return guildMember.send({ content: 'Could not process the links.txt file. Please make sure the file that is uploaded has every URL on a new line.' });
-	}
-	for (let i = 0; i < listOfParticipants.length; i++) {
-		try {
-			const participantMember: GuildMember = await guildMember.guild.members.fetch(listOfParticipants[i].id);
-			console.log(`sending POAP for ${participantMember.user.tag}`);
-			await participantMember.send({ content: `Thank you for participating in BanklessDAO! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch(console.error);
-		} catch (e) {
-			console.log('user might have been banned');
-		}
-	}
 };

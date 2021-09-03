@@ -13,8 +13,8 @@
     ],
     "properties": {
       "event": {
-        "bsonType": "string",
-        "description": "The event for the discussion which should be an enum, COMMUNITY_CALL."
+        "bsonType": ["string", "null"],
+        "description": "The event for the discussion which should be an enum, COMMUNITY_CALL.",
       },
       "isActive": {
         "bsonType": "bool",
@@ -25,7 +25,7 @@
         "description": "ISO8601 of when the meeting started."
       },
       "endTime": {
-        "bsonType": "string",
+        "bsonType": ["string", "null"],
         "description": "ISO8601 of when the meeting ended."
       },
       "poapManagerId": {

@@ -2,8 +2,8 @@
   "$jsonSchema": {
     "bsonType": "object",
     "required": [
-      "discordTag",
-      "discordId",
+      "discordUserTag",
+      "discordUserId",
       "startTime",
       "voiceChannelId",
       "discordServerId"
@@ -13,11 +13,11 @@
         "bsonType": "string",
         "description": "The event for the discussion which should be an enum, COMMUNITY_CALL."
       },
-      "discordTag": {
+      "discordUserTag": {
         "bsonType": "bool",
         "description": "Discord tag of the participant."
       },
-      "discordId": {
+      "discordUserId": {
         "bsonType": "string",
         "description": "Discord Id of the participant."
       },

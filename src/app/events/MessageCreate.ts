@@ -6,7 +6,7 @@ export default class implements DiscordEvent {
 	name = 'messageCreate';
 	once = false;
 
-	execute(message: Message) {
+	execute(message: Message): Promise<any> {
 		if(message.author.bot && message.webhookId === null) return;
 		const greetings = ['Hello', 'Howdy', 'Hey', 'Go Bankless,', 'Nice to meet you,', 'It\'s great to see you,', 'Ahoy,'];
 		if (message.content.toLowerCase().match('^.*degen$')) {
@@ -15,5 +15,5 @@ export default class implements DiscordEvent {
 		messageCreateOnBountyBoard(message).catch(e => {
 			console.error('ERROR: ', e);
 		});
-	};
-};
+	}
+}

@@ -26,5 +26,5 @@ export default class implements DiscordEvent {
 			console.error(e);
 		}
 		return;
-	};
-};
+	}
+}

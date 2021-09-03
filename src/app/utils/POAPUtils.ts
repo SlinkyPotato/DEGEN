@@ -1,5 +1,5 @@
 import { GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
-import { Collection as MongoCollection, Cursor, Db } from 'mongodb';
+import { Collection as MongoCollection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../service/constants/constants';
 import { POAPParticipant } from '../types/poap/POAPParticipant';
 import axios from 'axios';
@@ -24,9 +24,25 @@ const POAPUtils = {
 			console.log(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
 			return [];
 		}
-
+		
 		let endTime: number = Date.now();
+		const currentDateStr = (new Date()).toISOString();
 		const participants = [];
+		for await (const participant of resultCursor) {
+			let result: UpdateWriteOpResult;
+			try {
+				result = await poapParticipants.updateOne(participant, {
+					$set: {
+						endDate: currentDateStr,
+					},
+				});
+			} catch (e) {
+				console.error(e);
+			}
+			if (result == null) {
+				throw new Error('Mongodb operation failed');
+			}
+		}
 		await resultCursor.forEach((participant: POAPParticipant) => {
 			if (participant.endTime) {
 				endTime = new Date(participant.endTime).getTime();

@@ -1,5 +1,5 @@
 import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
-import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
+import { Collection as MongoCollection, Collection, Db, UpdateWriteOpResult } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
@@ -76,9 +76,9 @@ export const getBufferFromParticipants = async (participants: POAPFileParticipan
 		return Buffer.from('', 'utf-8');
 	}
 
-	let participantsStr = 'discordHandle,durationInMinutes\n';
+	let participantsStr = 'discordId,discordHandle,durationInMinutes\n';
 	participants.forEach((participant: {id: string, tag: string, duration: number}) => {
-		participantsStr += `${participant.tag},${participant.duration}` + '\n';
+		participantsStr += `${participant.id},${participant.tag},${participant.duration}` + '\n';
 	});
 
 	return Buffer.from(participantsStr, 'utf-8');

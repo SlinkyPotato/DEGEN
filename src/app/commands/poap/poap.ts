@@ -9,6 +9,7 @@ import StartPOAP from '../../service/poap/StartPOAP';
 import ValidationError from '../../errors/ValidationError';
 import EarlyTermination from '../../errors/EarlyTermination';
 import EndPOAP from '../../service/poap/EndPOAP';
+import DistributePOAP from '../../service/poap/DistributePOAP';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -36,7 +37,7 @@ module.exports = class poap extends SlashCommand {
 				{
 					name: 'distribute',
 					type: CommandOptionType.SUB_COMMAND,
-					description: 'Distribute links to existing attendees',
+					description: 'Distribute links to participants.',
 				},
 			],
 			throttling: {
@@ -65,7 +66,7 @@ module.exports = class poap extends SlashCommand {
 				break;
 			case 'distribute':
 				console.log(`/poap distribute ${ctx.user.username}#${ctx.user.discriminator}`);
-				// command = DistributePOAP(guildMember);
+				command = DistributePOAP(guildMember);
 				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);

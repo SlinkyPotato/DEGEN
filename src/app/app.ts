@@ -6,8 +6,10 @@ import fs from 'fs';
 import ScoapUtils from './utils/ScoapUtils';
 
 // ScoapSquad state management
-export const scoapEmbedState = [];
+export const scoapEmbedState = {};
 export const botConvoState = {};
+export const voteRecordState = {};
+ScoapUtils.logToFile(`state objects initiated. \n scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n botConvoState: ${JSON.stringify(botConvoState)}  \n voteRecordState: ${JSON.stringify(voteRecordState)}`);
 setInterval(function() { ScoapUtils.purgeExpiredBotConvo(botConvoState); }, 60000);
 // end
 

@@ -1,5 +1,5 @@
 import { publishDraftScoapEmbed } from './CreateNewScoapPoll';
-import { scoapEmbedState } from '../../app';
+// import { scoapEmbedState } from '../../app';
 import constants from '../constants/constants';
 import { ScoapEmbed } from './ScoapClasses';
 import { Message } from 'discord.js';
@@ -8,8 +8,8 @@ import ScoapUtils from '../../utils/ScoapUtils';
 
 export default async (message: Message, botConvo: any): Promise<any> => {
 
-	console.log('EDIT ', botConvo.getEdit());
-	console.log('MESSAGE FLOW INDEX ', botConvo.getCurrentMessageFlowIndex());
+	// console.log('EDIT ', botConvo.getEdit());
+	// console.log('MESSAGE FLOW INDEX ', botConvo.getCurrentMessageFlowIndex());
 	switch (true) {
 	case (botConvo.getCurrentMessageFlowIndex() === '2'):
 		switch (true) {
@@ -131,7 +131,7 @@ const createNewScoapEmbed = (botConvo): any => {
 		.setCurrentChannel(botConvo.getCurrentChannel())
 		.setCurrentMessage(botConvo.getCurrentMessage());
 	scoapEmbed.getEmbed()[0].fields.push({ name: '\u200b', value: constants.SCOAP_SQUAD_EMBED_SPACER });
-	scoapEmbedState[scoapEmbed.getId()] = scoapEmbed;
+	// scoapEmbedState[scoapEmbed.getId()] = scoapEmbed;
 	botConvo.setScoapEmbedId(scoapEmbed.getId());
 	return scoapEmbed;
 };

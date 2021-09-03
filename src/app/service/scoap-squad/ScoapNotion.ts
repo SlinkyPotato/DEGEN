@@ -25,8 +25,8 @@ export const updateScoapOnNotion = async (page_id: string, inputs: Record<string
 	const m_select_options = retrieveMultiSelectOptions(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name, inputs.discord_tags);
 	const new_m_select_options = createNewMultiSelectOptions(m_select_options[0], inputs.discord_tags);
 	await appendBlockToPage(page_id, inputs.summary);
-	const select_option_filled = retrieveSelectOption(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.filled);
-	await updateStatusSelectField(page_id, select_option_filled);
+	// const select_option_filled = retrieveSelectOption(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.filled);
+	await updateStatusSelectField(page_id, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.filled);
 	const multi_select_options = new_m_select_options.concat(m_select_options[1]);
 	await updateDiscordHandleMultiSelectField(page_id, multi_select_options);
 };
@@ -43,13 +43,14 @@ const getRandomColor = () => {
 	return constants.NOTION_COLORS[Math.floor(Math.random() * constants.NOTION_COLORS.length)];
 };
 
-const updateStatusSelectField = async (page_id, select_option) => {
+export const updateStatusSelectField = async (page_id, select_option) => {
+	const select_option_object = retrieveSelectOption(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, select_option);
 	const propertyValues: InputPropertyValueMap = {};
 	const pageId = page_id;
 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name] = {
 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.status.type,
-		id: select_option.id,
-		select: select_option,
+		id: select_option_object.id,
+		select: select_option_object,
 	} as SelectPropertyValue;
 	await notion.pages.update({
 		page_id: pageId,
@@ -73,8 +74,8 @@ const updateDiscordHandleMultiSelectField = async (page_id, multi_select_options
 const retrieveSelectOption = (properties: PropertyMap, field_name: string, option: string): any => {
 	let select_option_result = {};
 	Object.entries(properties).forEach(([nme, property]) => {
-		console.log('SELECT_PROPERTY', property);
-		console.log('NAME', nme);
+		// console.log('SELECT_PROPERTY', property);
+		// console.log('NAME', nme);
 	    if (property.type === 'select' && nme === field_name) { //property.name
 	    	Object.entries(property.select.options).forEach(([idx, select_option]) => {
 	    		if (select_option.name === option) {

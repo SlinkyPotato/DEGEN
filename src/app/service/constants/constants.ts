@@ -18,7 +18,7 @@ export default Object.freeze({
 
 	SCOAP_HTTP_SERVER_CORS_WHITELIST: ['http://localhost:3000'],
 	SCOAP_HTTP_SERVER_PORT: 5000,
-	SCOAP_SQUAD_CHANNEL_ID: '854401837566001192',
+	// SCOAP_SQUAD_CHANNEL_ID: '872270622070308895', // '854401837566001192', 
 	SCOAP_SQUAD_EMBED_SPACER: '\u2800'.repeat(60),
 
 	SCOAP_SQUAD_NOTION_FIELDS: {
@@ -41,6 +41,7 @@ export default Object.freeze({
 				open: 'Open',
 				filled: 'Filled (Ongoing)',
 				closed: 'Project Completed',
+				cancelled: 'Cancelled',
 			},
 		},
 		date_created: {

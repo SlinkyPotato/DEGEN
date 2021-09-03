@@ -1,5 +1,8 @@
 import constants from '../service/constants/constants';
 // import { GuildMember, Message } from 'discord.js';
+import fs from 'fs';
+import path from 'path';
+import { scoapEmbedState, botConvoState, voteRecordState } from '../app';
 
 const isInteger = (value: any): boolean => {
 	return /^\d+$/.test(value);
@@ -50,25 +53,24 @@ const ScoapUtils = {
 			const dtold = bot_convo_state[key].getTimeout();
 			const deltat = dtnow - dtold;
 			if (deltat > constants.BOT_CONVERSATION_TIMEOUT_MS) {
-				console.log('BOT CONVO TIMED OUT, DELTA T = ', deltat);
+				// console.log('BOT CONVO TIMED OUT, DELTA T = ', deltat);
 				bot_convo_state[key].getCurrentChannel().send('Conversation timed out. please try again.');
 				delete bot_convo_state[bot_convo_state[key].getUserId()];
+				this.logToFile(`object  deleted from botConvoState. reason: BotConvo timeout, deltaT: ${deltat} \n scoapEmbedState: ${scoapEmbedState} \n botConvoState: ${botConvoState}  \n voteRecordState: ${voteRecordState}`);
 			}
 		}
-		// for (const botConvo of bot_convo_state) {
-		// 	console.log('BOT CONVO ', botConvo);
-		// 	const dtnow = +new Date();
-		// 	const dtold = botConvo.getTimeout();
-		// 	const deltat = dtnow - dtold;
-		// 	console.log(dtnow);
-		// 	console.log(dtold);
-		// 	console.log(deltat);
-		// 	// if (deltat > constants.BOT_CONVERSATION_TIMEOUT_MS) {
-		// 	// 	console.log('BOT CONVO TIMED OUT, DELTA T = ', (dtnow - botConvo.getTimeout()));
-		// 	// 	// delete botConvoState[botConvo.getUserId()];
-		// 	// }
-		// }
 		return;
+	},
+
+	logToFile(log_string: string): any {
+		const dt = new Date();
+		const formatted_str = '\n\n' + dt.toString() + '\n' + log_string;
+		const fPath = path.join(__dirname, '..', 'service', 'scoap-squad', 'logs', 'scoap-log');
+		fs.appendFile(fPath, formatted_str, function(err) {
+		    if(err) {
+		        return console.log(err);
+		    }
+		});
 	},
 };
 

@@ -5,9 +5,9 @@ import constants from '../constants/constants';
 import channelIds from '../constants/channelIds';
 import client from '../../app';
 import ScoapPoll from './ScoapPoll';
-import { scoapEmbedState, botConvoState } from '../../app';
+import { scoapEmbedState, botConvoState, voteRecordState } from '../../app';
 import { scoapEmbedEdit } from './EditScoapDraft';
-// import ScoapUtils from '../../utils/ScoapUtils';
+import ScoapUtils from '../../utils/ScoapUtils';
 import { createNewScoapOnNotion } from './ScoapNotion';
 
 
@@ -42,7 +42,7 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 			case 'SET_ROLES':
 				return abortSetScoapRoles(message, botConvo.getUserId());
 			case 'PUBLISH':
-				return abortPublishScoapPoll(message, botConvo, scoapEmbed);
+				return abortPublishScoapPoll(message, botConvo);
 			}
 		} else if (reaction.emoji.name === 'ℹ️') {
 			await message.channel.send({ embeds: botConvo.getConvo().help_message_embeds });
@@ -94,11 +94,19 @@ const createBotConversation = async (guildMember: GuildMember): Promise<any> => 
 		.setEdit(false)
 		.setUserId(guildMember.user.id);
 	botConvoState[guildMember.user.id] = botConvo;
+	ScoapUtils.logToFile('object added to botConvoState. REason: createBotConversation \n ' +
+					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
+					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
+					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 	return botConvo;
 };
 
 const abortSetScoapRoles = async (message: Message, user_id) => {
 	delete botConvoState[user_id];
+	ScoapUtils.logToFile('object delted from botConvoState. REason: abortSetScoapRoles \n' +
+					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
+					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
+					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 	await message.delete();
 	return message.channel.send('Message deleted, let\'s start over.');
 };
@@ -107,7 +115,16 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 	scoapEmbed.getEmbed()[0].footer = { text: 'react with emoji to claim a project role | ❌ - abort poll' };
 	const scoapChannel: TextChannel = await client.channels.fetch(channelIds.scoapSquad) as TextChannel;
 	scoapEmbed.setBotConvoResponseRecord(botConvo.getConvo().user_response_record);
+	scoapEmbedState[scoapEmbed.getId()] = scoapEmbed;
+	ScoapUtils.logToFile('object added to scoapEmbedState. Reason: publishScoapPoll \n' +
+					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
+					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
+					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 	delete botConvoState[botConvo.getUserId()];
+	ScoapUtils.logToFile('object deleted from botConvoState. Reason: publishScoapPoll \n' +
+					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
+					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
+					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 	ScoapPoll(scoapChannel, scoapEmbed);
 	message.channel.send(`All done! Your SCOAP Squad assemble request has been posted in <#${channelIds.scoapSquad}>`);
 	const notion_inputs = {
@@ -119,9 +136,12 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 	scoapEmbed.setNotionPageId(notion_page_id);
 };
 
-const abortPublishScoapPoll = async (message: Message, botConvo: any, scoapEmbed: any) => {
-	delete scoapEmbedState[scoapEmbed.getId()];
+const abortPublishScoapPoll = async (message: Message, botConvo: any) => {
 	delete botConvoState[botConvo.getUserId()];
+	ScoapUtils.logToFile('object deleted from botConvoState. Reason: abortPublishScoapPoll \n ' +
+					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
+					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
+					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 	await message.delete();
 	return message.channel.send('Message deleted, let\'s start over.');
 };
@@ -255,7 +275,7 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 						value: 'The command invokes a bot conversation ' +
 							   'which walks you through the process of ' +
 							   'creating a poll which will be posted ' +
-							   'in the <#872270622070308895> channel. ' +
+							   `in the <#${channelIds.scoapSquad}> channel. ` +
 							   'You will define a project title, a short summary, ' +
 							   'the project roles you want to fill, as well as how ' +
 							   'many people you want for each role. ' +
@@ -265,7 +285,7 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 						name: 'An Example',
 						value: 'Below you can see an example of what the command output looks like. ' +
 							   'Once posted ' +
-							   'in the <#872270622070308895> channel, ' +
+							   `in the <#${channelIds.scoapSquad}> channel, ` +
 							   'people can start claiming project roles. ' +
 							   'The progress fields will be updated automatically to reflect current claims. ' +
 							   'Once all roles are filled, a project page for your SCOAP squad ' +

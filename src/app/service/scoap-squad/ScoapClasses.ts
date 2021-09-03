@@ -1,6 +1,8 @@
 import { Channel, Message, TextBasedChannels } from 'discord.js';
 // import constants from '../constants/constants';
 import { v1 as uuidv1 } from 'uuid';
+import ScoapUtils from '../../utils/ScoapUtils';
+
 
 export class BotConversation {
 	timeout: number;
@@ -89,7 +91,7 @@ export class BotConversation {
 	}
 
 	setCurrentMessage(current_message: Message): this {
-		console.log('SET CURRENT MESSAGE: SET TO ID ', current_message.id);
+		// console.log('SET CURRENT MESSAGE: SET TO ID ', current_message.id);
 		this.current_message = current_message;
 		return this;
 	}
@@ -128,13 +130,13 @@ export class BotConversation {
 				embeds: this.convo.message_flow[message_flow_index],
 			});
 			this.convo.message_flow[message_flow_index][0].fields[0].value = role_number_string_old;
-			console.log('SETTING CUURENT MESSAGE ON BOT CONVO TO ', currMsg.id);
+			// console.log('SETTING CUURENT MESSAGE ON BOT CONVO TO ', currMsg.id);
 			this.setCurrentMessage(currMsg);
 		} else {
 			const currMsg = await channel.send({
 				embeds: this.convo.message_flow[message_flow_index],
 			});
-			console.log('SETTING CUURENT MESSAGE ON BOT CONVO TO ', currMsg.id);
+			// console.log('SETTING CUURENT MESSAGE ON BOT CONVO TO ', currMsg.id);
 			this.setCurrentMessage(currMsg);
 		}
 		
@@ -150,16 +152,18 @@ export class BotConversation {
 export class ScoapEmbed {
 	embed: Record<string, any>;
 	scoap_author: string;
-	current_channel: Channel;
-	current_message: Message;
+	current_channel: any;
+	current_message: any;
 	votable_emoji_array: Array<any>;
 	notion_page_id: string;
 	id: string;
 	bot_convo_record: any;
 	vote_record_id: string;
+	reaction_user_ids: any;
 
 	constructor() {
 		this.id = uuidv1();
+		this.reaction_user_ids = {};
 	}
 
 	getId(): string {
@@ -178,11 +182,11 @@ export class ScoapEmbed {
 		return this.scoap_author;
 	}
 
-	getCurrentChannel(): Channel {
+	getCurrentChannel(): any {
 		return this.current_channel;
 	}
 
-	getCurrentMessage(): Message {
+	getCurrentMessage(): any {
 		return this.current_message;
 	}
 
@@ -201,6 +205,11 @@ export class ScoapEmbed {
 	getVoteRecordId(): string {
 		return this.vote_record_id;
 	}
+
+	getReactionUserIds(): any {
+		return this.reaction_user_ids;
+	}
+
 
 	// getNotionChildId(): string {
 	// 	return this.notion_child_id;
@@ -221,12 +230,12 @@ export class ScoapEmbed {
 		return this;
 	}
 
-	setCurrentChannel(current_channel: Channel): this {
+	setCurrentChannel(current_channel: any): this {
 		this.current_channel = current_channel;
 		return this;
 	}
 
-	setCurrentMessage(current_message: Message): this {
+	setCurrentMessage(current_message: any): this {
 		this.current_message = current_message;
 		return this;
 	}
@@ -248,6 +257,30 @@ export class ScoapEmbed {
 
 	setVoteRecordId(vote_record_id: string): this {
 		this.vote_record_id = vote_record_id;
+		return this;
+	}
+
+	setReactionUserIds(reaction_user_ids: any): this {
+		this.reaction_user_ids = reaction_user_ids;
+		return this;
+	}
+
+	addReactionUserId(key: string, reaction_user_id: string): this {
+		if (!(key in this.reaction_user_ids)) {
+			this.reaction_user_ids[key] = [reaction_user_id];
+		} else {
+			this.reaction_user_ids[key].push(reaction_user_id);
+		}
+		ScoapUtils.logToFile(`object added to reaction_user_id, key ${key}, user id ${reaction_user_id} \n this.reaction_user_ids: ${JSON.stringify(this.reaction_user_ids)}`);
+		return this;
+	}
+
+	removeReactionUserId(key: string, reaction_user_id: string): this {
+		const index = this.reaction_user_ids[key].indexOf(reaction_user_id);
+		if (index !== -1) {
+			this.reaction_user_ids[key].splice(index, 1);
+			ScoapUtils.logToFile(`object removed from reaction_user_id, key ${key}, user id ${reaction_user_id} \n this.reaction_user_ids: ${JSON.stringify(this.reaction_user_ids)}`);
+		}
 		return this;
 	}
 

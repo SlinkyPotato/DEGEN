@@ -5,6 +5,7 @@ import cors from 'fastify-cors';
 import ScoapPoll from './ScoapPoll';
 import client from '../../app';
 import { TextChannel } from 'discord.js';
+import channelIds from '../constants/channelIds';
 
 // Instatiate Fastify
 export const server: FastifyInstance = Fastify({});
@@ -32,7 +33,7 @@ const opts: RouteShorthandOptions = {
 server.post('/scoap', opts, async (request) => {
 	// console.log(typeof request.body);
 	const channel = (await client.channels.fetch(
-		constants.SCOAP_SQUAD_CHANNEL_ID,
+		channelIds.scoapSquad,
 	)) as TextChannel;
 	// const requestBody: object = request.body;
 	// const formData = await ScoapPoll(channel, request, {});

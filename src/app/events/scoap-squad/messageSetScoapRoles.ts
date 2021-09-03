@@ -7,7 +7,7 @@ export default async (message: Message): Promise<any> => {
 
 	const botConvo = botConvoState[message.author.id];
 
-	console.log('message event triggered, message author is: ', message.author.id);
+	// console.log('message event triggered, message author is: ', message.author.id);
 
 	if (messageIsValid(message, botConvo)) {
 

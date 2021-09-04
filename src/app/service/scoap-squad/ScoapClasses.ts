@@ -160,6 +160,7 @@ export class ScoapEmbed {
 	bot_convo_record: any;
 	vote_record_id: string;
 	reaction_user_ids: any;
+	published_timestamp: number;
 
 	constructor() {
 		this.id = uuidv1();
@@ -210,10 +211,9 @@ export class ScoapEmbed {
 		return this.reaction_user_ids;
 	}
 
-
-	// getNotionChildId(): string {
-	// 	return this.notion_child_id;
-	// }
+	getPublishedTimestamp(): number {
+		return this.published_timestamp;
+	}
 
 	setId(uuid: string): this {
 		this.id = uuid;
@@ -265,6 +265,11 @@ export class ScoapEmbed {
 		return this;
 	}
 
+	setPublishedTimestamp(published_timestamp: any): this {
+		this.published_timestamp = published_timestamp;
+		return this;
+	}
+
 	addReactionUserId(key: string, reaction_user_id: string): this {
 		if (!(key in this.reaction_user_ids)) {
 			this.reaction_user_ids[key] = [reaction_user_id];
@@ -283,11 +288,6 @@ export class ScoapEmbed {
 		}
 		return this;
 	}
-
-	// setNotionChildId(notion_child_id: string): this {
-	// 	this.notion_child_id = notion_child_id;
-	// 	return this;
-	// }
 
 	updateProgressString(emoji: string, update_progress_string: string): this {
 		for (const [i, field] of this.embed[0].fields.entries()) {
@@ -408,13 +408,13 @@ export class VoteRecord {
 	}
 
 	update(vote: Record<string, any>): this {
-		this._updateEmoteTotals(vote);
-		this._updateProgressStrings(vote);
-		this._updateUserVoteLedger(vote);
+		this.updateEmoteTotals(vote);
+		this.updateProgressStrings(vote);
+		this.updateUserVoteLedger(vote);
 		return this;
 	}
 
-	_updateUserVoteLedger(vote: Record<string, any>): this {
+	updateUserVoteLedger(vote: Record<string, any>): this {
 		if (vote.type === 'UNVOTE') {
 			this.user_vote_ledger[vote.user_id] = '';
 		} else {
@@ -423,7 +423,7 @@ export class VoteRecord {
 		return this;
 	}
 
-	_updateEmoteTotals = (vote: Record<string, any>): this => {
+	updateEmoteTotals = (vote: Record<string, any>): this => {
 		const old_emoji = this.user_vote_ledger[vote.user_id];
 		switch (vote.type) {
 		case 'NEWVOTE':
@@ -442,27 +442,27 @@ export class VoteRecord {
 		}
 	};
 
-	_updateProgressStrings(vote: Record<string, any>): this {
+	updateProgressStrings(vote: Record<string, any>): this {
 		const old_emoji = this.user_vote_ledger[vote.user_id];
 		// console.log(`updating progress string, inputs: ${vote.emoji}, ${old_emoji}, ${vote.type}`, this.emote_totals, this.emote_required);
 		if (vote.type === 'CHANGEVOTE') {
-			this.progress_strings[old_emoji] = this._generateProgressString(old_emoji);
-			this.progress_strings[vote.emoji] = this._generateProgressString(vote.emoji);
+			this.progress_strings[old_emoji] = this.generateProgressString(old_emoji);
+			this.progress_strings[vote.emoji] = this.generateProgressString(vote.emoji);
 		} else if (vote.type === 'UNVOTE') {
-			this.progress_strings[old_emoji] = this._generateProgressString(old_emoji);
+			this.progress_strings[old_emoji] = this.generateProgressString(old_emoji);
 		} else {
-			this.progress_strings[vote.emoji] = this._generateProgressString(vote.emoji);
+			this.progress_strings[vote.emoji] = this.generateProgressString(vote.emoji);
 		}
 		return this;
 	}
 
-	_calcPercentages(emoji: string): string {
+	calcPercentages(emoji: string): string {
 		const percent = Math.round((100 / this.emote_required[emoji]) * this.emote_totals[emoji]);
 		return percent.toString();
 	}
 
-	_generateProgressString(emoji: string): string {
-		return `${this._calcPercentages(emoji)}%(${this.emote_totals[emoji]}/${
+	generateProgressString(emoji: string): string {
+		return `${this.calcPercentages(emoji)}%(${this.emote_totals[emoji]}/${
 			this.emote_required[emoji]
 		})`;
 	}

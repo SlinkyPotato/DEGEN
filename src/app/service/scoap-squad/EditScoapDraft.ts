@@ -5,8 +5,6 @@ import { publishDraftScoapEmbed } from '../../service/scoap-squad/CreateNewScoap
 import ScoapUtils from '../../utils/ScoapUtils';
 
 export const scoapEmbedUpdate = async (botConvo, user_input): Promise<any> => {
-	// const scoapEmbedIndex = ScoapUtils.retrieveObjectFromArray(scoapEmbedArray, botConvo.getUserId());
-	// const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
 	const scoapEmbed = scoapEmbedState[botConvo.getScoapEmbedId()];
 	const scoapEmbed_fields = scoapEmbed.getEmbed()[0].fields;
 	const botConvoResponseRecord_fields = botConvo.getConvo().user_response_record.embed[0].fields;

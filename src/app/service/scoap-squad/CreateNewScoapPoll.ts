@@ -55,13 +55,6 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 	}).catch(_ => {
 		console.log(_);
 		console.log('did not react');
-		// params[1].getCurrentChannel().send('Conversation timed out. please try again.');
-		// try {
-		// 	delete scoapEmbedState[params[2].getId()];
-		// } catch {
-		// 	return;
-		// }
-		// delete botConvoState[params[1].getUserId()];
 	});
 };
 
@@ -145,11 +138,6 @@ const abortPublishScoapPoll = async (message: Message, botConvo: any) => {
 	await message.delete();
 	return message.channel.send('Message deleted, let\'s start over.');
 };
-
-// const clearArray = async (array, message) => {
-// 	const removeIndex = array.map(item => item.getCurrentChannel()).indexOf(message.channel);
-// 	~removeIndex && array.splice(removeIndex, 1);
-// };
 
 const createBotConversationParams = (guildMember: GuildMember) => {
 	const convo = {

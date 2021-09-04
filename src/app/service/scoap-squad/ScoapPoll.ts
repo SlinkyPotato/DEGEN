@@ -22,8 +22,6 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 		emoteRequired[emoji] = parseInt(role.role_count);
 		emoteTotals[emoji] = 0;
 		progressStrings[emoji] = `0%(0/${role.role_count})`;
-		// scoapEmbed.getReactionUserIds()[emoji] = [];
-
 	});
 
 	const voteRecord = new VoteRecord()
@@ -38,14 +36,20 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 							` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 	const embedMessage = await channel.send({ embeds: scoapEmbed.getEmbed() });
 	scoapEmbed.setCurrentChannel(channel).setCurrentMessage(embedMessage);
+	scoapEmbed.setPublishedTimestamp(+new Date());
 
-	// DONE DATABASE backup scoapEmbed and VoteRecord
 	updateScoapEmbedAndVoteRecordDb(scoapEmbed, voteRecord);
 
 	for (const item of validEmojiArray) {
 		await embedMessage.react(item);
 	}
 
+	const collector = createReactionCollector(embedMessage, validEmojiArray, constants.SCOAP_POLL_TIMEOUT_MS);
+	collectReactions(scoapEmbed, voteRecord, validEmojiArray, collector);
+	return;
+};
+
+export const createReactionCollector = (embedMessage, validEmojiArray, timeout) => {
 	const filter = (reaction, user) => {
 		const emoji_valid = emojiValid(reaction.emoji.name, validEmojiArray);
 		const bot_reaction = user.bot;
@@ -55,8 +59,15 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 	const collector = embedMessage.createReactionCollector({
 		filter,
 		dispose: true,
-		time: constants.SCOAP_POLL_TIMEOUT_MS,
+		time: timeout,
 	});
+
+	return collector;
+};
+
+export const collectReactions = async (scoapEmbed, voteRecord, validEmojiArray, collector) => {
+
+	const embedMessage = scoapEmbed.getCurrentMessage();
 
 	collector.on('collect', async (reaction, user) => {
 
@@ -86,7 +97,7 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 
 				if (vote.getType() === 'CHANGEVOTE') {
 					await removeReaction(
-						reaction,
+						collector.collected,
 						vote.getUserId(),
 						vote.getEmoji(),
 						choiceValid,
@@ -102,8 +113,6 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 				}
 				embedMessage.edit({ embeds: scoapEmbed.getEmbed() });
 
-
-				// DONE DATABSAE update scoap Embed & voteRecord
 				scoapEmbed.addReactionUserId(reaction.emoji.name, user.id);
 				ScoapUtils.logToFile('voteRecord & scoapEmbed updated. Reason: Vote event \n' +
 							` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
@@ -112,7 +121,6 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 				updateScoapEmbedAndVoteRecordDb(scoapEmbed, voteRecord);
 
 				if (isEqual(voteRecord.getEmoteTotals(), voteRecord.getEmoteRequired())) {
-					// console.log('POLL COMPLETE ');
 					collector.stop();
 				}
 
@@ -171,12 +179,9 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 							` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
 							` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 		deleteScoapEmbedAndVoteRecord(scoapEmbed.getId());
-		// DONE DATABASE remove ScoapEmbed and Voterecord
 		console.log('POLL COMPLETE');
 		embedMessage.reactions.removeAll();
 		return;
-
-
 	});
 
 	collector.on('remove', async (reaction, user) => {
@@ -190,24 +195,19 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 			console.log('removed vote from user: ', user.id, ' ', reaction.emoji.name);
 			console.log(voteRecord.getUserVoteLedger());
 			for (const key in voteRecord.getProgressStrings()) {
-				// console.log('key ', key, ' value ', voteRecord.getProgressStrings()[key]);
 				scoapEmbed.updateProgressString(
 					key,
 					voteRecord.getProgressStrings()[key],
 				);
 			}
 			embedMessage.edit({ embeds: scoapEmbed.getEmbed() });
-			// DONE DATABASE update ScoapEmbed & VoteRecord
 			scoapEmbed.removeReactionUserId(reaction.emoji.name, user.id);
 			updateScoapEmbedAndVoteRecordDb(scoapEmbed, voteRecord);
 		}
 	});
-	return;
 };
 
-
 const handleDeletePoll = async (user, scoapEmbed, embedMessage, collector) => {
-	// DONE DATABASE remove ScoapEmbed and VoteRecord
 	if (user.id === scoapEmbed.getAuthor().id) {
 		const dm_channel = await user.createDM();
 		const embed_sample = cloneDeep(scoapEmbed.getEmbed());
@@ -247,25 +247,19 @@ const handleDeletePoll = async (user, scoapEmbed, embedMessage, collector) => {
 	return;
 };
 
-const removeReaction = async (reaction, user_id, emoji, choice_valid, scoapEmbed) => {
-	const userReactions = await reaction.message.reactions.cache.filter((reac) => {
-		return reac.users.cache.has(user_id);
-	});
+const removeReaction = async (collected, user_id, emoji, choice_valid, scoapEmbed) => {
 	try {
-		for (const reac of userReactions.values()) {
+		for (const reac of collected.values()) {
 			if (choice_valid === true) {
-				// the selected choice is available, only remove choices that don't match current choice
 				if (reac.emoji.name !== emoji) {
 					await reac.users.remove(user_id);
+					console.log('remove done');
 					scoapEmbed.removeReactionUserId(reac.emoji.name, user_id);
-					break;
 				}
 			} else if (choice_valid === false) {
-				// the selected choice is not available, only remove choices that do match current choice
 				if (reac.emoji.name === emoji) {
 					await reac.users.remove(user_id);
 					scoapEmbed.removeReactionUserId(reac.emoji.name, user_id);
-					break;
 				}
 			}
 		}

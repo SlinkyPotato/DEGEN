@@ -46,14 +46,12 @@ const ScoapUtils = {
 			// console.log('NO CONVO');
 			return;
 		}
-		// console.log('BOT CONVO STATE ', bot_convo_state);
-		
+
 		for (const key of Object.keys(bot_convo_state)) {
 		    const dtnow = +new Date();
 			const dtold = bot_convo_state[key].getTimeout();
 			const deltat = dtnow - dtold;
 			if (deltat > constants.BOT_CONVERSATION_TIMEOUT_MS) {
-				// console.log('BOT CONVO TIMED OUT, DELTA T = ', deltat);
 				bot_convo_state[key].getCurrentChannel().send('Conversation timed out. please try again.');
 				delete bot_convo_state[bot_convo_state[key].getUserId()];
 				this.logToFile(`object  deleted from botConvoState. reason: BotConvo timeout, deltaT: ${deltat} \n scoapEmbedState: ${scoapEmbedState} \n botConvoState: ${botConvoState}  \n voteRecordState: ${voteRecordState}`);

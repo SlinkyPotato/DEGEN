@@ -8,6 +8,7 @@ import ScoapUtils from '../../utils/ScoapUtils';
 import { updateScoapOnNotion, updateStatusSelectField } from './ScoapNotion';
 import { updateScoapEmbedAndVoteRecordDb, deleteScoapEmbedAndVoteRecord } from './ScoapDatabase';
 
+
 export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 
 	const validEmojiArray = cloneDeep(scoapEmbed.getVotableEmojiArray());

@@ -1,0 +1,69 @@
+{
+    "name": "degen",
+    "version": "1.5.0",
+    "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
+    "main": "app.js",
+    "private": true,
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "test": "jest",
+        "qa": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa",
+        "prod": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.prod",
+        "prestart": "yarn install && yarn build",
+        "pretest": "yarn install && yarn build",
+        "start": "node --trace-warnings -r dotenv/config dist/app/app.js",
+        "lint": "eslint src/**/*.ts",
+        "format": "eslint src/**/*.ts --fix",
+        "watch": "tsc -p tsconfig.json -w"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/BanklessDAO/discord-bots"
+    },
+    "keywords": [
+        "bankless",
+        "discord",
+        "bot",
+        "crypto"
+    ],
+    "author": "BANKLESS DAO",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/BanklessDAO/discord-bots/issues"
+    },
+    "homepage": "https://github.com/BanklessDAO/discord-bots/blob/main/README.md",
+    "dependencies": {
+        "@notionhq/client": "0.2.0",
+        "@types/node": "^16.7.1",
+        "axios": "^0.21.1",
+        "discord.js": "^13.1.0",
+        "dotenv": "^10.0.0",
+        "fastify": "^3.20.2",
+        "fastify-cors": "^6.0.2",
+        "fastify-helmet": "^5.3.2",
+        "mongodb": "^3.6.9",
+        "p-queue": "^6.6.2",
+        "slash-create": "^4.0.1",
+        "uuid": "^8.3.2"
+    },
+    "devDependencies": {
+        "@types/jest": "^27.0.1",
+        "@types/mongodb": "^3.6.20",
+        "@typescript-eslint/eslint-plugin": "^4.26.0",
+        "@typescript-eslint/parser": "^4.26.0",
+        "eslint": "^7.27.0",
+        "eslint-config-prettier": "^8.3.0",
+        "jest": "^27.0.6",
+        "prettier": "2.3.0",
+        "ts-jest": "^27.0.5",
+        "ts-loader": "^9.2.3",
+        "typescript": "^4.3.5",
+        "webpack": "^5.44.0",
+        "webpack-cli": "^4.7.2"
+    },
+    "engines": {
+        "yarn": "1.x",
+        "node": ">=16.6.2"
+    },
+    "engineStrict": true
+}

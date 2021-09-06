@@ -1,9 +1,10 @@
 import interactionEditScoapDraft from './scoap-squad/interactionEditScoapDraft';
 import { Interaction } from 'discord.js';
+import { DiscordEvent } from '../types/discord/DiscordEvent';
 
-module.exports = {
-	name: 'interactionCreate',
-	once: false,
+export default class implements DiscordEvent {
+	name = 'interactionCreate';
+	once = false;
 
 	execute(interaction: Interaction) {
 		if (interaction.isSelectMenu()) {
@@ -12,5 +13,5 @@ module.exports = {
 			});
 		}
 		
-	},
+	}
 };

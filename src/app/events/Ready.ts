@@ -8,11 +8,11 @@ export default class implements DiscordEvent {
 	name = 'ready';
 	once = true;
 
-	async execute(client: Client) {
+	async execute(client: Client): Promise<any> {
 		console.log('The Sun will never set on the DAO. Neither will I. DEGEN & Serendipity are ready for service.');
 		client.user.setActivity('Going Bankless, Doing the DAO');
 		await connect(constants.DB_NAME_DEGEN);
 		await connect(constants.DB_NAME_BOUNTY_BOARD);
 		await GuestPassService(client);
-	};
-};
+	}
+}

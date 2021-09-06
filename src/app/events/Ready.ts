@@ -3,6 +3,8 @@ import { Client } from 'discord.js';
 import constants from '../service/constants/constants';
 import { connect } from '../utils/db';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
+import { restoreScoapEmbedAndVoteRecord } from '../service/scoap-squad/ScoapDatabase';
+
 
 export default class implements DiscordEvent {
 	name = 'ready';
@@ -14,5 +16,6 @@ export default class implements DiscordEvent {
 		await connect(constants.DB_NAME_DEGEN);
 		await connect(constants.DB_NAME_BOUNTY_BOARD);
 		await GuestPassService(client);
+		await restoreScoapEmbedAndVoteRecord();
 	}
 }

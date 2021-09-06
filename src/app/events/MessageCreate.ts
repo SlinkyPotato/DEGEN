@@ -1,16 +1,12 @@
-/**
- * Handler for Discord event `message`.
- */
-
-import messageCreateOnBountyBoard from './bounty/messageCreateOnBountyBoard';
-import messageSetScoapRoles from './scoap-squad/messageSetScoapRoles';
+import messageCreateOnBountyBoard from './bounty/MessageCreateOnBountyBoard';
 import { Message } from 'discord.js';
+import { DiscordEvent } from '../types/discord/DiscordEvent';
 
-module.exports = {
-	name: 'messageCreate',
-	once: false,
+export default class implements DiscordEvent {
+	name = 'messageCreate';
+	once = false;
 
-	execute(message: Message) {
+	execute(message: Message): Promise<any> {
 		if(message.author.bot && message.webhookId === null) return;
 		const greetings = ['Hello', 'Howdy', 'Hey', 'Go Bankless,', 'Nice to meet you,', 'It\'s great to see you,', 'Ahoy,'];
 		if (message.content.toLowerCase().match('^.*degen$')) {
@@ -19,9 +15,5 @@ module.exports = {
 		messageCreateOnBountyBoard(message).catch(e => {
 			console.error('ERROR: ', e);
 		});
-
-		messageSetScoapRoles(message).catch(e => {
-			console.error('ERROR: ', e);
-		});
-	},
-};
+	}
+}

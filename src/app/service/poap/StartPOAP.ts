@@ -6,7 +6,7 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import ValidationError from '../../errors/ValidationError';
 import poapEvents from '../constants/poapEvents';
 import channelIds from '../constants/channelIds';
-import { updateUserForPOAP } from '../../events/poap/addUserForEvent';
+import { updateUserForPOAP } from '../../events/poap/AddUserForEvent';
 
 export default async (guildMember: GuildMember, event: string): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);

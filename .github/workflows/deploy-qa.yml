@@ -11,7 +11,7 @@ on:
 jobs:
     deploy:
         environment:
-            name: qa-env
+            name: preview
             url: https://serendipity-mk1.herokuapp.com/
         runs-on: ubuntu-20.04
         steps:
@@ -21,8 +21,6 @@ jobs:
                   node-version: '16.6.2'
             - name: Install dependencies
               run: yarn install
-            - name: Prettier Code
-              run: yarn format
             - name: Lint Code
               run: yarn lint
             - name: Build and Compile Typescript

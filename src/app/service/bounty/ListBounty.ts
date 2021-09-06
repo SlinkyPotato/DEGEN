@@ -2,7 +2,7 @@ import constants from '../constants/constants';
 import { Cursor, Db } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
 import dbInstance from '../../utils/db';
-import {GuildMember, MessageEmbedOptions } from 'discord.js';
+import { GuildMember, MessageEmbedOptions } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import { generateEmbedMessage } from './create/PublishBounty';
 
@@ -36,11 +36,9 @@ export default async (guildMember: GuildMember, listType: string): Promise<any> 
 		return guildMember.send({ content: 'Please use a valid list-type' });
 	}
 	if (!await dbRecords.hasNext()) {
-		await dbInstance.close();
 		return guildMember.send({ content: 'We couldn\'t find any bounties!' });
 	}
-	await sendMultipleMessages(guildMember, dbRecords);
-	return dbInstance.close();
+	return sendMultipleMessages(guildMember, dbRecords);
 };
 
 const sendMultipleMessages = async (guildMember: GuildMember, dbRecords: Cursor): Promise<any> => {

@@ -40,7 +40,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember):
 				return;
 			}
 		} catch (err) {
-			console.warn(err)
+			console.warn(err);
 			return;
 		}
 
@@ -50,7 +50,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember):
 				message += `${description}\n`;
 			}
 		} catch (err) {
-			console.warn(err)
+			console.warn(err);
 		}
 
 		try {
@@ -68,7 +68,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember):
 				});
 			}
 		} catch (err) {
-			console.warn(err)
+			console.warn(err);
 		}
 
 		try {
@@ -78,7 +78,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember):
 				message += `Github: [${githubRepo}](${githubLink})\n`;
 			}
 		} catch (err) {
-			console.warn(err)
+			console.warn(err);
 		}
 
 		try {
@@ -88,7 +88,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember):
 				message += `Discord: [${discordChannel}](${discordLink})\n`;
 			}
 		} catch (err) {
-			console.warn(err)
+			console.warn(err);
 		}
 
 		message += '\n';

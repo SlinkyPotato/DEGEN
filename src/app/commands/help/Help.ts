@@ -7,7 +7,7 @@ import {
 import HowToBounty from '../../service/help/HowToBounty';
 import HowToPOAP from '../../service/help/HowToPOAP';
 
-module.exports = class Help extends SlashCommand {
+export default class Help extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'help',
@@ -32,7 +32,7 @@ module.exports = class Help extends SlashCommand {
 		});
 	}
 	
-	async run(ctx: CommandContext) {
+	async run(ctx: CommandContext): Promise<any> {
 		if (ctx.user.bot) return;
 		console.log(`/help start ${ctx.user.username}#${ctx.user.discriminator}`);
 		
@@ -51,4 +51,4 @@ module.exports = class Help extends SlashCommand {
 		console.log(`/bounty end ${ctx.user.username}#${ctx.user.discriminator}`);
 		return ctx.send(messageOptions);
 	}
-};
+}

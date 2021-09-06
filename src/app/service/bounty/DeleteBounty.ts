@@ -65,7 +65,6 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 	
 	console.log(`${bountyId} bounty deleted by ${guildMember.user.tag}`);
 	await deleteBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
-	await dbInstance.close();
 	return guildMember.send({ content: `Bounty \`${bountyId}\` deleted, thanks.` });
 };
 

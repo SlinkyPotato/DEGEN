@@ -1,86 +1,76 @@
-// import constants from '../service/constants/constants';
-import { GuildMember, Message, TextChannel } from 'discord.js';
-import { BountyReward } from '../types/bounty/BountyReward';
-// import channelIDs from '../service/constants/channelIDs';
-import ValidationError from '../errors/ValidationError';
-import { URL } from 'url';
+import constants from '../service/constants/constants';
+// import { GuildMember, Message } from 'discord.js';
+import fs from 'fs';
+import path from 'path';
+import { scoapEmbedState, botConvoState, voteRecordState } from '../app';
 
+const isInteger = (value: any): boolean => {
+	return /^\d+$/.test(value);
+};
 
 const ScoapUtils = {
 
-
-	async validateSummary(guildMember: GuildMember, summary: string): Promise<any> {
-		const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,4000}$/;
-		if (summary == null || !CREATE_SUMMARY_REGEX.test(summary)) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid summary: \n' +
-				'- 4000 characters maximum\n ' +
-				'- alphanumeric\n ' +
-				'- special characters: .!@#$%&,?',
-			);
-			throw new ValidationError('invalid summary');
-		}
+	validateTotalNumberOfRoles(message_content: string): boolean {
+		return (isInteger(message_content) && (parseInt(message_content) < 10) && (parseInt(message_content) >= 1));
 	},
 
-	async validateReward(guildMember: GuildMember, reward: BountyReward): Promise<void> {
+	validateTotalNumberOfPeoplePerRole(message_content: string): boolean {
+		return (isInteger(message_content) && (parseInt(message_content) < 1000) && (parseInt(message_content) >= 1));
+	},
+
+	validateSummary(summary: string): boolean {
+		const CREATE_SUMMARY_REGEX = /^[\w\s.!@#$%&,?']{1,4000}$/;
+		return (!(summary == null || !CREATE_SUMMARY_REGEX.test(summary)));
+	},
+
+	validateReward(message_content: string): boolean {
+		const [reward, symbol] = (message_content != null) ? message_content.split(' ') : [null, null];
+		const amount = parseInt(reward);
 		const ALLOWED_CURRENCIES = ['ETH', 'BANK'];
 		const MAXIMUM_REWARD = 100000000;
-
-		if (isNaN(reward.amount) || reward.amount <= 0 || reward.amount > MAXIMUM_REWARD
-			|| !ALLOWED_CURRENCIES.includes(reward.currencySymbol)) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid reward value: \n ' +
-				'- 100 million maximum currency\n ' +
-				'- accepted currencies: ETH, BANK');
-			throw new ValidationError('invalid reward');
-		}
+		return (!(isNaN(amount) || amount <= 0 || amount > MAXIMUM_REWARD
+					|| !ALLOWED_CURRENCIES.includes(symbol)));
 	},
 
-	async validateTitle(guildMember: GuildMember, title: string): Promise<any> {
+	validateTitle(title: string): boolean {
 		const CREATE_TITLE_REGEX = /^[\w\s.!@#$%&,?']{1,250}$/;
-		if (title == null || !CREATE_TITLE_REGEX.test(title)) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid title: \n' +
-				'- 250 characters maximum\n ' +
-				'- alphanumeric\n ' +
-				'- special characters: .!@#$%&,?',
-			);
-			throw new ValidationError('invalid title');
-		}
+		return (!(title == null || !CREATE_TITLE_REGEX.test(title)));
 	},
 
-	async validateUrl(guildMember: GuildMember, url: string): Promise<any> {
-		try {
-			new URL(url);
-		} catch (e) {
-			await guildMember.send(`<@${guildMember.user.id}>\n` +
-				'Please enter a valid criteria: \n' +
-				'- 1000 characters maximum\n ' +
-				'- alphanumeric\n ' +
-				'- special characters: .!@#$%&,?',
-			);
-			throw new ValidationError('invalid url');
-		}
+	getKeyByValue(object: any, value: string): any {
+		return Object.keys(object).find(key => object[key] === value);
 	},
 
-	// async validateCriteria(guildMember: GuildMember, criteria: string): Promise<any> {
-	// 	const CREATE_CRITERIA_REGEX = /^[\w\s.!@#$%&,?']{1,1000}$/;
-	// 	if (criteria == null || !CREATE_CRITERIA_REGEX.test(criteria)) {
-	// 		await guildMember.send(`<@${guildMember.user.id}>\n` +
-	// 			'Please enter a valid criteria: \n' +
-	// 			'- 1000 characters maximum\n ' +
-	// 			'- alphanumeric\n ' +
-	// 			'- special characters: .!@#$%&,?',
-	// 		);
-	// 		throw new ValidationError('invalid criteria');
-	// 	}
-	// },
+	purgeExpiredBotConvo(bot_convo_state) {
+		if (Object.keys(bot_convo_state).length === 0 && bot_convo_state.constructor === Object) {
+			// console.log('NO CONVO');
+			return;
+		}
 
-	
-	// async getScoapMessage(guildMember: GuildMember, scoapMessageId: string): Promise<Message> {
-	// 	const scoapChannel: TextChannel = guildMember.guild.channels.cache.get(channelIDs.scoapSquadAssemble) as TextChannel;
-	// 	return await scoapChannel.messages.fetch(scoapMessageId);
-	// },
+		for (const key of Object.keys(bot_convo_state)) {
+		    const dtnow = +new Date();
+			const dtold = bot_convo_state[key].getTimeout();
+			const deltat = dtnow - dtold;
+			if (deltat > constants.BOT_CONVERSATION_TIMEOUT_MS) {
+				bot_convo_state[key].getCurrentChannel().send('Conversation timed out. please try again.');
+				delete bot_convo_state[bot_convo_state[key].getUserId()];
+				this.logToFile(`object  deleted from botConvoState. reason: BotConvo timeout, deltaT: ${deltat} \n scoapEmbedState: ${scoapEmbedState} \n botConvoState: ${botConvoState}  \n voteRecordState: ${voteRecordState}`);
+			}
+		}
+		return;
+	},
+
+	logToFile(log_string: string): any {
+		const dt = new Date();
+		const formatted_str = '\n\n' + dt.toString() + '\n' + log_string;
+		const fPath = path.join(__dirname, '..', 'service', 'scoap-squad', 'logs', 'scoap-log');
+		fs.appendFile(fPath, formatted_str, function(err) {
+		    if(err) {
+		        return console.log(err);
+		    }
+		});
+	},
 };
 
 export default ScoapUtils;
+

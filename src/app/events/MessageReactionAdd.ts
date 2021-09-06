@@ -1,11 +1,12 @@
 import { MessageReaction, PartialUser, User } from 'discord.js';
-import messageReactionAddBounty from './bounty/messageReactionAddBounty';
+import { DiscordEvent } from '../types/discord/DiscordEvent';
+import messageReactionAddBounty from './bounty/MessageReactionAddBounty';
 
-module.exports = {
-	name: 'messageReactionAdd',
-	once: false,
+export default class implements DiscordEvent {
+	name = 'messageReactionAdd';
+	once = false;
 	
-	async execute(reaction: MessageReaction, user: User | PartialUser) {
+	async execute(reaction: MessageReaction, user: User | PartialUser): Promise<any> {
 		// When a reaction is received, check if the structure is partial
 		if (reaction.partial) {
 			// If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
@@ -31,5 +32,5 @@ module.exports = {
 		}
 		
 		await messageReactionAddBounty(reaction, user as User);
-	},
-};
+	}
+}

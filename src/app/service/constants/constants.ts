@@ -18,12 +18,45 @@ export default Object.freeze({
 
 	SCOAP_HTTP_SERVER_CORS_WHITELIST: ['http://localhost:3000'],
 	SCOAP_HTTP_SERVER_PORT: 5000,
-	SCOAP_SQUAD_CHANNEL_ID: '854401837566001192',
+	// SCOAP_SQUAD_CHANNEL_ID: '872270622070308895', // '854401837566001192', 
 	SCOAP_SQUAD_EMBED_SPACER: '\u2800'.repeat(60),
+
+	SCOAP_SQUAD_NOTION_FIELDS: {
+		project: {
+			type: 'title',
+			field_name: 'Project',
+		},
+		author_discord_handle: {
+			type: 'rich_text',
+			field_name: 'Author Discord Handle',
+		},
+		scoap_squad_discord_handles: {
+			type: 'multi_select',
+			field_name: 'Scoap Squad Discord Handles',
+		},
+		status: {
+			type: 'select',
+			field_name: 'Status',
+			categories: {
+				open: 'Open',
+				filled: 'Filled (Ongoing)',
+				closed: 'Project Completed',
+				cancelled: 'Cancelled',
+			},
+		},
+		date_created: {
+			type: 'date',
+			field_name: 'Date Created',
+		},
+	},
+
+	NOTION_COLORS: ['gray', 'brown', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'red'],
 
 	BOTPLAYS_BOT_USER_ID: '867605079811817483',
 
-	BOT_CONVERSATION_TIMEOUT_MS: 1000 * 60 * 60,
+	BOT_CONVERSATION_TIMEOUT_MS: 1000 * 60 * 60 * 24, // active for 24 h
+
+	SCOAP_POLL_TIMEOUT_MS: 1000 * 60 * 60 * 168, // one week
 
 	EMOJIS: {
 		'1': '\u0031\uFE0F\u20E3',

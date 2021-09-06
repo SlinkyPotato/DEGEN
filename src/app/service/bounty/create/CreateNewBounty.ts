@@ -13,7 +13,7 @@ import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
 export default async (guildMember: GuildMember, params: BountyCreateNew): Promise<any> => {
 	const title = params.title;
 	const reward = params.reward;
-	
+
 	await BountyUtils.validateReward(guildMember, reward);
 	await BountyUtils.validateTitle(guildMember, title);
 	BountyUtils.validateNumberOfCopies(guildMember, params.copies);
@@ -25,13 +25,13 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 		time: 180000,
 		errors: ['time'],
 	};
-	
+
 	const summary = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	await BountyUtils.validateSummary(guildMember, summary);
 	params.summary = summary;
-	
+
 	await guildMember.send({ content: 'Awesome! Now what is absolutely required for the bounty to be complete?' });
-	
+
 	const criteria = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	await BountyUtils.validateCriteria(guildMember, criteria);
 	params.criteria = criteria;
@@ -47,7 +47,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 
 	let convertedDueDateFromMessage: Date;
 	do {
-		await guildMember.send({ content: 'Is there a `UTC` due date `yyyy-mm-dd`? (default: no)' });
+		await guildMember.send({ content: 'Is there a `UTC` due date `yyyy-mm-dd`? (yes/no)' });
 		const dueAtMessage = (await dmChannel.awaitMessages(replyOptions)).first().content;
 		if (dueAtMessage !== 'no') {
 			try {
@@ -65,12 +65,12 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
-	
+
 	const listOfPrepBounties = [];
 	for (let i = 0; i < params.copies; i++) {
 		listOfPrepBounties.push(generateBountyRecord(params, guildMember));
 	}
-	
+
 	const dbInsertResult = await dbBounty.insertMany(listOfPrepBounties, { ordered: false });
 	if (dbInsertResult == null) {
 		console.error('failed to insert bounties into DB');
@@ -102,15 +102,14 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 			},
 		}],
 	};
-	await dbInstance.close();
-	
+
 	await guildMember.send('Thank you! Does this look right?');
 	const message: Message = await guildMember.send(messageOptions);
-	
+
 	await message.react('👍');
 	await message.react('📝');
 	await message.react('❌');
-	
+
 	return handleBountyReaction(message, guildMember, listOfBountyIds);
 };
 

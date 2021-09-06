@@ -1,15 +1,37 @@
-import { Channel, Message, TextBasedChannels, MessageEmbed } from 'discord.js';
-import constants from '../constants/constants';
+import { Channel, Message, TextBasedChannels } from 'discord.js';
+// import constants from '../constants/constants';
+import { v1 as uuidv1 } from 'uuid';
+import ScoapUtils from '../../utils/ScoapUtils';
+
 
 export class BotConversation {
 	timeout: number;
-	expired: boolean;
+	// expired: boolean;
 	convo: any;
 	current_message_flow_index: string;
 	current_channel: TextBasedChannels;
 	current_message: Message;
 	edit: boolean;
 	edit_value: any;
+	conversation_id: string;
+	user_id: string;
+	scoap_embed_id: string;
+
+	constructor() {
+		this.conversation_id = uuidv1();
+	}
+
+	getScoapEmbedId(): string {
+		return this.scoap_embed_id;
+	}
+
+	getUserId(): string {
+		return this.user_id;
+	}
+
+	getId(): string {
+		return this.conversation_id;
+	}
 
 	getEditValue(): any {
 		return this.edit_value;
@@ -23,9 +45,9 @@ export class BotConversation {
 		return this.timeout;
 	}
 
-	getExpired(): boolean {
-		return this.expired;
-	}
+	// getExpired(): boolean {
+	// 	return this.expired;
+	// }
 
 	getConvo(): any {
 		return this.convo;
@@ -43,6 +65,16 @@ export class BotConversation {
 		return this.current_message;
 	}
 
+	setScoapEmbedId(scoap_embed_id: any): this {
+		this.scoap_embed_id = scoap_embed_id;
+		return this;
+	}
+
+	setUserId(user_id: any): this {
+		this.user_id = user_id;
+		return this;
+	}
+
 	setEditValue(edit_value: any): this {
 		this.edit_value = edit_value;
 		return this;
@@ -53,13 +85,13 @@ export class BotConversation {
 		return this;
 	}
 
-
 	setCurrentChannel(current_channel: TextBasedChannels): this {
 		this.current_channel = current_channel;
 		return this;
 	}
 
 	setCurrentMessage(current_message: Message): this {
+		// console.log('SET CURRENT MESSAGE: SET TO ID ', current_message.id);
 		this.current_message = current_message;
 		return this;
 	}
@@ -69,10 +101,10 @@ export class BotConversation {
 		return this;
 	}
 
-	setExpired(expired: boolean): this {
-		this.expired = expired;
-		return this;
-	}
+	// setExpired(expired: boolean): this {
+	// 	this.expired = expired;
+	// 	return this;
+	// }
 
 	setConvo(convo: any): this {
 		this.convo = convo;
@@ -83,7 +115,11 @@ export class BotConversation {
 		this.current_message_flow_index = message_flow_index;
 		let role_number = '1';
 		if (typeof this.getConvo().user_response_record.roles != 'undefined') {
-			role_number = (Object.keys(this.getConvo().user_response_record.roles).length).toString();
+			if (!this.getEdit()) {
+				role_number = (Object.keys(this.getConvo().user_response_record.roles).length).toString();
+			} else {
+				role_number = '';
+			}
 		}
 
 		if (message_flow_index === '6') {
@@ -94,11 +130,13 @@ export class BotConversation {
 				embeds: this.convo.message_flow[message_flow_index],
 			});
 			this.convo.message_flow[message_flow_index][0].fields[0].value = role_number_string_old;
+			// console.log('SETTING CUURENT MESSAGE ON BOT CONVO TO ', currMsg.id);
 			this.setCurrentMessage(currMsg);
 		} else {
 			const currMsg = await channel.send({
 				embeds: this.convo.message_flow[message_flow_index],
 			});
+			// console.log('SETTING CUURENT MESSAGE ON BOT CONVO TO ', currMsg.id);
 			this.setCurrentMessage(currMsg);
 		}
 		
@@ -114,9 +152,24 @@ export class BotConversation {
 export class ScoapEmbed {
 	embed: Record<string, any>;
 	scoap_author: string;
-	current_channel: Channel;
-	current_message: Message;
+	current_channel: any;
+	current_message: any;
 	votable_emoji_array: Array<any>;
+	notion_page_id: string;
+	id: string;
+	bot_convo_record: any;
+	vote_record_id: string;
+	reaction_user_ids: any;
+	published_timestamp: number;
+
+	constructor() {
+		this.id = uuidv1();
+		this.reaction_user_ids = {};
+	}
+
+	getId(): string {
+		return this.id;
+	}
 
 	getEmbed(): any {
 		return this.embed;
@@ -126,17 +179,46 @@ export class ScoapEmbed {
 		return this.scoap_author;
 	}
 
-	getCurrentChannel(): Channel {
+	getUserId(): string {
+		return this.scoap_author;
+	}
+
+	getCurrentChannel(): any {
 		return this.current_channel;
 	}
 
-	getCurrentMessage(): Message {
+	getCurrentMessage(): any {
 		return this.current_message;
 	}
 
 	getVotableEmojiArray(): Array<any> {
 		return this.votable_emoji_array;
 	}
+
+	getNotionPageId(): string {
+		return this.notion_page_id;
+	}
+
+	getBotConvoResponseRecord(): string {
+		return this.bot_convo_record;
+	}
+
+	getVoteRecordId(): string {
+		return this.vote_record_id;
+	}
+
+	getReactionUserIds(): any {
+		return this.reaction_user_ids;
+	}
+
+	getPublishedTimestamp(): number {
+		return this.published_timestamp;
+	}
+
+	setId(uuid: string): this {
+		this.id = uuid;
+		return this;
+	};
 
 	setEmbed(embed: any): this {
 		this.embed = embed;
@@ -148,12 +230,12 @@ export class ScoapEmbed {
 		return this;
 	}
 
-	setCurrentChannel(current_channel: Channel): this {
+	setCurrentChannel(current_channel: any): this {
 		this.current_channel = current_channel;
 		return this;
 	}
 
-	setCurrentMessage(current_message: Message): this {
+	setCurrentMessage(current_message: any): this {
 		this.current_message = current_message;
 		return this;
 	}
@@ -163,10 +245,54 @@ export class ScoapEmbed {
 		return this;
 	}
 
+	setNotionPageId(notion_page_id: string): this {
+		this.notion_page_id = notion_page_id;
+		return this;
+	}
+
+	setBotConvoResponseRecord(bot_convo_record: any): this {
+		this.bot_convo_record = bot_convo_record;
+		return this;
+	}
+
+	setVoteRecordId(vote_record_id: string): this {
+		this.vote_record_id = vote_record_id;
+		return this;
+	}
+
+	setReactionUserIds(reaction_user_ids: any): this {
+		this.reaction_user_ids = reaction_user_ids;
+		return this;
+	}
+
+	setPublishedTimestamp(published_timestamp: any): this {
+		this.published_timestamp = published_timestamp;
+		return this;
+	}
+
+	addReactionUserId(key: string, reaction_user_id: string): this {
+		if (!(key in this.reaction_user_ids)) {
+			this.reaction_user_ids[key] = [reaction_user_id];
+		} else {
+			this.reaction_user_ids[key].push(reaction_user_id);
+		}
+		ScoapUtils.logToFile(`object added to reaction_user_id, key ${key}, user id ${reaction_user_id} \n this.reaction_user_ids: ${JSON.stringify(this.reaction_user_ids)}`);
+		return this;
+	}
+
+	removeReactionUserId(key: string, reaction_user_id: string): this {
+		const index = this.reaction_user_ids[key].indexOf(reaction_user_id);
+		if (index !== -1) {
+			this.reaction_user_ids[key].splice(index, 1);
+			ScoapUtils.logToFile(`object removed from reaction_user_id, key ${key}, user id ${reaction_user_id} \n this.reaction_user_ids: ${JSON.stringify(this.reaction_user_ids)}`);
+		}
+		return this;
+	}
+
 	updateProgressString(emoji: string, update_progress_string: string): this {
-		for (const [i, field] of this.embed.fields.entries()) {
+		for (const [i, field] of this.embed[0].fields.entries()) {
 			if (field.name.includes(emoji)) {
-				this.embed.fields[i + 1].name = update_progress_string;
+				this.embed[0].fields[i + 1].name = update_progress_string;
 				return this;
 			}
 		}
@@ -230,6 +356,15 @@ export class VoteRecord {
 	emote_totals: any;
 	// {emoji<unicode>: required_total<int>}
 	emote_required: any;
+	id: string;
+
+	constructor() {
+		this.id = uuidv1();
+	}
+
+	getId(): any {
+		return this.id;
+	}
 	
 	getUserVoteLedger(): any {
 		return this.user_vote_ledger;
@@ -245,6 +380,11 @@ export class VoteRecord {
 
 	getEmoteRequired(): any {
 		return this.emote_required;
+	}
+
+	setId(uuid: string): this {
+		this.id = uuid;
+		return this;
 	}
 
 	setUserVoteLedger(user_vote_ledger: any): this {
@@ -268,13 +408,13 @@ export class VoteRecord {
 	}
 
 	update(vote: Record<string, any>): this {
-		this._updateEmoteTotals(vote);
-		this._updateProgressStrings(vote);
-		this._updateUserVoteLedger(vote);
+		this.updateEmoteTotals(vote);
+		this.updateProgressStrings(vote);
+		this.updateUserVoteLedger(vote);
 		return this;
 	}
 
-	_updateUserVoteLedger(vote: Record<string, any>): this {
+	updateUserVoteLedger(vote: Record<string, any>): this {
 		if (vote.type === 'UNVOTE') {
 			this.user_vote_ledger[vote.user_id] = '';
 		} else {
@@ -283,7 +423,7 @@ export class VoteRecord {
 		return this;
 	}
 
-	_updateEmoteTotals = (vote: Record<string, any>): this => {
+	updateEmoteTotals = (vote: Record<string, any>): this => {
 		const old_emoji = this.user_vote_ledger[vote.user_id];
 		switch (vote.type) {
 		case 'NEWVOTE':
@@ -302,27 +442,27 @@ export class VoteRecord {
 		}
 	};
 
-	_updateProgressStrings(vote: Record<string, any>): this {
+	updateProgressStrings(vote: Record<string, any>): this {
 		const old_emoji = this.user_vote_ledger[vote.user_id];
-		console.log(`updating progress string, inputs: ${vote.emoji}, ${old_emoji}, ${vote.type}`, this.emote_totals, this.emote_required);
+		// console.log(`updating progress string, inputs: ${vote.emoji}, ${old_emoji}, ${vote.type}`, this.emote_totals, this.emote_required);
 		if (vote.type === 'CHANGEVOTE') {
-			this.progress_strings[old_emoji] = this._generateProgressString(old_emoji);
-			this.progress_strings[vote.emoji] = this._generateProgressString(vote.emoji);
+			this.progress_strings[old_emoji] = this.generateProgressString(old_emoji);
+			this.progress_strings[vote.emoji] = this.generateProgressString(vote.emoji);
 		} else if (vote.type === 'UNVOTE') {
-			this.progress_strings[old_emoji] = this._generateProgressString(old_emoji);
+			this.progress_strings[old_emoji] = this.generateProgressString(old_emoji);
 		} else {
-			this.progress_strings[vote.emoji] = this._generateProgressString(vote.emoji);
+			this.progress_strings[vote.emoji] = this.generateProgressString(vote.emoji);
 		}
 		return this;
 	}
 
-	_calcPercentages(emoji: string): string {
+	calcPercentages(emoji: string): string {
 		const percent = Math.round((100 / this.emote_required[emoji]) * this.emote_totals[emoji]);
 		return percent.toString();
 	}
 
-	_generateProgressString(emoji: string): string {
-		return `${this._calcPercentages(emoji)}%(${this.emote_totals[emoji]}/${
+	generateProgressString(emoji: string): string {
+		return `${this.calcPercentages(emoji)}%(${this.emote_totals[emoji]}/${
 			this.emote_required[emoji]
 		})`;
 	}

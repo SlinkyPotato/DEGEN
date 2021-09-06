@@ -1,20 +1,20 @@
-import BountyUtils from '../../app/utils/BountyUtils';
-import exp from 'constants';
+// import BountyUtils from '../../app/utils/BountyUtils';
+// import exp from 'constants';
 
 describe('BountyUtils', () => {
-	let guildMember;
+	// let guildMember;
 
 	beforeEach(() => {
-		guildMember = {
-			send: (message: string) => { return message; },
-			user: {
-				id: '567865362541182987',
-			},
-		};
+		// guildMember = {
+		// 	send: (message: string) => { return message; },
+		// 	user: {
+		// 		id: '567865362541182987',
+		// 	},
+		// };
 	});
-	
+
 	describe('blank', () => {
-		it('nothing', () => { expect(true).toStrictEqual(true) });
+		it('nothing', () => { expect(true).toStrictEqual(true); });
 	});
 
 	// describe('BountyId Validation', () => {
@@ -49,8 +49,8 @@ describe('BountyUtils', () => {
 
 	describe('BountyType Validation', () => {
 		// it('should be valid for uppercase string', async () => {
-		//	
-		//	
+		//
+		//
 		// 	try {
 		// 		await BountyUtils.validateBountyType(guildMember, 'OPEN');
 		// 	} catch (e) {

@@ -1,57 +1,49 @@
 import { MessageActionRow, MessageSelectMenu } from 'discord.js';
 import constants from '../constants/constants';
-import { scoapEmbedArray } from '../../app';
+import { scoapEmbedState } from '../../app';
 import { publishDraftScoapEmbed } from '../../service/scoap-squad/CreateNewScoapPoll';
+import ScoapUtils from '../../utils/ScoapUtils';
 
 export const scoapEmbedUpdate = async (botConvo, user_input): Promise<any> => {
-	const scoapEmbedIndex = retrieveObjectFromArray(scoapEmbedArray, botConvo.getCurrentChannel());
-	const scoapEmbed = scoapEmbedArray[scoapEmbedIndex];
+	const scoapEmbed = scoapEmbedState[botConvo.getScoapEmbedId()];
 	const scoapEmbed_fields = scoapEmbed.getEmbed()[0].fields;
+	const botConvoResponseRecord_fields = botConvo.getConvo().user_response_record.embed[0].fields;
 	const interaction_value = botConvo.getEditValue();
 	switch (interaction_value) {
 	case 'title':
 		scoapEmbed.getEmbed()[0].title = user_input;
-		// await interaction.editReply({ content: 'Something was selected!', components: [] });
-		// await interaction.channel.send({ content: `Selected **Title**. Current value is ${scoapEmbed.getEmbed()[0].title}. Please respond with updated title` });
-		// botConvo.setCurrentMessageFlowIndex('2', interaction.channel);
-		// await interaction.channel.send({ embeds: botConvo.getConvo().message_flow['2'] });
 		botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 		publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+		botConvo.getConvo().user_response_record.embed[0].title = user_input;
 		botConvo.setEdit(false);
 		break;
 	case 'summary':
-		// botConvo.setCurrentMessageFlowIndex('3', interaction.channel);
-		// await interaction.channel.send({ embeds: botConvo.getConvo().message_flow['3'] });
-		// await interaction.editReply({ content: 'Something was selected!', components: [] });
 		updateFieldValues(scoapEmbed_fields, 'Summary', user_input);
 		botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 		publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+		botConvoResponseRecord_fields.Summary = user_input;
 		botConvo.setEdit(false);
-		// await interaction.channel.send({ content: `Selected **Summary**. Current value is ${retrieveFieldValues(scoapEmbed_fields, 'Summary')}. Please respond with updated Summary` });
 		break;
 	case 'reward' :
-		// botConvo.setCurrentMessageFlowIndex('4', interaction.channel);
-		// await interaction.channel.send({ embeds: botConvo.getConvo().message_flow['4'] });
-		// await interaction.editReply({ content: 'Something was selected!', components: [] });
 		updateFieldValues(scoapEmbed_fields, 'Reward', user_input);
 		botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 		publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+		botConvoResponseRecord_fields.Reward = user_input;
 		botConvo.setEdit(false);
-		// await interaction.channel.send({ content: `Selected **Reward**. Current value is ${retrieveFieldValues(scoapEmbed_fields, 'Reward')}. Please respond with updated Reward` });
 		break;
 	default:
 		if (botConvo.getCurrentMessageFlowIndex() === '6') {
 			updateRoleFields(scoapEmbed_fields, interaction_value, user_input, 'ROLE_TITLE');
+			const user_response_record_key = ScoapUtils.getKeyByValue(constants.EMOJIS, interaction_value);
+			updateRoleFieldsBotConvoRecord(botConvo, user_response_record_key, user_input, 'ROLE_TITLE');
 		} else if (botConvo.getCurrentMessageFlowIndex() === '7') {
 			updateRoleFields(scoapEmbed_fields, interaction_value, user_input, 'ROLE_COUNT');
+			const user_response_record_key = ScoapUtils.getKeyByValue(constants.EMOJIS, interaction_value);
+			updateRoleFieldsBotConvoRecord(botConvo, user_response_record_key, user_input, 'ROLE_COUNT');
 			botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
 			botConvo.setEdit(false);
 		}
-		// botConvo.setCurrentMessageFlowIndex('6', interaction.channel);
-		// await interaction.editReply({ content: 'Something was selected!', components: [] });
-		// await interaction.channel.send({ embeds: botConvo.getConvo().message_flow['6'] });
-		// await interaction.channel.send({ content: createRolesEditPrompt(scoapEmbed_fields, interaction_value) });
 	}
 
 };
@@ -87,9 +79,7 @@ export const scoapEmbedEdit = (scoapEmbed): any => {
 	];
 
 	for (const emoji of scoapEmbed.getVotableEmojiArray()) {
-		console.log('EMOJI ', emoji);
 		const role = retrieveRoleFields(scoapEmbed_fields, emoji);
-		console.log('ROLE : ', role[0], role[1]);
 		const role_count_str = `Wanted: ${role[1].name.substring(role[1].name.lastIndexOf('/') + 1, role[1].name.lastIndexOf(')'))}`;
 		select_options.push({ label: role[0].name, description: role_count_str, value:emoji });
 	}
@@ -106,12 +96,6 @@ export const scoapEmbedEdit = (scoapEmbed): any => {
 	return edit_message_object;
 };
 
-// const createRolesEditPrompt = (scoapEmbed_fields, interaction_value) => {
-// 	const role = retrieveRoleFields(scoapEmbed_fields, interaction_value);
-// 	const role_count_str = `Wanted: ${role[1].name.substring(role[1].name.lastIndexOf('/') + 1, role[1].name.lastIndexOf(')'))}`;
-// 	const reply = `Selected **${role[0].name}**, ${role_count_str}. would you like to change the name of this role? Respond with **!skip** to keep the name and change the amount instead `;
-// 	return reply;
-// };
 
 const updateFieldValues = (array, key, input) => {
 	const obj = array.find(o => o.name === key);
@@ -134,7 +118,19 @@ const updateRoleFields = (array, key, input, option) => {
 		role.name = key + ' ' + input;
 		return;
 	case 'ROLE_COUNT':
-		role_count.name = `0%0/${input}`;
+		role_count.name = `0%(0/${input})`;
+		return;
+	}
+};
+
+const updateRoleFieldsBotConvoRecord = (botConvo, key, input, option) => {
+	const role = botConvo.getConvo().user_response_record.roles[key];
+	switch(option) {
+	case 'ROLE_TITLE':
+		role.name = input;
+		return;
+	case 'ROLE_COUNT':
+		role.role_count = input;
 		return;
 	}
 };
@@ -155,9 +151,4 @@ export const retrieveRoleFields = (array, key) => {
 	const index = array.indexOf(role);
 	const role_count = array[index + 1];
 	return [role, role_count];
-};
-
-const retrieveObjectFromArray = (array, channel) => {
-	// map message to correct botConvo / scoapEmbed object
-	return array.map(x => x.current_channel).indexOf(channel);
 };

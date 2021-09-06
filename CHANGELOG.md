@@ -1,6 +1,28 @@
 # Changelog
 
-## 1.3.0-SNAPSHOT
+## 1.5.0-SNAPSHOT
+
+1. Convert event modules to classes
+2. Fix guest event partials
+
+## 1.4.0-RELEASE (2021-08-31)
+
+1. Fix docker db connection
+2. Use mongodb connection pools
+3. Expand bounty copies to lvl2+
+4. Add Pradhumna Pancholi#3700 to POAP manager list
+5. Allow lvl2+ contributors, admin, and genesis squad to use /poap command
+
+## 1.3.2-RELEASE (2021-08-27)
+
+1. Wrap all of guildmember in try/catch block
+
+## 1.3.1-RELEASE (2021-08-27)
+
+1. Fix for when a user is banned during call
+
+## 1.3.0-RELEASE (2021-08-26)
+
 1. Add queue for requests to Notion
 2. Add Dev Guild welcome mat
 3. Removed `api` directory in favor of `service` directory
@@ -9,6 +31,8 @@
 6. Capture bounty description and criteria from bot interaction messages
 7. Allow publication of the same bounty multiple times for level 3+ users
 8. Add POAP tracking command for CC call
+9. Extend POAP tracking for writer's guild
+10. Upgrade commands to ES6 and clean up testing
 
 ## 1.2.1-RELEASE (2021-08-12)
 

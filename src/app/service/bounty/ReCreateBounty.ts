@@ -1,4 +1,4 @@
-import {GuildMember, Message, MessageOptions, TextChannel} from 'discord.js';
+import { GuildMember, Message, MessageOptions, TextChannel } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import mongo, { Db } from 'mongodb';
 import dbInstance from '../../utils/db';
@@ -60,7 +60,6 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 		console.log(`bounty ${bountyId} is deleted`);
 		throw new Error('bounty not valid');
 	}
-	await dbInstance.close();
 	console.log('bounty recreated to #bounty-board');
 	return message;
 };

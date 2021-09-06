@@ -1,12 +1,17 @@
 // Libs
 import { SlashCreator, GatewayServer } from 'slash-create';
-import Discord, {Client, ClientOptions, Intents, WSEventType} from 'discord.js';
+import Discord, { Client, ClientOptions, Intents, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
-// import { server } from './service/ScoapFastifyServer';
+import ScoapUtils from './utils/ScoapUtils';
 
-export const scoapEmbedArray = [];
-export const botConvoArray = [];
+// ScoapSquad state management
+export const scoapEmbedState = {};
+export const botConvoState = {};
+export const voteRecordState = {};
+ScoapUtils.logToFile(`state objects initiated. \n scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n botConvoState: ${JSON.stringify(botConvoState)}  \n voteRecordState: ${JSON.stringify(voteRecordState)}`);
+setInterval(function() { ScoapUtils.purgeExpiredBotConvo(botConvoState); }, 60000);
+// end
 
 const client: Client = initializeClient();
 initializeEvents();
@@ -17,6 +22,16 @@ const creator = new SlashCreator({
 	token: process.env.DISCORD_BOT_TOKEN,
 });
 
+creator.on('debug', (message) => console.log(`debug: ${ message }`));
+creator.on('warn', (message) => console.warn(`warn: ${ message }`));
+creator.on('error', (error) => console.error(`error: ${ error }`));
+creator.on('synced', () => console.info('Commands synced!'));
+creator.on('commandRegister', (command) => console.info(`Registered command ${command.commandName}`));
+creator.on('commandError', (command, error) => console.error(`Command ${command.commandName}:`, error));
+creator.on('commandRun', (command, _, ctx) =>
+	console.info(`${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) ran command ${command.commandName}`),
+);
+
 // Register command handlers
 creator
 	.withServer(
@@ -26,14 +41,6 @@ creator
 	)
 	.registerCommandsIn(path.join(__dirname, 'commands'))
 	.syncCommands();
-
-// Handle command errors
-creator.on('commandError', async (cmd, err, ctx) => {
-	console.error(err);
-	if (!ctx.expired && !ctx.initiallyResponded) {
-		return ctx.send('An error occurred while running the command.', { ephemeral: true });
-	}
-});
 
 // Log client errors
 client.on('error', console.error);
@@ -61,7 +68,7 @@ function initializeClient(): Client {
 function initializeEvents(): void {
 	const eventFiles = fs.readdirSync(path.join(__dirname, '/events')).filter(file => file.endsWith('.js'));
 	eventFiles.forEach(file => {
-		const event = require(`./events/${file}`);
+		const event = new (require(`./events/${file}`).default)();
 		try {
 			if (event.once) {
 				client.once(event.name, (...args) => event.execute(...args, client));

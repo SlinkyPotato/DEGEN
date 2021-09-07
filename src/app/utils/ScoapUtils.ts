@@ -2,7 +2,7 @@ import constants from '../service/constants/constants';
 // import { GuildMember, Message } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
-import { scoapEmbedState, botConvoState, voteRecordState } from '../app';
+import { scoapEmbedState, botConvoState, voteRecordState } from '../service/scoap-squad/ScoapDatabase';
 
 const isInteger = (value: any): boolean => {
 	return /^\d+$/.test(value);

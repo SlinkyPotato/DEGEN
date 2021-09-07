@@ -1,4 +1,4 @@
-import { botConvoState } from '../../app';
+import { botConvoState } from '../../service/scoap-squad/ScoapDatabase';
 import { SelectMenuInteraction } from 'discord.js';
 
 export default async (interaction: SelectMenuInteraction): Promise<any> => {

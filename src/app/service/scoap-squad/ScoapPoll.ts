@@ -3,7 +3,7 @@ import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
 import constants from '../constants/constants';
 import { Vote, VoteRecord } from './ScoapClasses';
-import { scoapEmbedState, voteRecordState, botConvoState } from '../../app';
+import { scoapEmbedState, voteRecordState, botConvoState } from './ScoapDatabase';
 import ScoapUtils from '../../utils/ScoapUtils';
 import { updateScoapOnNotion, updateStatusSelectField } from './ScoapNotion';
 import { updateScoapEmbedAndVoteRecordDb, deleteScoapEmbedAndVoteRecord } from './ScoapDatabase';

@@ -1,6 +1,6 @@
 import { MessageActionRow, MessageSelectMenu } from 'discord.js';
 import constants from '../constants/constants';
-import { scoapEmbedState } from '../../app';
+import { scoapEmbedState } from './ScoapDatabase';
 import { publishDraftScoapEmbed } from '../../service/scoap-squad/CreateNewScoapPoll';
 import ScoapUtils from '../../utils/ScoapUtils';
 

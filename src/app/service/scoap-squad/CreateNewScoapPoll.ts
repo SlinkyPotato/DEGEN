@@ -5,7 +5,7 @@ import constants from '../constants/constants';
 import channelIds from '../constants/channelIds';
 import client from '../../app';
 import ScoapPoll from './ScoapPoll';
-import { scoapEmbedState, botConvoState, voteRecordState } from '../../app';
+import { scoapEmbedState, botConvoState, voteRecordState } from './ScoapDatabase';
 import { scoapEmbedEdit } from './EditScoapDraft';
 import ScoapUtils from '../../utils/ScoapUtils';
 import { createNewScoapOnNotion } from './ScoapNotion';

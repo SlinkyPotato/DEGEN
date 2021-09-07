@@ -1,5 +1,5 @@
 import BotConversationMessageFlow from '../../service/scoap-squad/BotConversationMessageFlow';
-import { botConvoState } from '../../app';
+import { botConvoState } from '../../service/scoap-squad/ScoapDatabase';
 import { Message } from 'discord.js';
 import { scoapEmbedUpdate } from '../../service/scoap-squad/EditScoapDraft';
 

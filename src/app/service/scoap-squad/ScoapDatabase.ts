@@ -2,7 +2,7 @@ import dbInstance from '../../utils/db';
 import { Db } from 'mongodb';
 import cloneDeep from 'lodash.clonedeep';
 import { ScoapEmbed, VoteRecord } from './ScoapClasses';
-import client, { scoapEmbedState, voteRecordState } from '../../app';
+import client from '../../app';
 // import constants from '../constants/constants';
 import { TextChannel } from 'discord.js';
 import channelIds from '../constants/channelIds';
@@ -10,13 +10,19 @@ import ScoapUtils from '../../utils/ScoapUtils';
 import constants from '../constants/constants';
 import { createReactionCollector, collectReactions } from './ScoapPoll';
 
+// ScoapSquad state initialization
+export const scoapEmbedState = {};
+export const botConvoState = {};
+export const voteRecordState = {};
+ScoapUtils.logToFile(`state objects initiated. \n scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n botConvoState: ${JSON.stringify(botConvoState)}  \n voteRecordState: ${JSON.stringify(voteRecordState)}`);
+setInterval(function() { ScoapUtils.purgeExpiredBotConvo(botConvoState); }, 60000);
+
 
 const decircularizeScoapEmbed = (scoapEmbed) => {
 	const clone = cloneDeep(scoapEmbed);
 	clone.setCurrentMessage(scoapEmbed.getCurrentMessage().id);
 	clone.setCurrentChannel(scoapEmbed.getCurrentChannel().id);
 	return clone;
-
 };
 
 export const updateScoapEmbedAndVoteRecordDb = async (scoapEmbed, voteRecord) => {

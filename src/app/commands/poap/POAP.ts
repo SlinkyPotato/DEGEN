@@ -10,6 +10,7 @@ import ValidationError from '../../errors/ValidationError';
 import EarlyTermination from '../../errors/EarlyTermination';
 import EndPOAP from '../../service/poap/EndPOAP';
 import DistributePOAP from '../../service/poap/DistributePOAP';
+import ConfigPOAP from '../../service/poap/ConfigPOAP';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -17,6 +18,11 @@ module.exports = class poap extends SlashCommand {
 			name: 'poap',
 			description: 'Receive a list of all attendees in the specified voice channel and optionally send out POAP links',
 			options: [
+				{
+					name: 'config',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Begin POAP event and start tracking participants.',
+				},
 				{
 					name: 'start',
 					type: CommandOptionType.SUB_COMMAND,
@@ -26,6 +32,7 @@ module.exports = class poap extends SlashCommand {
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event name for the discussion',
+							required: false,
 						},
 					],
 				},
@@ -56,6 +63,12 @@ module.exports = class poap extends SlashCommand {
 		let command: Promise<any>;
 		try {
 			switch (ctx.subcommands[0]) {
+			case 'config':
+				console.log(`/poap config ${ctx.user.username}#${ctx.user.discriminator}`);
+				return ConfigPOAP(ctx, guildMember).catch(e => {
+					console.error(e);
+					return ctx.send('Sorry something is not working and our devs are looking into it.');
+				});
 			case 'start':
 				console.log(`/poap start ${ctx.user.username}#${ctx.user.discriminator}`);
 				command = StartPOAP(guildMember, ctx.options.start.event);

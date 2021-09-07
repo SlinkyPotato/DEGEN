@@ -3,7 +3,6 @@
     "bsonType": "object",
     "required": [
       "isActive",
-      "startTime",
       "poapManagerId",
       "poapManagerTag",
       "voiceChannelId",
@@ -21,7 +20,7 @@
         "description": "Indicator whether the call is currently active."
       },
       "startTime": {
-        "bsonType": "string",
+        "bsonType": ["string", "null"],
         "description": "ISO8601 of when the meeting started."
       },
       "endTime": {

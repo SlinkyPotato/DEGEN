@@ -131,7 +131,7 @@ describe('Service Utils', () => {
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
         });
 
-        it('should ban user with confusable latin-1 supplement in nickname', async () => {
+        it('should ban user with confusable diacritical mark in nickname', async () => {
             guildMember.nickname = '0xLucàs';
             guildMember.user.username = 'Imposter';
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);

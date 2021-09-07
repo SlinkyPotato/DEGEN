@@ -89,8 +89,8 @@ const ServiceUtils = {
 	},
 
 	/**
-	 * Bans a guild member if they have a nickname or username similar to that 
-	 * of a high ranking member of the Discord.
+	 * Bans a guild member if they have a nickname or username similar to that of a high ranking member 
+	 * of the Discord. 
 	 * 
 	 * @param member guild member object
 	 * @returns boolean indicating if user was banned
@@ -116,7 +116,7 @@ const ServiceUtils = {
 
 		let username = ServiceUtils.sanitizeUsername(member.user.username);
 
-		// Ban user if their nickname or username matches an existing users nickname
+		// Ban user if their nickname matches a high ranking member's nickname
 		if (nickname && reservedNames.includes(nickname)) {
 			member.ban({reason: `Autobanned for having similar nickname as existing member (${nickname}).`})
 				.then(member => {
@@ -127,6 +127,7 @@ const ServiceUtils = {
 			return true;
 		}
 
+		// Ban user if their username matches a high ranking member's nickname
 		if (reservedNames.includes(username)) {
 			member.ban({reason: `Autobanned for having similar username as existing member. (${nickname})`})
 				.then(member => {
@@ -141,11 +142,7 @@ const ServiceUtils = {
 	},
 
 	/**
-	 * Sanitizes a username by performing the following:
-	 * 	1. Convert to Unicode Normilization Form using Compatibility Decomposition.
-	 * 	2. Replace unicode confusables with basic latin equivalent.
-	 * 	3. Remove spaces.
-	 * 	4. Convert name to lowercase.
+	 * Sanitizes a username by converting confusable unicode characters to latin.
 	 * 
 	 * @param name username to sanitize
 	 * @returns sanitized username

@@ -27,7 +27,11 @@ export default async (guildMember: GuildMember, roles?: string[], users?: string
 	};
 	await guildMember.send({ embeds: [intro] });
 	const isApproval: boolean = await askForGrantOrRemoval(guildMember, authorizedRoles, authorizedUsers);
-	console.log(isApproval);
+	if (isApproval) {
+		
+	} else {
+		
+	}
 	return;
 };
 

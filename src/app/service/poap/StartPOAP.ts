@@ -44,7 +44,7 @@ export default async (guildMember: GuildMember, event?: string): Promise<any> =>
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
 		console.log('unable to start due to active event');
 		await guildMember.send({ content: 'Event is already active.' });
-		throw new ValidationError(`\`${channelChoice.name}\` is already active by <@${poapSettingsDoc.poapManagerId}>.`);
+		throw new ValidationError(`\`${channelChoice.name}\` is already active by <@${poapSettingsDoc.discordUserId}>.`);
 	}
 
 	if (poapSettingsDoc == null) {
@@ -61,7 +61,7 @@ export default async (guildMember: GuildMember, event?: string): Promise<any> =>
 		$set: {
 			isActive: true,
 			startTime: currentDateStr,
-			poapManagerId: guildMember.user.id,
+			discordUserId: guildMember.user.id,
 			poapManagerTag: guildMember.user.tag,
 			event: event,
 		},
@@ -76,13 +76,10 @@ export const setupPoapSetting = async (guildMember: GuildMember, poapSettingsDB:
 		event: event,
 		isActive: true,
 		startTime: currentDateStr,
-		poapManagerId: guildMember.user.id.toString(),
-		poapManagerTag: guildMember.user.tag.toString(),
+		discordUserId: guildMember.user.id.toString(),
 		voiceChannelId: guildChannel.id.toString(),
 		voiceChannelName: guildChannel.name.toString(),
 		discordServerId: guildChannel.guild.id.toString(),
-		discordServerName: guildChannel.guild.name.toString(),
-
 	};
 	const result: InsertOneWriteOpResult<POAPSettings> = await poapSettingsDB.insertOne(poapSetting);
 	if (result == null || result.insertedCount !== 1) {

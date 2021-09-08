@@ -9,6 +9,8 @@ services:
       MONGODB_USERNAME: dev
       MONGODB_PASS: pass
       MONGODB_CLUSTER: mongo
+    volumes:
+      - .:/app
 
   mongo:
     container_name: degen_mongo

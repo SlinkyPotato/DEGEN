@@ -4,6 +4,7 @@
 
 1. Convert event modules to classes
 2. Fix guest event partials
+3. Expand poap distribution to all voice channels
 
 ## 1.4.0-RELEASE (2021-08-31)
 

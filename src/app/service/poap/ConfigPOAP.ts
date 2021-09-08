@@ -1,7 +1,6 @@
-import { CommandContext, Message, MessageEmbedOptions } from 'slash-create';
-import { GuildMember } from 'discord.js';
+import { GuildMember, Message, MessageEmbedOptions } from 'discord.js';
 
-export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
+export default async (guildMember: GuildMember, authorizedRoles?: string[], authorizedUsers?: string[]): Promise<any> => {
 	// TODO: uncomment before raising PR
 	// if (guildMember.guild.ownerId != guildMember.id) {
 	// 	throw new ValidationError('Sorry, only the discord owner can configure poap distribution.');
@@ -9,23 +8,23 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 	const embeds: MessageEmbedOptions[] = [];
 	const intro: MessageEmbedOptions = {
 		title: 'POAP Configuration',
-		description: 'Welcome to POAP configuration. This is used as a first-time setup of POAP commands. These series of ' +
-			'questions will help assign authorized users and roles for POAP distribution. The POAP commands allows temporary ' +
-			'tracking of users who enter and exit an active voice channel. The list of users gets deleted after every /poap start ' +
-			'execution.',
+		description: 'Welcome to POAP configuration.\n\n' +
+			'This is used as a first-time setup of POAP commands. These series of ' +
+			'questions will help assign authorized users and roles for POAP distribution.\n\n' +
+			'These users will have access to a ' +
+			'list of participants after the event has ended. They will also be able to send out mass messages to those participants.',
 		footer: {
 			text: '@Bankless DAO 🏴',
 		},
 	};
 	embeds.push(intro);
 	const whichRolesAreAllowedQuestion: MessageEmbedOptions = {
-		title: 'Which roles are allowed?',
-		description: 'Please list all of the users who are authorized to execute the poap slash commands. Users shold be ' +
-			'listed with the @ handle so that discord populates it correctly. Each user should be seperated with a space.',
+		title: 'Give or remove access?',
+		description: 'Should the given list of users and roles be given access or remove? (give/remove)',
 	};
 	embeds.push(whichRolesAreAllowedQuestion);
 	
-	const message: Message | boolean = await ctx.send({ embeds: embeds });
+	const message: Message | boolean = await guildMember.send({ embeds: embeds });
 	console.log(message);
 	
 	// if (roleId == null && userId == null) {

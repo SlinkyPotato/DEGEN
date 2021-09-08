@@ -22,38 +22,6 @@ module.exports = class ScoapSquad extends SlashCommand {
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'Create a SCOAP Squad request',
 					options: [],
-					// options: [
-					// 	{
-					// 		name: 'new',
-					// 		type: CommandOptionType.SUB_COMMAND,
-					// 		description: 'Initialize a new SCOAP Squad request',
-					// 		// options:[],
-					// 		options: [
-					// 			{
-					// 				name: 'title',
-					// 				type: CommandOptionType.STRING,
-					// 				description: 'What is the title of your project?',
-					// 				required: true,
-					// 			},
-					// 			{
-					// 				name: 'summary',
-					// 				type: CommandOptionType.STRING,
-					// 				description: 'Describe the project in more detail',
-					// 				required: true,
-					// 			},
-
-					// 			{
-					// 				name: 'reward',
-					// 				type: CommandOptionType.STRING,
-					// 				description: 'If this project becomes a bounty, what will be the reward? (i.e 100 BANK)',
-					// 				required: false,
-					// 			},
-
-
-					// 		],
-					// 	},
-
-					// ],
 				},
 				
 			],

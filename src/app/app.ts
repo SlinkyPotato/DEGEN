@@ -27,8 +27,6 @@ creator.on('commandRun', (command, _, ctx) =>
 creator
 	.withServer(
 		new GatewayServer((handler) => client.ws.on(<WSEventType>'INTERACTION_CREATE', handler)),
-		// new FastifyServer(server, {alreadyListening: false}),
-
 	)
 	.registerCommandsIn(path.join(__dirname, 'commands'))
 	.syncCommands();

@@ -193,9 +193,9 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 					{
 						name: '\u200b',
 						value: 'Let\'s go over your project roles. You\'ll give each role a title, and ' +
-							 'specify how many people you\'ll need ' +
-							 'to fill each role in the proceeding prompts. ' +
-							 'How many roles do you want to define? ',
+								'specify how many people you\'ll need ' +
+								'to fill each role in the proceeding prompts. ' +
+								'How many roles do you want to define? ',
 					},
 				],
 				footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
@@ -226,8 +226,8 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 					{
 						name: '\u200b',
 						value: 'SCOAP Squad setup complete. Below you can see the layout. ' +
-							   'If you want to make changes you can do so now by hitting the edit emoji. ' +
-							   '**Once you hit publish, editing will no longer be possible**',
+								'If you want to make changes you can do so now by hitting the edit emoji. ' +
+								'**Once you hit publish, editing will no longer be possible**',
 					},
 				],
 				footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
@@ -254,31 +254,31 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 					{
 						name: 'About',
 						value: 'The SCOAP Squad Assemble is a way to ' +
-							   'rapidly create a team for a specific task. ' +
-							   'Think of it as putting all the ' +
-							   'amazing talent found in the DAO at your fingertips. ',
+								'rapidly create a team for a specific task. ' +
+								'Think of it as putting all the ' +
+								'amazing talent found in the DAO at your fingertips. ',
 					},
 					{
 						name: 'The /scoap-squad assemble Command',
 						value: 'The command invokes a bot conversation ' +
-							   'which walks you through the process of ' +
-							   'creating a poll which will be posted ' +
-							   `in the <#${channelIds.scoapSquad}> channel. ` +
-							   'You will define a project title, a short summary, ' +
-							   'the project roles you want to fill, as well as how ' +
-							   'many people you want for each role. ' +
-							   'Optionally you can also set a reward to boost participation in your project.',
+								'which walks you through the process of ' +
+								'creating a poll which will be posted ' +
+								`in the <#${channelIds.scoapSquad}> channel. ` +
+								'You will define a project title, a short summary, ' +
+								'the project roles you want to fill, as well as how ' +
+								'many people you want for each role. ' +
+								'Optionally you can also set a reward to boost participation in your project.',
 					},
 					{
 						name: 'An Example',
 						value: 'Below you can see an example of what the command output looks like. ' +
-							   'Once posted ' +
-							   `in the <#${channelIds.scoapSquad}> channel, ` +
-							   'people can start claiming project roles. ' +
-							   'The progress fields will be updated automatically to reflect current claims. ' +
-							   'Once all roles are filled, a project page for your SCOAP squad ' +
-							   'will be created on notion and the results of the poll will be posted there. ' +
-							   'A link to the project page will be sent to all participants.',
+								'Once posted ' +
+								`in the <#${channelIds.scoapSquad}> channel, ` +
+								'people can start claiming project roles. ' +
+								'The progress fields will be updated automatically to reflect current claims. ' +
+								'Once all roles are filled, a project page for your SCOAP squad ' +
+								'will be created on notion and the results of the poll will be posted there. ' +
+								'A link to the project page will be sent to all participants.',
 					},
 				],
 				footer: { text: 'Example 👇 👇 👇' },

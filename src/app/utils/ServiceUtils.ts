@@ -2,7 +2,17 @@
  * Utilities for service layer
  */
 import { CommandContext } from 'slash-create';
-import { Guild, GuildMember, Role, RoleManager, Collection, Snowflake, TextChannel } from 'discord.js';
+import {
+	Collection,
+	Guild,
+	GuildMember,
+	Role,
+	RoleManager,
+	StageChannel,
+	VoiceChannel,
+	Snowflake,
+	TextChannel
+} from 'discord.js';
 import client from '../app';
 import roleIDs from '../service/constants/roleIds';
 import ValidationError from '../errors/ValidationError';
@@ -152,7 +162,14 @@ const ServiceUtils = {
 			.replace(excludeFromSanitization, char => Confusables.get(char) || char)
 			.replace(/[\s]/g, '')
 			.toLowerCase();
-	}
+	},
+	
+	getAllVoiceChannels(guildMember: GuildMember): Collection<string, VoiceChannel | StageChannel> {
+		return guildMember.guild.channels.cache
+			.filter(guildChannel =>
+				(guildChannel.type === 'GUILD_VOICE'
+					|| guildChannel.type === 'GUILD_STAGE_VOICE')) as Collection<string, VoiceChannel | StageChannel>;
+	},
 };
 
 export default ServiceUtils;

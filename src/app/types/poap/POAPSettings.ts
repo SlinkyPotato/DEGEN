@@ -8,4 +8,8 @@ export interface POAPSettings extends Collection {
 	endTime: string,
 	poapManagerId: string,
 	poapManagerTag: string,
+	voiceChannelId: string,
+	voiceChannelName: string,
+	discordServerId: string,
+	discordServerName: string
 }

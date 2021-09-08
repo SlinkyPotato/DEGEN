@@ -1,57 +1,69 @@
-import { GuildMember, VoiceState } from 'discord.js';
-import { Collection, Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
+import { Guild, GuildChannel, GuildMember, VoiceState } from 'discord.js';
+import { Collection, Cursor, Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
 import dbInstance from '../../utils/db';
 import constants from '../../service/constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import { POAPParticipant } from '../../types/poap/POAPParticipant';
 
-export default async (oldState: VoiceState, newState: VoiceState, event: { id: string, value: string }): Promise<any> => {
-	if (!(newState.channelId === event.id || oldState.channelId === event.id)) {
-		// event change is not related to event parameter
-		return;
-	}
-
+export default async (oldState: VoiceState, newState: VoiceState): Promise<any> => {
 	if (oldState.channelId === newState.channelId) {
 		// user did not change channels
 		return;
 	}
-
-	// At this point the event change is related to POAP tracking
+	const guild: Guild = (oldState.guild != null) ? oldState.guild : newState.guild;
+	const member: GuildMember = (oldState.guild != null) ? oldState.member : newState.member;
+	
+	// TODO: implement cache instead of calling db
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
-	if (!await isPOAPTrackingActive(db, event.value).catch(console.error)) {
+	db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
+
+	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
+	const activeChannelsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
+		isActive: true,
+		discordServerId: guild.id,
+	});
+	for await (const poapSetting of activeChannelsCursor) {
+		try {
+			const voiceChannel: GuildChannel = await guild.channels.fetch(poapSetting.voiceChannelId);
+			await addUserToDb(oldState, newState, db, voiceChannel, member);
+		} catch (e) {
+			console.log(`failed to add ${member.user.tag} to db`);
+		}
+	}
+};
+
+export const addUserToDb = async (
+	oldState: VoiceState, newState: VoiceState, db: Db, channel: GuildChannel, member: GuildMember,
+): Promise<any> => {
+	if (!(newState.channelId === channel.id || oldState.channelId === channel.id)) {
+		// event change is not related to event parameter
 		return;
 	}
 
 	// Check if user joined channel
-	if (newState.channelId === event.id) {
-		await updateUserForPOAP(newState.member, db, event.value, true).catch(console.error);
+	if (newState.channelId === channel.id) {
+		await updateUserForPOAP(member, db, channel, true).catch(console.error);
 	} else {
-		await updateUserForPOAP(newState.member, db, event.value, false).catch(console.error);
+		await updateUserForPOAP(member, db, channel, false).catch(console.error);
 	}
 
 	return;
 };
 
-export const isPOAPTrackingActive = async (db: Db, eventValue: string): Promise<boolean> => {
-	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
-	const result: POAPSettings = await poapSettingsDB.findOne({
-		event: eventValue,
-	});
-
-	return !(result === null || !result.isActive);
-};
-
-export const updateUserForPOAP = async (guildMember: GuildMember, db: Db, eventValue: string, hasJoined: boolean): Promise<any> => {
+export const updateUserForPOAP = async (
+	member: GuildMember, db: Db, channel: GuildChannel, hasJoined: boolean,
+): Promise<any> => {
 	const poapParticipantsDb: Collection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
 	const currentDateStr = (new Date()).toISOString();
 
 	const poapParticipant: POAPParticipant = await poapParticipantsDb.findOne({
-		event: eventValue,
-		discordId: guildMember.user.id,
+		discordServerId: channel.guild.id,
+		voiceChannelId: channel.id,
+		discordUserId: member.user.id,
 	});
 
 	if (!hasJoined) {
-		console.log(`${guildMember.user.tag} | left ${eventValue}`);
+		console.log(`${member.user.tag} | left ${channel.name} from ${channel.guild.name}`);
 		return poapParticipantsDb.updateOne(poapParticipant, {
 			$set: {
 				endTime: (new Date).toISOString(),
@@ -59,8 +71,8 @@ export const updateUserForPOAP = async (guildMember: GuildMember, db: Db, eventV
 		});
 	}
 
-	if (poapParticipant !== null && poapParticipant.discordId === guildMember.user.id) {
-		console.log(`${guildMember.user.tag} | rejoined ${eventValue}`);
+	if (poapParticipant !== null && poapParticipant.discordUserId === member.user.id) {
+		console.log(`${member.user.tag} | rejoined ${channel.name} from ${channel.guild.name}`);
 		return poapParticipantsDb.updateOne(poapParticipant, {
 			$unset: {
 				endTime: null,
@@ -69,13 +81,14 @@ export const updateUserForPOAP = async (guildMember: GuildMember, db: Db, eventV
 	}
 
 	const result: InsertOneWriteOpResult<POAPParticipant> = await poapParticipantsDb.insertOne({
-		event: eventValue,
-		discordId: guildMember.user.id,
-		discordTag: guildMember.user.tag,
+		discordUserId: member.user.id,
+		discordUserTag: member.user.tag,
 		startTime: currentDateStr,
+		voiceChannelId: channel.id,
+		discordServerId: channel.guild.id,
 	});
 	if (result == null || result.insertedCount !== 1) {
 		throw new MongoError('failed to insert poapParticipant');
 	}
-	console.log(`${guildMember.user.tag} | joined ${eventValue}`);
+	console.log(`${member.user.tag} | joined ${channel.name} from ${channel.guild.name}`);
 };

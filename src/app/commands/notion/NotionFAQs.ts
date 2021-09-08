@@ -1,6 +1,7 @@
 import { SlashCommand, CommandOptionType, CommandContext, SlashCreator } from 'slash-create';
 import client from '../../app';
 import RetrieveFAQs from '../../service/notion/RetrieveFAQs';
+import discordServerIds from '../../service/constants/discordServerIds';
 const trimPageId = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageId}`;
 
@@ -9,7 +10,7 @@ export default class NotionFAQs extends SlashCommand {
 		super(creator, {
 			name: 'faqs',
 			description: 'Get frequently asked questions',
-			guildIDs: process.env.DISCORD_SERVER_ID,
+			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
 			options: [
 				{
 					type: CommandOptionType.STRING,

@@ -105,9 +105,8 @@ module.exports = class poap extends SlashCommand {
 			switch (ctx.subcommands[0]) {
 			case 'config':
 				console.log(`/poap config ${ctx.user.username}#${ctx.user.discriminator}`);
-				return ConfigPOAP(
-					guildMember, authorizedRoles, authorizedUsers,
-				);
+				command = ConfigPOAP(guildMember, authorizedRoles, authorizedUsers);
+				break;
 			case 'start':
 				console.log(`/poap start ${ctx.user.username}#${ctx.user.discriminator}`);
 				command = StartPOAP(guildMember, ctx.options.start.event);

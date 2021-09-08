@@ -2,7 +2,15 @@
  * Utilities for service layer
  */
 import { CommandContext } from 'slash-create';
-import { Guild, GuildMember, Role, RoleManager } from 'discord.js';
+import {
+	Collection,
+	Guild,
+	GuildMember,
+	Role,
+	RoleManager,
+	StageChannel,
+	VoiceChannel,
+} from 'discord.js';
 import client from '../app';
 import roleIDs from '../service/constants/roleIds';
 import ValidationError from '../errors/ValidationError';
@@ -72,6 +80,13 @@ const ServiceUtils = {
 		if (!(isLevel2 || isLevel3 || isLevel4 || isAdmin || isGenesisSquad)) {
 			throw new ValidationError('Must be `level 2` or above member.');
 		}
+	},
+
+	getAllVoiceChannels(guildMember: GuildMember): Collection<string, VoiceChannel | StageChannel> {
+		return guildMember.guild.channels.cache
+			.filter(guildChannel =>
+				(guildChannel.type === 'GUILD_VOICE'
+					|| guildChannel.type === 'GUILD_STAGE_VOICE')) as Collection<string, VoiceChannel | StageChannel>;
 	},
 };
 

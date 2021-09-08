@@ -1,12 +1,13 @@
 import { SlashCommand, CommandOptionType, CommandContext, SlashCreator } from 'slash-create';
 import notionPageRefs from '../../service/notion/NotionGuildPages';
+import discordServerIds from '../../service/constants/discordServerIds';
 
 export default class NotionGuildPage extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'notion',
 			description: 'View a Guild\'s notion page',
-			guildIDs: process.env.DISCORD_SERVER_ID,
+			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
 			options: [
 				{
 					type: CommandOptionType.STRING,

@@ -8,13 +8,14 @@ import {
 import client from '../../app';
 import roleIds from '../../service/constants/roleIds';
 import { addGuestRoleToUser } from '../../service/guest-pass/AddGuestPass';
+import discordServerIds from '../../service/constants/discordServerIds';
 
 export default class GuestPass extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'guest-pass',
 			description: 'Grant a temporary guest pass to a user',
-			guildIDs: process.env.DISCORD_SERVER_ID,
+			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
 			options: [
 				{
 					type: CommandOptionType.USER,
@@ -29,10 +30,52 @@ export default class GuestPass extends SlashCommand {
 			},
 			defaultPermission: false,
 			permissions: {
-				[process.env.DISCORD_SERVER_ID]: [
+				[discordServerIds.banklessDAO]: [
 					{
 						type: ApplicationCommandPermissionType.ROLE,
 						id: roleIds.level2,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level3,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level4,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.genesisSquad,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.admin,
+						permission: true,
+					},
+				],
+				[discordServerIds.discordBotGarage]: [
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level2,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level3,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.level4,
+						permission: true,
+					},
+					{
+						type: ApplicationCommandPermissionType.ROLE,
+						id: roleIds.genesisSquad,
 						permission: true,
 					},
 					{

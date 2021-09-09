@@ -10,7 +10,8 @@ export default (): MessageOptions => {
 			fields: [
 				{
 					name: '-> /poap config',
-					value: 'Configure the role or user that should have access to forcefully end an active event.',
+					value: 'Only discord owners can use this command. With this command, the given users and roles will ' +
+						'have access to start and end poap tracking.',
 					inline: false,
 				},
 				{

@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.5.0-SNAPSHOT
+## 1.5.0-RELEASE (2021-09-09)
 
 1. Convert event modules to classes
 2. Fix guest event partials

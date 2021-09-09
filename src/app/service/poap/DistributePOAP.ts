@@ -2,9 +2,13 @@ import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageAttachmen
 import axios from 'axios';
 import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
 import ValidationError from '../../errors/ValidationError';
+import { Db } from 'mongodb';
+import dbInstance from '../../utils/dbUtils';
+import constants from '../constants/constants';
 
 export default async (guildMember: GuildMember): Promise<any> => {
-	
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	await POAPUtils.validateUserAccess(guildMember, db);
 	const participantsList: POAPFileParticipant[] = await askForParticipantsList(guildMember);
 	const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
 	await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, linksMessageAttachment);

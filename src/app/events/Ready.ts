@@ -3,6 +3,7 @@ import { Client } from 'discord.js';
 import constants from '../service/constants/constants';
 import { connect } from '../utils/dbUtils';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
+import discordServerIds from '../service/constants/discordServerIds';
 
 export default class implements DiscordEvent {
 	name = 'ready';
@@ -12,7 +13,10 @@ export default class implements DiscordEvent {
 		console.log('The Sun will never set on the DAO. Neither will I. DEGEN & Serendipity are ready for service.');
 		client.user.setActivity('Going Bankless, Doing the DAO');
 		await connect(constants.DB_NAME_DEGEN);
-		await connect(constants.DB_NAME_BOUNTY_BOARD);
-		await GuestPassService(client);
+		
+		if (client.guilds.cache.some((guild) => guild.id == discordServerIds.banklessDAO || guild.id == discordServerIds.discordBotGarage)) {
+			await connect(constants.DB_NAME_BOUNTY_BOARD);
+			await GuestPassService(client);
+		}
 	}
 }

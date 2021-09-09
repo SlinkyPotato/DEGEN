@@ -4,16 +4,12 @@ import ServiceUtils from '../../app/utils/ServiceUtils';
 import roleIDs from '../../app/service/constants/roleIds';
 
 const guildMembers: Collection<string, any> = new Collection();
-const channels: Collection<string, any> = new Collection();
 
 const guild = {
     id: process.env.DISCORD_SERVER_ID,
     name: 'BanklessDAO',
     members: {
         fetch: jest.fn(() => Promise.resolve(guildMembers))
-    },
-    channels: {
-        cache: channels
     }
 }
 
@@ -21,11 +17,14 @@ jest.mock('discord.js', () => {
     return {
         GuildMember: jest.fn(() => {
             return {
+                bannable: true,
                 nickname: null,
                 user: {
-                    username: null
+                    username: null,
+                    tag: null,
                 },
-                ban: jest.fn(() => Promise.resolve(guildMembers.get('1'))),
+                ban: jest.fn(() => Promise.resolve()),
+                send: jest.fn(() => Promise.resolve()),
                 guild: {
                     fetch: jest.fn(() => Promise.resolve(guild))
                 }
@@ -44,6 +43,7 @@ describe('Service Utils', () => {
     let guildMember: GuildMember;
 
     beforeAll(() => {
+        // Populate collection of guild members
         guildMembers.set('1', {
             roles: {
                 cache: new Collection([
@@ -87,9 +87,6 @@ describe('Service Utils', () => {
                 username: 'ffffbanks'
             }
         })
-        channels.set(process.env.DISCORD_CHANNEL_BOT_AUDIT_ID, {
-            send: jest.fn()
-        })
     })
 
     beforeEach(() => {
@@ -103,12 +100,23 @@ describe('Service Utils', () => {
             guildMember.user.username = 'New Pioneer';
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
             expect(guildMember.ban).toHaveBeenCalledTimes(0);
+            expect(guildMember.send).toHaveBeenCalledTimes(0);
         });
 
         it('should not ban user with no matching username', async () => {
             guildMember.user.username = 'New Pioneer';
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
             expect(guildMember.ban).toHaveBeenCalledTimes(0);
+            expect(guildMember.send).toHaveBeenCalledTimes(0);
+        });
+
+        it('should ban user when message fails to send', async () => {
+            guildMember.nickname = '0xLucas';
+            guildMember.user.username = 'Imposter';
+            guildMember.send = jest.fn(() => Promise.reject()) as any
+            expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
+            expect(guildMember.ban).toHaveBeenCalledTimes(1);
+            expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
 
         it('should ban user with matching nickname', async () => {
@@ -116,12 +124,14 @@ describe('Service Utils', () => {
             guildMember.user.username = 'Imposter';
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
+            expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
 
         it('should ban user with matching username', async () => {
             guildMember.user.username = '0xLucas';
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
+            expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
 
         it('should ban user with matching nickname that has different case', async () => {
@@ -129,6 +139,7 @@ describe('Service Utils', () => {
             guildMember.user.username = 'Imposter';
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
+            expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
 
         it('should ban user with confusable diacritical mark in nickname', async () => {
@@ -136,6 +147,7 @@ describe('Service Utils', () => {
             guildMember.user.username = 'Imposter';
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
+            expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
 
         it('should ban user with matching nickname that has no spaces', async () => {
@@ -143,6 +155,7 @@ describe('Service Utils', () => {
             guildMember.user.username = 'Imposter';
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
+            expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
 
         it('should ban user with confusable greek letter in nickname', async () => {
@@ -150,12 +163,14 @@ describe('Service Utils', () => {
             guildMember.user.username = 'Imposter';
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
+            expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
 
         it('should ban user with confusable cyrillic letter in username', async () => {
             guildMember.user.username = 'Аbove Average Joe'; // first Α is a cyrillic letter
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
+            expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
 
         it('should ban user with compatible ligature in nickname', async () => {
@@ -163,6 +178,7 @@ describe('Service Utils', () => {
             guildMember.user.username = 'Imposter';
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
+            expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
     })
 

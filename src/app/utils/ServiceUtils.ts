@@ -106,12 +106,18 @@ const ServiceUtils = {
 	 * @returns boolean indicating if user was banned
 	 */
 	async runUsernameSpamFilter(member: GuildMember): Promise<boolean> {
+		if (!member.bannable) {
+			console.log(`Skipping username spam filter because ${member.user.tag} is not bannable.`)
+			return;
+		}
+
 		const guild = await member.guild.fetch();
 
 		const highRankingMembers = await ServiceUtils.getMembersWithRoles(guild, 
 			[roleIDs.genesisSquad, roleIDs.admin, roleIDs.level2]);
 
-        const reservedNames = highRankingMembers.map(member => {
+		// Sanitize high-ranking member names in prepartion for comparing them to new member nickname
+        const highRankingNames = highRankingMembers.map(member => {
 			if (member.nickname) {
 				return ServiceUtils.sanitizeUsername(member.nickname);
 			}
@@ -126,26 +132,17 @@ const ServiceUtils = {
 
 		let username = ServiceUtils.sanitizeUsername(member.user.username);
 
-		// Ban user if their nickname matches a high ranking member's nickname
-		if (nickname && reservedNames.includes(nickname)) {
-			member.ban({reason: `Autobanned for having similar nickname as existing member (${nickname}).`})
-				.then(member => {
-					const channel = guild.channels.cache.get(process.env.DISCORD_CHANNEL_BOT_AUDIT_ID) as TextChannel;
-					channel.send(`Autobanned ${member} (${member.user.tag}) for having similar nickname as existing member (${nickname}).`);
-				})
-				.catch(console.error)
-			return true;
-		}
+		if ((nickname && highRankingNames.includes(nickname)) || highRankingNames.includes(username)) {
+			// Send DM to user before banning them because bot can't DM user after banning them. 
+			await member.send(`You were auto-banned from the ${guild.name} server. If you believe this was a mistake, please contact <@198981821147381760> or <@197852493537869824>.`)
+				.catch(e => {
+					// Users that have blocked the bot or disabled DMs cannot receive a DM from the bot
+					console.log(`Unable to message ${member.user.tag} before auto-banning them. ${e}`)
+				}) 
 
-		// Ban user if their username matches a high ranking member's nickname
-		if (reservedNames.includes(username)) {
-			member.ban({reason: `Autobanned for having similar username as existing member. (${nickname})`})
-				.then(member => {
-					const channel = guild.channels.cache.get(process.env.DISCORD_CHANNEL_BOT_AUDIT_ID) as TextChannel;
-					channel.send(`Autobanned ${member} (${member.user.tag}) for having similar username as existing member (${username}).`);
-				})
-				.catch(console.error)
-            return true;
+			await member.ban({reason: 'Autobanned for having similar nickname or username as high-ranking member.'})
+			console.log(`Auto-banned ${member.user.tag}`);
+			return true;
 		}
 
 		return false;

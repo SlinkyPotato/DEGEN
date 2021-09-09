@@ -25,7 +25,6 @@ export const updateScoapOnNotion = async (page_id: string, inputs: Record<string
 	const m_select_options = retrieveMultiSelectOptions(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name, inputs.discord_tags);
 	const new_m_select_options = createNewMultiSelectOptions(m_select_options[0], inputs.discord_tags);
 	await appendBlockToPage(page_id, inputs.summary);
-	// const select_option_filled = retrieveSelectOption(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.filled);
 	await updateStatusSelectField(page_id, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.filled);
 	const multi_select_options = new_m_select_options.concat(m_select_options[1]);
 	await updateDiscordHandleMultiSelectField(page_id, multi_select_options);
@@ -76,14 +75,14 @@ const retrieveSelectOption = (properties: PropertyMap, field_name: string, optio
 	Object.entries(properties).forEach(([nme, property]) => {
 		// console.log('SELECT_PROPERTY', property);
 		// console.log('NAME', nme);
-	    if (property.type === 'select' && nme === field_name) { //property.name
-	    	Object.entries(property.select.options).forEach(([idx, select_option]) => {
-	    		if (select_option.name === option) {
-	    			select_option_result = select_option;
-	    		};
-	    	});
+		if (property.type === 'select' && nme === field_name) { //property.name
+			Object.entries(property.select.options).forEach(([idx, select_option]) => {
+				if (select_option.name === option) {
+					select_option_result = select_option;
+				}
+			});
 
-		};
+		}
 	});
 	return select_option_result;
 };
@@ -92,13 +91,13 @@ const retrieveMultiSelectOptions = (properties: PropertyMap, field_name: string,
 	const existing_multi_select_options = [];
 	const existing_options_name_mapping = {};
 	Object.entries(properties).forEach(([nme, property]) => {
-	    if (property.type === 'multi_select') {
-	    	Object.entries(property.multi_select.options).forEach(([idx, m_select_option]) => {
-	    		if (options.includes(m_select_option.name)) {
-	    			existing_options_name_mapping[m_select_option.name] = m_select_option.id;
-	    			existing_multi_select_options.push(m_select_option);
-	    		};
-	    	});
+		if (property.type === 'multi_select') {
+			Object.entries(property.multi_select.options).forEach(([idx, m_select_option]) => {
+				if (options.includes(m_select_option.name)) {
+					existing_options_name_mapping[m_select_option.name] = m_select_option.id;
+					existing_multi_select_options.push(m_select_option);
+				}
+			});
 		}
 	});
 	return [existing_options_name_mapping, existing_multi_select_options];
@@ -137,24 +136,24 @@ const appendBlockToPage = async (page_id, summary) => {
 	await notion.blocks.children.append({
 		block_id: page_id,
 		children: [
-		  {
-		    object: 'block',
-		    type: 'paragraph',
-		    paragraph: {
-		      text: [
-		        {
-		          type: 'text',
-		          text: {
-		            content: summary,
-		            // link: {
-		            //   type: 'url',
-		            //   url: 'https://bankless.com',
-		            // },
-		          },
-		        },
-		      ],
-		    },
-		  } as ParagraphBlock,
+			{
+				object: 'block',
+				type: 'paragraph',
+				paragraph: {
+					text: [
+						{
+							type: 'text',
+							text: {
+								content: summary,
+								// link: {
+								//   type: 'url',
+								//   url: 'https://bankless.com',
+								// },
+							},
+						},
+					],
+				},
+			} as ParagraphBlock,
 		],
 	});
 };
@@ -166,7 +165,7 @@ const createNotionProperties = (selectOption, scoap_title: string, scoap_author:
 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.project.field_name] = {
 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.project.type,
 		title: [
-		    {
+			{
 				type: 'text',
 				text: {
 					content: scoap_title,
@@ -180,10 +179,10 @@ const createNotionProperties = (selectOption, scoap_title: string, scoap_author:
 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.author_discord_handle.type,
 		// id: property.id,
 		rich_text: [
-		  {
-		    type: 'text',
-		    text: { content: scoap_author },
-		  },
+			{
+				type: 'text',
+				text: { content: scoap_author },
+			},
 		],
 	} as RichTextPropertyValue;
 

@@ -3,7 +3,6 @@ import { Db } from 'mongodb';
 import cloneDeep from 'lodash.clonedeep';
 import { ScoapEmbed, VoteRecord } from './ScoapClasses';
 import client from '../../app';
-// import constants from '../constants/constants';
 import { TextChannel } from 'discord.js';
 import channelIds from '../constants/channelIds';
 import ScoapUtils from '../../utils/ScoapUtils';

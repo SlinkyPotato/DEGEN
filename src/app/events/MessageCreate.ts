@@ -1,4 +1,5 @@
 import messageCreateOnBountyBoard from './bounty/MessageCreateOnBountyBoard';
+import messageSetScoapRoles from './scoap-squad/messageSetScoapRoles';
 import { Message } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 
@@ -13,6 +14,9 @@ export default class implements DiscordEvent {
 			message.channel.send({ content: `${greetings[Math.floor(Math.random() * greetings.length)]} ${message.author.username}!` });
 		}
 		messageCreateOnBountyBoard(message).catch(e => {
+			console.error('ERROR: ', e);
+		});
+		messageSetScoapRoles(message).catch(e => {
 			console.error('ERROR: ', e);
 		});
 	}

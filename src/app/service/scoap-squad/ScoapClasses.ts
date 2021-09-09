@@ -1,12 +1,10 @@
-import { Channel, Message, TextBasedChannels } from 'discord.js';
-// import constants from '../constants/constants';
+import { Message, TextBasedChannels } from 'discord.js';
 import { v1 as uuidv1 } from 'uuid';
 import ScoapUtils from '../../utils/ScoapUtils';
 
 
 export class BotConversation {
 	timeout: number;
-	// expired: boolean;
 	convo: any;
 	current_message_flow_index: string;
 	current_channel: TextBasedChannels;
@@ -44,10 +42,6 @@ export class BotConversation {
 	getTimeout(): number {
 		return this.timeout;
 	}
-
-	// getExpired(): boolean {
-	// 	return this.expired;
-	// }
 
 	getConvo(): any {
 		return this.convo;
@@ -91,7 +85,6 @@ export class BotConversation {
 	}
 
 	setCurrentMessage(current_message: Message): this {
-		// console.log('SET CURRENT MESSAGE: SET TO ID ', current_message.id);
 		this.current_message = current_message;
 		return this;
 	}
@@ -100,11 +93,6 @@ export class BotConversation {
 		this.timeout = timeout;
 		return this;
 	}
-
-	// setExpired(expired: boolean): this {
-	// 	this.expired = expired;
-	// 	return this;
-	// }
 
 	setConvo(convo: any): this {
 		this.convo = convo;
@@ -130,13 +118,11 @@ export class BotConversation {
 				embeds: this.convo.message_flow[message_flow_index],
 			});
 			this.convo.message_flow[message_flow_index][0].fields[0].value = role_number_string_old;
-			// console.log('SETTING CUURENT MESSAGE ON BOT CONVO TO ', currMsg.id);
 			this.setCurrentMessage(currMsg);
 		} else {
 			const currMsg = await channel.send({
 				embeds: this.convo.message_flow[message_flow_index],
 			});
-			// console.log('SETTING CUURENT MESSAGE ON BOT CONVO TO ', currMsg.id);
 			this.setCurrentMessage(currMsg);
 		}
 		
@@ -218,7 +204,7 @@ export class ScoapEmbed {
 	setId(uuid: string): this {
 		this.id = uuid;
 		return this;
-	};
+	}
 
 	setEmbed(embed: any): this {
 		this.embed = embed;
@@ -444,7 +430,6 @@ export class VoteRecord {
 
 	updateProgressStrings(vote: Record<string, any>): this {
 		const old_emoji = this.user_vote_ledger[vote.user_id];
-		// console.log(`updating progress string, inputs: ${vote.emoji}, ${old_emoji}, ${vote.type}`, this.emote_totals, this.emote_required);
 		if (vote.type === 'CHANGEVOTE') {
 			this.progress_strings[old_emoji] = this.generateProgressString(old_emoji);
 			this.progress_strings[vote.emoji] = this.generateProgressString(vote.emoji);

@@ -167,7 +167,7 @@ export const collectReactions = async (scoapEmbed, voteRecord, validEmojiArray, 
 		let role_summary_string = 'Role Summary: \n';
 		for (const property in role_summary) {
 			role_summary_string += property + '\n' + role_summary[property].toString() + '\n';
-		};
+		}
 		const notion_inputs = {
 			discord_tags: discord_tags,
 			summary: role_summary_string,
@@ -254,7 +254,6 @@ const removeReaction = async (collected, user_id, emoji, choice_valid, scoapEmbe
 			if (choice_valid === true) {
 				if (reac.emoji.name !== emoji) {
 					await reac.users.remove(user_id);
-					console.log('remove done');
 					scoapEmbed.removeReactionUserId(reac.emoji.name, user_id);
 				}
 			} else if (choice_valid === false) {

@@ -7,22 +7,23 @@ export default async (message: Message): Promise<any> => {
 
 	const botConvo = botConvoState[message.author.id];
 	if (messageIsValid(message, botConvo)) {
+		console.log('message is valid');
 
 		if (botConvo.getEdit()) {
 			scoapEmbedUpdate(botConvo, message.content);
 		}
+		console.log('entering message flow')
 		BotConversationMessageFlow(message, botConvo);
 		return;
-	};
+	}
 	return;
 };
 
 const messageIsValid = (message, botConvo) => {
+	// returns true if this message is a direct response to botConvo.current_message
 	if (typeof botConvo != 'undefined') {
 		return (message.channel.messages.cache.lastKey(2)[0] === botConvo.getCurrentMessage().id);
 	} else {
 		return false;
 	}
-	// returns true if this message is a direct response to botConvo.current_message
-	
 };

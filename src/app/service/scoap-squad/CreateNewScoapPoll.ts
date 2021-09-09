@@ -58,26 +58,6 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 	});
 };
 
-export const publishDraftScoapEmbed = async (botConvo, scoapEmbed, channel): Promise<any> => {
-	const verifyMessage = await channel.send({ embeds: scoapEmbed.getEmbed() });
-	scoapEmbed.setCurrentMessage(verifyMessage);
-	await verifyMessage.react('👍');
-	await verifyMessage.react('📝');
-	await verifyMessage.react('❌');
-
-	return handleScoapDraftReaction('PUBLISH', [verifyMessage, botConvo, scoapEmbed]);
-};
-
-
-const initiateScoapDraft = async (botConvo: any): Promise<any> => {
-	await botConvo.setCurrentMessageFlowIndex('1', botConvo.getCurrentChannel());
-	const message = botConvo.getCurrentMessage();
-	await message.react('👍');
-	await message.react('ℹ️');
-	await message.react('❌');
-	return handleScoapDraftReaction('SET_ROLES', [message, botConvo]);
-};
-
 const createBotConversation = async (guildMember: GuildMember): Promise<any> => {
 	const channel = await guildMember.createDM();
 	const botConvo = new BotConversation();
@@ -94,14 +74,23 @@ const createBotConversation = async (guildMember: GuildMember): Promise<any> => 
 	return botConvo;
 };
 
-const abortSetScoapRoles = async (message: Message, user_id) => {
-	delete botConvoState[user_id];
-	ScoapUtils.logToFile('object delted from botConvoState. REason: abortSetScoapRoles \n' +
-					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
-					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
-					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
-	await message.delete();
-	return message.channel.send('Message deleted, let\'s start over.');
+const initiateScoapDraft = async (botConvo: any): Promise<any> => {
+	await botConvo.setCurrentMessageFlowIndex('1', botConvo.getCurrentChannel());
+	const message = botConvo.getCurrentMessage();
+	await message.react('👍');
+	await message.react('ℹ️');
+	await message.react('❌');
+	return handleScoapDraftReaction('SET_ROLES', [message, botConvo]);
+};
+
+export const publishDraftScoapEmbed = async (botConvo, scoapEmbed, channel): Promise<any> => {
+	const verifyMessage = await channel.send({ embeds: scoapEmbed.getEmbed() });
+	scoapEmbed.setCurrentMessage(verifyMessage);
+	await verifyMessage.react('👍');
+	await verifyMessage.react('📝');
+	await verifyMessage.react('❌');
+
+	return handleScoapDraftReaction('PUBLISH', [verifyMessage, botConvo, scoapEmbed]);
 };
 
 const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any): Promise<any> => {
@@ -127,6 +116,16 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 	};
 	const notion_page_id = await createNewScoapOnNotion(notion_inputs);
 	scoapEmbed.setNotionPageId(notion_page_id);
+};
+
+const abortSetScoapRoles = async (message: Message, user_id) => {
+	delete botConvoState[user_id];
+	ScoapUtils.logToFile('object delted from botConvoState. REason: abortSetScoapRoles \n' +
+					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
+					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
+					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
+	await message.delete();
+	return message.channel.send('Message deleted, let\'s start over.');
 };
 
 const abortPublishScoapPoll = async (message: Message, botConvo: any) => {

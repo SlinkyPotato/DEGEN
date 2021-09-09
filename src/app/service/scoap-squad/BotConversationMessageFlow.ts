@@ -7,7 +7,6 @@ import ScoapUtils from '../../utils/ScoapUtils';
 
 
 export default async (message: Message, botConvo: any): Promise<any> => {
-
 	switch (true) {
 	case (botConvo.getCurrentMessageFlowIndex() === '2'):
 		switch (true) {

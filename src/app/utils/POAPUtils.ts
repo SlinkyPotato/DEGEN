@@ -1,9 +1,10 @@
 import { GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
-import { Collection as MongoCollection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
+import { Collection, Collection as MongoCollection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../service/constants/constants';
 import { POAPParticipant } from '../types/poap/POAPParticipant';
 import axios from 'axios';
 import ValidationError from '../errors/ValidationError';
+import { POAPAdmin } from '../types/poap/POAPAdmin';
 
 export type POAPFileParticipant = {
 	id: string,
@@ -108,6 +109,30 @@ const POAPUtils = {
 			});
 			throw new ValidationError('Please try another event.');
 		}
+	},
+	
+	async validateUserAccess(guildMember: GuildMember, db: Db): Promise<any> {
+		const poapAdminsDb: Collection = await db.collection(constants.DB_COLLECTION_POAP_ADMINS);
+		const userResult: POAPAdmin = await poapAdminsDb.findOne({
+			objectType: 'USER',
+			discordObjectId: guildMember.user.id,
+			discordServerId: guildMember.guild.id,
+		});
+		if (userResult != null) {
+			// user has access
+			return;
+		}
+		const rolesCursor: Cursor<POAPAdmin> = await poapAdminsDb.find({
+			objectType: 'ROLE',
+			discordServerId: guildMember.guild.id,
+		});
+		for await (const poapRole of rolesCursor) {
+			if (guildMember.roles.cache.some(role => role.id === poapRole.discordObjectId)) {
+				// role has access
+				return;
+			}
+		}
+		throw new ValidationError('You are not configured to use this command. Please reach out to discord owner.');
 	},
 };
 

@@ -37,12 +37,22 @@ export default async (guildMember: GuildMember, roles?: string[], users?: string
 	};
 	const isApproval: boolean = await askForGrantOrRemoval(guildMember, authorizedRoles, authorizedUsers, intro);
 	const dbInstance: Db = await dbUtils.dbConnect(constants.DB_NAME_DEGEN);
+	let confirmationMsg: MessageEmbedOptions;
 	if (isApproval) {
 		await storePOAPAdmins(guildMember, dbInstance, authorizedUsers, authorizedRoles);
+		confirmationMsg = {
+			title: 'Configuration Added',
+			description: 'The list of users and roles are now authorized to use poap commands.',
+		};
 	} else {
 		await removePOAPAdmins(guildMember, dbInstance, authorizedUsers, authorizedRoles);
+		confirmationMsg = {
+			title: 'Configuration Removed',
+			description: 'The list of users and roles have now been restricted and will not be able to use poap commands.',
+		};
 	}
-	await guildMember.send({ content: 'User and Roles configured.' });
+	
+	await guildMember.send({ embeds: [confirmationMsg] });
 	return;
 };
 

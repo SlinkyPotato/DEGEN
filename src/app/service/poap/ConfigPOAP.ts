@@ -1,7 +1,12 @@
 import { GuildMember, Message, MessageEmbedOptions, MessageReaction, Role } from 'discord.js';
 import ValidationError from '../../errors/ValidationError';
 import { Collection } from '@discordjs/collection';
-import { BulkWriteError, Collection as MongoCollection, InsertWriteOpResult, MongoError } from 'mongodb';
+import {
+	BulkWriteError,
+	Collection as MongoCollection,
+	InsertWriteOpResult,
+	MongoError,
+} from 'mongodb';
 import { Snowflake } from 'discord-api-types';
 import { Db } from 'mongodb';
 import constants from '../constants/constants';
@@ -35,9 +40,9 @@ export default async (guildMember: GuildMember, roles?: string[], users?: string
 	if (isApproval) {
 		await storePOAPAdmins(guildMember, dbInstance, authorizedUsers, authorizedRoles);
 	} else {
-		console.log('else');
+		await removePOAPAdmins(guildMember, dbInstance, authorizedUsers, authorizedRoles);
 	}
-	await guildMember.send({ content: 'User and Roles configured' });
+	await guildMember.send({ content: 'User and Roles configured.' });
 	return;
 };
 
@@ -165,6 +170,30 @@ export const storePOAPAdmins = async (
 	
 	if (result == null) {
 		throw new MongoError('failed to insert poapAdmins');
+	}
+};
+
+export const removePOAPAdmins = async (
+	guildMember: GuildMember, db: Db, authorizedUsers: GuildMember[], authorizedRoles: Role[],
+): Promise<any> => {
+	const poapAdminDb: MongoCollection = db.collection(constants.DB_COLLECTION_POAP_ADMINS);
+	try {
+		for (const member of authorizedUsers) {
+			await poapAdminDb.deleteOne({
+				objectType: 'USER',
+				discordObjectId: member.id,
+				discordServerId: guildMember.guild.id,
+			});
+		}
+		for (const role of authorizedRoles) {
+			await poapAdminDb.deleteOne({
+				objectType: 'ROLE',
+				discordObjectId: role.id,
+				discordServerId: guildMember.guild.id,
+			});
+		}
+	} catch (e) {
+		console.error(e);
 	}
 };
 

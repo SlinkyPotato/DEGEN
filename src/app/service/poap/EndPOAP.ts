@@ -12,7 +12,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
-		poapManagerId: guildMember.user.id,
+		discordUserId: guildMember.user.id,
 		discordServerId: guildMember.guild.id,
 		isActive: true,
 	});
@@ -34,7 +34,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 	const listOfParticipants = await POAPUtils.getListOfParticipants(guildMember, db, channel);
 	
 	if (listOfParticipants.length <= 0) {
-		return guildMember.send({ content: `No participants found for ${channel.name} in ${channel.guild.name}.` });
+		return guildMember.send({ content: `Event ended. No participants found for ${channel.name} in ${channel.guild.name}.` });
 	}
 	
 	const bufferFile = await getBufferFromParticipants(listOfParticipants, channel);

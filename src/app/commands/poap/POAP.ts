@@ -99,12 +99,14 @@ module.exports = class poap extends SlashCommand {
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		
 		let command: Promise<any>;
-		const authorizedRoles = [ctx.options.config['role-1'], ctx.options.config['role-2'], ctx.options.config['role-3']];
-		const authorizedUsers = [ctx.options.config['user-1'], ctx.options.config['user-2'], ctx.options.config['user-3']];
+		let authorizedRoles: any[];
+		let authorizedUsers: any[];
 		try {
 			switch (ctx.subcommands[0]) {
 			case 'config':
 				console.log(`/poap config ${ctx.user.username}#${ctx.user.discriminator}`);
+				authorizedRoles = [ctx.options.config['role-1'], ctx.options.config['role-2'], ctx.options.config['role-3']];
+				authorizedUsers = [ctx.options.config['user-1'], ctx.options.config['user-2'], ctx.options.config['user-3']];
 				command = ConfigPOAP(guildMember, authorizedRoles, authorizedUsers);
 				break;
 			case 'start':

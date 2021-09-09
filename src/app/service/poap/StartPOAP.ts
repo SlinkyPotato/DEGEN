@@ -17,9 +17,11 @@ import EarlyTermination from '../../errors/EarlyTermination';
 import POAPUtils from '../../utils/POAPUtils';
 
 export default async (guildMember: GuildMember, event?: string): Promise<any> => {
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+
+	await POAPUtils.validateUserAccess(guildMember, db);
 	await POAPUtils.validateEvent(guildMember, event);
 	
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const activeSettingsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
 		discordUserId: guildMember.id,

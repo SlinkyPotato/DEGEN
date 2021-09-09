@@ -4,7 +4,7 @@ import { Client } from '@notionhq/client';
 import { Client as DiscordClient } from 'discord.js';
 import { Page } from '@notionhq/client/build/src/api-types';
 import { Db } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 
 const sleep = sleepTimer.promisify(setTimeout);

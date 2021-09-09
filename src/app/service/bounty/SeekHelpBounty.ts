@@ -1,7 +1,7 @@
 import { GuildMember } from 'discord.js';
 import BountyUtils from '../../utils/BountyUtils';
 import mongo, { Db } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import envUrls from '../constants/envUrls';
 import { BountyCollection } from '../../types/bounty/BountyCollection';

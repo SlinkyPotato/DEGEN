@@ -1,7 +1,12 @@
 import { GuildMember, Message, MessageEmbedOptions, MessageReaction, Role } from 'discord.js';
 import ValidationError from '../../errors/ValidationError';
 import { Collection } from '@discordjs/collection';
+import { BulkWriteError, Collection as MongoCollection, InsertWriteOpResult, MongoError } from 'mongodb';
 import { Snowflake } from 'discord-api-types';
+import { Db } from 'mongodb';
+import constants from '../constants/constants';
+import { POAPAdmin } from '../../types/poap/POAPAdmin';
+import dbUtils from '../../utils/dbUtils';
 
 export default async (guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
 	// TODO: uncomment before raising PR
@@ -17,25 +22,28 @@ export default async (guildMember: GuildMember, roles?: string[], users?: string
 	const intro: MessageEmbedOptions = {
 		title: 'POAP Configuration',
 		description: 'Welcome to POAP configuration.\n\n' +
-			'This is used as a first-time setup of POAP commands. This series of ' +
-			'questions will help assign or remove authorized users and roles for POAP distribution.\n\n' +
+			'This is used as a first-time setup of POAP commands. I can help assign or remove authorized users and ' +
+			'roles for POAP distribution.\n\n' +
 			'Authorized users will have access to a list of participants after the event has ended. They will also be ' +
 			'able to send out mass messages to those participants.',
 		footer: {
 			text: '@Bankless DAO 🏴',
 		},
 	};
-	await guildMember.send({ embeds: [intro] });
-	const isApproval: boolean = await askForGrantOrRemoval(guildMember, authorizedRoles, authorizedUsers);
+	const isApproval: boolean = await askForGrantOrRemoval(guildMember, authorizedRoles, authorizedUsers, intro);
+	const dbInstance: Db = await dbUtils.dbConnect(constants.DB_NAME_DEGEN);
 	if (isApproval) {
-		
+		await storePOAPAdmins(guildMember, dbInstance, authorizedUsers, authorizedRoles);
 	} else {
-		
+		console.log('else');
 	}
+	await guildMember.send({ content: 'User and Roles configured' });
 	return;
 };
 
-export const askForGrantOrRemoval = async (guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[]): Promise<boolean> => {
+export const askForGrantOrRemoval = async (
+	guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[], intro?: MessageEmbedOptions,
+): Promise<boolean> => {
 	const fields = [];
 	for (const role of authorizedRoles) {
 		fields.push({
@@ -53,7 +61,7 @@ export const askForGrantOrRemoval = async (guildMember: GuildMember, authorizedR
 	}
 	const whichRolesAreAllowedQuestion: MessageEmbedOptions = {
 		title: 'Give or remove access?',
-		description: 'Should the given list of users and roles be given access or remove?',
+		description: 'Should the given list of users and roles be given access or should they get removed?',
 		fields: fields,
 		timestamp: new Date().getTime(),
 		footer: {
@@ -61,7 +69,7 @@ export const askForGrantOrRemoval = async (guildMember: GuildMember, authorizedR
 		},
 	};
 	
-	const message: Message = await guildMember.send({ embeds: [whichRolesAreAllowedQuestion] });
+	const message: Message = await guildMember.send({ embeds: [intro, whichRolesAreAllowedQuestion] });
 	await message.react('👍');
 	await message.react('❌');
 	await message.react('📝');
@@ -116,3 +124,47 @@ export const retrieveUsers = async (guildMember: GuildMember, authorizedUsers: s
 	}
 	return users;
 };
+
+export const storePOAPAdmins = async (
+	guildMember: GuildMember, dbInstance: Db, authorizedUsers: GuildMember[], authorizedRoles: Role[],
+): Promise<any> => {
+	const poapAdminDb: MongoCollection = dbInstance.collection(constants.DB_COLLECTION_POAP_ADMINS);
+	
+	const poapAdminsList = [];
+	for (const member of authorizedUsers) {
+		poapAdminsList.push({
+			objectType: 'USER',
+			discordObjectId: member.id,
+			discordObjectName: member.user.tag,
+			discordServerId: guildMember.guild.id,
+			discordServerName: guildMember.guild.name,
+		});
+	}
+	for (const role of authorizedRoles) {
+		poapAdminsList.push({
+			objectType: 'ROLE',
+			discordObjectId: role.id,
+			discordObjectName: role.name,
+			discordServerId: guildMember.guild.id,
+			discordServerName: guildMember.guild.name,
+		});
+	}
+	
+	let result: InsertWriteOpResult<POAPAdmin>;
+	try {
+		result = await poapAdminDb.insertMany(poapAdminsList, {
+			ordered: false,
+		});
+	} catch (e) {
+		if (e instanceof BulkWriteError && e.code === 11000) {
+			console.log('dup key found, proceeding');
+		}
+		console.log(e);
+		return;
+	}
+	
+	if (result == null) {
+		throw new MongoError('failed to insert poapAdmins');
+	}
+};
+

@@ -2,17 +2,18 @@
   "$jsonSchema": {
     "bsonType": "object",
     "required": [
-      "discordUserId",
-      "discordUserTag",
+      "discordObjectId",
+      "discordObjectName",
       "discordServerId",
-      "discordServerName"
+      "discordServerName",
+      "objectType"
     ],
     "properties": {
-      "discordUserId": {
+      "discordObjectId": {
         "bsonType": "string",
         "description": "Discord Id of the user that is configured to use this command."
       },
-      "discordUserTag": {
+      "discordObjectName": {
         "bsonType": "string",
         "description": "Discord handle of the user that is configured to use this command."
       },
@@ -23,6 +24,10 @@
       "discordServerName": {
         "bsonType": "string",
         "description": "The name for the discord guild name"
+      },
+      "objectType": {
+        "bsonType": "string",
+        "description": "Can be either ROLE or USER"
       }
     }
   }

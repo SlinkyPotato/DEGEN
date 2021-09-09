@@ -1,7 +1,7 @@
 import { GuildMember, Message, MessageEmbed } from 'discord.js';
 import BountyUtils from '../../utils/BountyUtils';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 

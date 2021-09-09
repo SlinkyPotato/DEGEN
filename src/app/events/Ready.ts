@@ -1,7 +1,7 @@
 import GuestPassService from '../service/guest-pass/GuestPassService';
 import { Client } from 'discord.js';
 import constants from '../service/constants/constants';
-import { connect } from '../utils/db';
+import { connect } from '../utils/dbUtils';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 
 export default class implements DiscordEvent {

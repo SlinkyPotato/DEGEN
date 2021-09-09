@@ -1,5 +1,5 @@
 import { Db } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { GuildMember } from 'discord.js';

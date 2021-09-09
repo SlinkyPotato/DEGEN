@@ -7,7 +7,7 @@ import {
 	VoiceChannel,
 } from 'discord.js';
 import { Collection, Cursor, Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import ValidationError from '../../errors/ValidationError';
@@ -22,7 +22,7 @@ export default async (guildMember: GuildMember, event?: string): Promise<any> =>
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const activeSettingsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
-		poapManagerId: guildMember.id,
+		discordUserId: guildMember.id,
 		isActive: true,
 	});
 	const activeSettings: POAPSettings = await activeSettingsCursor.next();
@@ -62,7 +62,6 @@ export default async (guildMember: GuildMember, event?: string): Promise<any> =>
 			isActive: true,
 			startTime: currentDateStr,
 			discordUserId: guildMember.user.id,
-			poapManagerTag: guildMember.user.tag,
 			event: event,
 		},
 	});

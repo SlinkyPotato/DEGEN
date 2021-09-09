@@ -1,6 +1,6 @@
 import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
 import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
@@ -29,7 +29,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 	if (updateSettingsResult.modifiedCount !== 1) {
 		throw new ValidationError('Event is not active.');
 	}
-	console.log(`event ${poapSettingsDoc.event} ended in ${poapSettingsDoc.discordServerName} for ${poapSettingsDoc.voiceChannelName}`);
+	console.log(`event ${poapSettingsDoc.event} ended in ${poapSettingsDoc.discordServerId} for ${poapSettingsDoc.voiceChannelName}`);
 	const channel: GuildChannel = await guildMember.guild.channels.fetch(poapSettingsDoc.voiceChannelId);
 	const listOfParticipants = await POAPUtils.getListOfParticipants(guildMember, db, channel);
 	

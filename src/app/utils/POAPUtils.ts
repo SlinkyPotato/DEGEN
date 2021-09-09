@@ -118,9 +118,21 @@ const POAPUtils = {
 			discordObjectId: guildMember.user.id,
 			discordServerId: guildMember.guild.id,
 		});
-		if (userResult == null) {
-			throw new ValidationError('You are not configured to use this command. Please reach out to discord owner.');
+		if (userResult != null) {
+			// user has access
+			return;
 		}
+		const rolesCursor: Cursor<POAPAdmin> = await poapAdminsDb.find({
+			objectType: 'ROLE',
+			discordServerId: guildMember.guild.id,
+		});
+		for await (const poapRole of rolesCursor) {
+			if (guildMember.roles.cache.some(role => role.id === poapRole.discordObjectId)) {
+				// role has access
+				return;
+			}
+		}
+		throw new ValidationError('You are not configured to use this command. Please reach out to discord owner.');
 	},
 };
 

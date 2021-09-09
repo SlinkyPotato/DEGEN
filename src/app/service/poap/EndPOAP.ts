@@ -9,8 +9,10 @@ import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
 
 export default async (guildMember: GuildMember): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
-	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 
+	await POAPUtils.validateUserAccess(guildMember, db);
+
+	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
 		discordUserId: guildMember.user.id,
 		discordServerId: guildMember.guild.id,

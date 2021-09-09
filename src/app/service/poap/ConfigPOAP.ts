@@ -14,10 +14,9 @@ import { POAPAdmin } from '../../types/poap/POAPAdmin';
 import dbUtils from '../../utils/dbUtils';
 
 export default async (guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
-	// TODO: uncomment before raising PR
-	// if (guildMember.guild.ownerId != guildMember.id) {
-	// 	throw new ValidationError('Sorry, only the discord owner can configure poap distribution.');
-	// }
+	if (guildMember.guild.ownerId != guildMember.id) {
+		throw new ValidationError('Sorry, only the discord owner can configure poap distribution.');
+	}
 	const authorizedRoles: Role[] = await retrieveRoles(guildMember, roles);
 	const authorizedUsers: GuildMember[] = await retrieveUsers(guildMember, users);
 

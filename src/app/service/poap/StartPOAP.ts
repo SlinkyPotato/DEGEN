@@ -46,7 +46,7 @@ export default async (guildMember: GuildMember, event?: string): Promise<any> =>
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
 		console.log('unable to start due to active event');
 		await guildMember.send({ content: 'Event is already active.' });
-		throw new ValidationError(`\`${channelChoice.name}\` is already active by <@${poapSettingsDoc.discordUserId}>.`);
+		throw new ValidationError(`\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`);
 	}
 
 	if (poapSettingsDoc == null) {

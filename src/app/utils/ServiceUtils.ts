@@ -10,8 +10,7 @@ import {
 	RoleManager,
 	StageChannel,
 	VoiceChannel,
-	Snowflake,
-	TextChannel
+	Snowflake
 } from 'discord.js';
 import client from '../app';
 import roleIDs from '../service/constants/roleIds';

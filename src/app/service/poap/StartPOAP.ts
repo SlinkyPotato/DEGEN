@@ -35,7 +35,7 @@ export default async (guildMember: GuildMember, event?: string): Promise<any> =>
 	}
 	
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
-	const message: Message = await guildMember.send({ embeds: [generateVoiceChannelEmbedMessage(voiceChannels)] });
+	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) });
 	const channelChoice: GuildChannel = await askUserForChannel(guildMember, message, voiceChannels);
 
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
@@ -109,22 +109,30 @@ export const storePresentMembers = async (guild: Guild, db: Db, channel: GuildCh
 	}
 };
 
-export const generateVoiceChannelEmbedMessage = (voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>): MessageEmbedOptions => {
-	const fields: EmbedField[] = [];
+export const generateVoiceChannelEmbedMessage = (voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>): MessageEmbedOptions[] => {
+	const embeds: MessageEmbedOptions[] = [];
 	let i = 1;
+	let k = 1;
+	const fields: EmbedField[] = [];
 	for (const channel of voiceChannels.values()) {
+		if (k >= 25) {
+			embeds.push({
+				title: 'Available Voice Channels',
+				description: 'For which voice channel would you like to start POAP tracking? Please reply with a number.',
+				fields: fields,
+			});
+			k = 1;
+		}
 		fields.push({
 			name: channel.name,
 			value: `${i}`,
 			inline: true,
 		});
 		i++;
+		console.log(fields);
+		console.log(embeds);
 	}
-	return {
-		title: 'Available Voice Channels',
-		description: 'For which voice channel would you like to start POAP tracking? Please reply with a number.',
-		fields: fields,
-	};
+	return embeds;
 };
 
 export const askUserForChannel = async (guildMember: GuildMember, dmMessage: Message, voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>): Promise<GuildChannel> => {

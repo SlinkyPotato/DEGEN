@@ -115,13 +115,12 @@ export const generateVoiceChannelEmbedMessage = (voiceChannels: DiscordCollectio
 	let k = 1;
 	let fields: EmbedField[] = [];
 	for (const channel of voiceChannels.values()) {
-		if (k <= 25) {
+		if (k < 26) {
 			fields.push({
 				name: channel.name,
 				value: `${i}`,
 				inline: true,
 			});
-			i++;
 			k++;
 		} else {
 			embeds.push({
@@ -130,8 +129,13 @@ export const generateVoiceChannelEmbedMessage = (voiceChannels: DiscordCollectio
 				fields: fields,
 			});
 			k = 0;
-			fields = [];
+			fields = [{
+				name: channel.name,
+				value: `${i}`,
+				inline: true,
+			}];
 		}
+		i++;
 	}
 	if (fields.length >= 1) {
 		embeds.push({

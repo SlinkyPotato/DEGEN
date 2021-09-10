@@ -1,5 +1,4 @@
 import { publishDraftScoapEmbed } from './CreateNewScoapPoll';
-// import { scoapEmbedState } from '../../app';
 import constants from '../constants/constants';
 import { ScoapEmbed } from './ScoapClasses';
 import { Message } from 'discord.js';

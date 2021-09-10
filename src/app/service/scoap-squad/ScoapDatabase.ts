@@ -29,8 +29,8 @@ export const updateScoapEmbedAndVoteRecordDb = async (scoapEmbed, voteRecord) =>
 	const filter = { id: scoapEmbed.getId() };
 	const options = { upsert: true };
 	const updateDoc = { $set: { scoapEmbed: clone, voteRecord: voteRecord } };
-	const db: Db = await dbInstance.dbConnect('degen');
-	const dbScoap = db.collection('scoapSquad');
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const dbScoap = db.collection(constants.DB_COLLECTION_SCOAP_SQUAD);
 	await dbScoap.updateOne(filter, updateDoc, options);
 	ScoapUtils.logToFile(`Mongo updated, id: ${scoapEmbed.getId()}`);
 };

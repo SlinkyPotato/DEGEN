@@ -7,12 +7,10 @@ export default async (message: Message): Promise<any> => {
 
 	const botConvo = botConvoState[message.author.id];
 	if (messageIsValid(message, botConvo)) {
-		console.log('message is valid');
 
 		if (botConvo.getEdit()) {
 			scoapEmbedUpdate(botConvo, message.content);
 		}
-		console.log('entering message flow')
 		BotConversationMessageFlow(message, botConvo);
 		return;
 	}

@@ -1,5 +1,4 @@
 import constants from '../service/constants/constants';
-// import { GuildMember, Message } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import { scoapEmbedState, botConvoState, voteRecordState } from '../service/scoap-squad/ScoapDatabase';
@@ -43,7 +42,6 @@ const ScoapUtils = {
 
 	purgeExpiredBotConvo(bot_convo_state) {
 		if (Object.keys(bot_convo_state).length === 0 && bot_convo_state.constructor === Object) {
-			// console.log('NO CONVO');
 			return;
 		}
 

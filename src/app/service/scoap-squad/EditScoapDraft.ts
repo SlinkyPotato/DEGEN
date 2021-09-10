@@ -99,7 +99,6 @@ export const scoapEmbedEdit = (scoapEmbed): any => {
 
 const updateFieldValues = (array, key, input) => {
 	const obj = array.find(o => o.name === key);
-	// console.log('OBJECT ', obj);
 	if (obj !== 'undefined') {
 		obj.value = input;
 		return obj.value;

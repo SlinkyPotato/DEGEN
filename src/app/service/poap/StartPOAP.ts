@@ -113,24 +113,32 @@ export const generateVoiceChannelEmbedMessage = (voiceChannels: DiscordCollectio
 	const embeds: MessageEmbedOptions[] = [];
 	let i = 1;
 	let k = 1;
-	const fields: EmbedField[] = [];
+	let fields: EmbedField[] = [];
 	for (const channel of voiceChannels.values()) {
-		if (k >= 25) {
+		if (k < 25) {
+			fields.push({
+				name: channel.name,
+				value: `${i}`,
+				inline: true,
+			});
+			i++;
+			k++;
+		} else {
 			embeds.push({
 				title: 'Available Voice Channels',
 				description: 'For which voice channel would you like to start POAP tracking? Please reply with a number.',
 				fields: fields,
 			});
-			k = 1;
+			k = 0;
+			fields = [];
 		}
-		fields.push({
-			name: channel.name,
-			value: `${i}`,
-			inline: true,
+	}
+	if (fields.length > 1) {
+		embeds.push({
+			title: 'Available Voice Channels',
+			description: 'For which voice channel would you like to start POAP tracking? Please reply with a number.',
+			fields: fields,
 		});
-		i++;
-		console.log(fields);
-		console.log(embeds);
 	}
 	return embeds;
 };

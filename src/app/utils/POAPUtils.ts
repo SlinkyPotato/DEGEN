@@ -87,11 +87,11 @@ const POAPUtils = {
 							console.error(e);
 						});
 					});
-				console.log(`Links sent to ${listOfParticipants.length} participants.`);
 			} catch (e) {
 				console.log('user might have been banned');
 			}
 		}
+		console.log(`Links sent to ${listOfParticipants.length} participants.`);
 	},
 
 	async validateEvent(guildMember: GuildMember, event?: string): Promise<any> {

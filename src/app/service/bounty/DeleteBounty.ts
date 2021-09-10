@@ -1,7 +1,7 @@
 import constants from '../constants/constants';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import ServiceUtils from '../../utils/ServiceUtils';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import BountyUtils from '../../utils/BountyUtils';
 import { GuildMember, Message } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';

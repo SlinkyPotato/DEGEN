@@ -1,6 +1,6 @@
 import { Guild, GuildChannel, GuildMember, VoiceState } from 'discord.js';
 import { Collection, Cursor, Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import constants from '../../service/constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import { POAPParticipant } from '../../types/poap/POAPParticipant';

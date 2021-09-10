@@ -115,7 +115,7 @@ export const generateVoiceChannelEmbedMessage = (voiceChannels: DiscordCollectio
 	let k = 1;
 	let fields: EmbedField[] = [];
 	for (const channel of voiceChannels.values()) {
-		if (k < 25) {
+		if (k <= 25) {
 			fields.push({
 				name: channel.name,
 				value: `${i}`,
@@ -133,7 +133,7 @@ export const generateVoiceChannelEmbedMessage = (voiceChannels: DiscordCollectio
 			fields = [];
 		}
 	}
-	if (fields.length > 1) {
+	if (fields.length >= 1) {
 		embeds.push({
 			title: 'Available Voice Channels',
 			description: 'For which voice channel would you like to start POAP tracking? Please reply with a number.',

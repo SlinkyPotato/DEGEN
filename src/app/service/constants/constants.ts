@@ -7,9 +7,9 @@ export default Object.freeze({
 	DB_COLLECTION_POAP_SETTINGS: 'poapSettings',
 	DB_COLLECTION_POAP_PARTICIPANTS: 'poapParticipants',
 	DB_COLLECTION_SCOAP_SQUAD: 'scoapSquad',
-
-	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}${process.env.MONGODB_URL_ENDPOINT}`,
-	// MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
+	DB_COLLECTION_POAP_ADMINS: 'poapAdmins',
+	
+	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
 	BOUNTY_BOARD_URL: 'https://bankless.community/',
 

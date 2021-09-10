@@ -1,4 +1,4 @@
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import { Db } from 'mongodb';
 import cloneDeep from 'lodash.clonedeep';
 import { ScoapEmbed, VoteRecord } from './ScoapClasses';

@@ -2,7 +2,7 @@ import GuestPassService from '../service/guest-pass/GuestPassService';
 import { Client } from 'discord.js';
 import constants from '../service/constants/constants';
 import discordServerIds from '../service/constants/discordServerIds';
-import { connect } from '../utils/db';
+import { connect } from '../utils/dbUtils';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import { restoreScoapEmbedAndVoteRecord } from '../service/scoap-squad/ScoapDatabase';
 

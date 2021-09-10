@@ -3,7 +3,7 @@ import BountyUtils from '../../../utils/BountyUtils';
 import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
 import { finalizeBounty } from './PublishBounty';
 import { Db, Int32 } from 'mongodb';
-import dbInstance from '../../../utils/db';
+import dbInstance from '../../../utils/dbUtils';
 import { deleteBountyForValidId } from '../DeleteBounty';
 import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
 import ServiceUtils from '../../../utils/ServiceUtils';
@@ -47,14 +47,14 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 
 	let convertedDueDateFromMessage: Date;
 	do {
-		await guildMember.send({ content: 'Is there a `UTC` due date `yyyy-mm-dd`? (yes/no)' });
+		await guildMember.send({ content: 'Please enter `UTC` date in format `yyyy-mm-dd`, i.e 2021-08-15`? (no to exit)' });
 		const dueAtMessage = (await dmChannel.awaitMessages(replyOptions)).first().content;
 		if (dueAtMessage !== 'no') {
 			try {
 				convertedDueDateFromMessage = BountyUtils.validateDate(guildMember, dueAtMessage);
 			} catch(e) {
 				console.log(e);
-				await guildMember.send({ content: 'Please try `UTC` date in format yyyy-mm-dd, i.e 2021-08-15' });
+				await guildMember.send({ content: 'Please try `UTC` date in format `yyyy-mm-dd`, i.e 2021-08-15' });
 			}
 		} else if (dueAtMessage === 'no') {
 			convertedDueDateFromMessage = null;

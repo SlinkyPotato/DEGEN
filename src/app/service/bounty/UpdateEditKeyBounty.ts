@@ -1,7 +1,7 @@
 import { GuildMember, Message } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import envUrls from '../constants/envUrls';
 import { randomUUID } from 'crypto';

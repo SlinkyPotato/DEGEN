@@ -12,7 +12,6 @@ export default class Help extends SlashCommand {
 		super(creator, {
 			name: 'help',
 			description: 'Get help on creating bounties, adding guests, and other operations',
-			guildIDs: process.env.DISCORD_SERVER_ID,
 			options: [
 				{
 					name: 'bounty',
@@ -29,6 +28,7 @@ export default class Help extends SlashCommand {
 				usages: 2,
 				duration: 1,
 			},
+			defaultPermission: true,
 		});
 	}
 	
@@ -48,7 +48,7 @@ export default class Help extends SlashCommand {
 			break;
 		}
 
-		console.log(`/bounty end ${ctx.user.username}#${ctx.user.discriminator}`);
+		console.log(`end /help ${ctx.user.username}#${ctx.user.discriminator}`);
 		return ctx.send(messageOptions);
 	}
 }

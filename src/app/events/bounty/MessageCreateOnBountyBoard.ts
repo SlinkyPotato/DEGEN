@@ -2,7 +2,7 @@ import { GuildMember, Message } from 'discord.js';
 import constants from '../../service/constants/constants';
 import BountyUtils from '../../utils/BountyUtils';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import envUrls from '../../service/constants/envUrls';
 import { addPublishReactions } from '../../service/bounty/create/PublishBounty';
 import { BountyCollection } from '../../types/bounty/BountyCollection';

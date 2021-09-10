@@ -13,9 +13,9 @@ const creator = new SlashCreator({
 	token: process.env.DISCORD_BOT_TOKEN,
 });
 
-creator.on('debug', (message) => console.log(`debug: ${ message }`));
-creator.on('warn', (message) => console.warn(`warn: ${ message }`));
-creator.on('error', (error) => console.error(`error: ${ error }`));
+// creator.on('debug', (message) => console.log(`debug: ${ message }`)); // not needed in production
+// creator.on('warn', (message) => console.warn(`warn: ${ message }`)); // not needed in production
+creator.on('error', (error: Error) => console.error(`error: ${ error }`));
 creator.on('synced', () => console.info('Commands synced!'));
 creator.on('commandRegister', (command) => console.info(`Registered command ${command.commandName}`));
 creator.on('commandError', (command, error) => console.error(`Command ${command.commandName}:`, error));
@@ -57,7 +57,7 @@ function initializeClient(): Client {
 function initializeEvents(): void {
 	const eventFiles = fs.readdirSync(path.join(__dirname, '/events')).filter(file => file.endsWith('.js'));
 	eventFiles.forEach(file => {
-		const event = require(`./events/${file}`);
+		const event = new (require(`./events/${file}`).default)();
 		try {
 			if (event.once) {
 				client.once(event.name, (...args) => event.execute(...args, client));

@@ -2,15 +2,15 @@
   "$jsonSchema": {
     "bsonType": "object",
     "required": [
-      "event",
       "isActive",
-      "startTime",
-      "poapManagerId",
-      "poapManagerTag"
+      "discordUserId",
+      "voiceChannelId",
+      "voiceChannelName",
+      "discordServerId"
     ],
     "properties": {
       "event": {
-        "bsonType": "string",
+        "bsonType": ["string", "null"],
         "description": "The event for the discussion which should be an enum, COMMUNITY_CALL."
       },
       "isActive": {
@@ -18,20 +18,28 @@
         "description": "Indicator whether the call is currently active."
       },
       "startTime": {
-        "bsonType": "string",
+        "bsonType": ["string", "null"],
         "description": "ISO8601 of when the meeting started."
       },
       "endTime": {
-        "bsonType": "string",
+        "bsonType": ["string", "null"],
         "description": "ISO8601 of when the meeting ended."
       },
-      "poapManagerId": {
+      "discordUserId": {
         "bsonType": "string",
         "description": "Discord Id of the user that is configured to use this command."
       },
-      "poapManagerTag": {
+      "voiceChannelId": {
         "bsonType": "string",
-        "description": "Discord handle of the user that is configured to use this command."
+        "description": "Identifier for the voice/stage channel"
+      },
+      "voiceChannelName": {
+        "bsonType": "string",
+        "description": "The name for the voice/stage channel"
+      },
+      "discordServerId": {
+        "bsonType": "string",
+        "description": "Identifier for the discord guild"
       }
     }
   }

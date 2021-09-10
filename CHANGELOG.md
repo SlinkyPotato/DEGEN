@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.0-RELEASE (2021-09-09)
+
+1. Convert event modules to classes
+2. Fix guest event partials
+3. Expand poap distribution to all voice channels
+4. Add config for poap commands
+
 ## 1.4.0-RELEASE (2021-08-31)
 
 1. Fix docker db connection

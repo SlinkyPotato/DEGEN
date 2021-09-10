@@ -6,6 +6,8 @@ export interface POAPSettings extends Collection {
 	isActive: boolean,
 	startTime: string,
 	endTime: string,
-	poapManagerId: string,
-	poapManagerTag: string,
+	discordUserId: string,
+	voiceChannelId: string,
+	voiceChannelName: string,
+	discordServerId: string,
 }

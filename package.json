@@ -1,6 +1,6 @@
 {
     "name": "degen",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
     "main": "app.js",
     "private": true,
@@ -35,7 +35,7 @@
     "dependencies": {
         "@notionhq/client": "0.2.0",
         "@types/node": "^16.7.1",
-        "axios": "^0.21.1",
+        "axios": "^0.21.4",
         "discord.js": "^13.1.0",
         "dotenv": "^10.0.0",
         "mongodb": "^3.6.9",

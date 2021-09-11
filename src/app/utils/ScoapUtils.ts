@@ -1,6 +1,4 @@
 import constants from '../service/constants/constants';
-import fs from 'fs';
-import path from 'path';
 import { scoapEmbedState, botConvoState, voteRecordState } from '../service/scoap-squad/ScoapDatabase';
 
 const isInteger = (value: any): boolean => {
@@ -61,12 +59,7 @@ const ScoapUtils = {
 	logToFile(log_string: string): any {
 		const dt = new Date();
 		const formatted_str = '\n\n' + dt.toString() + '\n' + log_string;
-		const fPath = path.join(__dirname, '..', 'service', 'scoap-squad', 'scoap-log');
-		fs.appendFile(fPath, formatted_str, function(err) {
-			if(err) {
-				return console.log(err);
-			}
-		});
+		console.log(formatted_str);
 	},
 };
 

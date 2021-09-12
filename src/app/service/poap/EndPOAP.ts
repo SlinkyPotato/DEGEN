@@ -52,7 +52,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` });
 	}
 
-	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Would you like me send out POAP links to participants? `(yes/no)`' });
+	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(yes/no)`' });
 	const dmChannel: DMChannel = await sendOutPOAPReplyMessage.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -67,6 +67,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 	} else {
 		await guildMember.send({ content: 'You got it!' });
 	}
+	await guildMember.send({ content: 'POAP links sent out to participants!' });
 	return;
 };
 

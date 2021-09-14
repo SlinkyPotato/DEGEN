@@ -177,7 +177,8 @@ const getTotalNumberOfRoles = (botConvo) => {
 const incrementMessageFlowIndex = async (botConvo, message, params) => {
 	switch (params[0]) {
 	case 'CORRECT':
-		botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + params[1]).toString(), await handleCorrectInput(message));
+		botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + params[1]).toString(), message.channel);
+		// botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + params[1]).toString(), await handleCorrectInput(message));
 		break;
 	case 'INCORRECT':
 		botConvo.setCurrentMessageFlowIndex(botConvo.getCurrentMessageFlowIndex(), await handleIncorrectInput(message, params[1]));
@@ -190,35 +191,37 @@ const incrementMessageFlowIndex = async (botConvo, message, params) => {
 
 const handleIncorrectInput = async (message, expected) => {
 	await message.channel.send({
-		embeds: [{
-			color: '#bf1304',
-			fields: [
-				{
-					name: '\u200b',
-					value: `Valid input: ${expected} \n but received input "${message.content}". Please try again.`,
-				},
-			],
-			footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
-		}],
+		content: `Valid input: ${expected} \n but received input "${message.content}". Please try again.`,
+		// embeds: [{
+		// 	color: '#bf1304',
+		// 	fields: [
+		// 		{
+		// 			name: '\u200b',
+		// 			value: `Valid input: ${expected} \n but received input "${message.content}". Please try again.`,
+		// 		},
+		// 	],
+		// 	footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
+		// }],
 	});
 	return message.channel;
 } ;
 
-const handleCorrectInput = async (message) => {
-	await message.channel.send({
-		embeds: [{
-			color: '#32a852',
-			fields: [
-				{
-					name: '\u200b',
-					value: `Received input "${message.content}".`,
-				},
-			],
-			footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
-		}],
-	});
-	return message.channel;
-} ;
+// const handleCorrectInput = async (message) => {
+// 	await message.channel.send({
+// 		content: `Received input "${message.content}".`,
+// 		// embeds: [{
+// 		// 	color: '#32a852',
+// 		// 	fields: [
+// 		// 		{
+// 		// 			name: '\u200b',
+// 		// 			value: `Received input "${message.content}".`,
+// 		// 		},
+// 		// 	],
+// 		// 	footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
+// 		// }],
+// 	});
+// 	return message.channel;
+// } ;
 
 const setUserResponseRecord = (record_entry, botConvo, option) => {
 	switch (option) {

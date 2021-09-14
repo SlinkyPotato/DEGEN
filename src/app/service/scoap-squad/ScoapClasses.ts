@@ -115,13 +115,21 @@ export class BotConversation {
 			const role_number_string_new = role_number_string_old + role_number;
 			this.convo.message_flow[message_flow_index][0].fields[0].value = role_number_string_new;
 			const currMsg = await channel.send({
-				embeds: this.convo.message_flow[message_flow_index],
+				// embeds: this.convo.message_flow[message_flow_index],
+				content: this.convo.message_flow[message_flow_index][0].fields[0].value,
 			});
 			this.convo.message_flow[message_flow_index][0].fields[0].value = role_number_string_old;
 			this.setCurrentMessage(currMsg);
-		} else {
+		} else if (message_flow_index === '1') {
 			const currMsg = await channel.send({
 				embeds: this.convo.message_flow[message_flow_index],
+				// content: this.convo.message_flow[message_flow_index][0].fields[0].value,
+			});
+			this.setCurrentMessage(currMsg);
+		} else {
+			const currMsg = await channel.send({
+				// embeds: this.convo.message_flow[message_flow_index],
+				content: this.convo.message_flow[message_flow_index][0].fields[0].value,
 			});
 			this.setCurrentMessage(currMsg);
 		}

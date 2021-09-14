@@ -95,7 +95,8 @@ export const scoapEmbedEdit = (scoapEmbed): any => {
 				.setPlaceholder('Nothing selected')
 				.addOptions(select_options),
 		);
-	const edit_message_object = { embeds: [info_message], components: [row] };
+	// const edit_message_object = { embeds: [info_message], components: [row] };
+	const edit_message_object = { content: info_message.fields[0].value, components: [row] };
 	return edit_message_object;
 };
 

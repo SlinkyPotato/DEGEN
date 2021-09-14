@@ -97,11 +97,6 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 	scoapEmbed.getEmbed()[0].footer = { text: 'react with emoji to claim a project role | ❌ - abort poll' };
 	const scoapChannel: TextChannel = await client.channels.fetch(channelIds.scoapSquad) as TextChannel;
 	scoapEmbed.setBotConvoResponseRecord(botConvo.getConvo().user_response_record);
-	scoapEmbedState[scoapEmbed.getId()] = scoapEmbed;
-	ScoapUtils.logToFile('object added to scoapEmbedState. Reason: publishScoapPoll \n' +
-					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
-					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
-					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 	delete botConvoState[botConvo.getUserId()];
 	ScoapUtils.logToFile('object deleted from botConvoState. Reason: publishScoapPoll \n' +
 					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +

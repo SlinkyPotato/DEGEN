@@ -21,6 +21,9 @@ const ScoapUtils = {
 	},
 
 	validateReward(message_content: string): boolean {
+		if(message_content === '!skip' || message_content === '!Skip') {
+			return true;
+		}
 		const [reward, symbol] = (message_content != null) ? message_content.split(' ') : [null, null];
 		const amount = parseInt(reward);
 		const ALLOWED_CURRENCIES = ['ETH', 'BANK'];
@@ -38,7 +41,7 @@ const ScoapUtils = {
 		return Object.keys(object).find(key => object[key] === value);
 	},
 
-	purgeExpiredBotConvo(bot_convo_state) {
+	purgeExpiredBotConvo(bot_convo_state, scoap_embed_state) {
 		if (Object.keys(bot_convo_state).length === 0 && bot_convo_state.constructor === Object) {
 			return;
 		}
@@ -49,8 +52,16 @@ const ScoapUtils = {
 			const deltat = dtnow - dtold;
 			if (deltat > constants.BOT_CONVERSATION_TIMEOUT_MS) {
 				bot_convo_state[key].getCurrentChannel().send('Conversation timed out. please try again.');
+				const scoapEmbed = scoapEmbedState[bot_convo_state[key].getScoapEmbedId()];
 				delete bot_convo_state[bot_convo_state[key].getUserId()];
-				this.logToFile(`object  deleted from botConvoState. reason: BotConvo timeout, deltaT: ${deltat} \n scoapEmbedState: ${scoapEmbedState} \n botConvoState: ${botConvoState}  \n voteRecordState: ${voteRecordState}`);
+				if (!(typeof scoapEmbed === 'undefined')) {
+					delete scoap_embed_state[scoapEmbed.getId()];
+					this.logToFile(`object deleted from scoapEmbedState. Reason: BotConvo timeout, deltaT: ${deltat} \n` +
+					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
+					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
+					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
+				}
+				this.logToFile(`object  deleted from botConvoState. reason: BotConvo timeout, deltaT: ${deltat} \n scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n botConvoState: ${JSON.stringify(botConvoState)}  \n voteRecordState: ${JSON.stringify(voteRecordState)}`);
 			}
 		}
 		return;

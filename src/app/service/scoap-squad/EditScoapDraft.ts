@@ -25,6 +25,9 @@ export const scoapEmbedUpdate = async (botConvo, user_input): Promise<any> => {
 		botConvo.setEdit(false);
 		break;
 	case 'reward' :
+		if (user_input === '!skip' || user_input === '!Skip') {
+			user_input = 'no reward defined';
+		}
 		updateFieldValues(scoapEmbed_fields, 'Reward', user_input);
 		botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 		publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());

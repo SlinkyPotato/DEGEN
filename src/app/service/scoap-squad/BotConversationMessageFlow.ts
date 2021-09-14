@@ -3,6 +3,7 @@ import constants from '../constants/constants';
 import { ScoapEmbed } from './ScoapClasses';
 import { Message } from 'discord.js';
 import ScoapUtils from '../../utils/ScoapUtils';
+import { scoapEmbedState, botConvoState, voteRecordState } from './ScoapDatabase';
 
 
 export default async (message: Message, botConvo: any): Promise<any> => {
@@ -16,9 +17,9 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '- 250 characters maximum\n ' +
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 250 characters maximum\n ' +
 																		'- alphanumeric\n ' +
-																		'- special characters: .!@#$%&,?']);
+																		'- special characters: .!@#$%&,?\n']);
 			return;
 		}
 		break;
@@ -31,9 +32,9 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '- 4000 characters maximum\n ' +
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 4000 characters maximum\n ' +
 																		'- alphanumeric\n ' +
-																		'- special characters: .!@#$%&,?']);
+																		'- special characters: .!@#$%&,?\n']);
 			return;
 		}
 		break;
@@ -46,8 +47,8 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '- 100 million maximum currency\n ' +
-																		'- accepted currencies: ETH, BANK']);
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 100 million maximum currency\n ' +
+																		'- accepted currencies: ETH, BANK\n']);
 			return;
 		}
 		break;
@@ -60,7 +61,7 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'number between 1 and 9']);
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\nnumber between 1 and 9\n']);
 			return;
 		}
 	case (botConvo.getCurrentMessageFlowIndex() === '6' || botConvo.getCurrentMessageFlowIndex() === '7'):
@@ -78,9 +79,9 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 					incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 					break;
 				default:
-					incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '- 250 characters maximum\n ' +
+					incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 250 characters maximum\n ' +
 																				'- alphanumeric\n ' +
-																				'- special characters: .!@#$%&,?']);
+																				'- special characters: .!@#$%&,?\n']);
 					return;
 				}
 				break;
@@ -105,10 +106,10 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 						});
 
 						return publishDraftScoapEmbed(botConvo, scoapEmbed, message.channel);
-					};
+					}
 					return;
 				default:
-					incrementMessageFlowIndex(botConvo, message, ['INCORRECT', 'number between 1 and 1000']);
+					incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\nnumber between 1 and 1000\n']);
 					return;
 				}
 				break;
@@ -128,6 +129,12 @@ const createNewScoapEmbed = (botConvo): any => {
 		.setCurrentMessage(botConvo.getCurrentMessage());
 	scoapEmbed.getEmbed()[0].fields.push({ name: '\u200b', value: constants.SCOAP_SQUAD_EMBED_SPACER });
 	botConvo.setScoapEmbedId(scoapEmbed.getId());
+	// has to be done here, otherwise edit function does not work
+	scoapEmbedState[scoapEmbed.getId()] = scoapEmbed;
+	ScoapUtils.logToFile('object added to scoapEmbedState. Reason: draftScoapEmbed created \n' +
+					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
+					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
+					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 	return scoapEmbed;
 };
 
@@ -188,7 +195,7 @@ const handleIncorrectInput = async (message, expected) => {
 			fields: [
 				{
 					name: '\u200b',
-					value: `Expected ${expected}, but received input "${message.content}". Please try again.`,
+					value: `Valid input: ${expected} \n but received input "${message.content}". Please try again.`,
 				},
 			],
 			footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },

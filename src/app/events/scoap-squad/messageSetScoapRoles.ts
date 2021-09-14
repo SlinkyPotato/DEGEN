@@ -9,9 +9,13 @@ export default async (message: Message): Promise<any> => {
 	if (messageIsValid(message, botConvo)) {
 
 		if (botConvo.getEdit()) {
-			scoapEmbedUpdate(botConvo, message.content);
+			scoapEmbedUpdate(botConvo, message);
+			if (botConvo.getCurrentMessageFlowIndex() === '6' || botConvo.getCurrentMessageFlowIndex() === '7') {
+				BotConversationMessageFlow(message, botConvo);
+			}
+		} else {
+			BotConversationMessageFlow(message, botConvo);
 		}
-		BotConversationMessageFlow(message, botConvo);
 		return;
 	}
 	return;

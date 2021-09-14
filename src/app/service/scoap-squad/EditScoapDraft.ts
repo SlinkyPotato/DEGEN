@@ -3,36 +3,64 @@ import constants from '../constants/constants';
 import { scoapEmbedState } from './ScoapDatabase';
 import { publishDraftScoapEmbed } from '../../service/scoap-squad/CreateNewScoapPoll';
 import ScoapUtils from '../../utils/ScoapUtils';
+import { incrementMessageFlowIndex } from './BotConversationMessageFlow';
 
-export const scoapEmbedUpdate = async (botConvo, user_input): Promise<any> => {
+export const scoapEmbedUpdate = async (botConvo, message): Promise<any> => {
 	const scoapEmbed = scoapEmbedState[botConvo.getScoapEmbedId()];
 	const scoapEmbed_fields = scoapEmbed.getEmbed()[0].fields;
 	const botConvoResponseRecord_fields = botConvo.getConvo().user_response_record.embed[0].fields;
 	const interaction_value = botConvo.getEditValue();
+	let user_input = message.content;
 	switch (interaction_value) {
 	case 'title':
-		scoapEmbed.getEmbed()[0].title = user_input;
-		botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
-		publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
-		botConvo.getConvo().user_response_record.embed[0].title = user_input;
-		botConvo.setEdit(false);
+		switch (true) {
+		case (ScoapUtils.validateTitle(user_input)):
+			scoapEmbed.getEmbed()[0].title = user_input;
+			botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
+			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+			botConvo.getConvo().user_response_record.embed[0].title = user_input;
+			botConvo.setEdit(false);
+			return;
+		default:
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 250 characters maximum\n ' +
+																		'- alphanumeric\n ' +
+																		'- special characters: .!@#$%&,?\n']);
+			return;
+		}
 		break;
 	case 'summary':
-		updateFieldValues(scoapEmbed_fields, 'Summary', user_input);
-		botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
-		publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
-		botConvoResponseRecord_fields.Summary = user_input;
-		botConvo.setEdit(false);
+		switch (true) {
+		case (ScoapUtils.validateSummary(user_input)):
+			updateFieldValues(scoapEmbed_fields, 'Summary', user_input);
+			botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
+			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+			botConvoResponseRecord_fields.Summary = user_input;
+			botConvo.setEdit(false);
+			return;
+		default:
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 4000 characters maximum\n ' +
+																		'- alphanumeric\n ' +
+																		'- special characters: .!@#$%&,?\n']);
+			return;
+		}
 		break;
 	case 'reward' :
-		if (user_input === '!skip' || user_input === '!Skip') {
-			user_input = 'no reward defined';
+		switch (true) {
+		case (ScoapUtils.validateReward(user_input)):
+			if (user_input === '!skip' || user_input === '!Skip') {
+				user_input = 'no reward defined';
+			}
+			updateFieldValues(scoapEmbed_fields, 'Reward', user_input);
+			botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
+			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+			botConvoResponseRecord_fields.Reward = user_input;
+			botConvo.setEdit(false);
+			return;
+		default:
+			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 100 million maximum currency\n ' +
+																		'- accepted currencies: ETH, BANK\n']);
+			return;
 		}
-		updateFieldValues(scoapEmbed_fields, 'Reward', user_input);
-		botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
-		publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
-		botConvoResponseRecord_fields.Reward = user_input;
-		botConvo.setEdit(false);
 		break;
 	default:
 		if (botConvo.getCurrentMessageFlowIndex() === '6') {
@@ -40,28 +68,23 @@ export const scoapEmbedUpdate = async (botConvo, user_input): Promise<any> => {
 			const user_response_record_key = ScoapUtils.getKeyByValue(constants.EMOJIS, interaction_value);
 			updateRoleFieldsBotConvoRecord(botConvo, user_response_record_key, user_input, 'ROLE_TITLE');
 		} else if (botConvo.getCurrentMessageFlowIndex() === '7') {
-			updateRoleFields(scoapEmbed_fields, interaction_value, user_input, 'ROLE_COUNT');
-			const user_response_record_key = ScoapUtils.getKeyByValue(constants.EMOJIS, interaction_value);
-			updateRoleFieldsBotConvoRecord(botConvo, user_response_record_key, user_input, 'ROLE_COUNT');
-			botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
-			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
-			botConvo.setEdit(false);
+			if (ScoapUtils.validateTotalNumberOfPeoplePerRole(user_input)) {
+				updateRoleFields(scoapEmbed_fields, interaction_value, user_input, 'ROLE_COUNT');
+				const user_response_record_key = ScoapUtils.getKeyByValue(constants.EMOJIS, interaction_value);
+				updateRoleFieldsBotConvoRecord(botConvo, user_response_record_key, user_input, 'ROLE_COUNT');
+				botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
+				publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+				botConvo.setEdit(false);
+			} else {
+				incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\nnumber between 1 and 1000\n']);
+			}
 		}
 	}
 
 };
 
 export const scoapEmbedEdit = (scoapEmbed): any => {
-	const info_message = {
-		color: '#0099ff',
-		fields: [
-			{
-				name: '\u200b',
-				value: 'Select below the content you want to edit',
-			},
-		],
-		footer: { text: constants.SCOAP_SQUAD_EMBED_SPACER },
-	};
+	const info_message = 'Select below the content you want to edit';
 	const scoapEmbed_fields = scoapEmbed.getEmbed()[0].fields;
 	const select_options = [
 		{
@@ -95,21 +118,19 @@ export const scoapEmbedEdit = (scoapEmbed): any => {
 				.setPlaceholder('Nothing selected')
 				.addOptions(select_options),
 		);
-	// const edit_message_object = { embeds: [info_message], components: [row] };
-	const edit_message_object = { content: info_message.fields[0].value, components: [row] };
+	const edit_message_object = { content: info_message, components: [row] };
 	return edit_message_object;
 };
 
 
 const updateFieldValues = (array, key, input) => {
 	const obj = array.find(o => o.name === key);
-	if (obj !== 'undefined') {
+	if (!(typeof obj === 'undefined')) {
 		obj.value = input;
 		return obj.value;
 	} else {
-		return 'Not defined, select to add now';
+		array.splice(1, 0, { name: 'Reward', value: input });
 	}
-	
 };
 
 const updateRoleFields = (array, key, input, option) => {
@@ -141,7 +162,7 @@ const updateRoleFieldsBotConvoRecord = (botConvo, key, input, option) => {
 export const retrieveFieldValues = (array, key) => {
 	const obj = array.find(o => o.name === key);
 	// console.log('OBJECT ', obj);
-	if (obj !== 'undefined') {
+	if (!(typeof obj === 'undefined')) {
 		return obj.value;
 	} else {
 		return 'Not defined, select to add now';

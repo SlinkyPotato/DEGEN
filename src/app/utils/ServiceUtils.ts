@@ -17,7 +17,9 @@ import roleIDs from '../service/constants/roleIds';
 import ValidationError from '../errors/ValidationError';
 import { Confusables } from "./Confusables";
 
-const excludeFromSanitization = /[^a-zA-Z0-9-_.,|()$ ]/g;
+const nonStandardCharsRegex = /[^\w\s\p{P}\p{S}Ξ]/gu;
+const emojiRegex = /\p{So}/gu
+const whitespaceRegex = /[\s]/g
 
 const ServiceUtils = {
 	async getGuildAndMember(ctx: CommandContext): Promise<{ guild: Guild, guildMember: GuildMember }> {
@@ -155,8 +157,9 @@ const ServiceUtils = {
 	 */
 	sanitizeUsername(name: string) {
 		return name.normalize('NFKC')
-			.replace(excludeFromSanitization, char => Confusables.get(char) || char)
-			.replace(/[\s]/g, '')
+			.replace(emojiRegex, '')
+			.replace(whitespaceRegex, '')
+			.replace(nonStandardCharsRegex, char => Confusables.get(char) || char)
 			.toLowerCase();
 	},
 	

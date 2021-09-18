@@ -150,6 +150,14 @@ describe('Service Utils', () => {
             expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
 
+        it('should ban user with matching nickname with an emoji', async () => {
+            guildMember.nickname = '0xLucas🏴';
+            guildMember.user.username = 'Imposter';
+            expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
+            expect(guildMember.ban).toHaveBeenCalledTimes(1);
+            expect(guildMember.send).toHaveBeenCalledTimes(1);
+        });
+
         it('should ban user with matching nickname that has no spaces', async () => {
             guildMember.nickname = 'AboveAverageJoe';
             guildMember.user.username = 'Imposter';
@@ -180,6 +188,15 @@ describe('Service Utils', () => {
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
+
+        it('should not ban user with additional numbers', async () => {
+            guildMember.nickname = '0xLucas2';
+            guildMember.user.username = 'Imposter';
+            expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
+            expect(guildMember.ban).toHaveBeenCalledTimes(0);
+            expect(guildMember.send).toHaveBeenCalledTimes(0);
+        });
+
     })
 
     describe('Get members with roles', () => {

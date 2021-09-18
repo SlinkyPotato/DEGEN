@@ -72,7 +72,7 @@ const POAPUtils = {
 		}
 		for (let i = 0; i < listOfParticipants.length; i++) {
 			try {
-				guildMember.guild.members.fetch(listOfParticipants[i].id)
+				await guildMember.guild.members.fetch(listOfParticipants[i].id)
 					.then(async (participantMember: GuildMember) => {
 						await participantMember.send({ content: `Thank you for participating in BanklessDAO! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
 							console.log(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`);
@@ -87,11 +87,11 @@ const POAPUtils = {
 							console.error(e);
 						});
 					});
-				console.log(`Links sent to ${listOfParticipants.length} participants.`);
 			} catch (e) {
 				console.log('user might have been banned');
 			}
 		}
+		console.log(`Links sent to ${listOfParticipants.length} participants.`);
 	},
 
 	async validateEvent(guildMember: GuildMember, event?: string): Promise<any> {

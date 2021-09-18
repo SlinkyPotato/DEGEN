@@ -1,6 +1,6 @@
 import { Guild, GuildChannel, GuildMember, VoiceState } from 'discord.js';
 import { Collection, Cursor, Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import constants from '../../service/constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import { POAPParticipant } from '../../types/poap/POAPParticipant';
@@ -13,7 +13,6 @@ export default async (oldState: VoiceState, newState: VoiceState): Promise<any> 
 	const guild: Guild = (oldState.guild != null) ? oldState.guild : newState.guild;
 	const member: GuildMember = (oldState.guild != null) ? oldState.member : newState.member;
 	
-	// TODO: implement cache instead of calling db
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 

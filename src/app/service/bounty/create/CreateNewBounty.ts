@@ -3,7 +3,7 @@ import BountyUtils from '../../../utils/BountyUtils';
 import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
 import { finalizeBounty } from './PublishBounty';
 import { Db, Int32 } from 'mongodb';
-import dbInstance from '../../../utils/db';
+import dbInstance from '../../../utils/dbUtils';
 import { deleteBountyForValidId } from '../DeleteBounty';
 import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
 import ServiceUtils from '../../../utils/ServiceUtils';

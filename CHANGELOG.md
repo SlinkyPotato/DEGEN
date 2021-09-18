@@ -1,10 +1,19 @@
 # Changelog
 
-## 1.5.0-SNAPSHOT
+## 1.5.2-RELEASE (2021-09-10)
+
+1. Extend to 25+ voice channels for /poap start
+
+## 1.5.1-RELEASE (2021-09-10)
+
+1. Manually add registered servers for /help and /poap commands (needs to be looked into)
+
+## 1.5.0-RELEASE (2021-09-09)
 
 1. Convert event modules to classes
 2. Fix guest event partials
 3. Expand poap distribution to all voice channels
+4. Add config for poap commands
 
 ## 1.4.0-RELEASE (2021-08-31)
 

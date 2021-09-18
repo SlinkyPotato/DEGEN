@@ -1,6 +1,6 @@
 import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
 import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
@@ -9,10 +9,10 @@ import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
 
 export default async (guildMember: GuildMember): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	await POAPUtils.validateUserAccess(guildMember, db);
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
-
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
-		poapManagerId: guildMember.user.id,
+		discordUserId: guildMember.user.id,
 		discordServerId: guildMember.guild.id,
 		isActive: true,
 	});
@@ -29,12 +29,12 @@ export default async (guildMember: GuildMember): Promise<any> => {
 	if (updateSettingsResult.modifiedCount !== 1) {
 		throw new ValidationError('Event is not active.');
 	}
-	console.log(`event ${poapSettingsDoc.event} ended in ${poapSettingsDoc.discordServerName} for ${poapSettingsDoc.voiceChannelName}`);
+	console.log(`event ${poapSettingsDoc.event} ended in ${poapSettingsDoc.discordServerId} for ${poapSettingsDoc.voiceChannelName}`);
 	const channel: GuildChannel = await guildMember.guild.channels.fetch(poapSettingsDoc.voiceChannelId);
 	const listOfParticipants = await POAPUtils.getListOfParticipants(guildMember, db, channel);
 	
 	if (listOfParticipants.length <= 0) {
-		return guildMember.send({ content: `No participants found for ${channel.name} in ${channel.guild.name}.` });
+		return guildMember.send({ content: `Event ended. No participants found for ${channel.name} in ${channel.guild.name}.` });
 	}
 	
 	const bufferFile = await getBufferFromParticipants(listOfParticipants, channel);
@@ -52,7 +52,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` });
 	}
 
-	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Would you like me send out POAP links to participants? `(yes/no)`' });
+	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(yes/no)`' });
 	const dmChannel: DMChannel = await sendOutPOAPReplyMessage.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -67,6 +67,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 	} else {
 		await guildMember.send({ content: 'You got it!' });
 	}
+	await guildMember.send({ content: 'POAP links sent out to participants!' });
 	return;
 };
 

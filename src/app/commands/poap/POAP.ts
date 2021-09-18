@@ -10,13 +10,59 @@ import ValidationError from '../../errors/ValidationError';
 import EarlyTermination from '../../errors/EarlyTermination';
 import EndPOAP from '../../service/poap/EndPOAP';
 import DistributePOAP from '../../service/poap/DistributePOAP';
+import ConfigPOAP from '../../service/poap/ConfigPOAP';
+import discordServerIds from '../../service/constants/discordServerIds';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'poap',
 			description: 'Receive a list of all attendees in the specified voice channel and optionally send out POAP links',
+			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
 			options: [
+				{
+					name: 'config',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Begin POAP event and start tracking participants.',
+					options: [
+						{
+							name: 'role-1',
+							type: CommandOptionType.ROLE,
+							description: 'The role that should have access to poap commands.',
+							required: false,
+						},
+						{
+							name: 'role-2',
+							type: CommandOptionType.ROLE,
+							description: 'The role that should have access to poap commands.',
+							required: false,
+						},
+						{
+							name: 'role-3',
+							type: CommandOptionType.ROLE,
+							description: 'The role that should have access to poap commands.',
+							required: false,
+						},
+						{
+							name: 'user-1',
+							type: CommandOptionType.USER,
+							description: 'The user that should have access to poap commands.',
+							required: false,
+						},
+						{
+							name: 'user-2',
+							type: CommandOptionType.USER,
+							description: 'The user that should have access to poap commands.',
+							required: false,
+						},
+						{
+							name: 'user-3',
+							type: CommandOptionType.USER,
+							description: 'The user that should have access to poap commands.',
+							required: false,
+						},
+					],
+				},
 				{
 					name: 'start',
 					type: CommandOptionType.SUB_COMMAND,
@@ -26,6 +72,7 @@ module.exports = class poap extends SlashCommand {
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event name for the discussion',
+							required: false,
 						},
 					],
 				},
@@ -54,8 +101,16 @@ module.exports = class poap extends SlashCommand {
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		
 		let command: Promise<any>;
+		let authorizedRoles: any[];
+		let authorizedUsers: any[];
 		try {
 			switch (ctx.subcommands[0]) {
+			case 'config':
+				console.log(`/poap config ${ctx.user.username}#${ctx.user.discriminator}`);
+				authorizedRoles = [ctx.options.config['role-1'], ctx.options.config['role-2'], ctx.options.config['role-3']];
+				authorizedUsers = [ctx.options.config['user-1'], ctx.options.config['user-2'], ctx.options.config['user-3']];
+				command = ConfigPOAP(guildMember, authorizedRoles, authorizedUsers);
+				break;
 			case 'start':
 				console.log(`/poap start ${ctx.user.username}#${ctx.user.discriminator}`);
 				command = StartPOAP(guildMember, ctx.options.start.event);

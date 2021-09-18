@@ -7,7 +7,7 @@ import {
 	VoiceChannel,
 } from 'discord.js';
 import { Collection, Cursor, Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
-import dbInstance from '../../utils/db';
+import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import ValidationError from '../../errors/ValidationError';
@@ -17,12 +17,14 @@ import EarlyTermination from '../../errors/EarlyTermination';
 import POAPUtils from '../../utils/POAPUtils';
 
 export default async (guildMember: GuildMember, event?: string): Promise<any> => {
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+
+	await POAPUtils.validateUserAccess(guildMember, db);
 	await POAPUtils.validateEvent(guildMember, event);
 	
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const activeSettingsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
-		poapManagerId: guildMember.id,
+		discordUserId: guildMember.id,
 		isActive: true,
 	});
 	const activeSettings: POAPSettings = await activeSettingsCursor.next();
@@ -33,7 +35,7 @@ export default async (guildMember: GuildMember, event?: string): Promise<any> =>
 	}
 	
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
-	const message: Message = await guildMember.send({ embeds: [generateVoiceChannelEmbedMessage(voiceChannels)] });
+	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) });
 	const channelChoice: GuildChannel = await askUserForChannel(guildMember, message, voiceChannels);
 
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
@@ -44,7 +46,7 @@ export default async (guildMember: GuildMember, event?: string): Promise<any> =>
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
 		console.log('unable to start due to active event');
 		await guildMember.send({ content: 'Event is already active.' });
-		throw new ValidationError(`\`${channelChoice.name}\` is already active by <@${poapSettingsDoc.poapManagerId}>.`);
+		throw new ValidationError(`\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`);
 	}
 
 	if (poapSettingsDoc == null) {
@@ -61,8 +63,7 @@ export default async (guildMember: GuildMember, event?: string): Promise<any> =>
 		$set: {
 			isActive: true,
 			startTime: currentDateStr,
-			poapManagerId: guildMember.user.id,
-			poapManagerTag: guildMember.user.tag,
+			discordUserId: guildMember.user.id,
 			event: event,
 		},
 	});
@@ -76,13 +77,10 @@ export const setupPoapSetting = async (guildMember: GuildMember, poapSettingsDB:
 		event: event,
 		isActive: true,
 		startTime: currentDateStr,
-		poapManagerId: guildMember.user.id.toString(),
-		poapManagerTag: guildMember.user.tag.toString(),
+		discordUserId: guildMember.user.id.toString(),
 		voiceChannelId: guildChannel.id.toString(),
 		voiceChannelName: guildChannel.name.toString(),
 		discordServerId: guildChannel.guild.id.toString(),
-		discordServerName: guildChannel.guild.name.toString(),
-
 	};
 	const result: InsertOneWriteOpResult<POAPSettings> = await poapSettingsDB.insertOne(poapSetting);
 	if (result == null || result.insertedCount !== 1) {
@@ -111,22 +109,42 @@ export const storePresentMembers = async (guild: Guild, db: Db, channel: GuildCh
 	}
 };
 
-export const generateVoiceChannelEmbedMessage = (voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>): MessageEmbedOptions => {
-	const fields: EmbedField[] = [];
+export const generateVoiceChannelEmbedMessage = (voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>): MessageEmbedOptions[] => {
+	const embeds: MessageEmbedOptions[] = [];
 	let i = 1;
+	let k = 1;
+	let fields: EmbedField[] = [];
 	for (const channel of voiceChannels.values()) {
-		fields.push({
-			name: channel.name,
-			value: `${i}`,
-			inline: true,
-		});
+		if (k < 26) {
+			fields.push({
+				name: channel.name,
+				value: `${i}`,
+				inline: true,
+			});
+			k++;
+		} else {
+			embeds.push({
+				title: 'Available Voice Channels',
+				description: 'For which voice channel would you like to start POAP tracking? Please reply with a number.',
+				fields: fields,
+			});
+			k = 0;
+			fields = [{
+				name: channel.name,
+				value: `${i}`,
+				inline: true,
+			}];
+		}
 		i++;
 	}
-	return {
-		title: 'Available Voice Channels',
-		description: 'For which voice channel would you like to start POAP tracking? Please reply with a number.',
-		fields: fields,
-	};
+	if (fields.length >= 1) {
+		embeds.push({
+			title: 'Available Voice Channels',
+			description: 'For which voice channel would you like to start POAP tracking? Please reply with a number.',
+			fields: fields,
+		});
+	}
+	return embeds;
 };
 
 export const askUserForChannel = async (guildMember: GuildMember, dmMessage: Message, voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>): Promise<GuildChannel> => {

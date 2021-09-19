@@ -22,8 +22,8 @@ export default class implements DiscordEvent {
 			console.error('Retrieving member partial failed');
 			return;
 		}
-
-		if ((oldMember.nickname !== newMember.nickname) 
+		
+		if ((oldMember.nickname !== newMember.nickname || oldMember.user.username !== newMember.user.username) 
 			&& ServiceUtils.runUsernameSpamFilter(newMember as GuildMember)) {
 			return;
 		}

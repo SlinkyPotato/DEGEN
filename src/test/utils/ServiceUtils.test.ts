@@ -1,4 +1,4 @@
-import { GuildMember } from 'discord.js';
+import { DataManager, GuildMember, GuildMemberRoleManager } from 'discord.js';
 import { Collection } from '@discordjs/collection';
 import ServiceUtils from '../../app/utils/ServiceUtils';
 import roleIDs from '../../app/service/constants/roleIds';
@@ -27,7 +27,10 @@ jest.mock('discord.js', () => {
                 send: jest.fn(() => Promise.resolve()),
                 guild: {
                     fetch: jest.fn(() => Promise.resolve(guild))
-                }
+                },
+                roles: {
+                    cache: new Collection()
+                },
             };
         })
     };
@@ -98,6 +101,7 @@ describe('Service Utils', () => {
         it('should not ban user with no matching nickname', async () => {
             guildMember.nickname = 'New Pioneer';
             guildMember.user.username = 'New Pioneer';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
             expect(guildMember.ban).toHaveBeenCalledTimes(0);
             expect(guildMember.send).toHaveBeenCalledTimes(0);
@@ -105,6 +109,28 @@ describe('Service Utils', () => {
 
         it('should not ban user with no matching username', async () => {
             guildMember.user.username = 'New Pioneer';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
+            expect(guildMember.ban).toHaveBeenCalledTimes(0);
+            expect(guildMember.send).toHaveBeenCalledTimes(0);
+        });
+
+        it('should not ban user with additional numbers', async () => {
+            guildMember.nickname = '0xLucas2';
+            guildMember.user.username = 'Imposter';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
+            expect(guildMember.ban).toHaveBeenCalledTimes(0);
+            expect(guildMember.send).toHaveBeenCalledTimes(0);
+        });
+
+        it('should not ban user that is at least level 2', async () => {
+            guildMember.nickname = '0xLucas';
+            guildMember.user.username = '0xLucas'
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember.roles, 'cache', { get: () => 
+                new Collection([[roleIDs.genesisSquad, {id: roleIDs.genesisSquad}]])
+            });
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
             expect(guildMember.ban).toHaveBeenCalledTimes(0);
             expect(guildMember.send).toHaveBeenCalledTimes(0);
@@ -113,7 +139,9 @@ describe('Service Utils', () => {
         it('should ban user when message fails to send', async () => {
             guildMember.nickname = '0xLucas';
             guildMember.user.username = 'Imposter';
-            guildMember.send = jest.fn(() => Promise.reject()) as any
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            guildMember.send = jest.fn(() => Promise.reject(
+                "DiscordAPIError Code 50007: Cannot send messages to this user.")) as any
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -122,6 +150,7 @@ describe('Service Utils', () => {
         it('should ban user with matching nickname', async () => {
             guildMember.nickname = '0xLucas';
             guildMember.user.username = 'Imposter';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -129,6 +158,7 @@ describe('Service Utils', () => {
 
         it('should ban user with matching username', async () => {
             guildMember.user.username = '0xLucas';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -137,6 +167,7 @@ describe('Service Utils', () => {
         it('should ban user with matching nickname that has different case', async () => {
             guildMember.nickname = '0xlucas';
             guildMember.user.username = 'Imposter';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -145,6 +176,7 @@ describe('Service Utils', () => {
         it('should ban user with confusable diacritical mark in nickname', async () => {
             guildMember.nickname = '0xLucàs';
             guildMember.user.username = 'Imposter';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -153,6 +185,7 @@ describe('Service Utils', () => {
         it('should ban user with matching nickname with an emoji', async () => {
             guildMember.nickname = '0xLucas🏴';
             guildMember.user.username = 'Imposter';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -161,6 +194,7 @@ describe('Service Utils', () => {
         it('should ban user with matching nickname that has no spaces', async () => {
             guildMember.nickname = 'AboveAverageJoe';
             guildMember.user.username = 'Imposter';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -169,6 +203,7 @@ describe('Service Utils', () => {
         it('should ban user with confusable greek letter in nickname', async () => {
             guildMember.nickname = 'Αbove Average Joe'; // first Α is a greek letter
             guildMember.user.username = 'Imposter';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -176,6 +211,7 @@ describe('Service Utils', () => {
 
         it('should ban user with confusable cyrillic letter in username', async () => {
             guildMember.user.username = 'Аbove Average Joe'; // first Α is a cyrillic letter
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -184,19 +220,11 @@ describe('Service Utils', () => {
         it('should ban user with compatible ligature in nickname', async () => {
             guildMember.nickname = 'ﬀﬀbanks';
             guildMember.user.username = 'Imposter';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
         });
-
-        it('should not ban user with additional numbers', async () => {
-            guildMember.nickname = '0xLucas2';
-            guildMember.user.username = 'Imposter';
-            expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
-            expect(guildMember.ban).toHaveBeenCalledTimes(0);
-            expect(guildMember.send).toHaveBeenCalledTimes(0);
-        });
-
     })
 
     describe('Get members with roles', () => {

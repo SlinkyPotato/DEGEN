@@ -86,15 +86,19 @@ const ServiceUtils = {
 		};
 		return (new Date(dateIso)).toLocaleString('en-US', options);
 	},
-	
-	validateLevel2AboveMembers(guildMember: GuildMember): void {
+
+	isAtLeastLevel2(guildMember: GuildMember): boolean {
 		const isLevel2 = ServiceUtils.isLevel2(guildMember);
 		const isLevel3 = ServiceUtils.isLevel3(guildMember);
 		const isLevel4 = ServiceUtils.isLevel4(guildMember);
 		const isGenesisSquad = ServiceUtils.isGenesisSquad(guildMember);
 		const isAdmin = ServiceUtils.isAdmin(guildMember);
 
-		if (!(isLevel2 || isLevel3 || isLevel4 || isAdmin || isGenesisSquad)) {
+		return isLevel2 || isLevel3 || isLevel4 || isAdmin || isGenesisSquad;
+	},
+	
+	validateLevel2AboveMembers(guildMember: GuildMember): void {
+		if (!(ServiceUtils.isAtLeastLevel2(guildMember))) {
 			throw new ValidationError('Must be `level 2` or above member.');
 		}
 	},
@@ -107,9 +111,13 @@ const ServiceUtils = {
 	 * @returns boolean indicating if user was banned
 	 */
 	async runUsernameSpamFilter(member: GuildMember): Promise<boolean> {
+		if(ServiceUtils.isAtLeastLevel2(member)) {
+			return false;
+		}
+
 		if (!member.bannable) {
 			console.log(`Skipping username spam filter because ${member.user.tag} is not bannable.`)
-			return;
+			return false;
 		}
 
 		const guild = await member.guild.fetch();
@@ -142,7 +150,13 @@ const ServiceUtils = {
 				}) 
 
 			await member.ban({reason: 'Autobanned for having similar nickname or username as high-ranking member.'})
-			console.log(`Auto-banned ${member.user.tag}`);
+				.then(() => {
+					console.log(`Auto-banned ${member.user.tag}`);
+				})
+				.catch(e => {
+					console.log(`Unable to auto-ban ${member.user.tag}. ${e}`)
+				}) 
+			
 			return true;
 		}
 

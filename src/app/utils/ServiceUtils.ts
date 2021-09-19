@@ -33,11 +33,7 @@ const ServiceUtils = {
 	async getMembersWithRoles(guild: Guild, roles: string[]): Promise<Collection<Snowflake, GuildMember>> {
 		const guildMembers = await guild.members.fetch();
  		return guildMembers.filter(member => {
-			for (let role of roles) {
-				if (member.roles.cache.some(r => r.id === role)) {
-					return true;
-				}
-			}
+			return ServiceUtils.hasSomeRole(member, roles)
 		})
 	},
 
@@ -46,35 +42,44 @@ const ServiceUtils = {
 			return role.id === roleIDs.guestPass;
 		});
 	},
-	
-	isAdmin(guildMember: GuildMember): boolean {
-		return guildMember.roles.cache.some(role => role.id === roleIDs.admin);
-	},
-	
-	isLevel1(guildMember: GuildMember): boolean {
-		return guildMember.roles.cache.some(role => role.id === roleIDs.level1);
+
+	hasRole(guildMember: GuildMember, role: string): boolean {
+		return guildMember.roles.cache.some(r => r.id === role)
 	},
 
-	isLevel2(guildMember: GuildMember): boolean {
-		return guildMember.roles.cache.some(role => role.id === roleIDs.level2);
+	hasSomeRole(guildMember: GuildMember, roles: string[]): boolean {
+		for (let role of roles) {
+			if (ServiceUtils.hasRole(guildMember, role)) {
+				return true;
+			}
+		}
+		return false;
 	},
 
-	isLevel3(guildMember: GuildMember): boolean {
-		return guildMember.roles.cache.some(role => role.id === roleIDs.level3);
-	},
-
-	isLevel4(guildMember: GuildMember): boolean {
-		return guildMember.roles.cache.some(role => role.id === roleIDs.level4);
-	},
-	
-	isGenesisSquad(guildMember: GuildMember): boolean {
-		return guildMember.roles.cache.some(role => role.id === roleIDs.genesisSquad);
-	},
-	
 	isAnyLevel(guildMember: GuildMember): boolean {
 		console.log(guildMember.roles.cache);
-		return guildMember.roles.cache.some(role => role.id === roleIDs.level1
-			|| role.id === roleIDs.level2 || role.id === roleIDs.level3 || role.id === roleIDs.level4);
+		return ServiceUtils.hasSomeRole(guildMember, [
+			roleIDs.level1,
+			roleIDs.level2, 
+			roleIDs.level3, 
+			roleIDs.level4, 
+		]);
+	},
+
+	isAtLeastLevel2(guildMember: GuildMember): boolean {
+		return ServiceUtils.hasSomeRole(guildMember, [
+			roleIDs.level2, 
+			roleIDs.level3, 
+			roleIDs.level4, 
+			roleIDs.admin, 
+			roleIDs.genesisSquad
+		])
+	},
+	
+	validateLevel2AboveMembers(guildMember: GuildMember): void {
+		if (!(ServiceUtils.isAtLeastLevel2(guildMember))) {
+			throw new ValidationError('Must be `level 2` or above member.');
+		}
 	},
 	
 	formatDisplayDate(dateIso: string): string {
@@ -87,22 +92,6 @@ const ServiceUtils = {
 		return (new Date(dateIso)).toLocaleString('en-US', options);
 	},
 
-	isAtLeastLevel2(guildMember: GuildMember): boolean {
-		const isLevel2 = ServiceUtils.isLevel2(guildMember);
-		const isLevel3 = ServiceUtils.isLevel3(guildMember);
-		const isLevel4 = ServiceUtils.isLevel4(guildMember);
-		const isGenesisSquad = ServiceUtils.isGenesisSquad(guildMember);
-		const isAdmin = ServiceUtils.isAdmin(guildMember);
-
-		return isLevel2 || isLevel3 || isLevel4 || isAdmin || isGenesisSquad;
-	},
-	
-	validateLevel2AboveMembers(guildMember: GuildMember): void {
-		if (!(ServiceUtils.isAtLeastLevel2(guildMember))) {
-			throw new ValidationError('Must be `level 2` or above member.');
-		}
-	},
-
 	/**
 	 * Bans a guild member if they have a nickname or username similar to that of a high ranking member 
 	 * of the Discord. 
@@ -112,6 +101,7 @@ const ServiceUtils = {
 	 */
 	async runUsernameSpamFilter(member: GuildMember): Promise<boolean> {
 		if(ServiceUtils.isAtLeastLevel2(member)) {
+			console.log(`Skipping username spam filter because ${member.user.tag} is at least level 2.`)
 			return false;
 		}
 

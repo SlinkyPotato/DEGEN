@@ -2,6 +2,7 @@ import { DataManager, GuildMember, GuildMemberRoleManager } from 'discord.js';
 import { Collection } from '@discordjs/collection';
 import ServiceUtils from '../../app/utils/ServiceUtils';
 import roleIDs from '../../app/service/constants/roleIds';
+import roleIds from '../../app/service/constants/roleIds';
 
 const guildMembers: Collection<string, any> = new Collection();
 
@@ -246,6 +247,72 @@ describe('Service Utils', () => {
         it('should return 3 members', async () => {
             const members = await ServiceUtils.getMembersWithRoles(guild as any, [roleIDs.genesisSquad, roleIDs.admin, roleIDs.developersGuild])
             expect(members.size).toBe(3);
+        })
+    })
+
+    describe('Check user roles', () => {
+        it('should return false for user that is not admin', () => {
+            Object.defineProperty(guildMember.roles, 'cache', { get: () => 
+                new Collection([
+                    [roleIDs.level1, {id: roleIDs.level1}], 
+                    [roleIDs.level2, {id: roleIDs.level2}]
+                ])
+            });
+            const result = ServiceUtils.hasRole(guildMember, roleIds.admin)
+            expect(result).toBe(false);
+        })
+
+        it('should return true for user that is admin', () => {
+            Object.defineProperty(guildMember.roles, 'cache', { get: () => 
+                new Collection([
+                    [roleIDs.admin, {id: roleIDs.admin}]
+                ])
+            });
+            const result = ServiceUtils.hasRole(guildMember, roleIds.admin)
+            expect(result).toBe(true);
+        })
+
+        it('should return false for user that is not admin or genesis', () => {
+            Object.defineProperty(guildMember.roles, 'cache', { get: () => 
+                new Collection([
+                    [roleIDs.level1, {id: roleIDs.level1}], 
+                    [roleIDs.level2, {id: roleIDs.level2}]
+                ])
+            });
+            const result = ServiceUtils.hasSomeRole(guildMember, [roleIds.admin, roleIds.genesisSquad])
+            expect(result).toBe(false);
+        })
+
+        it('should return true for user that is admin or genesis', () => {
+            Object.defineProperty(guildMember.roles, 'cache', { get: () => 
+                new Collection([
+                    [roleIDs.admin, {id: roleIDs.admin}], 
+                    [roleIDs.level2, {id: roleIDs.level2}]
+                ])
+            });
+            const result = ServiceUtils.hasSomeRole(guildMember, [roleIds.admin, roleIds.genesisSquad])
+            expect(result).toBe(true);
+        })
+
+        it('should return false for user that is not at least level 2', () => {
+            Object.defineProperty(guildMember.roles, 'cache', { get: () => 
+                new Collection([
+                    [roleIDs.level1, {id: roleIDs.level1}]
+                ])
+            });
+            const result = ServiceUtils.isAtLeastLevel2(guildMember)
+            expect(result).toBe(false);
+        })
+
+        it('should return true for user that is at least level 2', () => {
+            Object.defineProperty(guildMember.roles, 'cache', { get: () => 
+                new Collection([
+                    [roleIDs.level1, {id: roleIDs.level1}],
+                    [roleIDs.level3, {id: roleIDs.level3}]
+                ])
+            });
+            const result = ServiceUtils.isAtLeastLevel2(guildMember)
+            expect(result).toBe(true);
         })
     })
 });

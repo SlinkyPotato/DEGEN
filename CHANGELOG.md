@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.3-RELEASE (TBD)
+
+1. Add username spam filter
+
 ## 1.5.2-RELEASE (2021-09-10)
 
 1. Extend to 25+ voice channels for /poap start

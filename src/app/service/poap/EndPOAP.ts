@@ -9,9 +9,7 @@ import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
 
 export default async (guildMember: GuildMember): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
-
 	await POAPUtils.validateUserAccess(guildMember, db);
-
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
 		discordUserId: guildMember.user.id,
@@ -54,7 +52,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` });
 	}
 
-	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Would you like me send out POAP links to participants? `(yes/no)`' });
+	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(yes/no)`' });
 	const dmChannel: DMChannel = await sendOutPOAPReplyMessage.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -69,6 +67,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 	} else {
 		await guildMember.send({ content: 'You got it!' });
 	}
+	await guildMember.send({ content: 'POAP links sent out to participants!' });
 	return;
 };
 

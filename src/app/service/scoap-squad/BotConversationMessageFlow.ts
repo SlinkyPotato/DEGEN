@@ -195,32 +195,32 @@ const handleIncorrectInput = async (message, expected) => {
 	return message.channel;
 } ;
 
-const setUserResponseRecord = (record_entry, botConvo, option) => {
+const setUserResponseRecord = (recordEntry, botConvo, option) => {
 	switch (option) {
 	case 'TITLE':
-		botConvo.getConvo().user_response_record.embed[0].title = record_entry;
+		botConvo.getConvo().user_response_record.embed[0].title = recordEntry;
 		break;
 	case 'SUMMARY':
-		botConvo.getConvo().user_response_record.embed[0].fields.push({ name: 'Summary', value: record_entry });
+		botConvo.getConvo().user_response_record.embed[0].fields.push({ name: 'Summary', value: recordEntry });
 		break;
 	case 'REWARD':
-		if (record_entry === '!skip' || record_entry === '!Skip') {
+		if (recordEntry === '!skip' || recordEntry === '!Skip') {
 			break;
 		} else {
-			botConvo.getConvo().user_response_record.embed[0].fields.push({ name: 'Reward', value: record_entry });
+			botConvo.getConvo().user_response_record.embed[0].fields.push({ name: 'Reward', value: recordEntry });
 			break;
 		}
 	case 'NUMBER_OF_ROLES':
-		botConvo.getConvo().user_response_record.number_of_roles = parseInt(record_entry);
+		botConvo.getConvo().user_response_record.number_of_roles = parseInt(recordEntry);
 		break;
 	case 'ROLE_TITLE':
-		botConvo.getConvo().user_response_record.roles[(getNumberOfRolesRecorded(botConvo)).toString()]['name'] = record_entry;
+		botConvo.getConvo().user_response_record.roles[(getNumberOfRolesRecorded(botConvo)).toString()]['name'] = recordEntry;
 		break;
 	case 'ROLE_COUNT':
-		botConvo.getConvo().user_response_record.roles[(getNumberOfRolesRecorded(botConvo)).toString()]['role_count'] = record_entry;
+		botConvo.getConvo().user_response_record.roles[(getNumberOfRolesRecorded(botConvo)).toString()]['role_count'] = recordEntry;
 		break;
 	case 'NEW_ROLE':
-		botConvo.getConvo().user_response_record.roles[(getNumberOfRolesRecorded(botConvo) + 1).toString()] = record_entry;
+		botConvo.getConvo().user_response_record.roles[(getNumberOfRolesRecorded(botConvo) + 1).toString()] = recordEntry;
 		break;
 	}
 };

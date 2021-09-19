@@ -52,9 +52,9 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 
 export const createReactionCollector = (embedMessage, validEmojiArray, timeout) => {
 	const filter = (reaction, user) => {
-		const emoji_valid = emojiValid(reaction.emoji.name, validEmojiArray);
-		const bot_reaction = user.bot;
-		return (emoji_valid && (!bot_reaction));
+		const emojiIsValid = emojiValid(reaction.emoji.name, validEmojiArray);
+		const botReaction = user.bot;
+		return (emojiIsValid && (!botReaction));
 	};
 
 	const collector = embedMessage.createReactionCollector({
@@ -146,33 +146,33 @@ export const collectReactions = async (scoapEmbed, voteRecord, validEmojiArray, 
 			embedMessage.reactions.removeAll();
 			return;
 		}
-		const discord_tags = [];
-		const role_summary = {};
+		const discordTags = [];
+		const roleSummary = {};
 		for (const reaction of collected.values()) {
 			for (const user of reaction.users.cache) {
 				if (!user[1].bot) {
-					const user_response_record_key = ScoapUtils.getKeyByValue(constants.EMOJIS, reaction.emoji.name);
-					const role = scoapEmbed.getBotConvoResponseRecord().roles[user_response_record_key];
-					discord_tags.push(user[1].tag);
-					if (!(role.name in role_summary)) {
-						role_summary[role.name] = [user[1].tag];
+					const userResponseRecordKey = ScoapUtils.getKeyByValue(constants.EMOJIS, reaction.emoji.name);
+					const role = scoapEmbed.getBotConvoResponseRecord().roles[userResponseRecordKey];
+					discordTags.push(user[1].tag);
+					if (!(role.name in roleSummary)) {
+						roleSummary[role.name] = [user[1].tag];
 					} else {
-						role_summary[role.name].push(user[1].tag);
+						roleSummary[role.name].push(user[1].tag);
 					}
-					const dm_channel = await user[1].createDM();
-					dm_channel.send(`Congratulations, you are part of the SCOAP Squad for role ${role.name}!`);
+					const dmChannel = await user[1].createDM();
+					dmChannel.send(`Congratulations, you are part of the SCOAP Squad for role ${role.name}!`);
 				}
 			}
 		}
-		let role_summary_string = 'Role Summary: \n';
-		for (const property in role_summary) {
-			role_summary_string += property + '\n' + role_summary[property].toString() + '\n';
+		let roleSummaryString = 'Role Summary: \n';
+		for (const property in roleSummary) {
+			roleSummaryString += property + '\n' + roleSummary[property].toString() + '\n';
 		}
-		const notion_inputs = {
-			discord_tags: discord_tags,
-			summary: role_summary_string,
+		const notionInputs = {
+			discord_tags: discordTags,
+			summary: roleSummaryString,
 		};
-		await updateScoapOnNotion(scoapEmbed.getNotionPageId(), notion_inputs);
+		await updateScoapOnNotion(scoapEmbed.getNotionPageId(), notionInputs);
 		delete scoapEmbedState[scoapEmbed.getId()];
 		delete voteRecordState[scoapEmbed.getId()];
 		ScoapUtils.logToFile('object deleted from botConvoState & voteRecordState. Reason: Poll End event \n' +
@@ -210,22 +210,22 @@ export const collectReactions = async (scoapEmbed, voteRecord, validEmojiArray, 
 
 const handleDeletePoll = async (user, scoapEmbed, embedMessage, collector) => {
 	if (user.id === scoapEmbed.getAuthor().id) {
-		const dm_channel = await user.createDM();
-		const embed_sample = cloneDeep(scoapEmbed.getEmbed());
-		embed_sample[0].footer = { text: '👍 - yes, delete | ❌ - cancel' };
-		const delete_confirm_message = await dm_channel.send({ content: 'you are about to delete the folowing SCOAP Squad Assemble: ', embeds: embed_sample });
-		await delete_confirm_message.react('👍');
-		await delete_confirm_message.react('❌');
-		delete_confirm_message.awaitReactions({
+		const dmChannel = await user.createDM();
+		const embedSample = cloneDeep(scoapEmbed.getEmbed());
+		embedSample[0].footer = { text: '👍 - yes, delete | ❌ - cancel' };
+		const deleteConfirmMessage = await dmChannel.send({ content: 'you are about to delete the folowing SCOAP Squad Assemble: ', embeds: embedSample });
+		await deleteConfirmMessage.react('👍');
+		await deleteConfirmMessage.react('❌');
+		deleteConfirmMessage.awaitReactions({
 			max: 1,
 			time: (constants.BOT_CONVERSATION_TIMEOUT_MS),
 			errors: ['time'],
-			filter: async (del_reaction, usr) => {
-				return ['👍', '❌'].includes(del_reaction.emoji.name) && !usr.bot;
+			filter: async (delReaction, usr) => {
+				return ['👍', '❌'].includes(delReaction.emoji.name) && !usr.bot;
 			},
 		}).then(async collected => {
-			const del_reaction: MessageReaction = collected.first();
-			if (del_reaction.emoji.name === '👍') {
+			const delReaction: MessageReaction = collected.first();
+			if (delReaction.emoji.name === '👍') {
 				delete scoapEmbedState[scoapEmbed.getId()];
 				delete voteRecordState[scoapEmbed.getId()];
 				await updateStatusSelectField(scoapEmbed.getNotionPageId(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.cancelled);
@@ -236,8 +236,8 @@ const handleDeletePoll = async (user, scoapEmbed, embedMessage, collector) => {
 				deleteScoapEmbedAndVoteRecord(scoapEmbed.getId());
 				await embedMessage.edit({ embeds: [{ title: 'Scoap Squad cancelled' }] });
 				collector.stop('cancelled');
-				await dm_channel.send({ content: 'ScoapSquad Assemble cancelled. ' });
-			} else if (del_reaction.emoji.name === '❌') {
+				await dmChannel.send({ content: 'ScoapSquad Assemble cancelled. ' });
+			} else if (delReaction.emoji.name === '❌') {
 				return;
 			}
 		}).catch(_ => {
@@ -248,18 +248,18 @@ const handleDeletePoll = async (user, scoapEmbed, embedMessage, collector) => {
 	return;
 };
 
-const removeReaction = async (collected, user_id, emoji, choice_valid, scoapEmbed) => {
+const removeReaction = async (collected, userId, emoji, choiceValid, scoapEmbed) => {
 	try {
 		for (const reac of collected.values()) {
-			if (choice_valid === true) {
+			if (choiceValid === true) {
 				if (reac.emoji.name !== emoji) {
-					await reac.users.remove(user_id);
-					scoapEmbed.removeReactionUserId(reac.emoji.name, user_id);
+					await reac.users.remove(userId);
+					scoapEmbed.removeReactionUserId(reac.emoji.name, userId);
 				}
-			} else if (choice_valid === false) {
+			} else if (choiceValid === false) {
 				if (reac.emoji.name === emoji) {
-					await reac.users.remove(user_id);
-					scoapEmbed.removeReactionUserId(reac.emoji.name, user_id);
+					await reac.users.remove(userId);
+					scoapEmbed.removeReactionUserId(reac.emoji.name, userId);
 				}
 			}
 		}
@@ -268,8 +268,8 @@ const removeReaction = async (collected, user_id, emoji, choice_valid, scoapEmbe
 	}
 };
 
-const emojiValid = (emoji, valid_emoji_array) => {
-	return valid_emoji_array.includes(emoji);
+const emojiValid = (emoji, validEmojiArray) => {
+	return validEmojiArray.includes(emoji);
 };
 
 const validateChoice = (emoji, totals, required) => {

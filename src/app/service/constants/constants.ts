@@ -51,8 +51,6 @@ export default Object.freeze({
 
 	NOTION_COLORS: ['gray', 'brown', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'red'],
 
-	BOTPLAYS_BOT_USER_ID: '867605079811817483',
-
 	BOT_CONVERSATION_TIMEOUT_MS: 1000 * 60 * 60 * 24, // active for 24 h
 
 	SCOAP_POLL_TIMEOUT_MS: 1000 * 60 * 60 * 168, // one week

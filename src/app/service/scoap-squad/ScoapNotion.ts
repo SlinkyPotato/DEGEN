@@ -17,23 +17,23 @@ const notion = new NotionClient({ auth: process.env.NOTION_TOKEN });
 const databaseId = process.env.NOTION_SCOAP_SQUAD_DB_ID;
 
 const notionDatabaseProperties = async () => {
-	const db_properties = await getNotionDatabaseProperties();
-	return db_properties;
+	const dbProperties = await getNotionDatabaseProperties();
+	return dbProperties;
 };
 
-export const updateScoapOnNotion = async (page_id: string, inputs: Record<string, any>) => {
-	const m_select_options = retrieveMultiSelectOptions(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name, inputs.discord_tags);
-	const new_m_select_options = createNewMultiSelectOptions(m_select_options[0], inputs.discord_tags);
-	await appendBlockToPage(page_id, inputs.summary);
-	await updateStatusSelectField(page_id, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.filled);
-	const multi_select_options = new_m_select_options.concat(m_select_options[1]);
-	await updateDiscordHandleMultiSelectField(page_id, multi_select_options);
+export const updateScoapOnNotion = async (pageId: string, inputs: Record<string, any>) => {
+	const multiSelectOptions = retrieveMultiSelectOptions(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name, inputs.discord_tags);
+	const newMultiSelectOptions = createNewMultiSelectOptions(multiSelectOptions[0], inputs.discord_tags);
+	await appendBlockToPage(pageId, inputs.summary);
+	await updateStatusSelectField(pageId, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.filled);
+	const combinedMultiSelectOptions = newMultiSelectOptions.concat(multiSelectOptions[1]);
+	await updateDiscordHandleMultiSelectField(pageId, combinedMultiSelectOptions);
 };
 
 export const createNewScoapOnNotion = async (inputs: Record<string, string>): Promise<string> => {
-	const select_option_open = retrieveSelectOption(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.open);
-	const value_map = createNotionProperties(select_option_open, inputs.title, inputs.author);
-	const newPageId = await createNewNotionPage(value_map);
+	const selectOptionOpen = retrieveSelectOption(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.open);
+	const valueMap = createNotionProperties(selectOptionOpen, inputs.title, inputs.author);
+	const newPageId = await createNewNotionPage(valueMap);
 	appendBlockToPage(newPageId, inputs.summary);
 	return newPageId;
 };
@@ -42,14 +42,13 @@ const getRandomColor = () => {
 	return constants.NOTION_COLORS[Math.floor(Math.random() * constants.NOTION_COLORS.length)];
 };
 
-export const updateStatusSelectField = async (page_id, select_option) => {
-	const select_option_object = retrieveSelectOption(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, select_option);
+export const updateStatusSelectField = async (pageId, selectOption) => {
+	const selectOptionObject = retrieveSelectOption(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, selectOption);
 	const propertyValues: InputPropertyValueMap = {};
-	const pageId = page_id;
 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name] = {
 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.status.type,
-		id: select_option_object.id,
-		select: select_option_object,
+		id: selectOptionObject.id,
+		select: selectOptionObject,
 	} as SelectPropertyValue;
 	await notion.pages.update({
 		page_id: pageId,
@@ -57,12 +56,11 @@ export const updateStatusSelectField = async (page_id, select_option) => {
 	});
 };
 
-const updateDiscordHandleMultiSelectField = async (page_id, multi_select_options) => {
+const updateDiscordHandleMultiSelectField = async (pageId, multiSelectoptions) => {
 	const propertyValues: InputPropertyValueMap = {};
-	const pageId = page_id;
 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name] = {
 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.type,
-		multi_select: multi_select_options,
+		multi_select: multiSelectoptions,
 	} as MultiSelectPropertyValue;
 	await notion.pages.update({
 		page_id: pageId,
@@ -70,51 +68,49 @@ const updateDiscordHandleMultiSelectField = async (page_id, multi_select_options
 	});
 };
 
-const retrieveSelectOption = (properties: PropertyMap, field_name: string, option: string): any => {
-	let select_option_result = {};
+const retrieveSelectOption = (properties: PropertyMap, fieldName: string, option: string): any => {
+	let selectOptionResult = {};
 	Object.entries(properties).forEach(([nme, property]) => {
-		// console.log('SELECT_PROPERTY', property);
-		// console.log('NAME', nme);
-		if (property.type === 'select' && nme === field_name) { //property.name
-			Object.entries(property.select.options).forEach(([idx, select_option]) => {
-				if (select_option.name === option) {
-					select_option_result = select_option;
+		if (property.type === 'select' && nme === fieldName) { //property.name
+			Object.entries(property.select.options).forEach(([idx, selectOption]) => {
+				if (selectOption.name === option) {
+					selectOptionResult = selectOption;
 				}
 			});
 
 		}
 	});
-	return select_option_result;
+	return selectOptionResult;
 };
 
-const retrieveMultiSelectOptions = (properties: PropertyMap, field_name: string, options): any => {
-	const existing_multi_select_options = [];
-	const existing_options_name_mapping = {};
+const retrieveMultiSelectOptions = (properties: PropertyMap, fieldName: string, options): any => {
+	const existingMultiSelectOptions = [];
+	const existingOptionsNameMapping = {};
 	Object.entries(properties).forEach(([nme, property]) => {
-		if (property.type === 'multi_select') {
-			Object.entries(property.multi_select.options).forEach(([idx, m_select_option]) => {
-				if (options.includes(m_select_option.name)) {
-					existing_options_name_mapping[m_select_option.name] = m_select_option.id;
-					existing_multi_select_options.push(m_select_option);
+		if (property.type === 'multi_select' && nme === fieldName) {
+			Object.entries(property.multi_select.options).forEach(([idx, mSelectOption]) => {
+				if (options.includes(mSelectOption.name)) {
+					existingOptionsNameMapping[mSelectOption.name] = mSelectOption.id;
+					existingMultiSelectOptions.push(mSelectOption);
 				}
 			});
 		}
 	});
-	return [existing_options_name_mapping, existing_multi_select_options];
+	return [existingOptionsNameMapping, existingMultiSelectOptions];
 };
 
-const createNewMultiSelectOptions = (existing_options_name_mapping, options) => {
-	const new_multi_slect_options = [];
+const createNewMultiSelectOptions = (existingOptionsNameMapping, options) => {
+	const newMultiSelectOptions = [];
 	for (const option of options) {
-		if (!(option in existing_options_name_mapping)) {
-			const multi_select = {
+		if (!(option in existingOptionsNameMapping)) {
+			const multiSelect = {
 				name: option,
 				color: getRandomColor(),
 			};
-			new_multi_slect_options.push(multi_select);
+			newMultiSelectOptions.push(multiSelect);
 		}
 	}
-	return new_multi_slect_options;
+	return newMultiSelectOptions;
 };
 
 const getNotionDatabaseProperties = async (): Promise<PropertyMap> => {
@@ -132,9 +128,9 @@ const createNewNotionPage = async (properties: InputPropertyValueMap): Promise<s
 	return response.id;
 };
 
-const appendBlockToPage = async (page_id, summary) => {
+const appendBlockToPage = async (pageId, summary) => {
 	await notion.blocks.children.append({
-		block_id: page_id,
+		block_id: pageId,
 		children: [
 			{
 				object: 'block',
@@ -158,7 +154,7 @@ const appendBlockToPage = async (page_id, summary) => {
 	});
 };
 
-const createNotionProperties = (selectOption, scoap_title: string, scoap_author: string): InputPropertyValueMap => {
+const createNotionProperties = (selectOption, scoapTitle: string, scoapAuthor: string): InputPropertyValueMap => {
 	const propertyValues: InputPropertyValueMap = {};
 
 	// title (Page)
@@ -168,7 +164,7 @@ const createNotionProperties = (selectOption, scoap_title: string, scoap_author:
 			{
 				type: 'text',
 				text: {
-					content: scoap_title,
+					content: scoapTitle,
 				},
 			},
 		],
@@ -181,7 +177,7 @@ const createNotionProperties = (selectOption, scoap_title: string, scoap_author:
 		rich_text: [
 			{
 				type: 'text',
-				text: { content: scoap_author },
+				text: { content: scoapAuthor },
 			},
 		],
 	} as RichTextPropertyValue;

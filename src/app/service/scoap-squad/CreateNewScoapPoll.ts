@@ -48,9 +48,9 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 			await message.channel.send({ embeds: botConvo.getConvo().help_message_embeds });
 			return initiateScoapDraft(botConvo);
 		} else if (reaction.emoji.name === '📝') {
-			const edit_message_object = scoapEmbedEdit(scoapEmbed);
-			const select_input_msg = await message.channel.send(edit_message_object);
-			botConvo.setCurrentMessage(select_input_msg);
+			const editMessageObject = scoapEmbedEdit(scoapEmbed);
+			const selectInputMessage = await message.channel.send(editMessageObject);
+			botConvo.setCurrentMessage(selectInputMessage);
 		}
 	}).catch(_ => {
 		console.log(_);
@@ -104,17 +104,17 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 	ScoapPoll(scoapChannel, scoapEmbed);
 	message.channel.send(`All done! Your SCOAP Squad assemble request has been posted in <#${channelIds.scoapSquad}>`);
-	const notion_inputs = {
+	const notionInputs = {
 		title: scoapEmbed.getEmbed()[0].title,
 		author: scoapEmbed.getEmbed()[0].author.name,
 		summary: scoapEmbed.getEmbed()[0].fields.find(o => o.name === 'Summary').value,
 	};
-	const notion_page_id = await createNewScoapOnNotion(notion_inputs);
-	scoapEmbed.setNotionPageId(notion_page_id);
+	const notionPageId = await createNewScoapOnNotion(notionInputs);
+	scoapEmbed.setNotionPageId(notionPageId);
 };
 
-const abortSetScoapRoles = async (message: Message, user_id) => {
-	delete botConvoState[user_id];
+const abortSetScoapRoles = async (message: Message, userId) => {
+	delete botConvoState[userId];
 	ScoapUtils.logToFile('object delted from botConvoState. REason: abortSetScoapRoles \n' +
 					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
 					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +

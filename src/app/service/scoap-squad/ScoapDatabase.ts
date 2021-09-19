@@ -41,22 +41,22 @@ const restoreReactionCollector = async (scoapEmbed, voteRecord) => {
 	const timeout = constants.SCOAP_POLL_TIMEOUT_MS - (+new Date() - scoapEmbed.getPublishedTimestamp());
 	const collector = createReactionCollector(scoapEmbed.getCurrentMessage(), validEmojiArray, timeout);
 	const embedMessage = scoapEmbed.getCurrentMessage();
-	for (const [emoji, message_reaction] of embedMessage.reactions.cache) {
-		for (const [user_id, user] of await message_reaction.users.fetch()) {
+	for (const [emoji, messageReaction] of embedMessage.reactions.cache) {
+		for (const [userId, user] of await messageReaction.users.fetch()) {
 			if ((emoji in scoapEmbed.getReactionUserIds()) && !user.bot) {
-				if (!(scoapEmbed.getReactionUserIds()[emoji].includes(user_id))) {
-					await message_reaction.users.remove(user_id);
+				if (!(scoapEmbed.getReactionUserIds()[emoji].includes(userId))) {
+					await messageReaction.users.remove(userId);
 					const channel = await user.createDM();
 					await channel.send({ content: `sorry, I was offline for maintenance when you submitted your claim for Scoap Squad with title: ${scoapEmbed.getEmbed()[0].title}. Your claim has been revoked, please try to claim again here: <#${channelIds.scoapSquad}>  ` });
 				}
 			} else if ((!(emoji in scoapEmbed.getReactionUserIds())) && !user.bot) {
-				await message_reaction.users.remove(user_id);
+				await messageReaction.users.remove(userId);
 				const channel = await user.createDM();
 				await channel.send({ content: `sorry, I was offline for maintenance when you submitted your claim for Scoap Squad with title: ${scoapEmbed.getEmbed()[0].title}. Your claim has been revoked, please try to claim again here: <#${channelIds.scoapSquad}>  ` });
 			}
 			
 		}
-		collector.collected.set(emoji, message_reaction);
+		collector.collected.set(emoji, messageReaction);
 	}
 	
 	collectReactions(scoapEmbed, voteRecord, validEmojiArray, collector);
@@ -69,9 +69,7 @@ export const restoreScoapEmbedAndVoteRecord = async () => {
 	if (dataArray.length > 0) {
 		for (const entry of dataArray) {
 			const sE = entry.scoapEmbed;
-			// sE.__proto__ = ScoapEmbed.prototype;
 			const vR = entry.voteRecord;
-			// vR.__proto__ = VoteRecord.prototype;
 			const scoapEmbed = new ScoapEmbed;
 			const voteRecord = new VoteRecord;
 			Object.getOwnPropertyNames(sE).forEach(function(item) {
@@ -99,8 +97,8 @@ export const restoreScoapEmbedAndVoteRecord = async () => {
 	}
 };
 
-export const deleteScoapEmbedAndVoteRecord = async (scoap_embed_id) => {
+export const deleteScoapEmbedAndVoteRecord = async (scoapEmbedId) => {
 	const db: Db = await dbInstance.dbConnect('degen');
-	await db.collection('scoapSquad').deleteMany({ id: scoap_embed_id });
-	ScoapUtils.logToFile(`Document removed from Mongo, id: , ${scoap_embed_id}`);
+	await db.collection('scoapSquad').deleteMany({ id: scoapEmbedId });
+	ScoapUtils.logToFile(`Document removed from Mongo, id: , ${scoapEmbedId}`);
 };

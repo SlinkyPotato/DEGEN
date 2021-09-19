@@ -99,6 +99,30 @@ describe('Service Utils', () => {
 
     describe('Username spam filter', () => {
 
+        it('should skip filter for member that is at least level 2', async () => {
+            guildMember.nickname = '0xLucas';
+            guildMember.user.username = '0xLucas'
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember.roles, 'cache', { get: () => 
+                new Collection([[roleIDs.genesisSquad, {id: roleIDs.genesisSquad}]])
+            });
+            expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
+            expect(guildMember.guild.fetch).toHaveBeenCalledTimes(0);
+            expect(guildMember.ban).toHaveBeenCalledTimes(0);
+            expect(guildMember.send).toHaveBeenCalledTimes(0);
+        });
+
+        it('should skip filter for member this is not bannable', async () => {
+            guildMember.nickname = '0xLucas';
+            guildMember.user.username = '0xLucas';
+            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'bannable', { get: () => false });
+            expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
+            expect(guildMember.guild.fetch).toHaveBeenCalledTimes(0);
+            expect(guildMember.ban).toHaveBeenCalledTimes(0);
+            expect(guildMember.send).toHaveBeenCalledTimes(0);
+        });
+
         it('should not ban user with no matching nickname', async () => {
             guildMember.nickname = 'New Pioneer';
             guildMember.user.username = 'New Pioneer';
@@ -120,18 +144,6 @@ describe('Service Utils', () => {
             guildMember.nickname = '0xLucas2';
             guildMember.user.username = 'Imposter';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
-            expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
-            expect(guildMember.ban).toHaveBeenCalledTimes(0);
-            expect(guildMember.send).toHaveBeenCalledTimes(0);
-        });
-
-        it('should not ban user that is at least level 2', async () => {
-            guildMember.nickname = '0xLucas';
-            guildMember.user.username = '0xLucas'
-            Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
-            Object.defineProperty(guildMember.roles, 'cache', { get: () => 
-                new Collection([[roleIDs.genesisSquad, {id: roleIDs.genesisSquad}]])
-            });
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
             expect(guildMember.ban).toHaveBeenCalledTimes(0);
             expect(guildMember.send).toHaveBeenCalledTimes(0);

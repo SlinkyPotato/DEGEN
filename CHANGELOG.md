@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.0-SNAPSHOT
+
+1. Fixed RetrieveFAQs tests to properly use mocking and fix yarn linting script
+
 ## 1.5.2-RELEASE (2021-09-10)
 
 1. Extend to 25+ voice channels for /poap start

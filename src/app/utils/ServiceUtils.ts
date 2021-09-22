@@ -117,7 +117,12 @@ const ServiceUtils = {
 	 * @returns boolean indicating if user was banned
 	 */
 	async runUsernameSpamFilter(member: GuildMember): Promise<boolean> {
-		if(ServiceUtils.isAtLeastLevel1(member)) {
+		// Only enabled for BanklessDAO server
+		if (member.guild.id !== process.env.DISCORD_SERVER_ID) {
+			return false;
+		}
+
+		if (ServiceUtils.isAtLeastLevel1(member)) {
 			return false;
 		}
 

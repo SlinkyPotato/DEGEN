@@ -11,16 +11,16 @@ import {
 	StageChannel,
 	VoiceChannel,
 	Snowflake,
-	User
+	User,
 } from 'discord.js';
 import client from '../app';
 import roleIDs from '../service/constants/roleIds';
 import ValidationError from '../errors/ValidationError';
-import { Confusables } from "./Confusables";
+import { Confusables } from './Confusables';
 
 const nonStandardCharsRegex = /[^\w\s\p{P}\p{S}Ξ]/gu;
-const emojiRegex = /\p{So}/gu
-const whitespaceRegex = /[\s]/g
+const emojiRegex = /\p{So}/gu;
+const whitespaceRegex = /[\s]/g;
 
 const ServiceUtils = {
 	async getGuildAndMember(ctx: CommandContext): Promise<{ guild: Guild, guildMember: GuildMember }> {
@@ -33,14 +33,14 @@ const ServiceUtils = {
 
 	async getGuildMemberFromUser(user: User, guildID: string): Promise<GuildMember> {
 		const guild = await client.guilds.fetch(guildID);
-		return await guild.members.fetch(user.id)
+		return await guild.members.fetch(user.id);
 	},
 
 	async getMembersWithRoles(guild: Guild, roles: string[]): Promise<Collection<Snowflake, GuildMember>> {
 		const guildMembers = await guild.members.fetch();
  		return guildMembers.filter(member => {
-			return ServiceUtils.hasSomeRole(member, roles)
-		})
+			return ServiceUtils.hasSomeRole(member, roles);
+		});
 	},
 
 	getGuestRole(roles: RoleManager): Role {
@@ -50,11 +50,11 @@ const ServiceUtils = {
 	},
 
 	hasRole(guildMember: GuildMember, role: string): boolean {
-		return guildMember.roles.cache.some(r => r.id === role)
+		return guildMember.roles.cache.some(r => r.id === role);
 	},
 
 	hasSomeRole(guildMember: GuildMember, roles: string[]): boolean {
-		for (let role of roles) {
+		for (const role of roles) {
 			if (ServiceUtils.hasRole(guildMember, role)) {
 				return true;
 			}
@@ -66,31 +66,31 @@ const ServiceUtils = {
 		console.log(guildMember.roles.cache);
 		return ServiceUtils.hasSomeRole(guildMember, [
 			roleIDs.level1,
-			roleIDs.level2, 
-			roleIDs.level3, 
-			roleIDs.level4, 
+			roleIDs.level2,
+			roleIDs.level3,
+			roleIDs.level4,
 		]);
 	},
 
 	isAtLeastLevel1(guildMember: GuildMember): boolean {
 		return ServiceUtils.hasSomeRole(guildMember, [
 			roleIDs.level1,
-			roleIDs.level2, 
-			roleIDs.level3, 
-			roleIDs.level4, 
-			roleIDs.admin, 
-			roleIDs.genesisSquad
-		])
+			roleIDs.level2,
+			roleIDs.level3,
+			roleIDs.level4,
+			roleIDs.admin,
+			roleIDs.genesisSquad,
+		]);
 	},
 
 	isAtLeastLevel2(guildMember: GuildMember): boolean {
 		return ServiceUtils.hasSomeRole(guildMember, [
-			roleIDs.level2, 
-			roleIDs.level3, 
-			roleIDs.level4, 
-			roleIDs.admin, 
-			roleIDs.genesisSquad
-		])
+			roleIDs.level2,
+			roleIDs.level3,
+			roleIDs.level4,
+			roleIDs.admin,
+			roleIDs.genesisSquad,
+		]);
 	},
 	
 	validateLevel2AboveMembers(guildMember: GuildMember): void {
@@ -127,15 +127,15 @@ const ServiceUtils = {
 		}
 
 		if (!member.bannable) {
-			console.log(`Skipping username spam filter because ${member.user.tag} is not bannable.`)
+			console.log(`Skipping username spam filter because ${member.user.tag} is not bannable.`);
 			return false;
 		}
 
-		const highRankingMembers = await ServiceUtils.getMembersWithRoles(member.guild, 
+		const highRankingMembers = await ServiceUtils.getMembersWithRoles(member.guild,
 			[roleIDs.genesisSquad, roleIDs.admin, roleIDs.level2]);
 
 		// Sanitize high-ranking member names in prepartion for comparing them to new member nickname
-        const highRankingNames = highRankingMembers.map(member => {
+		const highRankingNames = highRankingMembers.map(member => {
 			if (member.nickname) {
 				return ServiceUtils.sanitizeUsername(member.nickname);
 			}
@@ -148,24 +148,24 @@ const ServiceUtils = {
 			nickname = ServiceUtils.sanitizeUsername(member.nickname);
 		}
 
-		let username = ServiceUtils.sanitizeUsername(member.user.username);
+		const username = ServiceUtils.sanitizeUsername(member.user.username);
 
 		if ((nickname && highRankingNames.includes(nickname)) || highRankingNames.includes(username)) {
-			const debugMessage = `Nickname: ${member.displayName}. Username: ${member.user.tag}.`
+			const debugMessage = `Nickname: ${member.displayName}. Username: ${member.user.tag}.`;
 			// Send DM to user before banning them because bot can't DM user after banning them. 
 			await member.send(`You were auto-banned from the ${member.guild.name} server. If you believe this was a mistake, please contact <@198981821147381760> or <@197852493537869824>.`)
 				.catch(e => {
 					// Users that have blocked the bot or disabled DMs cannot receive a DM from the bot
-					console.log(`Unable to message user before auto-banning them. ${debugMessage} ${e}`)
-				}) 
+					console.log(`Unable to message user before auto-banning them. ${debugMessage} ${e}`);
+				});
 
-			await member.ban({reason: `Auto-banned by username spam filter. ${debugMessage}`})
+			await member.ban({ reason: `Auto-banned by username spam filter. ${debugMessage}` })
 				.then(() => {
 					console.log(`Auto-banned user. ${debugMessage}`);
 				})
 				.catch(e => {
-					console.log(`Unable to auto-ban user. ${debugMessage} ${e}`)
-				}) 
+					console.log(`Unable to auto-ban user. ${debugMessage} ${e}`);
+				});
 			
 			return true;
 		}

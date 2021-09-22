@@ -11,7 +11,8 @@ const guild = {
     name: 'BanklessDAO',
     members: {
         fetch: jest.fn(() => Promise.resolve(guildMembers))
-    }
+    },
+    fetch: jest.fn(() => Promise.resolve(guild))
 }
 
 jest.mock('discord.js', () => {
@@ -20,15 +21,14 @@ jest.mock('discord.js', () => {
             return {
                 bannable: true,
                 nickname: null,
+                displayName: null,
                 user: {
                     username: null,
                     tag: null,
                 },
                 ban: jest.fn(() => Promise.resolve()),
                 send: jest.fn(() => Promise.resolve()),
-                guild: {
-                    fetch: jest.fn(() => Promise.resolve(guild))
-                },
+                guild: guild,
                 roles: {
                     cache: new Collection()
                 },
@@ -99,10 +99,11 @@ describe('Service Utils', () => {
 
     describe('Username spam filter', () => {
 
-        it('should skip filter for member that is at least level 2', async () => {
+        it('should skip filter for member that is at least level 1', async () => {
             guildMember.nickname = '0xLucas';
             guildMember.user.username = '0xLucas'
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             Object.defineProperty(guildMember.roles, 'cache', { get: () => 
                 new Collection([[roleIDs.genesisSquad, {id: roleIDs.genesisSquad}]])
             });
@@ -116,6 +117,7 @@ describe('Service Utils', () => {
             guildMember.nickname = '0xLucas';
             guildMember.user.username = '0xLucas';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             Object.defineProperty(guildMember, 'bannable', { get: () => false });
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
             expect(guildMember.guild.fetch).toHaveBeenCalledTimes(0);
@@ -127,6 +129,7 @@ describe('Service Utils', () => {
             guildMember.nickname = 'New Pioneer';
             guildMember.user.username = 'New Pioneer';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
             expect(guildMember.ban).toHaveBeenCalledTimes(0);
             expect(guildMember.send).toHaveBeenCalledTimes(0);
@@ -135,6 +138,7 @@ describe('Service Utils', () => {
         it('should not ban user with no matching username', async () => {
             guildMember.user.username = 'New Pioneer';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
             expect(guildMember.ban).toHaveBeenCalledTimes(0);
             expect(guildMember.send).toHaveBeenCalledTimes(0);
@@ -144,6 +148,7 @@ describe('Service Utils', () => {
             guildMember.nickname = '0xLucas2';
             guildMember.user.username = 'Imposter';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
             expect(guildMember.ban).toHaveBeenCalledTimes(0);
             expect(guildMember.send).toHaveBeenCalledTimes(0);
@@ -153,6 +158,7 @@ describe('Service Utils', () => {
             guildMember.nickname = '0xLucas';
             guildMember.user.username = 'Imposter';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             guildMember.send = jest.fn(() => Promise.reject(
                 "DiscordAPIError Code 50007: Cannot send messages to this user.")) as any
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
@@ -164,6 +170,7 @@ describe('Service Utils', () => {
             guildMember.nickname = '0xLucas';
             guildMember.user.username = 'Imposter';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -172,6 +179,7 @@ describe('Service Utils', () => {
         it('should ban user with matching username', async () => {
             guildMember.user.username = '0xLucas';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -181,6 +189,7 @@ describe('Service Utils', () => {
             guildMember.nickname = '0xlucas';
             guildMember.user.username = 'Imposter';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -190,6 +199,7 @@ describe('Service Utils', () => {
             guildMember.nickname = '0xLucàs';
             guildMember.user.username = 'Imposter';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -199,6 +209,7 @@ describe('Service Utils', () => {
             guildMember.nickname = '0xLucas🏴';
             guildMember.user.username = 'Imposter';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -208,6 +219,7 @@ describe('Service Utils', () => {
             guildMember.nickname = 'AboveAverageJoe';
             guildMember.user.username = 'Imposter';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -217,6 +229,7 @@ describe('Service Utils', () => {
             guildMember.nickname = 'Αbove Average Joe'; // first Α is a greek letter
             guildMember.user.username = 'Imposter';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -225,6 +238,7 @@ describe('Service Utils', () => {
         it('should ban user with confusable cyrillic letter in username', async () => {
             guildMember.user.username = 'Аbove Average Joe'; // first Α is a cyrillic letter
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -234,6 +248,7 @@ describe('Service Utils', () => {
             guildMember.nickname = 'ﬀﬀbanks';
             guildMember.user.username = 'Imposter';
             Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234`});
+            Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}`});
             expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
             expect(guildMember.ban).toHaveBeenCalledTimes(1);
             expect(guildMember.send).toHaveBeenCalledTimes(1);

@@ -10,7 +10,8 @@ import {
 	RoleManager,
 	StageChannel,
 	VoiceChannel,
-	Snowflake
+	Snowflake,
+	User
 } from 'discord.js';
 import client from '../app';
 import roleIDs from '../service/constants/roleIds';
@@ -28,6 +29,11 @@ const ServiceUtils = {
 			guild: guild,
 			guildMember: await guild.members.fetch(ctx.user.id),
 		};
+	},
+
+	async getGuildMemberFromUser(user: User, guildID: string): Promise<GuildMember> {
+		const guild = await client.guilds.fetch(guildID);
+		return await guild.members.fetch(user.id)
 	},
 
 	async getMembersWithRoles(guild: Guild, roles: string[]): Promise<Collection<Snowflake, GuildMember>> {
@@ -66,6 +72,17 @@ const ServiceUtils = {
 		]);
 	},
 
+	isAtLeastLevel1(guildMember: GuildMember): boolean {
+		return ServiceUtils.hasSomeRole(guildMember, [
+			roleIDs.level1,
+			roleIDs.level2, 
+			roleIDs.level3, 
+			roleIDs.level4, 
+			roleIDs.admin, 
+			roleIDs.genesisSquad
+		])
+	},
+
 	isAtLeastLevel2(guildMember: GuildMember): boolean {
 		return ServiceUtils.hasSomeRole(guildMember, [
 			roleIDs.level2, 
@@ -100,8 +117,7 @@ const ServiceUtils = {
 	 * @returns boolean indicating if user was banned
 	 */
 	async runUsernameSpamFilter(member: GuildMember): Promise<boolean> {
-		if(ServiceUtils.isAtLeastLevel2(member)) {
-			console.log(`Skipping username spam filter because ${member.user.tag} is at least level 2.`)
+		if(ServiceUtils.isAtLeastLevel1(member)) {
 			return false;
 		}
 
@@ -110,9 +126,7 @@ const ServiceUtils = {
 			return false;
 		}
 
-		const guild = await member.guild.fetch();
-
-		const highRankingMembers = await ServiceUtils.getMembersWithRoles(guild, 
+		const highRankingMembers = await ServiceUtils.getMembersWithRoles(member.guild, 
 			[roleIDs.genesisSquad, roleIDs.admin, roleIDs.level2]);
 
 		// Sanitize high-ranking member names in prepartion for comparing them to new member nickname
@@ -132,19 +146,20 @@ const ServiceUtils = {
 		let username = ServiceUtils.sanitizeUsername(member.user.username);
 
 		if ((nickname && highRankingNames.includes(nickname)) || highRankingNames.includes(username)) {
+			const debugMessage = `Nickname: ${member.displayName}. Username: ${member.user.tag}.`
 			// Send DM to user before banning them because bot can't DM user after banning them. 
-			await member.send(`You were auto-banned from the ${guild.name} server. If you believe this was a mistake, please contact <@198981821147381760> or <@197852493537869824>.`)
+			await member.send(`You were auto-banned from the ${member.guild.name} server. If you believe this was a mistake, please contact <@198981821147381760> or <@197852493537869824>.`)
 				.catch(e => {
 					// Users that have blocked the bot or disabled DMs cannot receive a DM from the bot
-					console.log(`Unable to message ${member.user.tag} before auto-banning them. ${e}`)
+					console.log(`Unable to message user before auto-banning them. ${debugMessage} ${e}`)
 				}) 
 
-			await member.ban({reason: 'Autobanned for having similar nickname or username as high-ranking member.'})
+			await member.ban({reason: `Auto-banned by username spam filter. ${debugMessage}`})
 				.then(() => {
-					console.log(`Auto-banned ${member.user.tag}`);
+					console.log(`Auto-banned user. ${debugMessage}`);
 				})
 				.catch(e => {
-					console.log(`Unable to auto-ban ${member.user.tag}. ${e}`)
+					console.log(`Unable to auto-ban user. ${debugMessage} ${e}`)
 				}) 
 			
 			return true;

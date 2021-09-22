@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.5.3-RELEASE (TBD)
+## 1.6.0-SNAPSHOT (TBD)
 
 1. Add username spam filter
 

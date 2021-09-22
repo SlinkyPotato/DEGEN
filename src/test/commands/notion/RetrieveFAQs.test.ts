@@ -7,7 +7,7 @@ jest.mock('../../../app/service/notion/NotionQueue');
 
 describe('RetrieveFAQs', () => {
 	beforeAll(() => {
-		notionQueue.add = jest.fn().mockReturnValue(Promise.resolve(mockFaqs))
+		notionQueue.add = jest.fn().mockReturnValue(Promise.resolve(mockFaqs));
 	});
 
 	it('should be a list of 10 faqs', async () => {

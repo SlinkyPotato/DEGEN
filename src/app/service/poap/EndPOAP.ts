@@ -65,10 +65,11 @@ export default async (guildMember: GuildMember): Promise<any> => {
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 		await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile);
 		await guildMember.send({ content: 'POAP links sent out to participants!' });
+		return 'POAP_SENT';
 	} else {
 		await guildMember.send({ content: 'You got it!' });
+		return 'POAP_END';
 	}
-	return;
 };
 
 export const getBufferFromParticipants = async (participants: POAPFileParticipant[], voiceChannel: GuildChannel): Promise<Buffer> => {

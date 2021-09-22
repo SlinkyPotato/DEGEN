@@ -1,8 +1,9 @@
 # Changelog
 
-## 1.6.0-SNAPSHOT (TBD)
+## 1.6.0-SNAPSHOT
 
-1. Add username spam filter
+1. Fixed RetrieveFAQs tests to properly use mocking and fix yarn linting script
+2. Add username spam filter
 
 ## 1.5.2-RELEASE (2021-09-10)
 

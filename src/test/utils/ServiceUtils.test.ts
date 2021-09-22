@@ -1,8 +1,7 @@
-import { DataManager, GuildMember, GuildMemberRoleManager } from 'discord.js';
+import { GuildMember } from 'discord.js';
 import { Collection } from '@discordjs/collection';
 import ServiceUtils from '../../app/utils/ServiceUtils';
 import roleIDs from '../../app/service/constants/roleIds';
-import roleIds from '../../app/service/constants/roleIds';
 
 const guildMembers: Collection<string, any> = new Collection();
 
@@ -285,7 +284,7 @@ describe('Service Utils', () => {
                     [roleIDs.level2, {id: roleIDs.level2}]
                 ])
             });
-            const result = ServiceUtils.hasRole(guildMember, roleIds.admin)
+            const result = ServiceUtils.hasRole(guildMember, roleIDs.admin)
             expect(result).toBe(false);
         })
 
@@ -295,7 +294,7 @@ describe('Service Utils', () => {
                     [roleIDs.admin, {id: roleIDs.admin}]
                 ])
             });
-            const result = ServiceUtils.hasRole(guildMember, roleIds.admin)
+            const result = ServiceUtils.hasRole(guildMember, roleIDs.admin)
             expect(result).toBe(true);
         })
 
@@ -306,7 +305,7 @@ describe('Service Utils', () => {
                     [roleIDs.level2, {id: roleIDs.level2}]
                 ])
             });
-            const result = ServiceUtils.hasSomeRole(guildMember, [roleIds.admin, roleIds.genesisSquad])
+            const result = ServiceUtils.hasSomeRole(guildMember, [roleIDs.admin, roleIDs.genesisSquad])
             expect(result).toBe(false);
         })
 
@@ -317,7 +316,7 @@ describe('Service Utils', () => {
                     [roleIDs.level2, {id: roleIDs.level2}]
                 ])
             });
-            const result = ServiceUtils.hasSomeRole(guildMember, [roleIds.admin, roleIds.genesisSquad])
+            const result = ServiceUtils.hasSomeRole(guildMember, [roleIDs.admin, roleIDs.genesisSquad])
             expect(result).toBe(true);
         })
 

@@ -66,7 +66,7 @@ const BountyUtils = {
 		const allowedRegex = new RegExp(ALLOWED_CURRENCIES.join('|'), 'i');
 		const MAXIMUM_REWARD = 100000000.00;
 
-		if (reward.amount === Number.NaN || reward.amount <= 0 || reward.amount > MAXIMUM_REWARD
+		if (isNaN(reward.amount) || reward.amount <= 0 || reward.amount > MAXIMUM_REWARD
 			|| !allowedRegex.test(reward.currencySymbol)) {
 			await guildMember.send({
 				content: `<@${guildMember.user.id}>\n` +

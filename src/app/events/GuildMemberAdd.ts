@@ -3,12 +3,12 @@ import { DiscordEvent } from '../types/discord/DiscordEvent';
 import ServiceUtils from '../utils/ServiceUtils';
 
 export default class implements DiscordEvent {
-    name = 'guildMemberAdd';
-    once = false;
+	name = 'guildMemberAdd';
+	once = false;
 
-    async execute(member: GuildMember) {
-    	if (ServiceUtils.runUsernameSpamFilter(member)) {
-    		return;
-    	}
-    }
+	async execute(member: GuildMember): Promise<any> {
+		if (ServiceUtils.runUsernameSpamFilter(member)) {
+			return;
+		}
+	}
 }

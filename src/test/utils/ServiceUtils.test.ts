@@ -225,7 +225,8 @@ describe('Service Utils', () => {
 		});
 
 		it('should ban user with confusable greek letter in nickname', async () => {
-			guildMember.nickname = 'Αbove Average Joe'; // first Α is a greek letter
+			// first Α is a greek letter
+			guildMember.nickname = 'Αbove Average Joe';
 			guildMember.user.username = 'Imposter';
 			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
 			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
@@ -235,7 +236,8 @@ describe('Service Utils', () => {
 		});
 
 		it('should ban user with confusable cyrillic letter in username', async () => {
-			guildMember.user.username = 'Аbove Average Joe'; // first Α is a cyrillic letter
+			guildMember.user.username = 'Аbove Average Joe';
+			// first Α is a cyrillic letter
 			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
 			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);

@@ -38,7 +38,7 @@ const ServiceUtils = {
 
 	async getMembersWithRoles(guild: Guild, roles: string[]): Promise<Collection<Snowflake, GuildMember>> {
 		const guildMembers = await guild.members.fetch();
- 		return guildMembers.filter(member => {
+		return guildMembers.filter(member => {
 			return ServiceUtils.hasSomeRole(member, roles);
 		});
 	},
@@ -135,11 +135,11 @@ const ServiceUtils = {
 			[roleIDs.genesisSquad, roleIDs.admin, roleIDs.level2]);
 
 		// Sanitize high-ranking member names in prepartion for comparing them to new member nickname
-		const highRankingNames = highRankingMembers.map(member => {
-			if (member.nickname) {
-				return ServiceUtils.sanitizeUsername(member.nickname);
+		const highRankingNames = highRankingMembers.map(highRankingMember => {
+			if (highRankingMember.nickname) {
+				return ServiceUtils.sanitizeUsername(highRankingMember.nickname);
 			}
-			return ServiceUtils.sanitizeUsername(member.user.username);
+			return ServiceUtils.sanitizeUsername(highRankingMember.user.username);
 		});
 
 		// New members and members resetting their nickname will not have a nickname
@@ -179,7 +179,7 @@ const ServiceUtils = {
 	 * @param name username to sanitize
 	 * @returns sanitized username
 	 */
-	sanitizeUsername(name: string) {
+	sanitizeUsername(name: string): string {
 		return name.normalize('NFKC')
 			.replace(emojiRegex, '')
 			.replace(whitespaceRegex, '')

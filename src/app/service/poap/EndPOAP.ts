@@ -64,10 +64,10 @@ export default async (guildMember: GuildMember): Promise<any> => {
 		await guildMember.send({ content: 'Ok! Please upload the POAP links.txt file.' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 		await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile);
+		await guildMember.send({ content: 'POAP links sent out to participants!' });
 	} else {
 		await guildMember.send({ content: 'You got it!' });
 	}
-	await guildMember.send({ content: 'POAP links sent out to participants!' });
 	return;
 };
 

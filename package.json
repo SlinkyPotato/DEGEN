@@ -59,7 +59,7 @@
     },
     "engines": {
         "yarn": "1.x",
-        "node": ">=16.6.2"
+        "node": ">=16.10.0"
     },
     "engineStrict": true
 }

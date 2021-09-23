@@ -52,4 +52,4 @@ jobs:
             npm -g install yarn
             yarn install
             yarn build
-            yarn qa
+            node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa

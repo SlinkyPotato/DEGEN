@@ -5,7 +5,7 @@ on:
       - 'DEGEN'
       - 'feature/*'
 jobs:
-  deploy:
+  build-test-deploy:
     environment:
       name: digital-ocean
       url: https://bankless-dao-degen-bot.herokuapp.com/
@@ -15,14 +15,14 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '16.10.0'
-#      - name: Install dependencies
-#        run: yarn install
-#      - name: Lint Code
-#        run: yarn lint
-#      - name: Build and Compile Typescript
-#        run: yarn build
-#      - name: Run test cases
-#        run: yarn test --watchAll=false
+      - name: Install dependencies
+        run: yarn install
+      - name: Lint Code
+        run: yarn lint
+      - name: Build and Compile Typescript
+        run: yarn build
+      - name: Run test cases
+        run: yarn test --watchAll=false
       - name: Deploy to Host environment
         uses: appleboy/ssh-action@v0.1.4
         env:
@@ -61,4 +61,4 @@ jobs:
             MONGODB_PASS=$MONGODB_PASS \
             MONGODB_CLUSTER=$MONGODB_CLUSTER \
             NOTION_TOKEN=$NOTION_TOKEN \
-            pm2 start pm2.config.js
+            pm2 start pm2.config.js --time

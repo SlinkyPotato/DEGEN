@@ -41,6 +41,7 @@ jobs:
           script_stop: true
           envs: DISCORD_BOT_TOKEN,DISCORD_BOT_PUBLIC_KEY,DISCORD_BOT_APPLICATION_ID,DISCORD_OWNER_ID,MONGODB_USERNAME,MONGODB_PASS,MONGODB_CLUSTER,NOTION_TOKEN
           script: |
+            pkill -f node
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             nvm install 16.10.0
@@ -49,6 +50,7 @@ jobs:
             git clone https://github.com/BanklessDAO/discord-bots.git
             cd discord-bots
             npm -g install yarn
+            npm -g install pm2
             yarn install
             yarn build
             DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
@@ -59,4 +61,4 @@ jobs:
             MONGODB_PASS=$MONGODB_PASS \
             MONGODB_CLUSTER=$MONGODB_CLUSTER \
             NOTION_TOKEN=$NOTION_TOKEN \
-            node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa
+            yarn qa

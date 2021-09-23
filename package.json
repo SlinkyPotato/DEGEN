@@ -7,8 +7,8 @@
     "scripts": {
         "build": "tsc -p tsconfig.json",
         "test": "jest",
-        "qa": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa",
-        "prod": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.prod",
+        "qa": "pm2 start -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa",
+        "prod": "pm2 start -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.prod",
         "prestart": "yarn install && yarn build",
         "pretest": "yarn install && yarn build",
         "start": "node --trace-warnings -r dotenv/config dist/app/app.js",

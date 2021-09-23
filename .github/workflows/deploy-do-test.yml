@@ -39,7 +39,7 @@ jobs:
           username: ${{ secrets.PROD_DO_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script_stop: true
-          envs: DISCORD_BOT_TOKEN,DISCORD_BOT_PUBLIC_KEY,DISCORD_BOT_APPLICATION_ID,DISCORD_OWNER_ID,MONGODB_USERNAME,MONGODB_PASS,MONGODB_CLUSTER,NOTION_TOKEN
+#          envs: DISCORD_BOT_TOKEN,DISCORD_BOT_PUBLIC_KEY,DISCORD_BOT_APPLICATION_ID,DISCORD_OWNER_ID,MONGODB_USERNAME,MONGODB_PASS,MONGODB_CLUSTER,NOTION_TOKEN
           script: |
             git clone https://github.com/BanklessDAO/discord-bots.git
             cd discord-bots

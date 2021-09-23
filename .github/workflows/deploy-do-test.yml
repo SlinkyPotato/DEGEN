@@ -51,6 +51,4 @@ jobs:
             npm -g install yarn
             yarn install
             yarn build
-            DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN
-            DISCORD_BOT_APPLICATION_ID=$DISCORD_BOT_APPLICATION_ID
-            yarn qa
+            DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN DISCORD_BOT_APPLICATION_ID=$DISCORD_BOT_APPLICATION_ID yarn qa

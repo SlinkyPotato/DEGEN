@@ -152,8 +152,13 @@ const ServiceUtils = {
 
 		if ((nickname && highRankingNames.includes(nickname)) || highRankingNames.includes(username)) {
 			const debugMessage = `Nickname: ${member.displayName}. Username: ${member.user.tag}.`;
+
+			// Fetch admin contacts
+			const aboveAverageJoe = await member.guild.members.fetch('198981821147381760');
+			const frogmonkee = await member.guild.members.fetch('197852493537869824');
+
 			// Send DM to user before banning them because bot can't DM user after banning them. 
-			await member.send(`You were auto-banned from the ${member.guild.name} server. If you believe this was a mistake, please contact <@198981821147381760> or <@197852493537869824>.`)
+			await member.send(`You were auto-banned from the ${member.guild.name} server. If you believe this was a mistake, please contact <@${aboveAverageJoe.id}> or <@${frogmonkee.id}>.`)
 				.catch(e => {
 					// Users that have blocked the bot or disabled DMs cannot receive a DM from the bot
 					console.log(`Unable to message user before auto-banning them. ${debugMessage} ${e}`);

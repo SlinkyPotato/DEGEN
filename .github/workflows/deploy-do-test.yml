@@ -59,4 +59,4 @@ jobs:
             MONGODB_PASS=$MONGODB_PASS \
             MONGODB_CLUSTER=$MONGODB_CLUSTER \
             NOTION_TOKEN=$NOTION_TOKEN \
-            yarn qa
+            node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa

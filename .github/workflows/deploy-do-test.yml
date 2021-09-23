@@ -52,4 +52,4 @@ jobs:
             npm -g install yarn
             yarn install
             yarn build
-            node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa
+            DISCORD_BOT_APPLICATION_ID=$DISCORD_BOT_APPLICATION_ID node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa

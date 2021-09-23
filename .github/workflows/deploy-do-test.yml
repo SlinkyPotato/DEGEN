@@ -26,14 +26,14 @@ jobs:
       - name: Deploy to Host environment
         uses: appleboy/ssh-action@v0.1.4
         env:
-          DISCORD_BOT_TOKEN: ${{secrets.PROD_DISCORD_TOKEN}}
-          DISCORD_BOT_PUBLIC_KEY: ${{secrets.PROD_BOT_PUBLIC_KEY}}
-          DISCORD_BOT_APPLICATION_ID: ${{secrets.PROD_BOT_APPLICATION_ID}}
-          DISCORD_OWNER_ID: ${{secrets.PROD_DISCORD_OWNER_ID}}
-          MONGODB_USERNAME: ${{secrets.PROD_MONGODB_USERNAME}}
-          MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}
-          MONGODB_CLUSTER: ${{secrets.PROD_MONGODB_CLUSTER}}
-          NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
+          DISCORD_BOT_TOKEN: ${{secrets.QA_DISCORD_TOKEN}}
+          DISCORD_BOT_PUBLIC_KEY: ${{secrets.QA_BOT_PUBLIC_KEY}}
+          DISCORD_BOT_APPLICATION_ID: ${{secrets.QA_BOT_APPLICATION_ID}}
+          DISCORD_OWNER_ID: ${{secrets.QA_DISCORD_OWNER_ID}}
+          MONGODB_USERNAME: ${{secrets.QA_MONGODB_USERNAME}}
+          MONGODB_PASS: ${{secrets.QA_MONGODB_PASS}}
+          MONGODB_CLUSTER: ${{secrets.QA_MONGODB_CLUSTER}}
+          NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
         with:
           host: ${{ secrets.PROD_DO_HOST }}
           username: ${{ secrets.PROD_DO_USERNAME }}
@@ -44,9 +44,11 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             nvm install 16.10.0
+            nvm use 16.10.0
             rm -r -f discord-bots/
             git clone https://github.com/BanklessDAO/discord-bots.git
             cd discord-bots
             npm -g install yarn
             yarn install
-
+            yarn build
+            yarn qa

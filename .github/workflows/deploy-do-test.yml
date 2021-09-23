@@ -43,5 +43,6 @@ jobs:
           script: |
             git clone https://github.com/BanklessDAO/discord-bots.git
             cd discord-bots
+            npm -g install yarn
             yarn install
 

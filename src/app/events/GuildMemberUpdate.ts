@@ -23,7 +23,7 @@ export default class implements DiscordEvent {
 			return;
 		}
 		
-		if (oldMember.nickname !== newMember.nickname && ServiceUtils.runUsernameSpamFilter(newMember as GuildMember)) {
+		if (oldMember.nickname !== newMember.nickname && await ServiceUtils.runUsernameSpamFilter(newMember as GuildMember)) {
 			return;
 		}
 		

@@ -143,7 +143,7 @@ const ServiceUtils = {
 		const highRankingMembers = await ServiceUtils.getMembersWithRoles(member.guild,
 			[roleIDs.genesisSquad, roleIDs.admin, roleIDs.level2]);
 
-		// Sanitize high-ranking member names in prepartion for comparing them to new member nickname
+		// Sanitize high-ranking member names in preparation for comparing them to new member nickname
 		const highRankingNames = highRankingMembers.map(highRankingMember => {
 			if (highRankingMember.nickname) {
 				return ServiceUtils.sanitizeUsername(highRankingMember.nickname);

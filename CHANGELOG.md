@@ -4,6 +4,7 @@
 
 1. Fixed RetrieveFAQs tests to properly use mocking and fix yarn linting script
 2. Misc fixes for POAP commands and enable HELP commands for all discords
+3. Migrate github actions deployment to digital ocean droplet
 
 ## 1.5.2-RELEASE (2021-09-10)
 

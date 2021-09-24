@@ -7,7 +7,7 @@ export default class implements DiscordEvent {
 	once = false;
 
 	async execute(member: GuildMember): Promise<any> {
-		if (ServiceUtils.runUsernameSpamFilter(member)) {
+		if (await ServiceUtils.runUsernameSpamFilter(member)) {
 			return;
 		}
 	}

@@ -1,21 +1,25 @@
 /**
  * Utilities for service layer
  */
-import { CommandContext } from 'slash-create';
 import {
 	Collection,
 	Guild,
 	GuildMember,
 	Role,
 	RoleManager,
-	StageChannel,
-	VoiceChannel,
 	Snowflake,
+	StageChannel,
 	User,
+	VoiceChannel,
 } from 'discord.js';
+import { Db } from 'mongodb';
+import { CommandContext } from 'slash-create';
 import client from '../app';
-import roleIDs from '../service/constants/roleIds';
 import ValidationError from '../errors/ValidationError';
+import constants from '../service/constants/constants';
+import roleIDs from '../service/constants/roleIds';
+import { Allowlist } from '../types/discord/Allowlist';
+import dbInstance from '../utils/dbUtils';
 import { Confusables } from './Confusables';
 
 const nonStandardCharsRegex = /[^\w\s\p{P}\p{S}Ξ]/gu;
@@ -131,6 +135,11 @@ const ServiceUtils = {
 			return false;
 		}
 
+		if (await ServiceUtils.onAllowlist(member)) {
+			console.log(`Skipping username spam filter because ${member.user.tag} is on the allowlist.`);
+			return false;
+		}
+
 		const highRankingMembers = await ServiceUtils.getMembersWithRoles(member.guild,
 			[roleIDs.genesisSquad, roleIDs.admin, roleIDs.level2]);
 
@@ -190,6 +199,28 @@ const ServiceUtils = {
 			.replace(whitespaceRegex, '')
 			.replace(nonStandardCharsRegex, char => Confusables.get(char) || char)
 			.toLowerCase();
+	},
+
+	/**
+	 * Checks if member is on allowlist for guild.
+	 * 
+	 * @param member guild member object
+	 * @returns boolean indicating if member is on allowlist for guild
+	 */
+	async onAllowlist(member: GuildMember): Promise<boolean> {
+		const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+		const dbAllowlist = db.collection(constants.DB_COLLECTION_ALLOWLIST);
+
+		const allowlist: Allowlist = await dbAllowlist.findOne({
+			discordUserId: member.user.id,
+			discordServerId: member.guild.id,
+		});
+
+		if (allowlist) {
+			return true;
+		}
+
+		return false;
 	},
 	
 	getAllVoiceChannels(guildMember: GuildMember): Collection<string, VoiceChannel | StageChannel> {

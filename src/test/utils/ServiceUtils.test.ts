@@ -1,7 +1,7 @@
-import { GuildMember } from 'discord.js';
 import { Collection } from '@discordjs/collection';
-import ServiceUtils from '../../app/utils/ServiceUtils';
+import { GuildMember } from 'discord.js';
 import roleIDs from '../../app/service/constants/roleIds';
+import ServiceUtils from '../../app/utils/ServiceUtils';
 
 const guildMembers: Collection<string, any> = new Collection();
 
@@ -93,6 +93,7 @@ describe('Service Utils', () => {
 	});
 
 	beforeEach(() => {
+		jest.spyOn(ServiceUtils, 'onAllowlist').mockReturnValue(Promise.resolve(false));
 		guildMember = new GuildMember(null, null, guild as any);
 	});
 
@@ -118,6 +119,18 @@ describe('Service Utils', () => {
 			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
 			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
 			Object.defineProperty(guildMember, 'bannable', { get: () => false });
+			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
+			expect(guildMember.guild.fetch).toHaveBeenCalledTimes(0);
+			expect(guildMember.ban).toHaveBeenCalledTimes(0);
+			expect(guildMember.send).toHaveBeenCalledTimes(0);
+		});
+
+		it('should skip filter for member that is on allowlist', async () => {
+			guildMember.nickname = '0xLucas';
+			guildMember.user.username = '0xLucas';
+			jest.spyOn(ServiceUtils, 'onAllowlist').mockReturnValue(Promise.resolve(true));
+			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
+			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
 			expect(guildMember.guild.fetch).toHaveBeenCalledTimes(0);
 			expect(guildMember.ban).toHaveBeenCalledTimes(0);

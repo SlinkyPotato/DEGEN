@@ -6,14 +6,12 @@ import {
 } from 'slash-create';
 import HowToBounty from '../../service/help/HowToBounty';
 import HowToPOAP from '../../service/help/HowToPOAP';
-import discordServerIds from '../../service/constants/discordServerIds';
 
 export default class Help extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'help',
 			description: 'Get help on creating bounties, adding guests, and other operations',
-			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
 			options: [
 				{
 					name: 'bounty',

@@ -71,8 +71,8 @@ const updateDiscordHandleMultiSelectField = async (pageId, multiSelectoptions) =
 const retrieveSelectOption = (properties: PropertyMap, fieldName: string, option: string): any => {
 	let selectOptionResult = {};
 	Object.entries(properties).forEach(([nme, property]) => {
-		if (property.type === 'select' && nme === fieldName) { //property.name
-			Object.entries(property.select.options).forEach(([idx, selectOption]) => {
+		if (property.type === 'select' && nme === fieldName) {
+			Object.entries(property.select.options).forEach(([_, selectOption]) => {
 				if (selectOption.name === option) {
 					selectOptionResult = selectOption;
 				}
@@ -88,7 +88,7 @@ const retrieveMultiSelectOptions = (properties: PropertyMap, fieldName: string, 
 	const existingOptionsNameMapping = {};
 	Object.entries(properties).forEach(([nme, property]) => {
 		if (property.type === 'multi_select' && nme === fieldName) {
-			Object.entries(property.multi_select.options).forEach(([idx, mSelectOption]) => {
+			Object.entries(property.multi_select.options).forEach(([_, mSelectOption]) => {
 				if (options.includes(mSelectOption.name)) {
 					existingOptionsNameMapping[mSelectOption.name] = mSelectOption.id;
 					existingMultiSelectOptions.push(mSelectOption);

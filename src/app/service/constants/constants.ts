@@ -9,8 +9,7 @@ export default Object.freeze({
 	DB_COLLECTION_SCOAP_SQUAD: 'scoapSquad',
 	DB_COLLECTION_POAP_ADMINS: 'poapAdmins',
 	
-	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}${process.env.MONGODB_URL_ENDPOINT}`,
-	// MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
+	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
 	BOUNTY_BOARD_URL: 'https://bankless.community/',
 
@@ -52,9 +51,10 @@ export default Object.freeze({
 
 	NOTION_COLORS: ['gray', 'brown', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'red'],
 
-	BOT_CONVERSATION_TIMEOUT_MS: 1000 * 60 * 60 * 24, // active for 24 h
-
-	SCOAP_POLL_TIMEOUT_MS: 1000 * 60 * 60 * 168, // one week
+	// active for 24 h
+	BOT_CONVERSATION_TIMEOUT_MS: 1000 * 60 * 60 * 24,
+	// one week
+	SCOAP_POLL_TIMEOUT_MS: 1000 * 60 * 60 * 168,
 
 	EMOJIS: {
 		'1': '\u0031\uFE0F\u20E3',

@@ -23,7 +23,7 @@ module.exports = class poap extends SlashCommand {
 				{
 					name: 'config',
 					type: CommandOptionType.SUB_COMMAND,
-					description: 'Begin POAP event and start tracking participants.',
+					description: 'Configure users and roles to have access to POAP commands.',
 					options: [
 						{
 							name: 'role-1',
@@ -133,9 +133,15 @@ module.exports = class poap extends SlashCommand {
 	}
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
-		command.then(() => {
+		command.then((result) => {
 			console.log(`end /poap ${ctx.user.username}#${ctx.user.discriminator}`);
-			return ctx.send(`${ctx.user.mention} DM sent!`);
+			if (result === 'POAP_SENT') {
+				return ctx.send('POAPS sent. Expect delivery shortly.');
+			} else if (result === 'POAP_END') {
+				return ctx.send('POAP event ended. POAPs will be delivered at a later time.');
+			} else {
+				return ctx.send(`${ctx.user.mention} DM sent!`);
+			}
 		}).catch(e => {
 			if (e instanceof ValidationError) {
 				return ctx.send(e.message);

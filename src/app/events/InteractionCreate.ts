@@ -6,12 +6,12 @@ export default class implements DiscordEvent {
 	name = 'interactionCreate';
 	once = false;
 
-	execute(interaction: Interaction) {
+	execute(interaction: Interaction): undefined {
 		if (interaction.isSelectMenu()) {
 			interactionEditScoapDraft(interaction).catch(e => {
 				console.error('ERROR: ', e);
 			});
 		}
-		
+		return;
 	}
 }

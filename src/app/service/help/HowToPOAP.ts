@@ -10,8 +10,7 @@ export default (): MessageOptions => {
 			fields: [
 				{
 					name: '-> /poap config',
-					value: 'Only discord owners can use this command. With this command, the given users and roles will ' +
-						'have access to start and end poap tracking.',
+					value: 'Assign poap command access to roles or specific users.',
 					inline: false,
 				},
 				{

@@ -33,7 +33,7 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 		if (reaction.emoji.name === '👍') {
 			switch (option) {
 			case 'SET_ROLES':
-				return botConvo.setCurrentMessageFlowIndex('2', message.channel);
+				return await botConvo.setCurrentMessageFlowIndex('2', message.channel);
 			case 'PUBLISH':
 				return publishScoapPoll(message, scoapEmbed, botConvo);
 			}

@@ -16,7 +16,7 @@ export const scoapEmbedUpdate = async (botConvo, message): Promise<any> => {
 		switch (true) {
 		case (ScoapUtils.validateTitle(userInput)):
 			scoapEmbed.getEmbed()[0].title = userInput;
-			botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
+			await botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
 			botConvo.getConvo().user_response_record.embed[0].title = userInput;
 			botConvo.setEdit(false);
@@ -32,7 +32,7 @@ export const scoapEmbedUpdate = async (botConvo, message): Promise<any> => {
 		switch (true) {
 		case (ScoapUtils.validateSummary(userInput)):
 			updateFieldValues(scoapEmbedFields, 'Summary', userInput);
-			botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
+			await botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
 			botConvoResponseRecordFields.Summary = userInput;
 			botConvo.setEdit(false);
@@ -51,7 +51,7 @@ export const scoapEmbedUpdate = async (botConvo, message): Promise<any> => {
 				userInput = 'no reward defined';
 			}
 			updateFieldValues(scoapEmbedFields, 'Reward', userInput);
-			botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
+			await botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
 			botConvoResponseRecordFields.Reward = userInput;
 			botConvo.setEdit(false);
@@ -72,7 +72,7 @@ export const scoapEmbedUpdate = async (botConvo, message): Promise<any> => {
 				updateRoleFields(scoapEmbedFields, interactionValue, userInput, 'ROLE_COUNT');
 				const userResponseRecordKey = ScoapUtils.getKeyByValue(constants.EMOJIS, interactionValue);
 				updateRoleFieldsBotConvoRecord(botConvo, userResponseRecordKey, userInput, 'ROLE_COUNT');
-				botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
+				await botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
 				publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
 				botConvo.setEdit(false);
 			} else {

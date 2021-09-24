@@ -22,7 +22,6 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 																		'- special characters: .!@#$%&,?\n']);
 			return;
 		}
-		break;
 	case (botConvo.getCurrentMessageFlowIndex() === '3'):
 		switch (true) {
 		case (ScoapUtils.validateSummary(message.content)):
@@ -37,7 +36,6 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 																		'- special characters: .!@#$%&,?\n']);
 			return;
 		}
-		break;
 	case (botConvo.getCurrentMessageFlowIndex() === '4'):
 		switch (true) {
 		case (ScoapUtils.validateReward(message.content)):
@@ -51,7 +49,6 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 																		'- accepted currencies: ETH, BANK\n']);
 			return;
 		}
-		break;
 	case (botConvo.getCurrentMessageFlowIndex() === '5'):
 		switch (true) {
 		case (ScoapUtils.validateTotalNumberOfRoles(message.content)):
@@ -177,13 +174,13 @@ const getTotalNumberOfRoles = (botConvo) => {
 export const incrementMessageFlowIndex = async (botConvo, message, params) => {
 	switch (params[0]) {
 	case 'CORRECT':
-		botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + params[1]).toString(), message.channel);
+		await botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + params[1]).toString(), message.channel);
 		break;
 	case 'INCORRECT':
-		botConvo.setCurrentMessageFlowIndex(botConvo.getCurrentMessageFlowIndex(), await handleIncorrectInput(message, params[1]));
+		await botConvo.setCurrentMessageFlowIndex(botConvo.getCurrentMessageFlowIndex(), await handleIncorrectInput(message, params[1]));
 		break;
 	case 'FINAL':
-		botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + params[1]).toString(), message.channel);
+		await botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + params[1]).toString(), message.channel);
 		break;
 	}
 };

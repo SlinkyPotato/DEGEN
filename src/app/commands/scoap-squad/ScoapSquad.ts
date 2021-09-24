@@ -30,73 +30,73 @@ module.exports = class ScoapSquad extends SlashCommand {
 				usages: 2,
 				duration: 1,
 			},
-			defaultPermission: false,
-			permissions: {
-				[discordServerIds.banklessDAO]: [
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level1,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level2,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level3,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level4,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.admin,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.genesisSquad,
-						permission: true,
-					},
-				],
-				[discordServerIds.discordBotGarage]: [
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level1,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level2,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level3,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level4,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.admin,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.genesisSquad,
-						permission: true,
-					},
-				],
-			},
+			// defaultPermission: false,
+			// permissions: {
+			// 	[discordServerIds.banklessDAO]: [
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.level1,
+			// 			permission: true,
+			// 		},
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.level2,
+			// 			permission: true,
+			// 		},
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.level3,
+			// 			permission: true,
+			// 		},
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.level4,
+			// 			permission: true,
+			// 		},
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.admin,
+			// 			permission: true,
+			// 		},
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.genesisSquad,
+			// 			permission: true,
+			// 		},
+			// 	],
+			// 	[discordServerIds.discordBotGarage]: [
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.level1,
+			// 			permission: true,
+			// 		},
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.level2,
+			// 			permission: true,
+			// 		},
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.level3,
+			// 			permission: true,
+			// 		},
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.level4,
+			// 			permission: true,
+			// 		},
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.admin,
+			// 			permission: true,
+			// 		},
+			// 		{
+			// 			type: ApplicationCommandPermissionType.ROLE,
+			// 			id: roleIds.genesisSquad,
+			// 			permission: true,
+			// 		},
+			// 	],
+			// },
 		});
 	}
 

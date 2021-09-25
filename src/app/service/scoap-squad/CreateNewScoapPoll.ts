@@ -102,7 +102,7 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
 					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
 					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
-	ScoapPoll(scoapChannel, scoapEmbed);
+	await ScoapPoll(scoapChannel, scoapEmbed);
 	message.channel.send(`All done! Your SCOAP Squad assemble request has been posted in <#${channelIds.scoapSquad}>`);
 	const notionInputs = {
 		title: scoapEmbed.getEmbed()[0].title,

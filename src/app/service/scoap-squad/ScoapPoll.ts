@@ -39,7 +39,7 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 	scoapEmbed.setCurrentChannel(channel).setCurrentMessage(embedMessage);
 	scoapEmbed.setPublishedTimestamp(+new Date());
 
-	updateScoapEmbedAndVoteRecordDb(scoapEmbed, voteRecord);
+	await updateScoapEmbedAndVoteRecordDb(scoapEmbed, voteRecord);
 
 	for (const item of validEmojiArray) {
 		await embedMessage.react(item);
@@ -119,7 +119,7 @@ export const collectReactions = async (scoapEmbed, voteRecord, validEmojiArray, 
 							` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
 							` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
 							` voteRecordState: ${JSON.stringify(voteRecordState)}`);
-				updateScoapEmbedAndVoteRecordDb(scoapEmbed, voteRecord);
+				await updateScoapEmbedAndVoteRecordDb(scoapEmbed, voteRecord);
 
 				if (isEqual(voteRecord.getEmoteTotals(), voteRecord.getEmoteRequired())) {
 					collector.stop();
@@ -160,7 +160,10 @@ export const collectReactions = async (scoapEmbed, voteRecord, validEmojiArray, 
 						roleSummary[role.name].push(user[1].tag);
 					}
 					const dmChannel = await user[1].createDM();
-					dmChannel.send(`Congratulations, you are part of the SCOAP Squad for role ${role.name}!`);
+					dmChannel.send('Congratulations, you are part of the SCOAP Squad ' +
+									`**${scoapEmbed.getBotConvoResponseRecord().embed[0].title}** ` +
+									`for role **${role.name}**! Check out the project page here: ` +
+									`https://www.notion.so/${process.env.NOTION_SCOAP_SQUAD_DB_ID}`);
 				}
 			}
 		}
@@ -179,7 +182,7 @@ export const collectReactions = async (scoapEmbed, voteRecord, validEmojiArray, 
 							` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
 							` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
 							` voteRecordState: ${JSON.stringify(voteRecordState)}`);
-		deleteScoapEmbedAndVoteRecord(scoapEmbed.getId());
+		await deleteScoapEmbedAndVoteRecord(scoapEmbed.getId());
 		console.log('POLL COMPLETE');
 		embedMessage.reactions.removeAll();
 		return;
@@ -203,7 +206,7 @@ export const collectReactions = async (scoapEmbed, voteRecord, validEmojiArray, 
 			}
 			embedMessage.edit({ embeds: scoapEmbed.getEmbed() });
 			scoapEmbed.removeReactionUserId(reaction.emoji.name, user.id);
-			updateScoapEmbedAndVoteRecordDb(scoapEmbed, voteRecord);
+			await updateScoapEmbedAndVoteRecordDb(scoapEmbed, voteRecord);
 		}
 	});
 };
@@ -233,7 +236,7 @@ const handleDeletePoll = async (user, scoapEmbed, embedMessage, collector) => {
 							`scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
 							`botConvoState: ${JSON.stringify(botConvoState)}  \n` +
 							`voteRecordState: ${JSON.stringify(voteRecordState)}`);
-				deleteScoapEmbedAndVoteRecord(scoapEmbed.getId());
+				await deleteScoapEmbedAndVoteRecord(scoapEmbed.getId());
 				await embedMessage.edit({ embeds: [{ title: 'Scoap Squad cancelled' }] });
 				collector.stop('cancelled');
 				await dmChannel.send({ content: 'ScoapSquad Assemble cancelled. ' });

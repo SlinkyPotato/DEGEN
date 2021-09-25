@@ -17,12 +17,12 @@ export const scoapEmbedUpdate = async (botConvo, message): Promise<any> => {
 		case (ScoapUtils.validateTitle(userInput)):
 			scoapEmbed.getEmbed()[0].title = userInput;
 			await botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
-			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+			await publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
 			botConvo.getConvo().user_response_record.embed[0].title = userInput;
 			botConvo.setEdit(false);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 250 characters maximum\n ' +
+			await incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 250 characters maximum\n ' +
 																		'- alphanumeric\n ' +
 																		'- special characters: .!@#$%&,?\n']);
 			return;
@@ -33,12 +33,12 @@ export const scoapEmbedUpdate = async (botConvo, message): Promise<any> => {
 		case (ScoapUtils.validateSummary(userInput)):
 			updateFieldValues(scoapEmbedFields, 'Summary', userInput);
 			await botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
-			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+			await publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
 			botConvoResponseRecordFields.Summary = userInput;
 			botConvo.setEdit(false);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 4000 characters maximum\n ' +
+			await incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 4000 characters maximum\n ' +
 																		'- alphanumeric\n ' +
 																		'- special characters: .!@#$%&,?\n']);
 			return;
@@ -52,12 +52,12 @@ export const scoapEmbedUpdate = async (botConvo, message): Promise<any> => {
 			}
 			updateFieldValues(scoapEmbedFields, 'Reward', userInput);
 			await botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
-			publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+			await publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
 			botConvoResponseRecordFields.Reward = userInput;
 			botConvo.setEdit(false);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 100 million maximum currency\n ' +
+			await incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 100 million maximum currency\n ' +
 																		'- accepted currencies: ETH, BANK\n']);
 			return;
 		}
@@ -73,10 +73,10 @@ export const scoapEmbedUpdate = async (botConvo, message): Promise<any> => {
 				const userResponseRecordKey = ScoapUtils.getKeyByValue(constants.EMOJIS, interactionValue);
 				updateRoleFieldsBotConvoRecord(botConvo, userResponseRecordKey, userInput, 'ROLE_COUNT');
 				await botConvo.setCurrentMessageFlowIndex('8', botConvo.getCurrentChannel());
-				publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
+				await publishDraftScoapEmbed(botConvo, scoapEmbed, botConvo.getCurrentChannel());
 				botConvo.setEdit(false);
 			} else {
-				incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\nnumber between 1 and 1000\n']);
+				await incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\nnumber between 1 and 1000\n']);
 			}
 		}
 	}

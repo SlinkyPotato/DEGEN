@@ -14,10 +14,10 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 			if (!botConvo.getEdit()) {
 				setUserResponseRecord(message.content, botConvo, 'TITLE');
 			}
-			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
+			await incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 250 characters maximum\n ' +
+			await incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 250 characters maximum\n ' +
 																		'- alphanumeric\n ' +
 																		'- special characters: .!@#$%&,?\n']);
 			return;
@@ -28,10 +28,10 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 			if (!botConvo.getEdit()) {
 				setUserResponseRecord(message.content, botConvo, 'SUMMARY');
 			}
-			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
+			await incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 4000 characters maximum\n ' +
+			await incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 4000 characters maximum\n ' +
 																		'- alphanumeric\n ' +
 																		'- special characters: .!@#$%&,?\n']);
 			return;
@@ -42,10 +42,10 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 			if (!botConvo.getEdit()) {
 				setUserResponseRecord(message.content, botConvo, 'REWARD');
 			}
-			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
+			await incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 100 million maximum currency\n ' +
+			await incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 100 million maximum currency\n ' +
 																		'- accepted currencies: ETH, BANK\n']);
 			return;
 		}
@@ -55,10 +55,10 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 			if (!botConvo.getEdit()) {
 				setUserResponseRecord(message.content, botConvo, 'NUMBER_OF_ROLES');
 			}
-			incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
+			await incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 			return;
 		default:
-			incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\nnumber between 1 and 9\n']);
+			await incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\nnumber between 1 and 9\n']);
 			return;
 		}
 	case (botConvo.getCurrentMessageFlowIndex() === '6' || botConvo.getCurrentMessageFlowIndex() === '7'):
@@ -73,10 +73,10 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 					if (!botConvo.getEdit()) {
 						setUserResponseRecord(message.content, botConvo, 'ROLE_TITLE');
 					}
-					incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
+					await incrementMessageFlowIndex(botConvo, message, ['CORRECT', 1]);
 					break;
 				default:
-					incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 250 characters maximum\n ' +
+					await incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\n- 250 characters maximum\n ' +
 																				'- alphanumeric\n ' +
 																				'- special characters: .!@#$%&,?\n']);
 					return;
@@ -93,20 +93,21 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 						if (!botConvo.getEdit()) {
 							setUserResponseRecord({}, botConvo, 'NEW_ROLE');
 						}
-						incrementMessageFlowIndex(botConvo, message, ['CORRECT', -1]);
+						await incrementMessageFlowIndex(botConvo, message, ['CORRECT', -1]);
 					// if true this is last iteration
 					} else if (getNumberOfRolesRecorded(botConvo) == getTotalNumberOfRoles(botConvo)) {
-						incrementMessageFlowIndex(botConvo, message, ['FINAL', +1]);
+						await incrementMessageFlowIndex(botConvo, message, ['FINAL', +1]);
 						const scoapEmbed = createNewScoapEmbed(botConvo);
 						Array(botConvo.getConvo().user_response_record.number_of_roles).fill(0).map((_, i) => {
 							createScoapEmbedRoleFields(botConvo, scoapEmbed, i);
 						});
 
-						return publishDraftScoapEmbed(botConvo, scoapEmbed, message.channel);
+						await publishDraftScoapEmbed(botConvo, scoapEmbed, message.channel);
+						return;
 					}
 					return;
 				default:
-					incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\nnumber between 1 and 1000\n']);
+					await incrementMessageFlowIndex(botConvo, message, ['INCORRECT', '\nnumber between 1 and 1000\n']);
 					return;
 				}
 				break;

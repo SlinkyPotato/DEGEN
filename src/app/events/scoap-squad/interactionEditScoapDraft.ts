@@ -4,7 +4,7 @@ import { SelectMenuInteraction } from 'discord.js';
 export default async (interaction: SelectMenuInteraction): Promise<any> => {
 
 	const botConvo = botConvoState[interaction.user.id];
-	if (interactionIsValid(interaction, botConvo)) {
+	if (await interactionIsValid(interaction, botConvo)) {
 		botConvo.setEdit(true);
 		botConvo.setEditValue(interaction.values[0]);
 		const interaction_value = interaction.values[0];
@@ -28,7 +28,7 @@ export default async (interaction: SelectMenuInteraction): Promise<any> => {
 	}
 };
 
-const interactionIsValid = (interaction, botConvo) => {
+const interactionIsValid = async (interaction, botConvo) => {
 	// returns true if this message is a direct response to botConvo.current_message
-	return (interaction.channel.messages.cache.lastKey(1)[0] === botConvo.getCurrentMessage().id);
+	return (await interaction.channel.messages.cache.lastKey(1)[0] === botConvo.getCurrentMessage().id);
 };

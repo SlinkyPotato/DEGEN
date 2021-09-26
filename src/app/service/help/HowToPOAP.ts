@@ -32,10 +32,6 @@ export default (): MessageOptions => {
 					inline: false,
 				},
 			],
-			footer: {
-				icon_url: null,
-				text: '@Bankless DAO 🏴',
-			},
 		}],
 	};
 };

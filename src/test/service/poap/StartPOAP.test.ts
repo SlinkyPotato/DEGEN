@@ -16,7 +16,7 @@ jest.mock('../../../app/events/poap/AddUserForEvent');
 jest.mock('../../../app/utils/POAPUtils', () => {
 	return {
 		validateUserAccess: jest.fn(() => Promise.resolve()),
-		validateEvent: jest.fn(() => Promise.resolve())
+		validateEvent: jest.fn(() => Promise.resolve()),
 	};
 });
 
@@ -27,17 +27,11 @@ jest.mock('discord.js', () => {
 				id: '83254665220',
 				user: {
 					tag: 'hydrabolt#0001',
-					id: '83254665220'
+					id: '83254665220',
 				},
-				send: jest.fn(() => Promise.resolve({
-					channel: {
-						fetch: jest.fn(() => Promise.resolve({ 
-							awaitMessages: jest.fn(() => Promise.resolve(messages)) 
-						}))
-					}
-				})) 
+				send: jest.fn(() => Promise.resolve(message)),
 			};
-		})
+		}),
 	};
 });
 
@@ -47,7 +41,14 @@ jest.mock('../../../app/app', () => {
 	};
 });
 
-let messages: DiscordCollection<string, any> = new DiscordCollection();
+const messages: DiscordCollection<string, any> = new DiscordCollection();
+const message = {
+	channel: {
+		fetch: jest.fn(() => Promise.resolve({
+			awaitMessages: jest.fn(() => Promise.resolve(messages)),
+		})),
+	},
+};
 
 describe('Start POAP', () => {
 	let connection: MongoClient;
@@ -55,8 +56,8 @@ describe('Start POAP', () => {
 	let poapSettingsDB: Collection;
 	let poapParticipantsDB: Collection;
 	let guildMember: GuildMember;
-	let voiceChannels: DiscordCollection<string, any> = new DiscordCollection();
-	let guildMembers: DiscordCollection<string, any> = new DiscordCollection();
+	const voiceChannels: DiscordCollection<string, any> = new DiscordCollection();
+	const guildMembers: DiscordCollection<string, any> = new DiscordCollection();
 
 	beforeAll(async () => {
 		// Setup mock database
@@ -74,13 +75,13 @@ describe('Start POAP', () => {
 		// Create mock guild members
 		guildMembers.set('8098123713', {
 			user: {
-				id: '8098123713'
-			}
+				id: '8098123713',
+			},
 		});
 		guildMembers.set('97124907112', {
 			user: {
-				id: '97124907112'
-			}
+				id: '97124907112',
+			},
 		});
 
 		// Create mock voice channels
@@ -89,16 +90,16 @@ describe('Start POAP', () => {
 			id: '1000',
 			members: guildMembers,
 			guild: {
-				id: process.env.DISCORD_SERVER_ID
-			}
+				id: process.env.DISCORD_SERVER_ID,
+			},
 		});
 		voiceChannels.set('1001', {
 			name: 'writers room',
 			id: '1001',
 			members: guildMembers,
 			guild: {
-				id: process.env.DISCORD_SERVER_ID
-			}
+				id: process.env.DISCORD_SERVER_ID,
+			},
 		});
 		(ServiceUtils.getAllVoiceChannels as jest.MockedFunction<any>).mockReturnValue(voiceChannels);
 	});
@@ -117,11 +118,11 @@ describe('Start POAP', () => {
 	it('should throw ValidationError if user has active event', async () => {
 		// Populate database with user that has active event
 		await poapSettingsDB.insertOne({
-			discordUserId: '80002', 
-			isActive: true
+			discordUserId: '80002',
+			isActive: true,
 		});
 
-		Object.defineProperty(guildMember, 'id', { get: () => '80002'});
+		Object.defineProperty(guildMember, 'id', { get: () => '80002' });
 
 		await expect(() => StartPOAP(guildMember, null)).rejects.toThrow(ValidationError);
 	});
@@ -129,7 +130,7 @@ describe('Start POAP', () => {
 	it('should throw EarlyTermination if user responds no', async () => {
 		// User responds with no
 		messages.set('9740875342', {
-			content: 'no'
+			content: 'no',
 		});
 
 		await expect(() => StartPOAP(guildMember, null)).rejects.toThrow(EarlyTermination);
@@ -137,15 +138,15 @@ describe('Start POAP', () => {
 
 	it('should throw ValidationError if channel has active event', async () => {
 		// Populate database with channel that has active event
-		await poapSettingsDB.insertOne({ 
-			discordServerId: process.env.DISCORD_SERVER_ID, 
+		await poapSettingsDB.insertOne({
+			discordServerId: process.env.DISCORD_SERVER_ID,
 			voiceChannelId: '1000',
-			isActive: true
+			isActive: true,
 		});
 
 		// User responds with first channel in list (voice channel id: 1000)
 		messages.set('9740875342', {
-			content: '1'
+			content: '1',
 		});
 
 		await expect(() => StartPOAP(guildMember, null)).rejects.toThrow(ValidationError);
@@ -154,7 +155,7 @@ describe('Start POAP', () => {
 	it('should insert new event into database', async () => {
 		// User responds with first channel in list (voice channel id: 1000)
 		messages.set('9740875342', {
-			content: '1'
+			content: '1',
 		});
 
 		await StartPOAP(guildMember, null);
@@ -164,26 +165,26 @@ describe('Start POAP', () => {
 			isActive: true,
 			voiceChannelId: '1000',
 			voiceChannelName: 'dev workroom',
-			discordServerId: process.env.DISCORD_SERVER_ID
+			discordServerId: process.env.DISCORD_SERVER_ID,
 		})).not.toBeNull();
 	});
 
 	it('should delete previous partcipants when creating new event for channel', async () => {
 		// Populate database with partcipant leftover from previous event in channel
 		await poapParticipantsDB.insertOne({
-			discordUserId: '80002', 
+			discordUserId: '80002',
 			voiceChannelId: '1000',
-			discordServerId: process.env.DISCORD_SERVER_ID
+			discordServerId: process.env.DISCORD_SERVER_ID,
 		});
 
 		// User responds with first channel in list (voice channel id: 1000)
 		messages.set('9740875342', {
-			content: '1'
+			content: '1',
 		});
 
 		await StartPOAP(guildMember, null);
 
-		let result = await poapParticipantsDB.find().count()
+		const result = await poapParticipantsDB.find().count();
 		expect(result).toBe(0);
 	});
 	
@@ -194,33 +195,33 @@ describe('Start POAP', () => {
 			voiceChannelId: '1000',
 			isActive: false,
 			discordUserId: '99999999',
-			event: 'An old event'
+			event: 'An old event',
 		});
 
 		// User responds with first channel in list (voice channel id: 1000)
 		messages.set('9740875342', {
-			content: '1'
+			content: '1',
 		});
 
 		await StartPOAP(guildMember, null);
 
-		let result = await poapSettingsDB.findOne({
+		const result = await poapSettingsDB.findOne({
 			discordServerId: process.env.DISCORD_SERVER_ID,
-			voiceChannelId: '1000'
+			voiceChannelId: '1000',
 		});
 		expect(result.isActive).toBeTruthy();
 		expect(result.discordUserId).toBe(guildMember.user.id);
-	})
+	});
 
 	it('should add present members to new poap event', async () => {
 		// User responds with first channel in list (voice channel id: 1000)
 		messages.set('9740875342', {
-			content: '1'
+			content: '1',
 		});
 
 		await StartPOAP(guildMember, null);
 
-		let channelMembers: DiscordCollection<string, any> = voiceChannels.get('1000').members;
+		const channelMembers: DiscordCollection<string, any> = voiceChannels.get('1000').members;
 		expect(updateUserForPOAP).toBeCalledTimes(channelMembers.size);
-	})
-})
+	});
+});

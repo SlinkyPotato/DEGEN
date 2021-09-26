@@ -3,6 +3,7 @@ import roleIds from '../service/constants/roleIds';
 import AddGuestPass from '../service/guest-pass/AddGuestPass';
 import RemoveGuestPass from '../service/guest-pass/RemoveGuestPass';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
+import ServiceUtils from '../utils/ServiceUtils';
 import sendGuildWelcomeMessage from './welcomeMats/GuildMats';
 
 export default class implements DiscordEvent {
@@ -19,6 +20,10 @@ export default class implements DiscordEvent {
 			}
 		} catch (e) {
 			console.error('Retrieving member partial failed');
+			return;
+		}
+		
+		if (oldMember.nickname !== newMember.nickname && await ServiceUtils.runUsernameSpamFilter(newMember as GuildMember)) {
 			return;
 		}
 		

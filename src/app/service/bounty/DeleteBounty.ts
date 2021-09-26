@@ -6,6 +6,7 @@ import BountyUtils from '../../utils/BountyUtils';
 import { GuildMember, Message } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import BountyMessageNotFound from '../../errors/BountyMessageNotFound';
+import roleIDs from '../constants/roleIds';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -28,7 +29,7 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 		return guildMember.send(`<@${guildMember.user.id}> looks like bounty \`${bountyId}\` is already deleted!`);
 	}
 
-	if (!(ServiceUtils.isAdmin(guildMember) || dbBountyResult.createdBy.discordId === guildMember.id)) {
+	if (!(ServiceUtils.hasRole(guildMember, roleIDs.admin) || dbBountyResult.createdBy.discordId === guildMember.id)) {
 		console.log(`${guildMember.user.tag} does not have access to delete bounty`);
 		return guildMember.send(`<@${guildMember.user.id}> Sorry you do not have access to delete!`);
 	}

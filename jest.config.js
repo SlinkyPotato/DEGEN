@@ -4,8 +4,7 @@
  */
 
 module.exports = {
-    preset: 'ts-jest',
-    testEnvironment: 'node',
+    preset: '@shelf/jest-mongodb',
     clearMocks: true,
     collectCoverage: true,
     coverageDirectory: 'coverage',
@@ -18,6 +17,7 @@ module.exports = {
         '**/__tests__/**/*.+(ts|tsx|js)',
         '**/?(*.)+(spec|test).+(ts|tsx|js)',
     ],
+	watchPathIgnorePatterns: ['globalConfig']
 };
 
 /*
@@ -38,4 +38,3 @@ process.env.DISCORD_ROLE_GUEST_PASS = '857683488131907624';
 process.env.NOTION_GUEST_PASS_DATABASE_ID = '3453453245345';
 process.env.DAO_CURRENT_SEASON = '1';
 process.env.DISCORD_ROLE_LEVEL_2 = '34523454352';
-process.env.MONGODB_URI = 'someURI';

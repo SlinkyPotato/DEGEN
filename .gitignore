@@ -112,3 +112,6 @@ dist
 build
 
 .DS_Store
+
+# jest-mongodb output
+globalConfig.json

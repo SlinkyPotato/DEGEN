@@ -3,11 +3,10 @@ on:
   push:
     branches:
       - 'DEGEN'
-      - 'feature/*'
 jobs:
   build-test-deploy:
     environment:
-      name: test-digital-ocean
+      name: production
       url: https://bankless-dao-degen-bot.herokuapp.com/
     runs-on: ubuntu-20.04
     steps:
@@ -26,29 +25,31 @@ jobs:
       - name: Deploy to Host environment
         uses: appleboy/ssh-action@v0.1.4
         env:
-          DISCORD_BOT_TOKEN: ${{secrets.QA_DISCORD_TOKEN}}
-          DISCORD_BOT_PUBLIC_KEY: ${{secrets.QA_BOT_PUBLIC_KEY}}
-          DISCORD_BOT_APPLICATION_ID: ${{secrets.QA_BOT_APPLICATION_ID}}
-          DISCORD_OWNER_ID: ${{secrets.QA_DISCORD_OWNER_ID}}
-          MONGODB_USERNAME: ${{secrets.QA_MONGODB_USERNAME}}
-          MONGODB_PASS: ${{secrets.QA_MONGODB_PASS}}
-          MONGODB_CLUSTER: ${{secrets.QA_MONGODB_CLUSTER}}
-          NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
-          LOG_DNA_INGS_KEY: ${{ secrets.QA_LOG_DNA_INGESTION_KEY }} 
+          DISCORD_BOT_TOKEN: ${{secrets.PROD_DISCORD_TOKEN}}
+          DISCORD_BOT_PUBLIC_KEY: ${{secrets.PROD_BOT_PUBLIC_KEY}}
+          DISCORD_BOT_APPLICATION_ID: ${{secrets.PROD_BOT_APPLICATION_ID}}
+          DISCORD_OWNER_ID: ${{secrets.PROD_DISCORD_OWNER_ID}}
+          MONGODB_USERNAME: ${{secrets.PROD_MONGODB_USERNAME}}
+          MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}
+          MONGODB_CLUSTER: ${{secrets.PROD_MONGODB_CLUSTER}}
+          NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
         with:
           host: ${{ secrets.PROD_DO_HOST }}
           username: ${{ secrets.PROD_DO_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script_stop: true
-          envs: DISCORD_BOT_TOKEN,DISCORD_BOT_PUBLIC_KEY,DISCORD_BOT_APPLICATION_ID,DISCORD_OWNER_ID,MONGODB_USERNAME,MONGODB_PASS,MONGODB_CLUSTER,NOTION_TOKEN,LOG_DNA_INGS_KEY
+          envs: DISCORD_BOT_TOKEN,DISCORD_BOT_PUBLIC_KEY,DISCORD_BOT_APPLICATION_ID,DISCORD_OWNER_ID,MONGODB_USERNAME,MONGODB_PASS,MONGODB_CLUSTER,NOTION_TOKEN
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             nvm install 16.10.0
             nvm use 16.10.0
+            rm -r -f discord-bots/
+            git clone https://github.com/BanklessDAO/discord-bots.git
             cd discord-bots
             npm -g install yarn
             npm -g install pm2
+            pm2 stop DEGEN
             yarn install
             yarn build
             DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
@@ -59,5 +60,4 @@ jobs:
             MONGODB_PASS=$MONGODB_PASS \
             MONGODB_CLUSTER=$MONGODB_CLUSTER \
             NOTION_TOKEN=$NOTION_TOKEN \
-            LOG_DNA_INGS_KEY=$LOG_DNA_INGS_KEY \
             pm2 start pm2.config.js

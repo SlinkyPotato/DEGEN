@@ -6,7 +6,7 @@
 2. Misc fixes for POAP commands and enable HELP commands for all discords
 3. Migrate github actions deployment to digital ocean droplet
 4. Add username spam filter
-5. Add enhanced logging and misc fixes
+5. Misc fixes for bounties
 
 ## 1.5.2-RELEASE (2021-09-10)
 

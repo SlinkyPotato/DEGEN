@@ -7,7 +7,7 @@ on:
 jobs:
   build-test-deploy:
     environment:
-      name: production
+      name: test-digital-ocean
       url: https://bankless-dao-degen-bot.herokuapp.com/
     runs-on: ubuntu-20.04
     steps:

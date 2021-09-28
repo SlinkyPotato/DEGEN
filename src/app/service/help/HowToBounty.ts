@@ -57,10 +57,6 @@ export default (): MessageOptions => {
 					'[Feedback](https://tally.so/r/wAdey3)',
 					inline: false,
 				}],
-			footer: {
-				icon_url: null,
-				text: '@Bankless DAO 🏴',
-			},
 		}],
 	};
 };

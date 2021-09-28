@@ -40,7 +40,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 		const totalReward = params.reward.amount * params.copies;
 		await guildMember.send({ content: `Are you sure you want to publish bounties with a \`total\` reward of \`${totalReward} ${params.reward.currencySymbol}\`? (yes/no)` });
 		const amountConfirmation: string = (await dmChannel.awaitMessages(replyOptions)).first().content;
-		if (!(amountConfirmation == 'yes' || amountConfirmation === 'YES' || amountConfirmation === 'Y')) {
+		if (!(amountConfirmation == 'yes' || amountConfirmation == 'YES' || amountConfirmation == 'Y' || amountConfirmation == 'Yes')) {
 			return guildMember.send({ content: 'Ok no problem, bounty deleted.' });
 		}
 	}

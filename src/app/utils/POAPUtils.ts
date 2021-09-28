@@ -74,7 +74,7 @@ const POAPUtils = {
 			try {
 				await guildMember.guild.members.fetch(listOfParticipants[i].id)
 					.then(async (participantMember: GuildMember) => {
-						await participantMember.send({ content: `Thank you for participating in BanklessDAO! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
+						await participantMember.send({ content: `Thank you for participating in the event! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
 							console.log(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`);
 							console.error(e);
 						});
@@ -82,7 +82,7 @@ const POAPUtils = {
 						console.log(`failed trying to find: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, to give link ${listOfPOAPLinks[i]}`);
 						const tryAgainMember: GuildMember = await guildMember.guild.members.fetch(listOfParticipants[i].id);
 						console.log(`trying to send another message to user ${listOfParticipants[i].tag}`);
-						await tryAgainMember.send({ content: `Thank you for participating in BanklessDAO! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
+						await tryAgainMember.send({ content: `Thank you for participating in the event! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
 							console.log(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`);
 							console.error(e);
 						});

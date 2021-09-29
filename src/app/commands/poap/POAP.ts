@@ -1,9 +1,4 @@
-import {
-	CommandContext,
-	CommandOptionType,
-	SlashCommand,
-	SlashCreator,
-} from 'slash-create';
+import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 import ServiceUtils from '../../utils/ServiceUtils';
 import StartPOAP from '../../service/poap/StartPOAP';
 import ValidationError from '../../errors/ValidationError';
@@ -12,6 +7,7 @@ import EndPOAP from '../../service/poap/EndPOAP';
 import DistributePOAP from '../../service/poap/DistributePOAP';
 import ConfigPOAP from '../../service/poap/ConfigPOAP';
 import discordServerIds from '../../service/constants/discordServerIds';
+import SchedulePOAP from '../../service/poap/SchedulePOAP';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -64,6 +60,19 @@ module.exports = class poap extends SlashCommand {
 					],
 				},
 				{
+					name: 'schedule',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Schedule a POAP event, upload the PNG image to be minted, and get the links.txt file over email.',
+					options: [
+						{
+							name: 'number-to-mint',
+							type: CommandOptionType.INTEGER,
+							description: 'The number of POAPs to be minted for all of the participants. Best to overestimate.',
+							required: true,
+						},
+					],
+				},
+				{
 					name: 'start',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'Begin POAP event and start tracking participants.',
@@ -110,6 +119,10 @@ module.exports = class poap extends SlashCommand {
 				authorizedRoles = [ctx.options.config['role-1'], ctx.options.config['role-2'], ctx.options.config['role-3']];
 				authorizedUsers = [ctx.options.config['user-1'], ctx.options.config['user-2'], ctx.options.config['user-3']];
 				command = ConfigPOAP(guildMember, authorizedRoles, authorizedUsers);
+				break;
+			case 'schedule':
+				console.log(`/poap schedule ${ctx.user.username}#${ctx.user.discriminator}`);
+				command = SchedulePOAP(guildMember, ctx.options.schedule['number-to-mint']);
 				break;
 			case 'start':
 				console.log(`/poap start ${ctx.user.username}#${ctx.user.discriminator}`);

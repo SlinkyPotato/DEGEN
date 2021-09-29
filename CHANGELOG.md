@@ -7,6 +7,7 @@
 3. Migrate github actions deployment to digital ocean droplet
 4. Add username spam filter
 5. Misc fixes for bounties
+6. Add /poap schedule command
 
 ## 1.5.2-RELEASE (2021-09-10)
 

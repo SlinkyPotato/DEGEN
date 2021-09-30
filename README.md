@@ -24,6 +24,5 @@ and database.
 -   [Bot Suggestion Form](https://docs.google.com/forms/d/e/1FAIpQLSffkvYdOeW5k3DAXeMl82wGlpuz8oZVIEOuf6mHFpYCriHqbw/viewform)
 -   [DEV Guild Projects](https://www.notion.so/Dev-Guild-Projects-2d36ac50c02640bda22fbbf72069afe3)
 
-
 ## RUNING MONGODB
 https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/

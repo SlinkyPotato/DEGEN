@@ -91,7 +91,7 @@ export const restoreScoapEmbedAndVoteRecord = async (): Promise<boolean> => {
 			if ((+new Date() - scoapEmbed.getPublishedTimestamp()) <= constants.SCOAP_POLL_TIMEOUT_MS) {
 				scoapEmbedState[scoapEmbed.getId()] = scoapEmbed;
 				voteRecordState[scoapEmbed.getId()] = voteRecord;
-				restoreReactionCollector(scoapEmbed, voteRecord);
+				await restoreReactionCollector(scoapEmbed, voteRecord);
 				ScoapUtils.logToFile(`Restored two objects (scoapEMbed & voteRecord) from Mongo, id: ${scoapEmbed.getId()}`);
 			} else {
 				console.log('removing timed out objects from database');

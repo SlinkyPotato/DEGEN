@@ -70,7 +70,7 @@ const ScoapUtils = {
 	logToFile(log_string: string): any {
 		const dt = new Date();
 		const formatted_str = '\n\n' + dt.toString() + '\n' + log_string;
-		console.log(formatted_str);
+		console.debug(formatted_str);
 	},
 };
 

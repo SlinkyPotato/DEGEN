@@ -19,7 +19,7 @@ export default async (interaction: SelectMenuInteraction): Promise<any> => {
 			await botConvo.setCurrentMessageFlowIndex('4', interaction.channel);
 			break;
 		default:
-			if (await botConvo.getCurrentMessageFlowIndex() === '6') {
+			if (botConvo.getCurrentMessageFlowIndex() === '6') {
 				await botConvo.setCurrentMessageFlowIndex('7', interaction.channel);
 			} else {
 				await botConvo.setCurrentMessageFlowIndex('6', interaction.channel);

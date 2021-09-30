@@ -18,6 +18,7 @@ export default class implements DiscordEvent {
 			console.log(`DEGEN active for: ${guild.id}, ${guild.name}`);
 		});
 		await connect(constants.DB_NAME_DEGEN);
+		
 		if (client.guilds.cache.some((guild) => guild.id == discordServerIds.banklessDAO || guild.id == discordServerIds.discordBotGarage)) {
 			await connect(constants.DB_NAME_BOUNTY_BOARD);
 			await GuestPassService(client);

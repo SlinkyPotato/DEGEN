@@ -34,7 +34,7 @@ export const createNewScoapOnNotion = async (inputs: Record<string, string>): Pr
 	const selectOptionOpen = retrieveSelectOption(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.open);
 	const valueMap = createNotionProperties(selectOptionOpen, inputs.title, inputs.author);
 	const newPageId = await createNewNotionPage(valueMap);
-	appendBlockToPage(newPageId, inputs.summary);
+	await appendBlockToPage(newPageId, inputs.summary);
 	return newPageId;
 };
 

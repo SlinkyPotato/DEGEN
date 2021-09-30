@@ -29,12 +29,12 @@ describe('Service Utils', () => {
 		bannable: true,
 		guild: guild,
 		roles: {
-			cache: new Collection()
+			cache: new Collection(),
 		},
 		user: {
 			id: '930362313029460717',
 			username: 'Pioneer',
-			tag: 'Pioneer#1559'
+			tag: 'Pioneer#1559',
 		},
 		ban: jest.fn(() => Promise.resolve()),
 		send: jest.fn(() => Promise.resolve()),
@@ -42,7 +42,7 @@ describe('Service Utils', () => {
 
 	beforeAll(() => {
 		// Populate collection of guild members
-		guildMembers.set('830462333029460010', 
+		guildMembers.set('830462333029460010',
 			Builder(defaultGuildMember)
 				.user(Builder(defaultGuildMember.user)
 					.id('830462333029460010')
@@ -52,7 +52,7 @@ describe('Service Utils', () => {
 					.cache(new Collection([[roleIDs.genesisSquad, Builder(Role).id(roleIDs.genesisSquad).build()]]))
 					.build())
 				.build());
-		guildMembers.set('830462333029460011', 
+		guildMembers.set('830462333029460011',
 			Builder(defaultGuildMember)
 				.user(Builder(defaultGuildMember.user)
 					.id('830462333029460011')
@@ -65,7 +65,7 @@ describe('Service Utils', () => {
 						[roleIDs.level4, Builder(Role).id(roleIDs.level4).build()]]))
 					.build())
 				.build());
-		guildMembers.set('830462333029460012', 
+		guildMembers.set('830462333029460012',
 			Builder(defaultGuildMember)
 				.user(Builder(defaultGuildMember.user)
 					.id('830462333029460012')
@@ -77,7 +77,7 @@ describe('Service Utils', () => {
 						[roleIDs.level4, Builder(Role).id(roleIDs.level4).build()]]))
 					.build())
 				.build());
-		guildMembers.set('830462333029460013', 
+		guildMembers.set('830462333029460013',
 			Builder(defaultGuildMember)
 				.user(Builder(defaultGuildMember.user)
 					.id('830462333029460013')
@@ -341,10 +341,10 @@ describe('Service Utils', () => {
 
 		it('should return false for user that is not at least level 2', () => {
 			const guildMember = Builder(defaultGuildMember)
-			.roles(Builder<GuildMemberRoleManager>()
-				.cache(new Collection([[roleIDs.level1, Builder(Role).id(roleIDs.level1).build()]]))
-				.build())
-			.build();
+				.roles(Builder<GuildMemberRoleManager>()
+					.cache(new Collection([[roleIDs.level1, Builder(Role).id(roleIDs.level1).build()]]))
+					.build())
+				.build();
 
 			const result = ServiceUtils.isAtLeastLevel2(guildMember);
 			expect(result).toBe(false);

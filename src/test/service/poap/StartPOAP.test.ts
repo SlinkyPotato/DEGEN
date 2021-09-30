@@ -51,12 +51,12 @@ describe('Start POAP', () => {
 		bannable: true,
 		id: '930362313029460717',
 		roles: {
-			cache: new DiscordCollection()
+			cache: new DiscordCollection(),
 		},
 		user: {
 			id: '930362313029460717',
 			username: 'Pioneer',
-			tag: 'Pioneer#1559'
+			tag: 'Pioneer#1559',
 		},
 		ban: jest.fn(() => Promise.resolve()),
 		send: jest.fn(() => Promise.resolve(message)),

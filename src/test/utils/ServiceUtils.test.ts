@@ -1,40 +1,8 @@
 import { Collection } from '@discordjs/collection';
-import { GuildMember } from 'discord.js';
+import { Builder } from 'builder-pattern';
+import { Guild, GuildMember, GuildMemberRoleManager, Role } from 'discord.js';
 import roleIDs from '../../app/service/constants/roleIds';
 import ServiceUtils from '../../app/utils/ServiceUtils';
-
-const guildMembers: Collection<string, any> = new Collection();
-
-const guild = {
-	id: process.env.DISCORD_SERVER_ID,
-	name: 'BanklessDAO',
-	members: {
-		fetch: jest.fn(() => Promise.resolve(guildMembers)),
-	},
-	fetch: jest.fn(() => Promise.resolve(guild)),
-};
-
-jest.mock('discord.js', () => {
-	return {
-		GuildMember: jest.fn(() => {
-			return {
-				bannable: true,
-				nickname: null,
-				displayName: null,
-				user: {
-					username: null,
-					tag: null,
-				},
-				ban: jest.fn(() => Promise.resolve()),
-				send: jest.fn(() => Promise.resolve()),
-				guild: guild,
-				roles: {
-					cache: new Collection(),
-				},
-			};
-		}),
-	};
-});
 
 jest.mock('../../app/app', () => {
 	return {
@@ -43,70 +11,97 @@ jest.mock('../../app/app', () => {
 });
 
 describe('Service Utils', () => {
-	let guildMember: GuildMember;
+
+	const guildMembers: Collection<string, any> = new Collection();
+
+	const guild: Guild = {
+		id: process.env.DISCORD_SERVER_ID,
+		name: 'BanklessDAO',
+		members: {
+			fetch: jest.fn(() => Promise.resolve(guildMembers)),
+		} as any,
+		fetch: jest.fn(() => Promise.resolve(guild)),
+	} as any;
+
+	const defaultGuildMember: GuildMember = {
+		nickname: null,
+		displayName: 'Pioneer',
+		bannable: true,
+		guild: guild,
+		roles: {
+			cache: new Collection()
+		},
+		user: {
+			id: '930362313029460717',
+			username: 'Pioneer',
+			tag: 'Pioneer#1559'
+		},
+		ban: jest.fn(() => Promise.resolve()),
+		send: jest.fn(() => Promise.resolve()),
+	} as any;
 
 	beforeAll(() => {
 		// Populate collection of guild members
-		guildMembers.set('1', {
-			roles: {
-				cache: new Collection([
-					[roleIDs.genesisSquad, { id: roleIDs.genesisSquad }],
-				]),
-			},
-			user: {
-				username: '0xLucas',
-			},
-		});
-		guildMembers.set('2', {
-			roles: {
-				cache: new Collection([
-					[roleIDs.admin, { id: roleIDs.admin }],
-					[roleIDs.grantsCommittee, { id: roleIDs.grantsCommittee }],
-					[roleIDs.level4, { id: roleIDs.level4 }],
-				]),
-			},
-			user: {
-				username: 'Above Average Joe',
-			},
-		});
-		guildMembers.set('3', {
-			roles: {
-				cache: new Collection([
-					[roleIDs.developersGuild, { id: roleIDs.developersGuild }],
-					[roleIDs.level4, { id: roleIDs.level4 }],
-				]),
-			},
-			user: {
-				username: 'Vitalik Buterin',
-			},
-		});
-		guildMembers.set('4', {
-			roles: {
-				cache: new Collection([
-					[roleIDs.level2, { id: roleIDs.level2 }],
-				]),
-			},
-			user: {
-				username: 'ffffbanks',
-			},
-		});
-	});
-
-	beforeEach(() => {
-		jest.spyOn(ServiceUtils, 'onAllowlist').mockReturnValue(Promise.resolve(false));
-		guildMember = new GuildMember(null, null, guild as any);
+		guildMembers.set('830462333029460010', 
+			Builder(defaultGuildMember)
+				.user(Builder(defaultGuildMember.user)
+					.id('830462333029460010')
+					.username('0xLucas')
+					.build())
+				.roles(Builder<GuildMemberRoleManager>()
+					.cache(new Collection([[roleIDs.genesisSquad, Builder(Role).id(roleIDs.genesisSquad).build()]]))
+					.build())
+				.build());
+		guildMembers.set('830462333029460011', 
+			Builder(defaultGuildMember)
+				.user(Builder(defaultGuildMember.user)
+					.id('830462333029460011')
+					.username('Above Average Joe')
+					.build())
+				.roles(Builder<GuildMemberRoleManager>()
+					.cache(new Collection([
+						[roleIDs.admin, Builder(Role).id(roleIDs.admin).build()],
+						[roleIDs.grantsCommittee, Builder(Role).id(roleIDs.grantsCommittee).build()],
+						[roleIDs.level4, Builder(Role).id(roleIDs.level4).build()]]))
+					.build())
+				.build());
+		guildMembers.set('830462333029460012', 
+			Builder(defaultGuildMember)
+				.user(Builder(defaultGuildMember.user)
+					.id('830462333029460012')
+					.username('Vitalik Buterin')
+					.build())
+				.roles(Builder<GuildMemberRoleManager>()
+					.cache(new Collection([
+						[roleIDs.developersGuild, Builder(Role).id(roleIDs.developersGuild).build()],
+						[roleIDs.level4, Builder(Role).id(roleIDs.level4).build()]]))
+					.build())
+				.build());
+		guildMembers.set('830462333029460013', 
+			Builder(defaultGuildMember)
+				.user(Builder(defaultGuildMember.user)
+					.id('830462333029460013')
+					.username('ffffbanks')
+					.build())
+				.roles(Builder<GuildMemberRoleManager>()
+					.cache(new Collection([[roleIDs.level2, Builder(Role).id(roleIDs.level2).build()]]))
+					.build())
+				.build());
 	});
 
 	describe('Username spam filter', () => {
+		
+		beforeEach(() => {
+			jest.spyOn(ServiceUtils, 'onAllowlist').mockReturnValue(Promise.resolve(false));
+		});
 
 		it('should skip filter for member that is at least level 1', async () => {
-			guildMember.nickname = '0xLucas';
-			guildMember.user.username = '0xLucas';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
-			Object.defineProperty(guildMember.roles, 'cache', { get: () =>
-				new Collection([[roleIDs.genesisSquad, { id: roleIDs.genesisSquad }]]),
-			});
+			const guildMember = Builder(defaultGuildMember)
+				.roles(Builder<GuildMemberRoleManager>()
+					.cache(new Collection([[roleIDs.genesisSquad, Builder(Role).id(roleIDs.genesisSquad).build()]]))
+					.build())
+				.build();
+
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
 			expect(guildMember.guild.fetch).toHaveBeenCalledTimes(0);
 			expect(guildMember.ban).toHaveBeenCalledTimes(0);
@@ -114,11 +109,10 @@ describe('Service Utils', () => {
 		});
 
 		it('should skip filter for member this is not bannable', async () => {
-			guildMember.nickname = '0xLucas';
-			guildMember.user.username = '0xLucas';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
-			Object.defineProperty(guildMember, 'bannable', { get: () => false });
+			const guildMember = Builder(defaultGuildMember)
+				.bannable(false)
+				.build();
+
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
 			expect(guildMember.guild.fetch).toHaveBeenCalledTimes(0);
 			expect(guildMember.ban).toHaveBeenCalledTimes(0);
@@ -126,11 +120,9 @@ describe('Service Utils', () => {
 		});
 
 		it('should skip filter for member that is on allowlist', async () => {
-			guildMember.nickname = '0xLucas';
-			guildMember.user.username = '0xLucas';
+			const guildMember = Builder(defaultGuildMember).build();
 			jest.spyOn(ServiceUtils, 'onAllowlist').mockReturnValue(Promise.resolve(true));
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
 			expect(guildMember.guild.fetch).toHaveBeenCalledTimes(0);
 			expect(guildMember.ban).toHaveBeenCalledTimes(0);
@@ -138,100 +130,104 @@ describe('Service Utils', () => {
 		});
 
 		it('should not ban user with no matching nickname', async () => {
-			guildMember.nickname = 'New Pioneer';
-			guildMember.user.username = 'New Pioneer';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember).build();
+			
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
 			expect(guildMember.ban).toHaveBeenCalledTimes(0);
 			expect(guildMember.send).toHaveBeenCalledTimes(0);
 		});
 
 		it('should not ban user with no matching username', async () => {
-			guildMember.user.username = 'New Pioneer';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember)
+				.nickname(null)
+				.build();
+			
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
 			expect(guildMember.ban).toHaveBeenCalledTimes(0);
 			expect(guildMember.send).toHaveBeenCalledTimes(0);
 		});
 
 		it('should not ban user with additional numbers', async () => {
-			guildMember.nickname = '0xLucas2';
-			guildMember.user.username = 'Imposter';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember)
+				.nickname('0xLucas2')
+				.displayName('0xLucas2')
+				.build();
+			
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(false);
 			expect(guildMember.ban).toHaveBeenCalledTimes(0);
 			expect(guildMember.send).toHaveBeenCalledTimes(0);
 		});
 
 		it('should ban user when message fails to send', async () => {
-			guildMember.nickname = '0xLucas';
-			guildMember.user.username = 'Imposter';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
-			guildMember.send = jest.fn(() => Promise.reject(
-				'DiscordAPIError Code 50007: Cannot send messages to this user.')) as any;
+			const guildMember = Builder(defaultGuildMember)
+				.nickname('0xLucas')
+				.send(jest.fn(() => Promise.reject('DiscordAPIError Code 50007: Cannot send messages to this user.')) as any)
+				.build();
+			
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
 			expect(guildMember.ban).toHaveBeenCalledTimes(1);
 			expect(guildMember.send).toHaveBeenCalledTimes(1);
 		});
 
 		it('should ban user with matching nickname', async () => {
-			guildMember.nickname = '0xLucas';
-			guildMember.user.username = 'Imposter';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember)
+				.nickname('0xLucas')
+				.displayName('0xLucas')
+				.build();
+		
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
 			expect(guildMember.ban).toHaveBeenCalledTimes(1);
 			expect(guildMember.send).toHaveBeenCalledTimes(1);
 		});
 
 		it('should ban user with matching username', async () => {
-			guildMember.user.username = '0xLucas';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember)
+				.user(Builder(defaultGuildMember.user)
+					.username('0xLucas')
+					.build())
+				.build();
+
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
 			expect(guildMember.ban).toHaveBeenCalledTimes(1);
 			expect(guildMember.send).toHaveBeenCalledTimes(1);
 		});
 
 		it('should ban user with matching nickname that has different case', async () => {
-			guildMember.nickname = '0xlucas';
-			guildMember.user.username = 'Imposter';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember)
+				.nickname('0xlucas')
+				.displayName('0xlucas')
+				.build();
+			
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
 			expect(guildMember.ban).toHaveBeenCalledTimes(1);
 			expect(guildMember.send).toHaveBeenCalledTimes(1);
 		});
 
 		it('should ban user with confusable diacritical mark in nickname', async () => {
-			guildMember.nickname = '0xLucàs';
-			guildMember.user.username = 'Imposter';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember)
+				.nickname('0xLucàs')
+				.build();
+			
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
 			expect(guildMember.ban).toHaveBeenCalledTimes(1);
 			expect(guildMember.send).toHaveBeenCalledTimes(1);
 		});
 
 		it('should ban user with matching nickname with an emoji', async () => {
-			guildMember.nickname = '0xLucas🏴';
-			guildMember.user.username = 'Imposter';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember)
+				.nickname('0xLucas🏴')
+				.build();
+			
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
 			expect(guildMember.ban).toHaveBeenCalledTimes(1);
 			expect(guildMember.send).toHaveBeenCalledTimes(1);
 		});
 
 		it('should ban user with matching nickname that has no spaces', async () => {
-			guildMember.nickname = 'AboveAverageJoe';
-			guildMember.user.username = 'Imposter';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember)
+				.nickname('AboveAverageJoe')
+				.build();
+			
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
 			expect(guildMember.ban).toHaveBeenCalledTimes(1);
 			expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -239,30 +235,31 @@ describe('Service Utils', () => {
 
 		it('should ban user with confusable greek letter in nickname', async () => {
 			// first Α is a greek letter
-			guildMember.nickname = 'Αbove Average Joe';
-			guildMember.user.username = 'Imposter';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember)
+				.nickname('Αbove Average Joe')
+				.build();
+			
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
 			expect(guildMember.ban).toHaveBeenCalledTimes(1);
 			expect(guildMember.send).toHaveBeenCalledTimes(1);
 		});
 
 		it('should ban user with confusable cyrillic letter in username', async () => {
-			guildMember.user.username = 'Аbove Average Joe';
 			// first Α is a cyrillic letter
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember)
+				.nickname('Аbove Average Joe')
+				.build();
+			
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
 			expect(guildMember.ban).toHaveBeenCalledTimes(1);
 			expect(guildMember.send).toHaveBeenCalledTimes(1);
 		});
 
 		it('should ban user with compatible ligature in nickname', async () => {
-			guildMember.nickname = 'ﬀﬀbanks';
-			guildMember.user.username = 'Imposter';
-			Object.defineProperty(guildMember.user, 'tag', { get: () => `${guildMember.user.username}#1234` });
-			Object.defineProperty(guildMember, 'displayName', { get: () => `${guildMember.nickname ? guildMember.nickname : guildMember.user.username}` });
+			const guildMember = Builder(defaultGuildMember)
+				.nickname('ﬀﬀbanks')
+				.build();
+			
 			expect(await ServiceUtils.runUsernameSpamFilter(guildMember)).toBe(true);
 			expect(guildMember.ban).toHaveBeenCalledTimes(1);
 			expect(guildMember.send).toHaveBeenCalledTimes(1);
@@ -293,65 +290,75 @@ describe('Service Utils', () => {
 
 	describe('Check user roles', () => {
 		it('should return false for user that is not admin', () => {
-			Object.defineProperty(guildMember.roles, 'cache', { get: () =>
-				new Collection([
-					[roleIDs.level1, { id: roleIDs.level1 }],
-					[roleIDs.level2, { id: roleIDs.level2 }],
-				]),
-			});
+			const guildMember = Builder(defaultGuildMember)
+				.roles(Builder<GuildMemberRoleManager>()
+					.cache(new Collection([
+						[roleIDs.level1, Builder(Role).id(roleIDs.level1).build()],
+						[roleIDs.level2, Builder(Role).id(roleIDs.level2).build()]]))
+					.build())
+				.build();
+
 			const result = ServiceUtils.hasRole(guildMember, roleIDs.admin);
 			expect(result).toBe(false);
 		});
 
 		it('should return true for user that is admin', () => {
-			Object.defineProperty(guildMember.roles, 'cache', { get: () =>
-				new Collection([
-					[roleIDs.admin, { id: roleIDs.admin }],
-				]),
-			});
+			const guildMember = Builder(defaultGuildMember)
+				.roles(Builder<GuildMemberRoleManager>()
+					.cache(new Collection([[roleIDs.admin, Builder(Role).id(roleIDs.admin).build()]]))
+					.build())
+				.build();
+
 			const result = ServiceUtils.hasRole(guildMember, roleIDs.admin);
 			expect(result).toBe(true);
 		});
 
 		it('should return false for user that is not admin or genesis', () => {
-			Object.defineProperty(guildMember.roles, 'cache', { get: () =>
-				new Collection([
-					[roleIDs.level1, { id: roleIDs.level1 }],
-					[roleIDs.level2, { id: roleIDs.level2 }],
-				]),
-			});
+			const guildMember = Builder(defaultGuildMember)
+				.roles(Builder<GuildMemberRoleManager>()
+					.cache(new Collection([
+						[roleIDs.level1, Builder(Role).id(roleIDs.level1).build()],
+						[roleIDs.level2, Builder(Role).id(roleIDs.level2).build()]]))
+					.build())
+				.build();
+
 			const result = ServiceUtils.hasSomeRole(guildMember, [roleIDs.admin, roleIDs.genesisSquad]);
 			expect(result).toBe(false);
 		});
 
 		it('should return true for user that is admin or genesis', () => {
-			Object.defineProperty(guildMember.roles, 'cache', { get: () =>
-				new Collection([
-					[roleIDs.admin, { id: roleIDs.admin }],
-					[roleIDs.level2, { id: roleIDs.level2 }],
-				]),
-			});
+			const guildMember = Builder(defaultGuildMember)
+				.roles(Builder<GuildMemberRoleManager>()
+					.cache(new Collection([
+						[roleIDs.admin, Builder(Role).id(roleIDs.admin).build()],
+						[roleIDs.level2, Builder(Role).id(roleIDs.level2).build()]]))
+					.build())
+				.build();
+
 			const result = ServiceUtils.hasSomeRole(guildMember, [roleIDs.admin, roleIDs.genesisSquad]);
 			expect(result).toBe(true);
 		});
 
 		it('should return false for user that is not at least level 2', () => {
-			Object.defineProperty(guildMember.roles, 'cache', { get: () =>
-				new Collection([
-					[roleIDs.level1, { id: roleIDs.level1 }],
-				]),
-			});
+			const guildMember = Builder(defaultGuildMember)
+			.roles(Builder<GuildMemberRoleManager>()
+				.cache(new Collection([[roleIDs.level1, Builder(Role).id(roleIDs.level1).build()]]))
+				.build())
+			.build();
+
 			const result = ServiceUtils.isAtLeastLevel2(guildMember);
 			expect(result).toBe(false);
 		});
 
 		it('should return true for user that is at least level 2', () => {
-			Object.defineProperty(guildMember.roles, 'cache', { get: () =>
-				new Collection([
-					[roleIDs.level1, { id: roleIDs.level1 }],
-					[roleIDs.level3, { id: roleIDs.level3 }],
-				]),
-			});
+			const guildMember = Builder(defaultGuildMember)
+				.roles(Builder<GuildMemberRoleManager>()
+					.cache(new Collection([
+						[roleIDs.level1, Builder(Role).id(roleIDs.level1).build()],
+						[roleIDs.level3, Builder(Role).id(roleIDs.level3).build()]]))
+					.build())
+				.build();
+			
 			const result = ServiceUtils.isAtLeastLevel2(guildMember);
 			expect(result).toBe(true);
 		});

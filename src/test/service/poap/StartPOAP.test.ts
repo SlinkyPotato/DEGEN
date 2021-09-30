@@ -1,4 +1,5 @@
 import { Collection as DiscordCollection } from '@discordjs/collection';
+import { Builder } from 'builder-pattern';
 import { GuildMember } from 'discord.js';
 import { Collection, Db, MongoClient } from 'mongodb';
 import EarlyTermination from '../../../app/errors/EarlyTermination';
@@ -20,35 +21,11 @@ jest.mock('../../../app/utils/POAPUtils', () => {
 	};
 });
 
-jest.mock('discord.js', () => {
-	return {
-		GuildMember: jest.fn(() => {
-			return {
-				id: '83254665220',
-				user: {
-					tag: 'hydrabolt#0001',
-					id: '83254665220',
-				},
-				send: jest.fn(() => Promise.resolve(message)),
-			};
-		}),
-	};
-});
-
 jest.mock('../../../app/app', () => {
 	return {
 		client: jest.fn(),
 	};
 });
-
-const messages: DiscordCollection<string, any> = new DiscordCollection();
-const message = {
-	channel: {
-		fetch: jest.fn(() => Promise.resolve({
-			awaitMessages: jest.fn(() => Promise.resolve(messages)),
-		})),
-	},
-};
 
 describe('Start POAP', () => {
 	let connection: MongoClient;
@@ -58,6 +35,32 @@ describe('Start POAP', () => {
 	let guildMember: GuildMember;
 	const voiceChannels: DiscordCollection<string, any> = new DiscordCollection();
 	const guildMembers: DiscordCollection<string, any> = new DiscordCollection();
+
+	const messages: DiscordCollection<string, any> = new DiscordCollection();
+	const message = {
+		channel: {
+			fetch: jest.fn(() => Promise.resolve({
+				awaitMessages: jest.fn(() => Promise.resolve(messages)),
+			})),
+		},
+	};
+
+	const defaultGuildMember: GuildMember = {
+		nickname: null,
+		displayName: 'Pioneer',
+		bannable: true,
+		id: '930362313029460717',
+		roles: {
+			cache: new DiscordCollection()
+		},
+		user: {
+			id: '930362313029460717',
+			username: 'Pioneer',
+			tag: 'Pioneer#1559'
+		},
+		ban: jest.fn(() => Promise.resolve()),
+		send: jest.fn(() => Promise.resolve(message)),
+	} as any;
 
 	beforeAll(async () => {
 		// Setup mock database
@@ -105,7 +108,7 @@ describe('Start POAP', () => {
 	});
 
 	beforeEach(async () => {
-		guildMember = new GuildMember(null, null, null);
+		guildMember = Builder(defaultGuildMember).build();
 		messages.clear();
 		await db.collection(constants.DB_COLLECTION_POAP_SETTINGS).deleteMany({});
 		await db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS).deleteMany({});
@@ -118,11 +121,9 @@ describe('Start POAP', () => {
 	it('should throw ValidationError if user has active event', async () => {
 		// Populate database with user that has active event
 		await poapSettingsDB.insertOne({
-			discordUserId: '80002',
+			discordUserId: '930362313029460717',
 			isActive: true,
 		});
-
-		Object.defineProperty(guildMember, 'id', { get: () => '80002' });
 
 		await expect(() => StartPOAP(guildMember, null)).rejects.toThrow(ValidationError);
 	});

@@ -1,11 +1,12 @@
-import { MessageActionRow, MessageSelectMenu } from 'discord.js';
+import { Message, MessageActionRow, MessageSelectMenu } from 'discord.js';
 import constants from '../constants/constants';
 import { scoapEmbedState } from './ScoapDatabase';
 import { publishDraftScoapEmbed } from '../../service/scoap-squad/CreateNewScoapPoll';
 import ScoapUtils from '../../utils/ScoapUtils';
 import { incrementMessageFlowIndex } from './BotConversationMessageFlow';
+import { BotConversation, ScoapEmbed } from './ScoapClasses';
 
-export const scoapEmbedUpdate = async (botConvo, message): Promise<any> => {
+export const scoapEmbedUpdate = async (botConvo: BotConversation, message: Message): Promise<any> => {
 	const scoapEmbed = scoapEmbedState[botConvo.getScoapEmbedId()];
 	const scoapEmbedFields = scoapEmbed.getEmbed()[0].fields;
 	const botConvoResponseRecordFields = botConvo.getConvo().user_response_record.embed[0].fields;
@@ -83,7 +84,7 @@ export const scoapEmbedUpdate = async (botConvo, message): Promise<any> => {
 
 };
 
-export const scoapEmbedEdit = (scoapEmbed): any => {
+export const scoapEmbedEdit = (scoapEmbed: ScoapEmbed): any => {
 	const infoMessage = 'Select below the content you want to edit';
 	const scoapEmbedFields = scoapEmbed.getEmbed()[0].fields;
 	const selectOptions = [
@@ -159,7 +160,7 @@ const updateRoleFieldsBotConvoRecord = (botConvo, key, input, option) => {
 	}
 };
 
-export const retrieveFieldValues = (array, key) => {
+export const retrieveFieldValues = (array: Array<any>, key: string): string => {
 	const obj = array.find(o => o.name === key);
 	// console.log('OBJECT ', obj);
 	if (!(typeof obj === 'undefined')) {
@@ -170,7 +171,7 @@ export const retrieveFieldValues = (array, key) => {
 	
 };
 
-export const retrieveRoleFields = (array, key) => {
+export const retrieveRoleFields = (array: Array<any>, key:string): Array<any> => {
 	const role = array.find(o => o.name.includes(key));
 	const index = array.indexOf(role);
 	const roleCount = array[index + 1];

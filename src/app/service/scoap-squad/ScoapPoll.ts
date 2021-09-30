@@ -1,15 +1,15 @@
-import { TextChannel, MessageReaction } from 'discord.js';
+import { Message, TextChannel, MessageReaction, ReactionCollector } from 'discord.js';
 import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
 import constants from '../constants/constants';
-import { Vote, VoteRecord } from './ScoapClasses';
+import { Vote, VoteRecord, ScoapEmbed } from './ScoapClasses';
 import { scoapEmbedState, voteRecordState, botConvoState } from './ScoapDatabase';
 import ScoapUtils from '../../utils/ScoapUtils';
 import { updateScoapOnNotion, updateStatusSelectField } from './ScoapNotion';
 import { updateScoapEmbedAndVoteRecordDb, deleteScoapEmbedAndVoteRecord } from './ScoapDatabase';
 
 
-export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
+export default async (channel: TextChannel, scoapEmbed: ScoapEmbed): Promise<any> => {
 
 	const validEmojiArray = cloneDeep(scoapEmbed.getVotableEmojiArray());
 	validEmojiArray.push(constants.EMOJIS.cross_mark);
@@ -50,7 +50,7 @@ export default async (channel: TextChannel, scoapEmbed: any): Promise<any> => {
 	return;
 };
 
-export const createReactionCollector = (embedMessage, validEmojiArray, timeout) => {
+export const createReactionCollector = (embedMessage: Message, validEmojiArray: Array<string>, timeout: number): ReactionCollector => {
 	const filter = (reaction, user) => {
 		const emojiIsValid = emojiValid(reaction.emoji.name, validEmojiArray);
 		const botReaction = user.bot;
@@ -66,9 +66,9 @@ export const createReactionCollector = (embedMessage, validEmojiArray, timeout) 
 	return collector;
 };
 
-export const collectReactions = async (scoapEmbed, voteRecord, validEmojiArray, collector) => {
+export const collectReactions = async (scoapEmbed: ScoapEmbed, voteRecord: VoteRecord, validEmojiArray: Array<string>, collector: ReactionCollector): Promise<any> => {
 
-	const embedMessage = scoapEmbed.getCurrentMessage();
+	const embedMessage = scoapEmbed.getCurrentMessage() as Message;
 
 	collector.on('collect', async (reaction, user) => {
 
@@ -175,6 +175,7 @@ export const collectReactions = async (scoapEmbed, voteRecord, validEmojiArray, 
 			discord_tags: discordTags,
 			summary: roleSummaryString,
 		};
+		console.log('NOTION PAGE ID ', scoapEmbed.getNotionPageId());
 		await updateScoapOnNotion(scoapEmbed.getNotionPageId(), notionInputs);
 		delete scoapEmbedState[scoapEmbed.getId()];
 		delete voteRecordState[scoapEmbed.getId()];

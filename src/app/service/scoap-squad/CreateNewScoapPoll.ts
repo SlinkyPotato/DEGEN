@@ -1,6 +1,6 @@
 import { CommandContext, User } from 'slash-create';
-import { GuildMember, Message, MessageReaction, TextChannel } from 'discord.js';
-import { BotConversation } from './ScoapClasses';
+import { GuildMember, Message, MessageReaction, TextChannel, TextBasedChannels } from 'discord.js';
+import { BotConversation, ScoapEmbed } from './ScoapClasses';
 import constants from '../constants/constants';
 import channelIds from '../constants/channelIds';
 import client from '../../app';
@@ -74,7 +74,7 @@ const createBotConversation = async (guildMember: GuildMember): Promise<any> => 
 	return botConvo;
 };
 
-const initiateScoapDraft = async (botConvo: any): Promise<any> => {
+const initiateScoapDraft = async (botConvo: BotConversation): Promise<any> => {
 	await botConvo.setCurrentMessageFlowIndex('1', botConvo.getCurrentChannel());
 	const message = botConvo.getCurrentMessage();
 	await message.react('👍');
@@ -83,7 +83,7 @@ const initiateScoapDraft = async (botConvo: any): Promise<any> => {
 	return handleScoapDraftReaction('SET_ROLES', [message, botConvo]);
 };
 
-export const publishDraftScoapEmbed = async (botConvo, scoapEmbed, channel): Promise<any> => {
+export const publishDraftScoapEmbed = async (botConvo: BotConversation, scoapEmbed: ScoapEmbed, channel: TextBasedChannels): Promise<any> => {
 	const verifyMessage = await channel.send({ embeds: scoapEmbed.getEmbed() });
 	scoapEmbed.setCurrentMessage(verifyMessage);
 	await verifyMessage.react('👍');
@@ -93,7 +93,7 @@ export const publishDraftScoapEmbed = async (botConvo, scoapEmbed, channel): Pro
 	return handleScoapDraftReaction('PUBLISH', [verifyMessage, botConvo, scoapEmbed]);
 };
 
-const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any): Promise<any> => {
+const publishScoapPoll = async (message: Message, scoapEmbed: ScoapEmbed, botConvo: BotConversation): Promise<any> => {
 	scoapEmbed.getEmbed()[0].footer = { text: 'react with emoji to claim a project role | ❌ - abort poll' };
 	const scoapChannel: TextChannel = await client.channels.fetch(channelIds.scoapSquad) as TextChannel;
 	scoapEmbed.setBotConvoResponseRecord(botConvo.getConvo().user_response_record);
@@ -113,7 +113,7 @@ const publishScoapPoll = async (message: Message, scoapEmbed: any, botConvo: any
 	scoapEmbed.setNotionPageId(notionPageId);
 };
 
-const abortSetScoapRoles = async (message: Message, userId) => {
+const abortSetScoapRoles = async (message: Message, userId: string) => {
 	delete botConvoState[userId];
 	ScoapUtils.logToFile('object delted from botConvoState. REason: abortSetScoapRoles \n' +
 					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
@@ -123,7 +123,7 @@ const abortSetScoapRoles = async (message: Message, userId) => {
 	return message.channel.send('Message deleted, let\'s start over.');
 };
 
-const abortPublishScoapPoll = async (message: Message, botConvo: any) => {
+const abortPublishScoapPoll = async (message: Message, botConvo: BotConversation) => {
 	delete botConvoState[botConvo.getUserId()];
 	ScoapUtils.logToFile('object deleted from botConvoState. Reason: abortPublishScoapPoll \n ' +
 					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +

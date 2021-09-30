@@ -1,12 +1,12 @@
 import { publishDraftScoapEmbed } from './CreateNewScoapPoll';
 import constants from '../constants/constants';
-import { ScoapEmbed } from './ScoapClasses';
-import { Message } from 'discord.js';
+import { ScoapEmbed, BotConversation } from './ScoapClasses';
+import { Message, TextBasedChannels } from 'discord.js';
 import ScoapUtils from '../../utils/ScoapUtils';
 import { scoapEmbedState, botConvoState, voteRecordState } from './ScoapDatabase';
 
 
-export default async (message: Message, botConvo: any): Promise<any> => {
+export default async (message: Message, botConvo: BotConversation): Promise<any> => {
 	switch (true) {
 	case (botConvo.getCurrentMessageFlowIndex() === '2'):
 		switch (true) {
@@ -118,14 +118,14 @@ export default async (message: Message, botConvo: any): Promise<any> => {
 };
 
 
-const createNewScoapEmbed = (botConvo): any => {
+const createNewScoapEmbed = (botConvo: BotConversation): ScoapEmbed => {
 	const scoapEmbed = new ScoapEmbed();
 	scoapEmbed.setEmbed(botConvo.getConvo().user_response_record.embed)
 		.setScoapAuthor(botConvo.getConvo().user_response_record.user)
 		.setVotableEmojiArray([])
 		.setCurrentChannel(botConvo.getCurrentChannel())
 		.setCurrentMessage(botConvo.getCurrentMessage());
-	scoapEmbed.getEmbed()[0].fields.push({ name: '\u200b', value: constants.SCOAP_SQUAD_EMBED_SPACER });
+	scoapEmbed.getEmbed()[0].fields.push({ name: '\u200b', value: constants.SCOAP_SQUAD_EMBED_SPACER, inline: false });
 	botConvo.setScoapEmbedId(scoapEmbed.getId());
 	// has to be done here, otherwise edit function does not work
 	scoapEmbedState[scoapEmbed.getId()] = scoapEmbed;
@@ -136,7 +136,7 @@ const createNewScoapEmbed = (botConvo): any => {
 	return scoapEmbed;
 };
 
-const createScoapEmbedRoleFields = (botConvo, scoapEmbed, i) => {
+const createScoapEmbedRoleFields = (botConvo: BotConversation, scoapEmbed: ScoapEmbed, i: number): void => {
 	const role = botConvo.getConvo().user_response_record.roles[(i + 1).toString()];
 	const emoji = constants.EMOJIS[(i + 1).toString()];
 	scoapEmbed.getVotableEmojiArray().push(emoji);
@@ -159,20 +159,20 @@ const createScoapEmbedRoleFields = (botConvo, scoapEmbed, i) => {
 	);
 };
 
-const getNumberOfRolesRecorded = (botConvo) => {
+const getNumberOfRolesRecorded = (botConvo: BotConversation): number => {
 	return Object.keys(botConvo.getConvo().user_response_record.roles).length;
 };
 
-const initiateRolesRecord = (botConvo) => {
+const initiateRolesRecord = (botConvo: BotConversation): void => {
 	botConvo.getConvo().user_response_record['roles'] = {};
 	botConvo.getConvo().user_response_record.roles['1'] = {};
 };
 
-const getTotalNumberOfRoles = (botConvo) => {
+const getTotalNumberOfRoles = (botConvo: BotConversation): number => {
 	return botConvo.getConvo().user_response_record.number_of_roles;
 };
 
-export const incrementMessageFlowIndex = async (botConvo, message, params) => {
+export const incrementMessageFlowIndex = async (botConvo: BotConversation, message: Message, params: Array<any>): Promise<void> => {
 	switch (params[0]) {
 	case 'CORRECT':
 		await botConvo.setCurrentMessageFlowIndex((parseInt(botConvo.getCurrentMessageFlowIndex()) + params[1]).toString(), message.channel);
@@ -186,14 +186,14 @@ export const incrementMessageFlowIndex = async (botConvo, message, params) => {
 	}
 };
 
-const handleIncorrectInput = async (message, expected) => {
+const handleIncorrectInput = async (message: Message, expected: string): Promise<TextBasedChannels> => {
 	await message.channel.send({
 		content: `Valid input: ${expected} \n but received input "${message.content}". Please try again.`,
 	});
 	return message.channel;
 } ;
 
-const setUserResponseRecord = (recordEntry, botConvo, option) => {
+const setUserResponseRecord = (recordEntry: any, botConvo: BotConversation, option: string): void => {
 	switch (option) {
 	case 'TITLE':
 		botConvo.getConvo().user_response_record.embed[0].title = recordEntry;

@@ -1,16 +1,16 @@
-import { Message, TextBasedChannels } from 'discord.js';
+import { Message, TextBasedChannels, MessageEmbed } from 'discord.js';
 import { v1 as uuidv1 } from 'uuid';
 import ScoapUtils from '../../utils/ScoapUtils';
 
 
 export class BotConversation {
 	timeout: number;
-	convo: any;
+	convo: Record<string, any>;
 	current_message_flow_index: string;
 	current_channel: TextBasedChannels;
 	current_message: Message;
 	edit: boolean;
-	edit_value: any;
+	edit_value: string;
 	conversation_id: string;
 	user_id: string;
 	scoap_embed_id: string;
@@ -31,7 +31,7 @@ export class BotConversation {
 		return this.conversation_id;
 	}
 
-	getEditValue(): any {
+	getEditValue(): string {
 		return this.edit_value;
 	}
 
@@ -43,7 +43,7 @@ export class BotConversation {
 		return this.timeout;
 	}
 
-	getConvo(): any {
+	getConvo(): Record<string, any> {
 		return this.convo;
 	}
 
@@ -59,17 +59,17 @@ export class BotConversation {
 		return this.current_message;
 	}
 
-	setScoapEmbedId(scoap_embed_id: any): this {
+	setScoapEmbedId(scoap_embed_id: string): this {
 		this.scoap_embed_id = scoap_embed_id;
 		return this;
 	}
 
-	setUserId(user_id: any): this {
+	setUserId(user_id: string): this {
 		this.user_id = user_id;
 		return this;
 	}
 
-	setEditValue(edit_value: any): this {
+	setEditValue(edit_value: string): this {
 		this.edit_value = edit_value;
 		return this;
 	}
@@ -94,7 +94,7 @@ export class BotConversation {
 		return this;
 	}
 
-	setConvo(convo: any): this {
+	setConvo(convo: Record<string, any>): this {
 		this.convo = convo;
 		return this;
 	}
@@ -141,16 +141,16 @@ export class BotConversation {
 
 
 export class ScoapEmbed {
-	embed: Record<string, any>;
+	embed: Array<MessageEmbed>;
 	scoap_author: string;
-	current_channel: any;
-	current_message: any;
+	current_channel: TextBasedChannels;
+	current_message: string|Message;
 	votable_emoji_array: Array<any>;
 	notion_page_id: string;
 	id: string;
-	bot_convo_record: any;
+	bot_convo_record: Record<string, any>;
 	vote_record_id: string;
-	reaction_user_ids: any;
+	reaction_user_ids: Record<string, any>;
 	published_timestamp: number;
 
 	constructor() {
@@ -162,7 +162,7 @@ export class ScoapEmbed {
 		return this.id;
 	}
 
-	getEmbed(): any {
+	getEmbed(): Array<MessageEmbed> {
 		return this.embed;
 	}
 
@@ -174,11 +174,11 @@ export class ScoapEmbed {
 		return this.scoap_author;
 	}
 
-	getCurrentChannel(): any {
+	getCurrentChannel(): TextBasedChannels {
 		return this.current_channel;
 	}
 
-	getCurrentMessage(): any {
+	getCurrentMessage(): string|Message {
 		return this.current_message;
 	}
 
@@ -190,7 +190,7 @@ export class ScoapEmbed {
 		return this.notion_page_id;
 	}
 
-	getBotConvoResponseRecord(): string {
+	getBotConvoResponseRecord(): Record<string, any> {
 		return this.bot_convo_record;
 	}
 
@@ -198,7 +198,7 @@ export class ScoapEmbed {
 		return this.vote_record_id;
 	}
 
-	getReactionUserIds(): any {
+	getReactionUserIds(): Record<string, any> {
 		return this.reaction_user_ids;
 	}
 
@@ -211,7 +211,7 @@ export class ScoapEmbed {
 		return this;
 	}
 
-	setEmbed(embed: any): this {
+	setEmbed(embed: Array<MessageEmbed>): this {
 		this.embed = embed;
 		return this;
 	}
@@ -221,12 +221,12 @@ export class ScoapEmbed {
 		return this;
 	}
 
-	setCurrentChannel(current_channel: any): this {
+	setCurrentChannel(current_channel: TextBasedChannels): this {
 		this.current_channel = current_channel;
 		return this;
 	}
 
-	setCurrentMessage(current_message: any): this {
+	setCurrentMessage(current_message: string|Message): this {
 		this.current_message = current_message;
 		return this;
 	}
@@ -241,7 +241,7 @@ export class ScoapEmbed {
 		return this;
 	}
 
-	setBotConvoResponseRecord(bot_convo_record: any): this {
+	setBotConvoResponseRecord(bot_convo_record: Record<string, any>): this {
 		this.bot_convo_record = bot_convo_record;
 		return this;
 	}
@@ -251,12 +251,12 @@ export class ScoapEmbed {
 		return this;
 	}
 
-	setReactionUserIds(reaction_user_ids: any): this {
+	setReactionUserIds(reaction_user_ids: Record<string, any>): this {
 		this.reaction_user_ids = reaction_user_ids;
 		return this;
 	}
 
-	setPublishedTimestamp(published_timestamp: any): this {
+	setPublishedTimestamp(published_timestamp: number): this {
 		this.published_timestamp = published_timestamp;
 		return this;
 	}
@@ -340,13 +340,13 @@ export class Vote {
 
 export class VoteRecord {
 	// {user_id<string>: emoji<unicode>}
-	user_vote_ledger: any;
+	user_vote_ledger: Record<string, string>;
 	// {emoji<unicode>: progress string<str>}
-	progress_strings: any;
+	progress_strings: Record<string, string>;
 	// {emoji<unicode>: current_total<int>}
-	emote_totals: any;
+	emote_totals: Record<string, number>;
 	// {emoji<unicode>: required_total<int>}
-	emote_required: any;
+	emote_required: Record<string, number>;
 	id: string;
 
 	constructor() {
@@ -357,19 +357,19 @@ export class VoteRecord {
 		return this.id;
 	}
 	
-	getUserVoteLedger(): any {
+	getUserVoteLedger(): Record<string, string> {
 		return this.user_vote_ledger;
 	}
 
-	getProgressStrings(): any {
+	getProgressStrings(): Record<string, string> {
 		return this.progress_strings;
 	}
 
-	getEmoteTotals(): any {
+	getEmoteTotals(): Record<string, number> {
 		return this.emote_totals;
 	}
 
-	getEmoteRequired(): any {
+	getEmoteRequired(): Record<string, number> {
 		return this.emote_required;
 	}
 
@@ -378,22 +378,22 @@ export class VoteRecord {
 		return this;
 	}
 
-	setUserVoteLedger(user_vote_ledger: any): this {
+	setUserVoteLedger(user_vote_ledger: Record<string, string>): this {
 		this.user_vote_ledger = user_vote_ledger;
 		return this;
 	}
 
-	setProgressStrings(progress_strings: any): this {
+	setProgressStrings(progress_strings: Record<string, string>): this {
 		this.progress_strings = progress_strings;
 		return this;
 	}
 
-	setEmoteTotals(emote_totals: any): this {
+	setEmoteTotals(emote_totals: Record<string, number>): this {
 		this.emote_totals = emote_totals;
 		return this;
 	}
 
-	setEmoteRequired(emote_required: any): this {
+	setEmoteRequired(emote_required: Record<string, number>): this {
 		this.emote_required = emote_required;
 		return this;
 	}

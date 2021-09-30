@@ -3,11 +3,13 @@ import { Db } from 'mongodb';
 import cloneDeep from 'lodash.clonedeep';
 import { ScoapEmbed, VoteRecord } from './ScoapClasses';
 import client from '../../app';
-import { TextChannel } from 'discord.js';
+import { Message, TextChannel } from 'discord.js';
 import channelIds from '../constants/channelIds';
 import ScoapUtils from '../../utils/ScoapUtils';
 import constants from '../constants/constants';
 import { createReactionCollector, collectReactions } from './ScoapPoll';
+import { updateStatusSelectField } from './ScoapNotion';
+
 
 // ScoapSquad state initialization
 export const scoapEmbedState = {};
@@ -19,12 +21,13 @@ setInterval(function() { ScoapUtils.purgeExpiredBotConvo(botConvoState, scoapEmb
 
 const decircularizeScoapEmbed = (scoapEmbed) => {
 	const clone = cloneDeep(scoapEmbed);
+	// here currentMessage:Message and currentChannel:TextBasedChannels are replaced their ID's
 	clone.setCurrentMessage(scoapEmbed.getCurrentMessage().id);
 	clone.setCurrentChannel(scoapEmbed.getCurrentChannel().id);
 	return clone;
 };
 
-export const updateScoapEmbedAndVoteRecordDb = async (scoapEmbed, voteRecord) => {
+export const updateScoapEmbedAndVoteRecordDb = async (scoapEmbed: ScoapEmbed, voteRecord: VoteRecord): Promise<void> => {
 	const clone = decircularizeScoapEmbed(scoapEmbed);
 	const filter = { id: scoapEmbed.getId() };
 	const options = { upsert: true };
@@ -35,12 +38,12 @@ export const updateScoapEmbedAndVoteRecordDb = async (scoapEmbed, voteRecord) =>
 	ScoapUtils.logToFile(`Mongo updated, id: ${scoapEmbed.getId()}`);
 };
 
-const restoreReactionCollector = async (scoapEmbed, voteRecord) => {
+const restoreReactionCollector = async (scoapEmbed: ScoapEmbed, voteRecord: VoteRecord): Promise<void> => {
 	const validEmojiArray = cloneDeep(scoapEmbed.getVotableEmojiArray());
 	validEmojiArray.push(constants.EMOJIS.cross_mark);
 	const timeout = constants.SCOAP_POLL_TIMEOUT_MS - (+new Date() - scoapEmbed.getPublishedTimestamp());
-	const collector = createReactionCollector(scoapEmbed.getCurrentMessage(), validEmojiArray, timeout);
-	const embedMessage = scoapEmbed.getCurrentMessage();
+	const collector = createReactionCollector(scoapEmbed.getCurrentMessage() as Message, validEmojiArray, timeout);
+	const embedMessage: Message = scoapEmbed.getCurrentMessage() as Message;
 	for (const [emoji, messageReaction] of embedMessage.reactions.cache) {
 		for (const [userId, user] of await messageReaction.users.fetch()) {
 			if ((emoji in scoapEmbed.getReactionUserIds()) && !user.bot) {
@@ -62,7 +65,7 @@ const restoreReactionCollector = async (scoapEmbed, voteRecord) => {
 	collectReactions(scoapEmbed, voteRecord, validEmojiArray, collector);
 };
 
-export const restoreScoapEmbedAndVoteRecord = async () => {
+export const restoreScoapEmbedAndVoteRecord = async (): Promise<boolean> => {
 	const db: Db = await dbInstance.dbConnect('degen');
 	const dbScoap = db.collection('scoapSquad').find({});
 	const dataArray = await dbScoap.toArray();
@@ -79,8 +82,10 @@ export const restoreScoapEmbedAndVoteRecord = async () => {
 				voteRecord[item] = vR[item];
 			});
 			const scoapChannel: TextChannel = await client.channels.fetch(channelIds.scoapSquad) as TextChannel;
-			const embedMessage = await scoapChannel.messages.fetch(scoapEmbed.getCurrentMessage());
+			// scoapEmbed.getCurrentMessage() is only a message id string before this step, as it came from db storage, not a Message object
+			const embedMessage: Message = await scoapChannel.messages.fetch(scoapEmbed.getCurrentMessage() as string) as Message;
 			scoapEmbed.setCurrentChannel(scoapChannel);
+			// now it is a Message object again
 			scoapEmbed.setCurrentMessage(embedMessage);
 			// check if poll timed out while offline
 			if ((+new Date() - scoapEmbed.getPublishedTimestamp()) <= constants.SCOAP_POLL_TIMEOUT_MS) {
@@ -88,16 +93,22 @@ export const restoreScoapEmbedAndVoteRecord = async () => {
 				voteRecordState[scoapEmbed.getId()] = voteRecord;
 				restoreReactionCollector(scoapEmbed, voteRecord);
 				ScoapUtils.logToFile(`Restored two objects (scoapEMbed & voteRecord) from Mongo, id: ${scoapEmbed.getId()}`);
+			} else {
+				console.log('removing timed out objects from database');
+				await deleteScoapEmbedAndVoteRecord(scoapEmbed.getId());
+				console.log('removed ', scoapEmbed.getId());
+				console.log('updating notion');
+				await updateStatusSelectField(scoapEmbed.getNotionPageId(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.cancelled);
 			}
 		}
 		return true;
 	} else {
-		console.log('No uncompleted poll data in mongo to restore');
+		console.log('No uncompleted poll data in mongodb to restore');
 		return false;
 	}
 };
 
-export const deleteScoapEmbedAndVoteRecord = async (scoapEmbedId) => {
+export const deleteScoapEmbedAndVoteRecord = async (scoapEmbedId: string): Promise<void> => {
 	const db: Db = await dbInstance.dbConnect('degen');
 	await db.collection('scoapSquad').deleteMany({ id: scoapEmbedId });
 	ScoapUtils.logToFile(`Document removed from Mongo, id: , ${scoapEmbedId}`);

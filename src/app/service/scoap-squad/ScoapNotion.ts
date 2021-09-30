@@ -21,7 +21,7 @@ const notionDatabaseProperties = async () => {
 	return dbProperties;
 };
 
-export const updateScoapOnNotion = async (pageId: string, inputs: Record<string, any>) => {
+export const updateScoapOnNotion = async (pageId: string, inputs: Record<string, any>): Promise<void> => {
 	const multiSelectOptions = retrieveMultiSelectOptions(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name, inputs.discord_tags);
 	const newMultiSelectOptions = createNewMultiSelectOptions(multiSelectOptions[0], inputs.discord_tags);
 	await appendBlockToPage(pageId, inputs.summary);
@@ -42,7 +42,7 @@ const getRandomColor = () => {
 	return constants.NOTION_COLORS[Math.floor(Math.random() * constants.NOTION_COLORS.length)];
 };
 
-export const updateStatusSelectField = async (pageId, selectOption) => {
+export const updateStatusSelectField = async (pageId: string, selectOption: string): Promise<void> => {
 	const selectOptionObject = retrieveSelectOption(await notionDatabaseProperties(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name, selectOption);
 	const propertyValues: InputPropertyValueMap = {};
 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.status.field_name] = {
@@ -56,7 +56,7 @@ export const updateStatusSelectField = async (pageId, selectOption) => {
 	});
 };
 
-const updateDiscordHandleMultiSelectField = async (pageId, multiSelectoptions) => {
+const updateDiscordHandleMultiSelectField = async (pageId: string, multiSelectoptions: Array<any>): Promise<void> => {
 	const propertyValues: InputPropertyValueMap = {};
 	propertyValues[constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.field_name] = {
 		type: constants.SCOAP_SQUAD_NOTION_FIELDS.scoap_squad_discord_handles.type,

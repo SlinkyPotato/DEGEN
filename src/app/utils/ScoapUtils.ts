@@ -37,11 +37,11 @@ const ScoapUtils = {
 		return (!(title == null || !CREATE_TITLE_REGEX.test(title)));
 	},
 
-	getKeyByValue(object: any, value: string): any {
+	getKeyByValue(object: Record<string, any>, value: string): any {
 		return Object.keys(object).find(key => object[key] === value);
 	},
 
-	purgeExpiredBotConvo(bot_convo_state, scoap_embed_state) {
+	purgeExpiredBotConvo(bot_convo_state: Record<string, any>, scoap_embed_state: Record<string, any>): void {
 		if (Object.keys(bot_convo_state).length === 0 && bot_convo_state.constructor === Object) {
 			return;
 		}

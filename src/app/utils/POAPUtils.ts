@@ -112,7 +112,7 @@ const POAPUtils = {
 	},
 	
 	async validateNumberToMint(guildMember: GuildMember, numberToMint: number): Promise<any> {
-		if (numberToMint >= 1000 || numberToMint < 0) {
+		if (numberToMint >= 1000 || numberToMint <= 0) {
 			await guildMember.send({
 				content: `<@${guildMember.user.id}>\n` +
 					'A maximum of 1000 POAPs can be minted for a single event. Please let us know if you\'d like to see this increased. ',

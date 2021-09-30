@@ -1,4 +1,4 @@
-export type EventsRequestType = {
+export type EventsResponseType = {
 	id: number,
 	fancy_id: string,
 	name: string,

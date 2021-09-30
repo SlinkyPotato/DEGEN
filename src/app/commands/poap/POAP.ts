@@ -65,7 +65,7 @@ module.exports = class poap extends SlashCommand {
 					description: 'Schedule a POAP event, upload the PNG image to be minted, and get the links.txt file over email.',
 					options: [
 						{
-							name: 'number-to-mint',
+							name: 'mint-copies',
 							type: CommandOptionType.INTEGER,
 							description: 'The number of POAPs to be minted for all of the participants. Best to overestimate.',
 							required: true,
@@ -122,7 +122,7 @@ module.exports = class poap extends SlashCommand {
 				break;
 			case 'schedule':
 				console.log(`/poap schedule ${ctx.user.username}#${ctx.user.discriminator}`);
-				command = SchedulePOAP(guildMember, ctx.options.schedule['number-to-mint']);
+				command = SchedulePOAP(guildMember, ctx.options.schedule['mint-copies']);
 				break;
 			case 'start':
 				console.log(`/poap start ${ctx.user.username}#${ctx.user.discriminator}`);

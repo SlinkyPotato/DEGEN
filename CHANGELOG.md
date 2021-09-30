@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.0-SNAPSHOT
+
+1. Add scoap-squad feature for BanklessDAO
+
 ## 1.6.0-RELEASE (2021-10-01)
 
 1. Fixed RetrieveFAQs tests to properly use mocking and fix yarn linting script

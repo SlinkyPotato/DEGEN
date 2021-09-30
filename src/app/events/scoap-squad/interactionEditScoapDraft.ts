@@ -1,5 +1,6 @@
 import { botConvoState } from '../../service/scoap-squad/ScoapDatabase';
 import { SelectMenuInteraction } from 'discord.js';
+import { BotConversation } from '../../service/scoap-squad/ScoapClasses';
 
 export default async (interaction: SelectMenuInteraction): Promise<any> => {
 
@@ -28,7 +29,7 @@ export default async (interaction: SelectMenuInteraction): Promise<any> => {
 	}
 };
 
-const interactionIsValid = async (interaction, botConvo) => {
+const interactionIsValid = async (interaction: SelectMenuInteraction, botConvo: BotConversation) => {
 	// returns true if this message is a direct response to botConvo.current_message
 	return (await interaction.channel.messages.cache.lastKey(1)[0] === botConvo.getCurrentMessage().id);
 };

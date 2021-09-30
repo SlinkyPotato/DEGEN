@@ -162,7 +162,6 @@ const updateRoleFieldsBotConvoRecord = (botConvo, key, input, option) => {
 
 export const retrieveFieldValues = (array: Array<any>, key: string): string => {
 	const obj = array.find(o => o.name === key);
-	// console.log('OBJECT ', obj);
 	if (!(typeof obj === 'undefined')) {
 		return obj.value;
 	} else {

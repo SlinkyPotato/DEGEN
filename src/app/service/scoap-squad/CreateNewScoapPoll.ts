@@ -22,7 +22,7 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 		max: 1,
 		time: (constants.BOT_CONVERSATION_TIMEOUT_MS),
 		errors: ['time'],
-		filter: async (reaction, user: User) => {
+		filter: async (reaction: MessageReaction, user: User) => {
 			return ['👍', '❌', '📝', 'ℹ️'].includes(reaction.emoji.name) && !user.bot;
 		},
 	}).then(async collected => {
@@ -52,8 +52,8 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 			const selectInputMessage = await message.channel.send(editMessageObject);
 			botConvo.setCurrentMessage(selectInputMessage);
 		}
-	}).catch(_ => {
-		console.log(_);
+	}).catch(e => {
+		console.log(e);
 		console.log('did not react');
 	});
 };
@@ -67,7 +67,7 @@ const createBotConversation = async (guildMember: GuildMember): Promise<any> => 
 		.setEdit(false)
 		.setUserId(guildMember.user.id);
 	botConvoState[guildMember.user.id] = botConvo;
-	ScoapUtils.logToFile('object added to botConvoState. REason: createBotConversation \n ' +
+	ScoapUtils.logToFile('object added to botConvoState. Reason: createBotConversation \n ' +
 					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
 					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
 					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
@@ -76,7 +76,7 @@ const createBotConversation = async (guildMember: GuildMember): Promise<any> => 
 
 const initiateScoapDraft = async (botConvo: BotConversation): Promise<any> => {
 	await botConvo.setCurrentMessageFlowIndex('1', botConvo.getCurrentChannel());
-	const message = botConvo.getCurrentMessage();
+	const message: Message = botConvo.getCurrentMessage();
 	await message.react('👍');
 	await message.react('ℹ️');
 	await message.react('❌');
@@ -115,7 +115,7 @@ const publishScoapPoll = async (message: Message, scoapEmbed: ScoapEmbed, botCon
 
 const abortSetScoapRoles = async (message: Message, userId: string) => {
 	delete botConvoState[userId];
-	ScoapUtils.logToFile('object delted from botConvoState. REason: abortSetScoapRoles \n' +
+	ScoapUtils.logToFile('object delted from botConvoState. Reason: abortSetScoapRoles \n' +
 					` scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
 					` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
 					` voteRecordState: ${JSON.stringify(voteRecordState)}`);
@@ -134,7 +134,7 @@ const abortPublishScoapPoll = async (message: Message, botConvo: BotConversation
 };
 
 const createBotConversationParams = (guildMember: GuildMember) => {
-	const convo = {
+	return {
 		message_flow: {
 			'1': [{
 				title: 'Welcome to SCOAP Squad Assemble!',
@@ -323,5 +323,4 @@ const createBotConversationParams = (guildMember: GuildMember) => {
 				footer: { text: 'react with emoji to claim a project role | ❌ - abort poll' },
 			}],
 	};
-	return convo;
 };

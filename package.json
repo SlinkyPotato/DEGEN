@@ -38,6 +38,7 @@
         "axios": "^0.21.4",
         "discord.js": "^13.1.0",
         "dotenv": "^10.0.0",
+        "form-data": "^4.0.0",
         "mongodb": "^3.6.9",
         "p-queue": "^6.6.2",
         "slash-create": "^4.0.1"

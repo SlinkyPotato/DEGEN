@@ -118,22 +118,27 @@ module.exports = class poap extends SlashCommand {
 				console.log(`/poap config ${ctx.user.username}#${ctx.user.discriminator}`);
 				authorizedRoles = [ctx.options.config['role-1'], ctx.options.config['role-2'], ctx.options.config['role-3']];
 				authorizedUsers = [ctx.options.config['user-1'], ctx.options.config['user-2'], ctx.options.config['user-3']];
+				await ctx.send(`${ctx.user.mention} DM sent!`);
 				command = ConfigPOAP(guildMember, authorizedRoles, authorizedUsers);
 				break;
 			case 'schedule':
 				console.log(`/poap schedule ${ctx.user.username}#${ctx.user.discriminator}`);
+				await ctx.send(`${ctx.user.mention} DM sent!`);
 				command = SchedulePOAP(guildMember, ctx.options.schedule['mint-copies']);
 				break;
 			case 'start':
 				console.log(`/poap start ${ctx.user.username}#${ctx.user.discriminator}`);
+				await ctx.send(`${ctx.user.mention} DM sent!`);
 				command = StartPOAP(guildMember, ctx.options.start.event);
 				break;
 			case 'end':
 				console.log(`/poap end ${ctx.user.username}#${ctx.user.discriminator}`);
+				await ctx.send(`${ctx.user.mention} DM sent!`);
 				command = EndPOAP(guildMember);
 				break;
 			case 'distribute':
 				console.log(`/poap distribute ${ctx.user.username}#${ctx.user.discriminator}`);
+				await ctx.send(`${ctx.user.mention} DM sent!`);
 				command = DistributePOAP(guildMember);
 				break;
 			default:
@@ -152,8 +157,6 @@ module.exports = class poap extends SlashCommand {
 				return ctx.send('POAPS sent. Expect delivery shortly.');
 			} else if (result === 'POAP_END') {
 				return ctx.send('POAP event ended. POAPs will be delivered at a later time.');
-			} else {
-				return ctx.send(`${ctx.user.mention} DM sent!`);
 			}
 		}).catch(e => {
 			if (e instanceof ValidationError) {

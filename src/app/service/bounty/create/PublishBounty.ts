@@ -86,7 +86,7 @@ export const generateEmbedMessage = (dbBounty: BountyCollection, newStatus: stri
 		],
 		timestamp: new Date().getTime(),
 		footer: {
-			text: '🏴 - start | 🔄 - refresh | 📝 - edit | ❌ - delete',
+			text: '🏴 - claim | 🔄 - refresh | 📝 - edit | ❌ - delete',
 		},
 	};
 };

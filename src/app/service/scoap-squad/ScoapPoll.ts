@@ -46,7 +46,7 @@ export default async (channel: TextChannel, scoapEmbed: ScoapEmbed): Promise<any
 	}
 
 	const collector = createReactionCollector(embedMessage, validEmojiArray, constants.SCOAP_POLL_TIMEOUT_MS);
-	collectReactions(scoapEmbed, voteRecord, validEmojiArray, collector);
+	await collectReactions(scoapEmbed, voteRecord, validEmojiArray, collector);
 	return;
 };
 
@@ -112,7 +112,7 @@ export const collectReactions = async (scoapEmbed: ScoapEmbed, voteRecord: VoteR
 						voteRecord.getProgressStrings()[key],
 					);
 				}
-				embedMessage.edit({ embeds: scoapEmbed.getEmbed() });
+				await embedMessage.edit({ embeds: scoapEmbed.getEmbed() });
 
 				scoapEmbed.addReactionUserId(reaction.emoji.name, user.id);
 				ScoapUtils.logToFile('voteRecord & scoapEmbed updated. Reason: Vote event \n' +
@@ -143,7 +143,7 @@ export const collectReactions = async (scoapEmbed: ScoapEmbed, voteRecord: VoteR
 
 	collector.on('end', async (collected, reason) => {
 		if (reason === 'cancelled') {
-			embedMessage.reactions.removeAll();
+			await embedMessage.reactions.removeAll();
 			return;
 		}
 		const discordTags = [];
@@ -160,7 +160,7 @@ export const collectReactions = async (scoapEmbed: ScoapEmbed, voteRecord: VoteR
 						roleSummary[role.name].push(user[1].tag);
 					}
 					const dmChannel = await user[1].createDM();
-					dmChannel.send('Congratulations, you are part of the SCOAP Squad ' +
+					await dmChannel.send('Congratulations, you are part of the SCOAP Squad ' +
 									`**${scoapEmbed.getBotConvoResponseRecord().embed[0].title}** ` +
 									`for role **${role.name}**! Check out the project page here: ` +
 									`https://www.notion.so/${process.env.NOTION_SCOAP_SQUAD_DB_ID}`);
@@ -185,7 +185,7 @@ export const collectReactions = async (scoapEmbed: ScoapEmbed, voteRecord: VoteR
 							` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 		await deleteScoapEmbedAndVoteRecord(scoapEmbed.getId());
 		console.log('POLL COMPLETE');
-		embedMessage.reactions.removeAll();
+		await embedMessage.reactions.removeAll();
 		return;
 	});
 
@@ -205,7 +205,7 @@ export const collectReactions = async (scoapEmbed: ScoapEmbed, voteRecord: VoteR
 					voteRecord.getProgressStrings()[key],
 				);
 			}
-			embedMessage.edit({ embeds: scoapEmbed.getEmbed() });
+			await embedMessage.edit({ embeds: scoapEmbed.getEmbed() });
 			scoapEmbed.removeReactionUserId(reaction.emoji.name, user.id);
 			await updateScoapEmbedAndVoteRecordDb(scoapEmbed, voteRecord);
 		}

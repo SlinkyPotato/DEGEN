@@ -1,5 +1,6 @@
 import { botConvoState } from '../../service/scoap-squad/ScoapDatabase';
 import { SelectMenuInteraction } from 'discord.js';
+import { BotConversation } from '../../service/scoap-squad/ScoapClasses';
 
 export default async (interaction: SelectMenuInteraction): Promise<any> => {
 
@@ -19,7 +20,7 @@ export default async (interaction: SelectMenuInteraction): Promise<any> => {
 			await botConvo.setCurrentMessageFlowIndex('4', interaction.channel);
 			break;
 		default:
-			if (await botConvo.getCurrentMessageFlowIndex() === '6') {
+			if (botConvo.getCurrentMessageFlowIndex() === '6') {
 				await botConvo.setCurrentMessageFlowIndex('7', interaction.channel);
 			} else {
 				await botConvo.setCurrentMessageFlowIndex('6', interaction.channel);
@@ -28,7 +29,7 @@ export default async (interaction: SelectMenuInteraction): Promise<any> => {
 	}
 };
 
-const interactionIsValid = async (interaction, botConvo) => {
+const interactionIsValid = async (interaction: SelectMenuInteraction, botConvo: BotConversation) => {
 	// returns true if this message is a direct response to botConvo.current_message
 	return (await interaction.channel.messages.cache.lastKey(1)[0] === botConvo.getCurrentMessage().id);
 };

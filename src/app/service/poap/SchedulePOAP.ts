@@ -213,26 +213,31 @@ const SchedulePOAP = async (guildMember: GuildMember, numberToMint: number): Pro
 		requested_codes: '1',
 		image: null,
 	};
-	await guildMember.send({
-		embeds: [
-			{
-				title: 'POAP Image PNG',
-				description: 'Please upload the PNG image you would like to mint. Recommended 500x500 px, round shape, ' +
-					'and size less than 200 KB.',
-			},
-		],
+	// await guildMember.send({
+	// 	embeds: [
+	// 		{
+	// 			title: 'POAP Image PNG',
+	// 			description: 'Please upload the PNG image you would like to mint. Recommended 500x500 px, round shape, ' +
+	// 				'and size less than 200 KB.',
+	// 		},
+	// 	],
+	// });
+	// let imageFile;
+	// try {
+	// 	const poapImage: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
+	// 	console.log(poapImage.url);
+	// 	imageFile = await axios.get(poapImage.url);
+	// 	console.log('image processed');
+	// } catch (e) {
+	// 	console.log(e);
+	// 	console.log('failed to process image');
+	// }
+	const imageFile = await axios.get('https://cdn.discordapp.com/attachments/851313193934651403/893266991425683476/Screen_Shot_2021-08-23_at_8.20.21_PM.png', {
+		responseType: 'arraybuffer',
 	});
-	let imageFile;
-	try {
-		const poapImage: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
-		console.log(poapImage.url);
-		imageFile = await axios.get(poapImage.url);
-		console.log('image processed');
-	} catch (e) {
-		console.log(e);
-		console.log('failed to process image');
-	}
-	const response: EventsResponseType = await EventsAPI.scheduleEvent(request, imageFile);
+	// console.log(imageFile.data);
+	const convImage = Buffer.from(imageFile.data, 'binary');
+	const response: EventsResponseType = await EventsAPI.scheduleEvent(request, convImage);
 	console.log(response);
 };
 

@@ -18,26 +18,28 @@ export default class implements DiscordEvent {
 			if (newMember.partial) {
 				newMember = await newMember.fetch();
 			}
+
+			if (oldMember.nickname !== newMember.nickname && await ServiceUtils.runUsernameSpamFilter(newMember as GuildMember)) {
+				return;
+			}
+
+			const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
+			if (removedRoles.size > 0) {
+				console.debug(`The roles ${removedRoles.map(r => r.name)} were removed from ${oldMember.displayName}.`);
+				this.handleRolesRemoved(newMember as GuildMember, removedRoles);
+				return;
+			}
+
+			const addedRoles = newMember.roles.cache.filter(role => !oldMember.roles.cache.has(role.id));
+			if (addedRoles.size > 0) {
+				console.debug(`The roles ${addedRoles.map(r => r.name)} were added to ${oldMember.displayName}.`);
+				this.handleRolesAdded(newMember as GuildMember, addedRoles);
+			}
+			
 		} catch (e) {
+			console.error(e);
 			console.error('Retrieving member partial failed');
 			return;
-		}
-		
-		if (oldMember.nickname !== newMember.nickname && await ServiceUtils.runUsernameSpamFilter(newMember as GuildMember)) {
-			return;
-		}
-		
-		const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
-		if (removedRoles.size > 0) {
-			console.debug(`The roles ${removedRoles.map(r => r.name)} were removed from ${oldMember.displayName}.`);
-			this.handleRolesRemoved(newMember as GuildMember, removedRoles);
-			return;
-		}
-
-		const addedRoles = newMember.roles.cache.filter(role => !oldMember.roles.cache.has(role.id));
-		if (addedRoles.size > 0) {
-			console.debug(`The roles ${addedRoles.map(r => r.name)} were added to ${oldMember.displayName}.`);
-			this.handleRolesAdded(newMember as GuildMember, addedRoles);
 		}
 	}
 

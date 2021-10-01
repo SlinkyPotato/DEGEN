@@ -21,6 +21,5 @@ export default class implements DiscordEvent {
 		} catch (e) {
 			console.error(e);
 		}
-		return;
 	}
 }

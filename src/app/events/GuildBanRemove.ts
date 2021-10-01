@@ -10,16 +10,20 @@ export default class implements DiscordEvent {
 	once = false;
 
 	async execute(ban: GuildBan): Promise<any> {
-		// Add unbanned users to allowlist so they don't get auto-banned by the bot
-		const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
-		const dbAllowlist = db.collection(constants.DB_COLLECTION_ALLOWLIST);
+		try {
+			// Add unbanned users to allowlist so they don't get auto-banned by the bot
+			const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+			const dbAllowlist = db.collection(constants.DB_COLLECTION_ALLOWLIST);
 
-		const result: InsertOneWriteOpResult<Allowlist> = await dbAllowlist.insertOne({
-			discordUserId: ban.user.id,
-			discordServerId: ban.guild.id,
-		});
-		if (result == null || result.insertedCount !== 1) {
-			throw new MongoError(`failed to insert ${ban.user.id} into allowlist`);
+			const result: InsertOneWriteOpResult<Allowlist> = await dbAllowlist.insertOne({
+				discordUserId: ban.user.id,
+				discordServerId: ban.guild.id,
+			});
+			if (result == null || result.insertedCount !== 1) {
+				throw new MongoError(`failed to insert ${ban.user.id} into allowlist`);
+			}
+		} catch (e) {
+			console.error(e);
 		}
 	}
 }

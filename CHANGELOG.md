@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.2-RELEASE (2021-10-01)
+
+1. Enhance stability of DEGEN
+
 ## 1.6.1-RELEASE (2021-10-01)
 
 1. Reference production environment files

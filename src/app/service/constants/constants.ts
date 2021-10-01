@@ -13,8 +13,8 @@ export default Object.freeze({
 	
 	MONGODB_URI_PARTIAL: `${process.env.MONGODB_PREFIX}://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
-	BOUNTY_BOARD_URL: 'https://bankless.community/',
-
+	BOUNTY_BOARD_URL: 'https://bountyboard.bankless.community',
+	
 	BOUNTY_BOARD_WEBSITE_WEBHOOK_NAME: 'bounty-board-website',
 	BOUNTY_BOARD_END_OF_SEASON_DATE: process.env.DAO_CURRENT_SEASON_END_DATE,
 

@@ -236,7 +236,7 @@ const SchedulePOAP = async (guildMember: GuildMember, numberToMint: number): Pro
 		responseType: 'arraybuffer',
 	});
 	// console.log(imageFile.data);
-	const convImage = Buffer.from(imageFile.data, 'binary');
+	const convImage = Buffer.from(imageFile.data, 'binary').toString('base64');
 	const response: EventsResponseType = await EventsAPI.scheduleEvent(request, convImage);
 	console.log(response);
 };

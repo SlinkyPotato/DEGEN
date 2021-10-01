@@ -23,6 +23,14 @@ const EventsAPI = {
 		formData.append('requested_codes', request.requested_codes);
 		formData.append('image', imageFile);
 		console.log('form data prepared');
+		const config = {
+			method: 'post',
+			url: 'https://api.poap.xyz/events',
+			headers: {
+				...formData.getHeaders(),
+			},
+			data: formData,
+		};
 		// return await PoapAPI.post('https://api.poap.xyz/events', formData);
 		return await axios.post('https://api.poap.xyz/events', formData, {
 			headers: {

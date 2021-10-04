@@ -2,10 +2,10 @@ import PoapAPI from './PoapAPI';
 import { EventsRequestType } from './types/EventsRequestType';
 import { EventsResponseType } from './types/EventsResponseType';
 import FormData from 'form-data';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 
 const EventsAPI = {
-	scheduleEvent: async (request: EventsRequestType, imageFile): Promise<EventsResponseType> => {
+	scheduleEvent: async (request: EventsRequestType): Promise<EventsResponseType> => {
 		const formData: FormData = new FormData();
 		formData.append('name', request.name);
 		formData.append('description', request.description);
@@ -21,16 +21,35 @@ const EventsAPI = {
 		formData.append('event_template_id', request.event_template_id);
 		formData.append('email', request.email);
 		formData.append('requested_codes', request.requested_codes);
-		formData.append('image', imageFile);
-		console.log('form data prepared');
-		// return await PoapAPI.post('https://api.poap.xyz/events', formData);
-		return await axios.post('https://api.poap.xyz/events', formData, {
-			headers: {
-				'accept': 'application/json',
-				'Accept-Language': 'en-US,en;q=0.8',
-				'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
-			},
+		
+		const imageFile = await axios.get('https://cdn.discordapp.com/attachments/851313193934651403/893266991425683476/Screen_Shot_2021-08-23_at_8.20.21_PM.png', {
+			responseType: 'arraybuffer',
 		});
+		// console.log(imageFile.data);
+		// const convImage = Buffer.from(imageFile.data, 'binary');
+		formData.append('image', imageFile.data, {
+			filename: 'Screen_Shot_2021-08-23_at_8.20.21_PM.png',
+			contentType: 'image/png',
+			filepath: 'https://cdn.discordapp.com/attachments/851313193934651403/893266991425683476/Screen_Shot_2021-08-23_at_8.20.21_PM.png',
+		});
+		console.log('form data prepared');
+		const config: AxiosRequestConfig = {
+			method: 'post',
+			url: 'https://api.poap.xyz/events',
+			headers: {
+				...formData.getHeaders(),
+			},
+			data : formData,
+		};
+		// return await PoapAPI.post('https://api.poap.xyz/events', formData);
+		// return await axios.post('https://api.poap.xyz/events', formData, {
+		// 	headers: {
+		// 		'accept': 'application/json',
+		// 		'Accept-Language': 'en-US,en;q=0.8',
+		// 		'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
+		// 	},
+		// });
+		return await axios.post('https://api.poap.xyz/events', formData, config);
 	},
 };
 

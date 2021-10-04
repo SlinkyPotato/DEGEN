@@ -197,7 +197,7 @@ const SchedulePOAP = async (guildMember: GuildMember, numberToMint: number): Pro
 	// 	});
 	// }
 	const request: EventsRequestType = {
-		name: 'Bankless POAP Testing',
+		name: 'DEGEN TEST EXTRA',
 		description: 'description',
 		city: 'city',
 		country: 'country',
@@ -232,12 +232,7 @@ const SchedulePOAP = async (guildMember: GuildMember, numberToMint: number): Pro
 	// 	console.log(e);
 	// 	console.log('failed to process image');
 	// }
-	const imageFile = await axios.get('https://cdn.discordapp.com/attachments/851313193934651403/893266991425683476/Screen_Shot_2021-08-23_at_8.20.21_PM.png', {
-		responseType: 'arraybuffer',
-	});
-	// console.log(imageFile.data);
-	const convImage = Buffer.from(imageFile.data, 'binary');
-	const response: EventsResponseType = await EventsAPI.scheduleEvent(request, convImage);
+	const response: EventsResponseType = await EventsAPI.scheduleEvent(request);
 	console.log(response);
 };
 

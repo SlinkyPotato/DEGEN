@@ -6,7 +6,6 @@ import EarlyTermination from '../../errors/EarlyTermination';
 import EndPOAP from '../../service/poap/EndPOAP';
 import DistributePOAP from '../../service/poap/DistributePOAP';
 import ConfigPOAP from '../../service/poap/ConfigPOAP';
-import discordServerIds from '../../service/constants/discordServerIds';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
 
 module.exports = class poap extends SlashCommand {
@@ -14,7 +13,6 @@ module.exports = class poap extends SlashCommand {
 		super(creator, {
 			name: 'poap',
 			description: 'Receive a list of all attendees in the specified voice channel and optionally send out POAP links',
-			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
 			options: [
 				{
 					name: 'config',

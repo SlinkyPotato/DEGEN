@@ -3,10 +3,10 @@ import POAPUtils from '../../utils/POAPUtils';
 import { Db } from 'mongodb';
 import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
-import { EventsRequestType } from '../../api/types/EventsRequestType';
+import { EventsRequestType } from '../../api/types/poap-events/EventsRequestType';
 import axios, { AxiosResponse } from 'axios';
 import EventsAPI from '../../api/EventsAPI';
-import { EventsResponseType } from '../../api/types/EventsResponseType';
+import { EventsResponseType } from '../../api/types/poap-events/EventsResponseType';
 import ValidationError from '../../errors/ValidationError';
 
 const SchedulePOAP = async (guildMember: GuildMember, numberToMint: number): Promise<any> => {

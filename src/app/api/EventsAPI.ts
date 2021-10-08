@@ -1,5 +1,5 @@
-import { EventsRequestType } from './types/EventsRequestType';
-import { EventsResponseType } from './types/EventsResponseType';
+import { EventsRequestType } from './types/poap-events/EventsRequestType';
+import { EventsResponseType } from './types/poap-events/EventsResponseType';
 import FormData from 'form-data';
 import axios, { AxiosRequestConfig } from 'axios';
 

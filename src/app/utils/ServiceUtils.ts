@@ -4,7 +4,8 @@
 import {
 	Collection,
 	Guild,
-	GuildMember, Permissions,
+	GuildMember,
+	Permissions,
 	Role,
 	RoleManager,
 	Snowflake,

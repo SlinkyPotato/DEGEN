@@ -14,10 +14,14 @@ export default class implements DiscordEvent {
 			if (newUser.partial) {
 				newUser = await newUser.fetch();
 			}
+			
 			if (oldUser.username !== newUser.username) {
 				const guildMember = await ServiceUtils.getGuildMemberFromUser(newUser as User, process.env.DISCORD_SERVER_ID);
-				if (await ServiceUtils.runUsernameSpamFilter(guildMember)) {
-					return;
+				
+				if (ServiceUtils.isBanklessDAO(guildMember.guild)) {
+					if (await ServiceUtils.runUsernameSpamFilter(guildMember)) {
+						return;
+					}
 				}
 			}
 		} catch (e) {

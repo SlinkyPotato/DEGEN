@@ -63,12 +63,12 @@ const restoreReactionCollector = async (scoapEmbed: ScoapEmbed, voteRecord: Vote
 		collector.collected.set(emoji, messageReaction);
 	}
 	
-	collectReactions(scoapEmbed, voteRecord, validEmojiArray, collector);
+	await collectReactions(scoapEmbed, voteRecord, validEmojiArray, collector);
 };
 
 export const restoreScoapEmbedAndVoteRecord = async (): Promise<boolean> => {
-	const db: Db = await dbInstance.dbConnect('degen');
-	const dbScoap = db.collection('scoapSquad').find({});
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+	const dbScoap = db.collection(constants.DB_COLLECTION_SCOAP_SQUAD).find({});
 	const dataArray = await dbScoap.toArray();
 	if (dataArray.length > 0) {
 		for (const entry of dataArray) {

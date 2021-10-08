@@ -120,7 +120,7 @@ module.exports = class poap extends SlashCommand {
 				break;
 			case 'schedule':
 				console.log(`/poap schedule ${ctx.user.username}#${ctx.user.discriminator}`);
-				command = SchedulePOAP(guildMember, ctx.options.schedule['mint-copies']);
+				command = SchedulePOAP(ctx, guildMember, ctx.options.schedule['mint-copies']);
 				break;
 			case 'start':
 				console.log(`/poap start ${ctx.user.username}#${ctx.user.discriminator}`);

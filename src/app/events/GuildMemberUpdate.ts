@@ -5,6 +5,7 @@ import RemoveGuestPass from '../service/guest-pass/RemoveGuestPass';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import ServiceUtils from '../utils/ServiceUtils';
 import sendGuildWelcomeMessage from './welcomeMats/GuildMats';
+import discordServerIds from '../service/constants/discordServerIds';
 
 export default class implements DiscordEvent {
 	name = 'guildMemberUpdate';
@@ -19,23 +20,25 @@ export default class implements DiscordEvent {
 				newMember = await newMember.fetch();
 			}
 
-			if (oldMember.nickname !== newMember.nickname && await ServiceUtils.runUsernameSpamFilter(newMember as GuildMember)) {
-				return;
-			}
+			if (ServiceUtils.isBanklessDAO(oldMember.guild)) {
+				if (oldMember.nickname !== newMember.nickname) {
+					await ServiceUtils.runUsernameSpamFilter(newMember as GuildMember);
+					return;
+				}
 
-			const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
-			if (removedRoles.size > 0) {
-				console.debug(`The roles ${removedRoles.map(r => r.name)} were removed from ${oldMember.displayName}.`);
-				this.handleRolesRemoved(newMember as GuildMember, removedRoles);
-				return;
-			}
+				const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
+				if (removedRoles.size > 0) {
+					console.debug(`The roles ${removedRoles.map(r => r.name)} were removed from ${oldMember.displayName}.`);
+					this.handleRolesRemoved(newMember as GuildMember, removedRoles);
+					return;
+				}
 
-			const addedRoles = newMember.roles.cache.filter(role => !oldMember.roles.cache.has(role.id));
-			if (addedRoles.size > 0) {
-				console.debug(`The roles ${addedRoles.map(r => r.name)} were added to ${oldMember.displayName}.`);
-				this.handleRolesAdded(newMember as GuildMember, addedRoles);
+				const addedRoles = newMember.roles.cache.filter(role => !oldMember.roles.cache.has(role.id));
+				if (addedRoles.size > 0) {
+					console.debug(`The roles ${addedRoles.map(r => r.name)} were added to ${oldMember.displayName}.`);
+					this.handleRolesAdded(newMember as GuildMember, addedRoles);
+				}
 			}
-			
 		} catch (e) {
 			console.error(e);
 			console.error('Retrieving member partial failed');
@@ -50,10 +53,10 @@ export default class implements DiscordEvent {
 	 * @param roles roles that were added to member
 	 */
 	handleRolesAdded = (guildMember: GuildMember, roles: Collection<Snowflake, Role>): void => {
-		roles.each(role => {
+		roles.each(async role => {
 			switch (role.id) {
 			case roleIds.guestPass:
-				AddGuestPass(guildMember).catch(err => console.error(err));
+				await AddGuestPass(guildMember).catch(err => console.error(err));
 				break;
 			case roleIds.developersGuild:
 				sendGuildWelcomeMessage.devGuildMat(guildMember).catch(err => console.error(err));

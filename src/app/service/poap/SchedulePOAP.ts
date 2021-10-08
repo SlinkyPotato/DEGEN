@@ -8,15 +8,16 @@ import axios, { AxiosResponse } from 'axios';
 import EventsAPI from '../../api/EventsAPI';
 import { EventsResponseType } from '../../api/types/poap-events/EventsResponseType';
 import ValidationError from '../../errors/ValidationError';
+import { CommandContext } from 'slash-create';
 
-const SchedulePOAP = async (guildMember: GuildMember, numberToMint: number): Promise<any> => {
+const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numberToMint: number): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	await POAPUtils.validateUserAccess(guildMember, db);
 	await POAPUtils.validateNumberToMint(guildMember, numberToMint);
 	
 	const request: EventsRequestType = {} as EventsRequestType;
 	request.requested_codes = numberToMint.toString();
-	
+
 	await guildMember.send({
 		embeds: [
 			{
@@ -29,6 +30,8 @@ const SchedulePOAP = async (guildMember: GuildMember, numberToMint: number): Pro
 			},
 		],
 	});
+	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
+	
 	const dmChannel: DMChannel = await guildMember.createDM();
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,

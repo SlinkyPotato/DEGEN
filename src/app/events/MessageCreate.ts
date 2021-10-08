@@ -1,4 +1,5 @@
 import messageCreateOnBountyBoard from './bounty/MessageCreateOnBountyBoard';
+import messageSetScoapRoles from './scoap-squad/messageSetScoapRoles';
 import { Message } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import MessageCreateOnDEGEN from './chat/MessageCreateOnDEGEN';
@@ -17,6 +18,9 @@ export default class implements DiscordEvent {
 			});
 			// Run for webhook
 			await messageCreateOnBountyBoard(message).catch(e => {
+				console.error('ERROR: ', e);
+			});
+			await messageSetScoapRoles(message).catch(e => {
 				console.error('ERROR: ', e);
 			});
 		} catch (e) {

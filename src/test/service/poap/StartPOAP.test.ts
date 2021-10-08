@@ -1,14 +1,14 @@
-import { Collection as DiscordCollection } from '@discordjs/collection';
-import { Builder } from 'builder-pattern';
-import { GuildMember } from 'discord.js';
-import { Collection, Db, MongoClient } from 'mongodb';
-import EarlyTermination from '../../../app/errors/EarlyTermination';
-import ValidationError from '../../../app/errors/ValidationError';
-import { updateUserForPOAP } from '../../../app/events/poap/AddUserForEvent';
-import constants from '../../../app/service/constants/constants';
-import StartPOAP from '../../../app/service/poap/StartPOAP';
-import dbInstance from '../../../app/utils/dbUtils';
-import ServiceUtils from '../../../app/utils/ServiceUtils';
+// import { Collection as DiscordCollection } from '@discordjs/collection';
+// import { Builder } from 'builder-pattern';
+// import { GuildMember } from 'discord.js';
+import { MongoClient } from 'mongodb';
+// import EarlyTermination from '../../../app/errors/EarlyTermination';
+// import ValidationError from '../../../app/errors/ValidationError';
+// import { updateUserForPOAP } from '../../../app/events/poap/AddUserForEvent';
+// import constants from '../../../app/service/constants/constants';
+// import StartPOAP from '../../../app/service/poap/StartPOAP';
+// import dbInstance from '../../../app/utils/dbUtils';
+// import ServiceUtils from '../../../app/utils/ServiceUtils';
 
 jest.mock('../../../app/utils/dbUtils');
 jest.mock('../../../app/utils/ServiceUtils');
@@ -29,38 +29,38 @@ jest.mock('../../../app/app', () => {
 
 describe('Start POAP', () => {
 	let connection: MongoClient;
-	let db: Db;
-	let poapSettingsDB: Collection;
-	let poapParticipantsDB: Collection;
-	let guildMember: GuildMember;
-	const voiceChannels: DiscordCollection<string, any> = new DiscordCollection();
-	const guildMembers: DiscordCollection<string, any> = new DiscordCollection();
+	// let db: Db;
+	// let poapSettingsDB: Collection;
+	// let poapParticipantsDB: Collection;
+	// let guildMember: GuildMember;
+	// const voiceChannels: DiscordCollection<string, any> = new DiscordCollection();
+	// const guildMembers: DiscordCollection<string, any> = new DiscordCollection();
 
-	const messages: DiscordCollection<string, any> = new DiscordCollection();
-	const message = {
-		channel: {
-			fetch: jest.fn(() => Promise.resolve({
-				awaitMessages: jest.fn(() => Promise.resolve(messages)),
-			})),
-		},
-	};
+	// const messages: DiscordCollection<string, any> = new DiscordCollection();
+	// const message = {
+	// 	channel: {
+	// 		fetch: jest.fn(() => Promise.resolve({
+	// 			awaitMessages: jest.fn(() => Promise.resolve(messages)),
+	// 		})),
+	// 	},
+	// };
 
-	const defaultGuildMember: GuildMember = {
-		nickname: null,
-		displayName: 'Pioneer',
-		bannable: true,
-		id: '930362313029460717',
-		roles: {
-			cache: new DiscordCollection(),
-		},
-		user: {
-			id: '930362313029460717',
-			username: 'Pioneer',
-			tag: 'Pioneer#1559',
-		},
-		ban: jest.fn(() => Promise.resolve()),
-		send: jest.fn(() => Promise.resolve(message)),
-	} as any;
+	// const defaultGuildMember: GuildMember = {
+	// 	nickname: null,
+	// 	displayName: 'Pioneer',
+	// 	bannable: true,
+	// 	id: '930362313029460717',
+	// 	roles: {
+	// 		cache: new DiscordCollection(),
+	// 	},
+	// 	user: {
+	// 		id: '930362313029460717',
+	// 		username: 'Pioneer',
+	// 		tag: 'Pioneer#1559',
+	// 	},
+	// 	ban: jest.fn(() => Promise.resolve()),
+	// 	send: jest.fn(() => Promise.resolve(message)),
+	// } as any;
 
 	// beforeAll(async () => {
 	// 	// Setup mock database

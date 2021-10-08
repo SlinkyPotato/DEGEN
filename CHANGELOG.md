@@ -3,6 +3,18 @@
 ## 1.7.0-SNAPSHOT
 
 1. Add scoap-squad feature for BanklessDAO
+2. Add /poap schedule command
+   - enhance stability
+   - wrap events call to bankelss DAO server
+   - misc text message updates
+
+## 1.6.2-RELEASE (2021-10-01)
+
+1. Enhance stability of DEGEN
+
+## 1.6.1-RELEASE (2021-10-01)
+
+1. Reference production environment files
 
 ## 1.6.0-RELEASE (2021-10-01)
 

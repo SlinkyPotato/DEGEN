@@ -5,6 +5,7 @@ import {
 	Collection,
 	Guild,
 	GuildMember,
+	Permissions,
 	Role,
 	RoleManager,
 	Snowflake,
@@ -21,6 +22,7 @@ import roleIDs from '../service/constants/roleIds';
 import { Allowlist } from '../types/discord/Allowlist';
 import dbInstance from '../utils/dbUtils';
 import { Confusables } from './Confusables';
+import discordServerIds from '../service/constants/discordServerIds';
 
 const nonStandardCharsRegex = /[^\w\s\p{P}\p{S}Ξ]/gu;
 const emojiRegex = /\p{So}/gu;
@@ -64,6 +66,10 @@ const ServiceUtils = {
 			}
 		}
 		return false;
+	},
+	
+	isDiscordAdmin(guildMember: GuildMember): boolean {
+		return guildMember.permissions.has(Permissions.FLAGS.ADMINISTRATOR);
 	},
 
 	isAnyLevel(guildMember: GuildMember): boolean {
@@ -111,6 +117,10 @@ const ServiceUtils = {
 			year: 'numeric',
 		};
 		return (new Date(dateIso)).toLocaleString('en-US', options);
+	},
+	
+	isBanklessDAO(guild: Guild): boolean {
+		return guild.id == discordServerIds.banklessDAO || guild.id == discordServerIds.discordBotGarage;
 	},
 
 	/**

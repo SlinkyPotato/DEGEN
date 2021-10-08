@@ -7,8 +7,14 @@ export default class implements DiscordEvent {
 	once = false;
 
 	async execute(member: GuildMember): Promise<any> {
-		if (await ServiceUtils.runUsernameSpamFilter(member)) {
-			return;
+		try {
+			if (ServiceUtils.isBanklessDAO(member.guild)) {
+				if (await ServiceUtils.runUsernameSpamFilter(member)) {
+					return;
+				}
+			}
+		} catch (e) {
+			console.error(e);
 		}
 	}
 }

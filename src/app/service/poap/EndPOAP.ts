@@ -6,10 +6,12 @@ import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
+import { CommandContext } from 'slash-create';
 
-export default async (guildMember: GuildMember): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	await POAPUtils.validateUserAccess(guildMember, db);
+	
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
 		discordUserId: guildMember.user.id,
@@ -34,7 +36,9 @@ export default async (guildMember: GuildMember): Promise<any> => {
 	const listOfParticipants = await POAPUtils.getListOfParticipants(guildMember, db, channel);
 	
 	if (listOfParticipants.length <= 0) {
-		return guildMember.send({ content: `Event ended. No participants found for ${channel.name} in ${channel.guild.name}.` });
+		await guildMember.send({ content: `Event ended. No participants found for ${channel.name} in ${channel.guild.name}.` });
+		await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
+		return;
 	}
 	
 	const bufferFile = await getBufferFromParticipants(listOfParticipants, channel);
@@ -47,6 +51,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 			`Date: \`${currentDate} UTC\`.`,
 		files: [{ name: fileName, attachment: bufferFile }],
 	});
+	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 
 	if (guildMember.id !== guildMember.user.id) {
 		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` });

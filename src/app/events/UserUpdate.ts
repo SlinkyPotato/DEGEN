@@ -14,16 +14,19 @@ export default class implements DiscordEvent {
 			if (newUser.partial) {
 				newUser = await newUser.fetch();
 			}
-		} catch (e) {
-			console.error('Retrieving user partial failed');
-			return;
-		}
-
-		if (oldUser.username !== newUser.username) {
-			const guildMember = await ServiceUtils.getGuildMemberFromUser(newUser as User, process.env.DISCORD_SERVER_ID);
-			if (await ServiceUtils.runUsernameSpamFilter(guildMember)) {
-				return;
+		
+			if (oldUser.username !== newUser.username) {
+				const guildMember = await ServiceUtils.getGuildMemberFromUser(newUser as User, process.env.DISCORD_SERVER_ID);
+				
+				if (ServiceUtils.isBanklessDAO(guildMember.guild)) {
+					if (await ServiceUtils.runUsernameSpamFilter(guildMember)) {
+						return;
+					}
+				}
 			}
+		} catch (e) {
+			console.error(e);
+			return;
 		}
 	}
 }

@@ -132,7 +132,6 @@ module.exports = class poap extends SlashCommand {
 				break;
 			case 'distribute':
 				console.log(`/poap distribute ${ctx.user.username}#${ctx.user.discriminator}`);
-				// await ctx.send(`${ctx.user.mention} DM sent!`);
 				command = DistributePOAP(ctx, guildMember);
 				break;
 			default:

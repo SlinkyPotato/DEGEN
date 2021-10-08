@@ -9,7 +9,7 @@ export default class implements DiscordEvent {
 
 	async execute(member: GuildMember): Promise<any> {
 		try {
-			if (member.guild.id == discordServerIds.banklessDAO || member.guild.id == discordServerIds.discordBotGarage) {
+			if (ServiceUtils.isBanklessDAO(member.guild)) {
 				if (await ServiceUtils.runUsernameSpamFilter(member)) {
 					return;
 				}

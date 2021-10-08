@@ -14,6 +14,7 @@ export default class implements DiscordEvent {
 	async execute(client: Client): Promise<any> {
 		try {
 			console.log('The Sun will never set on the DAO. Neither will I. DEGEN & Serendipity are ready for service.');
+			
 			client.user.setActivity('Going Bankless, Doing the DAO');
 			client.guilds.cache.forEach((guild: Guild) => {
 				console.log(`DEGEN active for: ${guild.id}, ${guild.name}`);

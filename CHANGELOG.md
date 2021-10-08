@@ -4,6 +4,9 @@
 
 1. Add scoap-squad feature for BanklessDAO
 2. Add /poap schedule command
+   - enhance stability
+   - wrap events call to bankelss DAO server
+   - misc text message updates
 
 ## 1.6.2-RELEASE (2021-10-01)
 

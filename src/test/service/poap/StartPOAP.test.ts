@@ -1,4 +1,4 @@
-import { Collection as DiscordCollection } from '@discordjs/collection';
+// import { Collection as DiscordCollection } from '@discordjs/collection';
 // import { Builder } from 'builder-pattern';
 // import { GuildMember } from 'discord.js';
 // import { MongoClient } from 'mongodb';

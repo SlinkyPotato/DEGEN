@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.0-SNAPSHOT
+
+1. Add /poap schedule command
+
 ## 1.6.2-RELEASE (2021-10-01)
 
 1. Enhance stability of DEGEN
@@ -15,7 +19,6 @@
 3. Migrate github actions deployment to digital ocean droplet
 4. Add username spam filter
 5. Misc fixes for bounties
-6. Add /poap schedule command
 
 ## 1.5.2-RELEASE (2021-09-10)
 

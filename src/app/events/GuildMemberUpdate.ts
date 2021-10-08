@@ -5,7 +5,6 @@ import RemoveGuestPass from '../service/guest-pass/RemoveGuestPass';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import ServiceUtils from '../utils/ServiceUtils';
 import sendGuildWelcomeMessage from './welcomeMats/GuildMats';
-import discordServerIds from '../service/constants/discordServerIds';
 
 export default class implements DiscordEvent {
 	name = 'guildMemberUpdate';

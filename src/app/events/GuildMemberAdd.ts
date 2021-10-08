@@ -1,7 +1,6 @@
 import { GuildMember } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import ServiceUtils from '../utils/ServiceUtils';
-import discordServerIds from '../service/constants/discordServerIds';
 
 export default class implements DiscordEvent {
 	name = 'guildMemberAdd';

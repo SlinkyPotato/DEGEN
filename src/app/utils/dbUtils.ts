@@ -17,7 +17,7 @@ export default {
 };
 
 export const connect = async (database: string): Promise<void> => {
-	console.log(`connecting to ${database} for first time`);
+	console.log(`Connecting to ${database} for first time!`);
 	const options: MongoClientOptions = {
 		writeConcern: {
 			w: 'majority',

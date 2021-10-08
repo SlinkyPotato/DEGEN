@@ -142,7 +142,7 @@ const POAPUtils = {
 				return;
 			}
 		}
-		throw new ValidationError('Only the discord owner can use this command. Please reach out for configuration help.');
+		throw new ValidationError('Only authorized users can use this command. Please reach out to an admin for configuration help.');
 	},
 };
 

@@ -6,7 +6,6 @@ import EarlyTermination from '../../errors/EarlyTermination';
 import EndPOAP from '../../service/poap/EndPOAP';
 import DistributePOAP from '../../service/poap/DistributePOAP';
 import ConfigPOAP from '../../service/poap/ConfigPOAP';
-import discordServerIds from '../../service/constants/discordServerIds';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
 
 module.exports = class poap extends SlashCommand {
@@ -14,7 +13,6 @@ module.exports = class poap extends SlashCommand {
 		super(creator, {
 			name: 'poap',
 			description: 'Receive a list of all attendees in the specified voice channel and optionally send out POAP links',
-			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
 			options: [
 				{
 					name: 'config',
@@ -118,28 +116,24 @@ module.exports = class poap extends SlashCommand {
 				console.log(`/poap config ${ctx.user.username}#${ctx.user.discriminator}`);
 				authorizedRoles = [ctx.options.config['role-1'], ctx.options.config['role-2'], ctx.options.config['role-3']];
 				authorizedUsers = [ctx.options.config['user-1'], ctx.options.config['user-2'], ctx.options.config['user-3']];
-				await ctx.send(`${ctx.user.mention} DM sent!`);
-				command = ConfigPOAP(guildMember, authorizedRoles, authorizedUsers);
+				command = ConfigPOAP(ctx, guildMember, authorizedRoles, authorizedUsers);
 				break;
 			case 'schedule':
 				console.log(`/poap schedule ${ctx.user.username}#${ctx.user.discriminator}`);
-				await ctx.send(`${ctx.user.mention} DM sent!`);
 				command = SchedulePOAP(guildMember, ctx.options.schedule['mint-copies']);
 				break;
 			case 'start':
 				console.log(`/poap start ${ctx.user.username}#${ctx.user.discriminator}`);
-				await ctx.send(`${ctx.user.mention} DM sent!`);
-				command = StartPOAP(guildMember, ctx.options.start.event);
+				command = StartPOAP(ctx, guildMember, ctx.options.start.event);
 				break;
 			case 'end':
 				console.log(`/poap end ${ctx.user.username}#${ctx.user.discriminator}`);
-				await ctx.send(`${ctx.user.mention} DM sent!`);
-				command = EndPOAP(guildMember);
+				command = EndPOAP(ctx, guildMember);
 				break;
 			case 'distribute':
 				console.log(`/poap distribute ${ctx.user.username}#${ctx.user.discriminator}`);
-				await ctx.send(`${ctx.user.mention} DM sent!`);
-				command = DistributePOAP(guildMember);
+				// await ctx.send(`${ctx.user.mention} DM sent!`);
+				command = DistributePOAP(ctx, guildMember);
 				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);

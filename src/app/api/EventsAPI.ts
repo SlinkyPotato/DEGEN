@@ -1,11 +1,10 @@
-import PoapAPI from './PoapAPI';
 import { EventsRequestType } from './types/EventsRequestType';
 import { EventsResponseType } from './types/EventsResponseType';
 import FormData from 'form-data';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 
 const EventsAPI = {
-	scheduleEvent: async (request: EventsRequestType, imageFile): Promise<EventsResponseType> => {
+	scheduleEvent: async (request: EventsRequestType): Promise<EventsResponseType> => {
 		const formData: FormData = new FormData();
 		formData.append('name', request.name);
 		formData.append('description', request.description);
@@ -21,24 +20,23 @@ const EventsAPI = {
 		formData.append('event_template_id', request.event_template_id);
 		formData.append('email', request.email);
 		formData.append('requested_codes', request.requested_codes);
-		formData.append('image', imageFile);
-		console.log('form data prepared');
-		const config = {
+		
+
+		formData.append('image', request.image.data, {
+			contentType: 'image/png',
+			filepath: request.image.config.url,
+		});
+		const config: AxiosRequestConfig = {
 			method: 'post',
 			url: 'https://api.poap.xyz/events',
 			headers: {
 				...formData.getHeaders(),
 			},
-			data: formData,
+			data : formData,
 		};
-		// return await PoapAPI.post('https://api.poap.xyz/events', formData);
-		return await axios.post('https://api.poap.xyz/events', formData, {
-			headers: {
-				'accept': 'application/json',
-				'Accept-Language': 'en-US,en;q=0.8',
-				'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`,
-			},
-		});
+		const response = await axios.post('https://api.poap.xyz/events', formData, config);
+		console.log(response.data);
+		return response.data;
 	},
 };
 

@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+
 export type EventsRequestType = {
 	name: string,
 	description: string,
@@ -9,7 +11,7 @@ export type EventsRequestType = {
 	year: string,
 	event_url?: string,
 	virtual_event: boolean,
-	image: any,
+	image: AxiosResponse,
 	secret_code: string,
 	event_template_id: string,
 	email: string,

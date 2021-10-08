@@ -4,7 +4,7 @@
 import {
 	Collection,
 	Guild,
-	GuildMember,
+	GuildMember, Permissions,
 	Role,
 	RoleManager,
 	Snowflake,
@@ -64,6 +64,10 @@ const ServiceUtils = {
 			}
 		}
 		return false;
+	},
+	
+	isDiscordAdmin(guildMember: GuildMember): boolean {
+		return guildMember.permissions.has(Permissions.FLAGS.ADMINISTRATOR);
 	},
 
 	isAnyLevel(guildMember: GuildMember): boolean {

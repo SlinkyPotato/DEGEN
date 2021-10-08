@@ -9,45 +9,13 @@ export default Object.freeze({
 	DB_COLLECTION_SCOAP_SQUAD: 'scoapSquad',
 	DB_COLLECTION_POAP_ADMINS: 'poapAdmins',
 	DB_COLLECTION_ALLOWLIST: 'allowList',
-
 	MONGODB_URI_PARTIAL: `${process.env.MONGODB_PREFIX}://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
 	
 	BOUNTY_BOARD_WEBSITE_WEBHOOK_NAME: 'bounty-board-website',
 	BOUNTY_BOARD_END_OF_SEASON_DATE: process.env.DAO_CURRENT_SEASON_END_DATE,
+
 	SCOAP_SQUAD_EMBED_SPACER: '\u2800'.repeat(60),
-
-	SCOAP_SQUAD_NOTION_FIELDS: {
-		project: {
-			type: 'title',
-			field_name: 'Project',
-		},
-		author_discord_handle: {
-			type: 'rich_text',
-			field_name: 'Author Discord Handle',
-		},
-		scoap_squad_discord_handles: {
-			type: 'multi_select',
-			field_name: 'Scoap Squad Discord Handles',
-		},
-		status: {
-			type: 'select',
-			field_name: 'Status',
-			categories: {
-				open: 'Open',
-				filled: 'Filled (Ongoing)',
-				closed: 'Project Completed',
-				cancelled: 'Cancelled',
-			},
-		},
-		date_created: {
-			type: 'date',
-			field_name: 'Date Created',
-		},
-	},
-
-	NOTION_COLORS: ['gray', 'brown', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'red'],
-
 	// active for 24 h
 	BOT_CONVERSATION_TIMEOUT_MS: 1000 * 60 * 60 * 24,
 	// one week

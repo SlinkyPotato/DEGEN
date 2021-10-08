@@ -7,6 +7,7 @@ import { Message, TextChannel } from 'discord.js';
 import channelIds from '../constants/channelIds';
 import ScoapUtils from '../../utils/ScoapUtils';
 import constants from '../constants/constants';
+import scoapSquadNotion from '../constants/scoapSquadNotion';
 import { createReactionCollector, collectReactions } from './ScoapPoll';
 import { updateStatusSelectField } from './ScoapNotion';
 
@@ -98,7 +99,7 @@ export const restoreScoapEmbedAndVoteRecord = async (): Promise<boolean> => {
 				await deleteScoapEmbedAndVoteRecord(scoapEmbed.getId());
 				console.log('removed ', scoapEmbed.getId());
 				console.log('updating notion');
-				await updateStatusSelectField(scoapEmbed.getNotionPageId(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.cancelled);
+				await updateStatusSelectField(scoapEmbed.getNotionPageId(), scoapSquadNotion.SCOAP_SQUAD_NOTION_FIELDS.status.categories.cancelled);
 			}
 		}
 		return true;

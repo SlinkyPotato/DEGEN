@@ -2,6 +2,7 @@ import { Message, TextChannel, MessageReaction, ReactionCollector } from 'discor
 import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
 import constants from '../constants/constants';
+import scoapSquadNotion from '../constants/scoapSquadNotion';
 import { Vote, VoteRecord, ScoapEmbed } from './ScoapClasses';
 import { scoapEmbedState, voteRecordState, botConvoState } from './ScoapDatabase';
 import ScoapUtils from '../../utils/ScoapUtils';
@@ -232,7 +233,7 @@ const handleDeletePoll = async (user, scoapEmbed, embedMessage, collector) => {
 			if (delReaction.emoji.name === '👍') {
 				delete scoapEmbedState[scoapEmbed.getId()];
 				delete voteRecordState[scoapEmbed.getId()];
-				await updateStatusSelectField(scoapEmbed.getNotionPageId(), constants.SCOAP_SQUAD_NOTION_FIELDS.status.categories.cancelled);
+				await updateStatusSelectField(scoapEmbed.getNotionPageId(), scoapSquadNotion.SCOAP_SQUAD_NOTION_FIELDS.status.categories.cancelled);
 				ScoapUtils.logToFile('object deleted from botConvoState & voteRecordState. Reason: Delete Poll \n' +
 							`scoapEmbedState: ${JSON.stringify(scoapEmbedState)} \n ` +
 							`botConvoState: ${JSON.stringify(botConvoState)}  \n` +

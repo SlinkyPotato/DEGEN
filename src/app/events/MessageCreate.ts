@@ -7,16 +7,16 @@ export default class implements DiscordEvent {
 	name = 'messageCreate';
 	once = false;
 
-	execute(message: Message): Promise<any> {
+	async execute(message: Message): Promise<any> {
 		try {
 			if(message.author.bot && message.webhookId === null) return;
 
 			// DEGEN says hello
-			MessageCreateOnDEGEN(message).catch(e => {
+			await MessageCreateOnDEGEN(message).catch(e => {
 				console.error('ERROR: ', e);
 			});
 			// Run for webhook
-			messageCreateOnBountyBoard(message).catch(e => {
+			await messageCreateOnBountyBoard(message).catch(e => {
 				console.error('ERROR: ', e);
 			});
 		} catch (e) {

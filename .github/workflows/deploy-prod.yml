@@ -7,7 +7,7 @@ jobs:
   build-test-deploy:
     environment:
       name: production
-      url: https://bankless-dao-degen-bot.herokuapp.com/
+      url: https://app.logdna.com/273e532689/logs/view/4f421c1c11?q=app%3DDEGEN
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2

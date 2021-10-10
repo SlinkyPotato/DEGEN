@@ -44,6 +44,8 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             nvm install 16.10.0
             nvm use 16.10.0
+            rm -r -f discord-bots/
+            git clone https://github.com/BanklessDAO/discord-bots.git
             cd discord-bots
             npm -g install yarn
             npm -g install pm2

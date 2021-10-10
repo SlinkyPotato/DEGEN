@@ -7,15 +7,8 @@
    - enhance stability
    - wrap events call to bankelss DAO server
    - misc text message updates
-3. Open bounties to all (except creating new bounties)
-
-## 1.6.2-RELEASE (2021-10-01)
-
-1. Enhance stability of DEGEN
-
-## 1.6.1-RELEASE (2021-10-01)
-
-1. Reference production environment files
+3. Setup Major Motoko Kusanagi bot
+4. Open bounties to all (except creating new bounties)
 
 ## 1.6.0-RELEASE (2021-10-01)
 
@@ -24,6 +17,8 @@
 3. Migrate github actions deployment to digital ocean droplet
 4. Add username spam filter
 5. Misc fixes for bounties
+6. Reference production environment files
+7. Enhance stability of DEGEN
 
 ## 1.5.2-RELEASE (2021-09-10)
 

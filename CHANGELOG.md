@@ -7,6 +7,7 @@
    - enhance stability
    - wrap events call to bankelss DAO server
    - misc text message updates
+3. Open bounties to all (except creating new bounties)
 
 ## 1.6.2-RELEASE (2021-10-01)
 

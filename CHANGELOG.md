@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.7.0-SNAPSHOT 
+## 1.7.0-SNAPSHOT
 
 1. Add scoap-squad feature for BanklessDAO
 2. Add /poap schedule command
@@ -8,14 +8,14 @@
    - wrap events call to bankelss DAO server
    - misc text message updates
 3. Setup Major Motoko Kusanagi bot
-   
+
 ## 1.6.0-RELEASE (2021-10-01)
 
 1. Fixed RetrieveFAQs tests to properly use mocking and fix yarn linting script
 2. Misc fixes for POAP commands and enable HELP commands for all discords
 3. Migrate github actions deployment to digital ocean droplet
 4. Add username spam filter
-5. Misc fixes for bounties 
+5. Misc fixes for bounties
 6. Reference production environment files
 7. Enhance stability of DEGEN
 

@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - 'pre-release'
-      - 'feature/set-up-pre-release'
 jobs:
   build-test-deploy:
     environment:

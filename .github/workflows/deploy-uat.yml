@@ -50,6 +50,7 @@ jobs:
             cd discord-bots
             npm -g install yarn
             npm -g install pm2
+            pm2 stop uat-bot
             yarn install
             yarn build
             DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \

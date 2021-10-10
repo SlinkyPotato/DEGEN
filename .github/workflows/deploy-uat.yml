@@ -60,4 +60,4 @@ jobs:
             MONGODB_PASS=$MONGODB_PASS \
             MONGODB_CLUSTER=$MONGODB_CLUSTER \
             NOTION_TOKEN=$NOTION_TOKEN \
-            pm2 start pm2.uat-config.js
+            pm2 start pm2-uat.config.js

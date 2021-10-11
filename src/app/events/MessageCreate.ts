@@ -11,9 +11,9 @@ export default class implements DiscordEvent {
 
 	async execute(message: Message): Promise<any> {
 		try {
-			if(message.author.bot || message.webhookId === null) return;
+			if(message.author.bot || (message.webhookId === null && !(message.channel.type === 'DM'))) return;
 			
-			if (ServiceUtils.isBanklessDAO(message.guild)) {
+			if (ServiceUtils.isBanklessDAO(message.guild) || message.channel.type === 'DM') {
 				// DEGEN says hello
 				await MessageCreateOnDEGEN(message).catch(e => {
 					console.error('ERROR: ', e);

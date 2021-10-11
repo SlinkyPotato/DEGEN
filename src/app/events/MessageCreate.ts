@@ -13,7 +13,7 @@ export default class implements DiscordEvent {
 		try {
 			if(message.author.bot || (message.webhookId === null && !(message.channel.type === 'DM'))) return;
 			
-			if (ServiceUtils.isBanklessDAO(message.guild) || message.channel.type === 'DM') {
+			if (ServiceUtils.isBanklessDAO(message.guild)) {
 				// DEGEN says hello
 				await MessageCreateOnDEGEN(message).catch(e => {
 					console.error('ERROR: ', e);
@@ -22,6 +22,9 @@ export default class implements DiscordEvent {
 				await messageCreateOnBountyBoard(message).catch(e => {
 					console.error('ERROR: ', e);
 				});
+			}
+			if (ServiceUtils.isBanklessDAO(message.guild) || message.channel.type === 'DM') {
+				// Run scoap squad DM flow
 				await messageSetScoapRoles(message).catch(e => {
 					console.error('ERROR: ', e);
 				});

@@ -6,6 +6,7 @@ on:
     pull_request:
         branches:
           - 'develop'
+          - 'release/**'
 jobs:
     deploy:
         environment:

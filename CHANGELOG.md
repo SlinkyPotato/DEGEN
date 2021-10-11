@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.7.0-SNAPSHOT
+## 1.7.0-RELEASE (2021-10-11)
 
 1. Add scoap-squad feature for BanklessDAO
 2. Add /poap schedule command

@@ -36,8 +36,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	}
 	
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
-	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) });
+	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	const channelChoice: GuildChannel = await askUserForChannel(guildMember, message, voiceChannels);
 
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
@@ -56,6 +56,21 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 		await setupPoapSetting(guildMember, poapSettingsDB, channelChoice, event);
 	}
 
+	const replyOptions: AwaitMessagesOptions = {
+		max: 1,
+		time: 180000,
+		errors: ['time'],
+	};
+	await guildMember.send({ content: 'Would you like the event to automatically end? (y/n)' });
+	const dmChannel: DMChannel = await guildMember.createDM();
+	const isAutomaticEnd: boolean = (await dmChannel.awaitMessages(replyOptions)).first().content === 'y';
+	
+	if (!isAutomaticEnd) {
+		await guildMember.send({ content: 'Please use the `/poap end` at the end of the event. ' });
+	} else {
+		await askForEventMinutes(guildMember, dmChannel, replyOptions);
+	}
+	
 	await clearPOAPParticipants(db, channelChoice);
 	const currentDateStr = (new Date()).toISOString();
 	await poapSettingsDB.updateOne({
@@ -178,6 +193,14 @@ export const askUserForChannel = async (guildMember: GuildMember, dmMessage: Mes
 			return voiceChannel;
 		}
 		i++;
+	}   
+};
+
+const askForEventMinutes = async (guildMember: GuildMember, dmChannel: DMChannel, replyOptions: AwaitMessagesOptions) => {
+	try {
+		await guildMember.send({ content: 'How long should the event stay active? (in minutes)' });
+		const durationOfEventInMinutes = (await dmChannel.awaitMessages(replyOptions)).first().content;
+	} catch (e) {
 	}
 };
 

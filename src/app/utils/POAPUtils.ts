@@ -111,6 +111,16 @@ const POAPUtils = {
 		}
 	},
 	
+	async validateNumberToMint(guildMember: GuildMember, numberToMint: number): Promise<any> {
+		if (numberToMint >= 1000 || numberToMint <= 0) {
+			await guildMember.send({
+				content: `<@${guildMember.user.id}>\n` +
+					'A maximum of 1000 POAPs can be minted for a single event. Please let us know if you\'d like to see this increased. ',
+			});
+			throw new ValidationError('Please try another mint value.');
+		}
+	},
+	
 	async validateUserAccess(guildMember: GuildMember, db: Db): Promise<any> {
 		const poapAdminsDb: Collection = await db.collection(constants.DB_COLLECTION_POAP_ADMINS);
 		const userResult: POAPAdmin = await poapAdminsDb.findOne({
@@ -132,7 +142,7 @@ const POAPUtils = {
 				return;
 			}
 		}
-		throw new ValidationError('Only the discord owner can use this command. Please reach out for configuration help.');
+		throw new ValidationError('Only authorized users can use this command. Please reach out to an admin for configuration help.');
 	},
 };
 

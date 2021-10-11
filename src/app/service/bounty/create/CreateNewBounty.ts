@@ -9,11 +9,15 @@ import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import envUrls from '../../constants/envUrls';
 import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
+import ValidationError from '../../../errors/ValidationError';
 
 export default async (guildMember: GuildMember, params: BountyCreateNew): Promise<any> => {
 	const title = params.title;
 	const reward = params.reward;
 
+	if (!ServiceUtils.isAtLeastLevel1(guildMember)) {
+		throw new ValidationError('Must be at a least level 1 to create new bounties.');
+	}
 	await BountyUtils.validateReward(guildMember, reward);
 	await BountyUtils.validateTitle(guildMember, title);
 	BountyUtils.validateNumberOfCopies(guildMember, params.copies);

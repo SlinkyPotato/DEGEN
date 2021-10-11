@@ -14,6 +14,11 @@ export default (): MessageOptions => {
 					inline: false,
 				},
 				{
+					name: '-> /poap schedule',
+					value: 'Schedule a POAP event, upload the PNG image to be minted, and get the links.txt file over email.',
+					inline: false,
+				},
+				{
 					name: '-> /poap distribute',
 					value: 'Distribute POAP links to a given list of attendees. The attendees .csv file is generated from ' +
 						'/poap end command. The POAP links.txt file is generated from the POAP setup via email.',

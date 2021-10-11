@@ -15,8 +15,9 @@ import { updateUserForPOAP } from '../../events/poap/AddUserForEvent';
 import ServiceUtils from '../../utils/ServiceUtils';
 import EarlyTermination from '../../errors/EarlyTermination';
 import POAPUtils from '../../utils/POAPUtils';
+import { CommandContext } from 'slash-create';
 
-export default async (guildMember: GuildMember, event?: string): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember, event?: string): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 
 	await POAPUtils.validateUserAccess(guildMember, db);
@@ -35,6 +36,7 @@ export default async (guildMember: GuildMember, event?: string): Promise<any> =>
 	}
 	
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
+	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) });
 	const channelChoice: GuildChannel = await askUserForChannel(guildMember, message, voiceChannels);
 

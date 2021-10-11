@@ -1,12 +1,16 @@
 # Changelog
 
-## 1.6.2-RELEASE (2021-10-01)
+## 1.7.0-RELEASE (2021-10-11)
 
-1. Enhance stability of DEGEN
-
-## 1.6.1-RELEASE (2021-10-01)
-
-1. Reference production environment files
+1. Add scoap-squad feature for BanklessDAO
+2. Add /poap schedule command
+   - enhance stability
+   - wrap events call to bankelss DAO server
+   - misc text message updates
+3. Setup Major Motoko Kusanagi bot
+4. Fix MessageCreate event
+5. Open bounties to all (except creating new bounties)
+6. Remove voice permissions
 
 ## 1.6.0-RELEASE (2021-10-01)
 
@@ -15,6 +19,8 @@
 3. Migrate github actions deployment to digital ocean droplet
 4. Add username spam filter
 5. Misc fixes for bounties
+6. Reference production environment files
+7. Enhance stability of DEGEN
 
 ## 1.5.2-RELEASE (2021-09-10)
 

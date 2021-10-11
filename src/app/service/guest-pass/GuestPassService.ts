@@ -14,7 +14,6 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
  * Handle guest pass role background service
  */
 export default async (client: DiscordClient): Promise<void> => {
-	console.log('starting guest pass service...');
 
 	// Retrieve guild
 	const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID);
@@ -106,7 +105,7 @@ export default async (client: DiscordClient): Promise<void> => {
 		}, expiresInMilli);
 
 	}
-	console.log('guest pass service ready.');
+	console.log('Guest pass service ready!');
 };
 
 /**

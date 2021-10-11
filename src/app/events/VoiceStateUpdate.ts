@@ -15,9 +15,9 @@ export default class implements DiscordEvent {
 	 * @param oldState The voice state before the update
 	 * @param newState The voice state after the update
 	 */
-	execute(oldState: VoiceState, newState: VoiceState): void {
+	async execute(oldState: VoiceState, newState: VoiceState): Promise<any> {
 		try {
-			addUserForEvent(oldState, newState).catch(console.error);
+			await addUserForEvent(oldState, newState).catch(console.error);
 		} catch (e) {
 			console.error(e);
 		}

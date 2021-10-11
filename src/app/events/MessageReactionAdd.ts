@@ -1,6 +1,7 @@
 import { MessageReaction, PartialUser, User } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import messageReactionAddBounty from './bounty/MessageReactionAddBounty';
+import ServiceUtils from '../utils/ServiceUtils';
 
 export default class implements DiscordEvent {
 	name = 'messageReactionAdd';
@@ -25,7 +26,9 @@ export default class implements DiscordEvent {
 			if (user.bot) {
 				return;
 			}
-			await messageReactionAddBounty(reaction, user as User);
+			if (ServiceUtils.isBanklessDAO(reaction.message.guild)) {
+				await messageReactionAddBounty(reaction, user as User).catch(console.error);
+			}
 		} catch (e) {
 			console.error(e);
 		}

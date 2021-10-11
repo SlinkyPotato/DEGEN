@@ -7,7 +7,6 @@ on:
         branches:
           - 'develop'
           - 'release/**'
-          - 'DEGEN'
 jobs:
     deploy:
         environment:

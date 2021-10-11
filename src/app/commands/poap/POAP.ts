@@ -147,7 +147,7 @@ module.exports = class poap extends SlashCommand {
 		command.then((result) => {
 			console.log(`end /poap ${ctx.user.username}#${ctx.user.discriminator}`);
 			if (result === 'POAP_SENT') {
-				return ctx.send('POAPS sent. Expect delivery shortly.');
+				return ctx.send('POAPS sent! Expect delivery shortly.');
 			} else if (result === 'POAP_END') {
 				return ctx.send('POAP event ended. POAPs will be delivered at a later time.');
 			}

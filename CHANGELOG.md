@@ -8,6 +8,7 @@
    - wrap events call to bankelss DAO server
    - misc text message updates
 3. Setup Major Motoko Kusanagi bot
+4. Fix MessageCreate event
 
 ## 1.6.0-RELEASE (2021-10-01)
 

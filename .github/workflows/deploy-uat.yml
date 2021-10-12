@@ -45,7 +45,7 @@ jobs:
             nvm install 16.10.0
             nvm use 16.10.0
             rm -r -f discord-bots/
-            git clone --branch feature/set-up-pre-release https://github.com/BanklessDAO/discord-bots.git
+            git clone --branch pre-release https://github.com/BanklessDAO/discord-bots.git
             cd discord-bots
             npm -g install yarn
             npm -g install pm2

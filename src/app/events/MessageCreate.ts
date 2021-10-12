@@ -11,7 +11,7 @@ export default class implements DiscordEvent {
 
 	async execute(message: Message): Promise<any> {
 		try {
-			if(message.author.bot || (message.webhookId === null && !(message.channel.type === 'DM'))) return;
+			if(message.author.bot) return;
 			
 			if (ServiceUtils.isBanklessDAO(message.guild)) {
 				// DEGEN says hello

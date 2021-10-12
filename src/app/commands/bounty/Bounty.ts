@@ -1,5 +1,4 @@
 import {
-	ApplicationCommandPermissionType,
 	CommandContext,
 	CommandOptionType,
 	SlashCommand,
@@ -8,7 +7,6 @@ import {
 import ValidationError from '../../errors/ValidationError';
 import DeleteBounty from '../../service/bounty/DeleteBounty';
 import ServiceUtils from '../../utils/ServiceUtils';
-import roleIds from '../../service/constants/roleIds';
 import { BountyCreateNew } from '../../types/bounty/BountyCreateNew';
 import ListBounty from '../../service/bounty/ListBounty';
 import CreateNewBounty from '../../service/bounty/create/CreateNewBounty';
@@ -167,73 +165,7 @@ export default class Bounty extends SlashCommand {
 				usages: 2,
 				duration: 1,
 			},
-			defaultPermission: false,
-			permissions: {
-				[discordServerIds.banklessDAO]: [
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level1,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level2,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level3,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level4,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.admin,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.genesisSquad,
-						permission: true,
-					},
-				],
-				[discordServerIds.discordBotGarage]: [
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level1,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level2,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level3,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.level4,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.admin,
-						permission: true,
-					},
-					{
-						type: ApplicationCommandPermissionType.ROLE,
-						id: roleIds.genesisSquad,
-						permission: true,
-					},
-				],
-			},
+			defaultPermission: true,
 		});
 	}
 

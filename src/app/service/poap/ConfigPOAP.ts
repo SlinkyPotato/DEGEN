@@ -36,8 +36,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 			text: '@Bankless DAO 🏴',
 		},
 	};
-	const isApproval: boolean = await askForGrantOrRemoval(guildMember, authorizedRoles, authorizedUsers, intro);
-	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
+	const isApproval: boolean = await askForGrantOrRemoval(ctx, guildMember, authorizedRoles, authorizedUsers, intro);
 	const dbInstance: Db = await dbUtils.dbConnect(constants.DB_NAME_DEGEN);
 	let confirmationMsg: MessageEmbedOptions;
 	if (isApproval) {
@@ -59,7 +58,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 };
 
 export const askForGrantOrRemoval = async (
-	guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[], intro?: MessageEmbedOptions,
+	ctx: CommandContext, guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[], intro?: MessageEmbedOptions,
 ): Promise<boolean> => {
 	const fields = [];
 	for (const role of authorizedRoles) {
@@ -87,6 +86,7 @@ export const askForGrantOrRemoval = async (
 	};
 	
 	const message: Message = await guildMember.send({ embeds: [intro, whichRolesAreAllowedQuestion] });
+	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`).catch(console.error);
 	await message.react('👍');
 	await message.react('❌');
 	await message.react('📝');

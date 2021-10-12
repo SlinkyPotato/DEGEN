@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.7.0-SNAPSHOT
+## 1.7.0-RELEASE (2021-10-11)
 
 1. Add scoap-squad feature for BanklessDAO
 2. Add /poap schedule command
@@ -8,6 +8,9 @@
    - wrap events call to bankelss DAO server
    - misc text message updates
 3. Setup Major Motoko Kusanagi bot
+4. Fix MessageCreate event
+5. Open bounties to all (except creating new bounties)
+6. Remove voice permissions
 
 ## 1.6.0-RELEASE (2021-10-01)
 

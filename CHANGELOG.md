@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.2-RELEASE (2021-10-12)
+
+1. Update deployment actions for pre-release and DEGEN
+
 ## 1.7.1-RELEASE (2021-10-12)
 
 1. Update slash-create dependency 

@@ -1,13 +1,13 @@
-name: Deploy to Production Environment
+name: Deploy to UAT Environment
 on:
   push:
     branches:
-      - 'DEGEN'
+      - 'pre-release'
 jobs:
   build-test-deploy:
     environment:
-      name: production
-      url: https://app.logdna.com/273e532689/logs/view/4f421c1c11?q=app%3DDEGEN
+      name: uat
+      url: https://app.logdna.com/273e532689/logs/view/4f421c1c11?q=app%3Duat-bot
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -25,14 +25,14 @@ jobs:
       - name: Deploy to Host environment
         uses: appleboy/ssh-action@v0.1.4
         env:
-          DISCORD_BOT_TOKEN: ${{secrets.PROD_DISCORD_TOKEN}}
-          DISCORD_BOT_PUBLIC_KEY: ${{secrets.PROD_BOT_PUBLIC_KEY}}
-          DISCORD_BOT_APPLICATION_ID: ${{secrets.PROD_BOT_APPLICATION_ID}}
-          DISCORD_OWNER_ID: ${{secrets.PROD_DISCORD_OWNER_ID}}
-          MONGODB_USERNAME: ${{secrets.PROD_MONGODB_USERNAME}}
-          MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}
-          MONGODB_CLUSTER: ${{secrets.PROD_MONGODB_CLUSTER}}
-          NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
+          DISCORD_BOT_TOKEN: ${{secrets.PRE_DISCORD_TOKEN}}
+          DISCORD_BOT_PUBLIC_KEY: ${{secrets.PRE_BOT_PUBLIC_KEY}}
+          DISCORD_BOT_APPLICATION_ID: ${{secrets.PRE_BOT_APPLICATION_ID}}
+          DISCORD_OWNER_ID: ${{secrets.QA_DISCORD_OWNER_ID}}
+          MONGODB_USERNAME: ${{secrets.QA_MONGODB_USERNAME}}
+          MONGODB_PASS: ${{secrets.QA_MONGODB_PASS}}
+          MONGODB_CLUSTER: ${{secrets.QA_MONGODB_CLUSTER}}
+          NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
         with:
           host: ${{ secrets.PROD_DO_HOST }}
           username: ${{ secrets.PROD_DO_USERNAME }}
@@ -45,11 +45,11 @@ jobs:
             nvm install 16.10.0
             nvm use 16.10.0
             rm -r -f discord-bots/
-            git clone https://github.com/BanklessDAO/discord-bots.git
+            git clone --branch pre-release https://github.com/BanklessDAO/discord-bots.git
             cd discord-bots
             npm -g install yarn
             npm -g install pm2
-            pm2 stop DEGEN
+            pm2 stop uat-bot
             yarn install
             yarn build
             DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
@@ -60,4 +60,4 @@ jobs:
             MONGODB_PASS=$MONGODB_PASS \
             MONGODB_CLUSTER=$MONGODB_CLUSTER \
             NOTION_TOKEN=$NOTION_TOKEN \
-            pm2 start pm2.config.js --only DEGEN
+            pm2 start pm2.config.js --only uat-bot

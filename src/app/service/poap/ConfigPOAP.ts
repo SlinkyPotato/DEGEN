@@ -12,10 +12,12 @@ import { Db } from 'mongodb';
 import constants from '../constants/constants';
 import { POAPAdmin } from '../../types/poap/POAPAdmin';
 import dbUtils from '../../utils/dbUtils';
+import ServiceUtils from '../../utils/ServiceUtils';
+import { CommandContext } from 'slash-create';
 
-export default async (guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
-	if (guildMember.guild.ownerId != guildMember.id) {
-		throw new ValidationError('Sorry, only the discord owner can configure poap distribution.');
+export default async (ctx: CommandContext, guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
+	if (!ServiceUtils.isDiscordAdmin(guildMember)) {
+		throw new ValidationError('Sorry, only discord admins can configure poap settings.');
 	}
 	const authorizedRoles: Role[] = await retrieveRoles(guildMember, roles);
 	const authorizedUsers: GuildMember[] = await retrieveUsers(guildMember, users);
@@ -34,7 +36,7 @@ export default async (guildMember: GuildMember, roles?: string[], users?: string
 			text: '@Bankless DAO 🏴',
 		},
 	};
-	const isApproval: boolean = await askForGrantOrRemoval(guildMember, authorizedRoles, authorizedUsers, intro);
+	const isApproval: boolean = await askForGrantOrRemoval(ctx, guildMember, authorizedRoles, authorizedUsers, intro);
 	const dbInstance: Db = await dbUtils.dbConnect(constants.DB_NAME_DEGEN);
 	let confirmationMsg: MessageEmbedOptions;
 	if (isApproval) {
@@ -56,7 +58,7 @@ export default async (guildMember: GuildMember, roles?: string[], users?: string
 };
 
 export const askForGrantOrRemoval = async (
-	guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[], intro?: MessageEmbedOptions,
+	ctx: CommandContext, guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[], intro?: MessageEmbedOptions,
 ): Promise<boolean> => {
 	const fields = [];
 	for (const role of authorizedRoles) {
@@ -84,6 +86,7 @@ export const askForGrantOrRemoval = async (
 	};
 	
 	const message: Message = await guildMember.send({ embeds: [intro, whichRolesAreAllowedQuestion] });
+	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`).catch(console.error);
 	await message.react('👍');
 	await message.react('❌');
 	await message.react('📝');

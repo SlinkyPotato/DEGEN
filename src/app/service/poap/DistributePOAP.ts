@@ -5,11 +5,13 @@ import ValidationError from '../../errors/ValidationError';
 import { Db } from 'mongodb';
 import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
+import { CommandContext } from 'slash-create';
 
-export default async (guildMember: GuildMember): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	await POAPUtils.validateUserAccess(guildMember, db);
 	const participantsList: POAPFileParticipant[] = await askForParticipantsList(guildMember);
+	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
 	await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, linksMessageAttachment);
 };

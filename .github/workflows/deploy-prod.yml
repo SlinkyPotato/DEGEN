@@ -22,43 +22,19 @@ jobs:
         run: yarn build
       - name: Run test cases
         run: yarn test --watchAll=false
-      - name: Deploy to Host environment
-        uses: appleboy/ssh-action@v0.1.4
-        env:
-          DISCORD_BOT_TOKEN: ${{secrets.PROD_DISCORD_TOKEN}}
-          DISCORD_BOT_PUBLIC_KEY: ${{secrets.PROD_BOT_PUBLIC_KEY}}
-          DISCORD_BOT_APPLICATION_ID: ${{secrets.PROD_BOT_APPLICATION_ID}}
-          DISCORD_OWNER_ID: ${{secrets.PROD_DISCORD_OWNER_ID}}
-          MONGODB_USERNAME: ${{secrets.PROD_MONGODB_USERNAME}}
-          MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}
-          MONGODB_CLUSTER: ${{secrets.PROD_MONGODB_CLUSTER}}
-          NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
+      - name: Deploy to Heroku Shared Test Environment
+        uses: AkhileshNS/heroku-deploy@v3.12.12
         with:
-          host: ${{ secrets.PROD_DO_HOST }}
-          username: ${{ secrets.PROD_DO_USERNAME }}
-          key: ${{ secrets.PROD_SSH_KEY }}
-          script_stop: true
-          envs: DISCORD_BOT_TOKEN,DISCORD_BOT_PUBLIC_KEY,DISCORD_BOT_APPLICATION_ID,DISCORD_OWNER_ID,MONGODB_USERNAME,MONGODB_PASS,MONGODB_CLUSTER,NOTION_TOKEN
-          script: |
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm install 16.10.0
-            nvm use 16.10.0
-            rm -r -f discord-bots/
-            git clone https://github.com/BanklessDAO/discord-bots.git
-            cd discord-bots
-            npm -g install yarn
-            npm -g install pm2
-            pm2 stop DEGEN
-            yarn install
-            yarn build
-            DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
-            DISCORD_BOT_PUBLIC_KEY=$DISCORD_BOT_PUBLIC_KEY \
-            DISCORD_BOT_APPLICATION_ID=$DISCORD_BOT_APPLICATION_ID \
-            DISCORD_OWNER_ID=$DISCORD_OWNER_ID \
-            MONGODB_USERNAME=$MONGODB_USERNAME \
-            MONGODB_PASS=$MONGODB_PASS \
-            MONGODB_CLUSTER=$MONGODB_CLUSTER \
-            NOTION_TOKEN=$NOTION_TOKEN \
-            pm2 start pm2.config.js --only DEGEN
-            pm2 save
+          heroku_api_key: ${{secrets.PROD_HEROKU_API_KEY}}
+          heroku_app_name: 'bankless-dao-degen-bot'
+          heroku_email: 'bankless@nonsensecodes.io'
+          procfile: 'worker: yarn prod'
+        env:
+          HD_DISCORD_BOT_TOKEN: ${{secrets.PROD_DISCORD_TOKEN}}
+          HD_DISCORD_BOT_PUBLIC_KEY: ${{secrets.PROD_BOT_PUBLIC_KEY}}
+          HD_DISCORD_BOT_APPLICATION_ID: ${{secrets.PROD_BOT_APPLICATION_ID}}
+          HD_DISCORD_OWNER_ID: ${{secrets.PROD_DISCORD_OWNER_ID}}
+          HD_MONGODB_USERNAME: ${{secrets.PROD_MONGODB_USERNAME}}
+          HD_MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}
+          HD_MONGODB_CLUSTER: ${{secrets.PROD_MONGODB_CLUSTER}}
+          HD_NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}

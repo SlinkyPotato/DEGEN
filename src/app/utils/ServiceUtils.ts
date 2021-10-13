@@ -120,18 +120,10 @@ const ServiceUtils = {
 	},
 	
 	isBanklessDAO(guild: Guild): boolean {
-		if ('id' in guild) {
-			return guild.id == discordServerIds.banklessDAO || guild.id == discordServerIds.discordBotGarage;
-		} else {
+		if (guild == null || guild.id == null) {
 			return false;
 		}
-
-		// try {
-		// 	return guild.id == discordServerIds.banklessDAO || guild.id == discordServerIds.discordBotGarage;
-		// } catch {
-		// 	return false;
-		// }
-		
+		return guild.id == discordServerIds.banklessDAO || guild.id == discordServerIds.discordBotGarage;
 	},
 
 	/**

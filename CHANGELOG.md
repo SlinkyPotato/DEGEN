@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.7.2-RELEASE (2021-10-12)
+
+1. Update deployment actions for pre-release and DEGEN
+2. Update yarn lockfile
+
+## 1.7.1-RELEASE (2021-10-12)
+
+1. Update slash-create dependency 
+
 ## 1.7.0-RELEASE (2021-10-11)
 
 1. Add scoap-squad feature for BanklessDAO

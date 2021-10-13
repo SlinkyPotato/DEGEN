@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.0-SNAPSHOT
+
+1. Fix scoap-squad and update start season 2
+
 ## 1.7.2-RELEASE (2021-10-12)
 
 1. Update deployment actions for pre-release and DEGEN

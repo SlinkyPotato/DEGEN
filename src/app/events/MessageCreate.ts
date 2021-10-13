@@ -23,7 +23,7 @@ export default class implements DiscordEvent {
 					console.error('ERROR: ', e);
 				});
 			}
-			if (ServiceUtils.isBanklessDAO(message.guild) || message.channel.type === 'DM') {
+			if (message.channel.type === 'DM') {
 				// Run scoap squad DM flow
 				await messageSetScoapRoles(message).catch(e => {
 					console.error('ERROR: ', e);

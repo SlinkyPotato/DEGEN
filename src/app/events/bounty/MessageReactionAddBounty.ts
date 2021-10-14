@@ -9,6 +9,7 @@ import BountyUtils from '../../utils/BountyUtils';
 import RefreshBounty from '../../service/bounty/RefreshBounty';
 import UpdateEditKeyBounty from '../../service/bounty/UpdateEditKeyBounty';
 import ReCreateBounty from '../../service/bounty/ReCreateBounty';
+import Log from '../../utils/Log';
 
 export default async (reaction: MessageReaction, user: User): Promise<any> | null => {
 	if (reaction.message.channel.id !== channelIds.bountyBoard) {
@@ -25,7 +26,7 @@ export default async (reaction: MessageReaction, user: User): Promise<any> | nul
 	const guildMember: GuildMember = await reaction.message.guild.members.fetch(user);
 	
 	if (message.webhookId !== null) {
-		console.log('message created by webhook');
+		Log.log('message created by webhook');
 		await message.delete();
 		message = await ReCreateBounty(guildMember, bountyId).catch(console.error) as Message;
 	}

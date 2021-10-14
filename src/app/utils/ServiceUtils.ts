@@ -2,7 +2,8 @@
  * Utilities for service layer
  */
 import {
-	Collection,
+	AwaitMessagesOptions,
+	Collection, DMChannel,
 	Guild,
 	GuildMember,
 	Permissions,
@@ -23,6 +24,7 @@ import { Allowlist } from '../types/discord/Allowlist';
 import dbInstance from '../utils/dbUtils';
 import { Confusables } from './Confusables';
 import discordServerIds from '../service/constants/discordServerIds';
+import Log from './Log';
 
 const nonStandardCharsRegex = /[^\w\s\p{P}\p{S}Ξ]/gu;
 const emojiRegex = /\p{So}/gu;
@@ -144,12 +146,12 @@ const ServiceUtils = {
 		}
 
 		if (!member.bannable) {
-			console.log(`Skipping username spam filter because ${member.user.tag} is not bannable.`);
+			Log.log(`Skipping username spam filter because ${member.user.tag} is not bannable.`);
 			return false;
 		}
 
 		if (await ServiceUtils.onAllowlist(member)) {
-			console.log(`Skipping username spam filter because ${member.user.tag} is on the allowlist.`);
+			Log.log(`Skipping username spam filter because ${member.user.tag} is on the allowlist.`);
 			return false;
 		}
 
@@ -183,15 +185,15 @@ const ServiceUtils = {
 			await member.send(`You were auto-banned from the ${member.guild.name} server. If you believe this was a mistake, please contact <@${aboveAverageJoe.id}> or <@${frogmonkee.id}>.`)
 				.catch(e => {
 					// Users that have blocked the bot or disabled DMs cannot receive a DM from the bot
-					console.log(`Unable to message user before auto-banning them. ${debugMessage} ${e}`);
+					Log.log(`Unable to message user before auto-banning them. ${debugMessage} ${e}`);
 				});
 
 			await member.ban({ reason: `Auto-banned by username spam filter. ${debugMessage}` })
 				.then(() => {
-					console.log(`Auto-banned user. ${debugMessage}`);
+					Log.log(`Auto-banned user. ${debugMessage}`);
 				})
 				.catch(e => {
-					console.log(`Unable to auto-ban user. ${debugMessage} ${e}`);
+					Log.log(`Unable to auto-ban user. ${debugMessage} ${e}`);
 				});
 			
 			return true;
@@ -241,6 +243,20 @@ const ServiceUtils = {
 			.filter(guildChannel =>
 				(guildChannel.type === 'GUILD_VOICE'
 					|| guildChannel.type === 'GUILD_STAGE_VOICE')) as Collection<string, VoiceChannel | StageChannel>;
+	},
+
+	/**
+	 * Returns the first message in DM channel from the user
+	 * @param dmChannel direct message channel
+	 * @param waitInMilli number of milliseconds the bot should wait for a reply
+	 */
+	async getFirstUserReply(dmChannel: DMChannel, waitInMilli?: number): Promise<any> {
+		waitInMilli = (waitInMilli == null) ? 600000 : waitInMilli;
+		return (await dmChannel.awaitMessages({
+			max: 1,
+			time: waitInMilli,
+			errors: ['time'],
+		})).first().content;
 	},
 };
 

@@ -10,6 +10,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import CreateNewScoapPoll from '../../service/scoap-squad/CreateNewScoapPoll';
 import ValidationError from '../../errors/ValidationError';
 import discordServerIds from '../../service/constants/discordServerIds';
+import Log, { LogUtils } from '../../utils/Log';
 
 module.exports = class ScoapSquad extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -101,13 +102,12 @@ module.exports = class ScoapSquad extends SlashCommand {
 	}
 
 	async run(ctx: CommandContext) {
+		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;
-		console.log(`/scoap-squad start ${ctx.user.username}#${ctx.user.discriminator}`);
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		let command: Promise<any>;
 		switch (ctx.subcommands[0]) {
 		case 'assemble':
-			console.log('/scoap-squad assemble');
 			command = CreateNewScoapPoll(guildMember, ctx);
 			break;
 		default:
@@ -118,11 +118,9 @@ module.exports = class ScoapSquad extends SlashCommand {
 	}
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
-		command.then(() => {
-			console.log(`/scoap-squad end ${ctx.user.username}#${ctx.user.discriminator}`);
-		}).catch(e => {
+		command.catch(e => {
 			if (!(e instanceof ValidationError)) {
-				console.error('ERROR', e);
+				LogUtils.logError('failed to handle scoap-squad command', e);
 				return ctx.send('Sorry something is not working and our devs are looking into it');
 			}
 		});

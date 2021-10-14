@@ -33,12 +33,13 @@ jobs:
           MONGODB_PASS: ${{secrets.QA_MONGODB_PASS}}
           MONGODB_CLUSTER: ${{secrets.QA_MONGODB_CLUSTER}}
           NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
+          LOGDNA_TOKEN: ${{secrets.QA_LOGDNA_TOKEN}}
         with:
           host: ${{ secrets.PROD_DO_HOST }}
           username: ${{ secrets.PROD_DO_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script_stop: true
-          envs: DISCORD_BOT_TOKEN,DISCORD_BOT_PUBLIC_KEY,DISCORD_BOT_APPLICATION_ID,DISCORD_OWNER_ID,MONGODB_USERNAME,MONGODB_PASS,MONGODB_CLUSTER,NOTION_TOKEN
+          envs: DISCORD_BOT_TOKEN,DISCORD_BOT_PUBLIC_KEY,DISCORD_BOT_APPLICATION_ID,DISCORD_OWNER_ID,MONGODB_USERNAME,MONGODB_PASS,MONGODB_CLUSTER,NOTION_TOKEN,LOGDNA_TOKEN
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -60,5 +61,6 @@ jobs:
             MONGODB_PASS=$MONGODB_PASS \
             MONGODB_CLUSTER=$MONGODB_CLUSTER \
             NOTION_TOKEN=$NOTION_TOKEN \
+            LOGDNA_TOKEN=$LOGDNA_TOKEN \
             pm2 start pm2.config.js --only uat-bot
             pm2 save

@@ -2,6 +2,7 @@ import { SlashCommand, CommandOptionType, CommandContext, SlashCreator } from 's
 import client from '../../app';
 import RetrieveFAQs from '../../service/notion/RetrieveFAQs';
 import discordServerIds from '../../service/constants/discordServerIds';
+import Log, { LogUtils } from '../../utils/Log';
 const trimPageId = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageId}`;
 
@@ -26,9 +27,9 @@ export default class NotionFAQs extends SlashCommand {
 	}
 
 	async run(ctx: CommandContext): Promise<any> {
+		LogUtils.logCommandStart(ctx);
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
-		console.log('/faqs start');
 
 		try {
 			const guild = await client.guilds.fetch(ctx.guildID);
@@ -100,7 +101,7 @@ export default class NotionFAQs extends SlashCommand {
 				return ctx.send(replyStr.substring(0, 1950));
 			}
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('error occurred with notion FAQs', e);
 		}
 	}
 }

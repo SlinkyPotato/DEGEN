@@ -38,3 +38,4 @@ jobs:
           HD_MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}
           HD_MONGODB_CLUSTER: ${{secrets.PROD_MONGODB_CLUSTER}}
           HD_NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
+          HD_LOGDNA_TOKEN: ${{secrets.PROD_LOGDNA_TOKEN}}

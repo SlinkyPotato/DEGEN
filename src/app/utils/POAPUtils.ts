@@ -1,10 +1,13 @@
 import { GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
-import { Collection, Collection as MongoCollection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
+import { Collection, Collection as MongoCollection, Cursor, Db, Logger, UpdateWriteOpResult } from 'mongodb';
 import constants from '../service/constants/constants';
 import { POAPParticipant } from '../types/poap/POAPParticipant';
 import axios from 'axios';
 import ValidationError from '../errors/ValidationError';
 import { POAPAdmin } from '../types/poap/POAPAdmin';
+import { LogUtils } from './Log';
+import dayjs, { Dayjs } from 'dayjs';
+import DateUtils from './DateUtils';
 
 export type POAPFileParticipant = {
 	id: string,
@@ -143,6 +146,24 @@ const POAPUtils = {
 			}
 		}
 		throw new ValidationError('Only authorized users can use this command. Please reach out to an admin for configuration help.');
+	},
+	
+	getDateString(date: Dayjs): string {
+		return date.format('MM-DD-YYYY');
+	},
+	
+	getExpiryDate(date: string): string {
+		try {
+			const dateObject: Dayjs = DateUtils.getDate(date);
+			return dateObject.add(1, 'month').format('MM-DD-YYYY');
+		} catch (e) {
+			LogUtils.logError('failed to parse expiry date', e);
+			throw new Error('processing failed');
+		}
+	},
+	
+	getEventYear(startDateObj: Dayjs): string {
+		return startDateObj.year().toString();
 	},
 };
 

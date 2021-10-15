@@ -29,5 +29,6 @@ export default class implements DiscordEvent {
 		} catch (e) {
 			LogUtils.logError('Error processing event ready', e);
 		}
+		Log.info('DEGEN is ready!');
 	}
 }

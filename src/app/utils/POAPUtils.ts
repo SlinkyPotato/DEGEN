@@ -53,7 +53,7 @@ const POAPUtils = {
 			}
 			let durationInMinutes: number = (endTime - (new Date(participant.startTime)).getTime());
 			durationInMinutes = (durationInMinutes <= 0) ? 0 : durationInMinutes / (1000 * 60);
-			if (durationInMinutes >= 5) {
+			if (durationInMinutes >= constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
 				participants.push({
 					id: participant.discordUserId,
 					tag: participant.discordUserTag,

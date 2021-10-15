@@ -36,7 +36,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 		indexMeta: true,
 		meta: {
 			discordId: poapSettingsDoc.discordServerId,
-			voiceChannelName: poapSettingsDoc.voiceChannelName,
+			voiceChannelId: poapSettingsDoc.voiceChannelId,
 			event: poapSettingsDoc.event,
 		},
 	});

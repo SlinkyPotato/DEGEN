@@ -20,8 +20,8 @@ const creator = new SlashCreator({
 creator.on('debug', (message) => Log.debug(`debug: ${ message }`));
 creator.on('warn', (message) => Log.warn(`warn: ${ message }`));
 creator.on('error', (error: Error) => Log.error(`error: ${ error }`));
-creator.on('synced', () => Log.info('Commands synced!'));
-creator.on('commandRegister', (command: SlashCommand) => Log.info(`Registered command ${command.commandName}`));
+creator.on('synced', () => Log.debug('Commands synced!'));
+creator.on('commandRegister', (command: SlashCommand) => Log.debug(`Registered command ${command.commandName}`));
 creator.on('commandError', (command: SlashCommand, error: Error) => Log.error(`Command ${command.commandName}:`, {
 	indexMeta: true,
 	meta: {

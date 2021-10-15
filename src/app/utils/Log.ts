@@ -83,7 +83,7 @@ class Log {
 
 export const LogUtils = {
 	logCommandStart(ctx: CommandContext): void {
-		Log.info(`/${ctx.commandName} start ${ctx.user.username}#${ctx.user.discriminator}`, {
+		Log.info(`/${ctx.commandName} ran ${ctx.user.username}#${ctx.user.discriminator}`, {
 			indexMeta: true,
 			meta: {
 				guildId: ctx.guildID,
@@ -95,7 +95,7 @@ export const LogUtils = {
 	},
 	
 	logCommandEnd(ctx: CommandContext): void {
-		Log.info(`/${ctx.commandName} end ${ctx.user.username}#${ctx.user.discriminator}`, {
+		Log.info(`/${ctx.commandName} ended ${ctx.user.username}#${ctx.user.discriminator}`, {
 			indexMeta: true,
 			meta: {
 				guildId: ctx.guildID,

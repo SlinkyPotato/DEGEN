@@ -106,7 +106,7 @@ export default async (client: DiscordClient): Promise<void> => {
 		}, expiresInMilli);
 
 	}
-	Log.info('Guest pass service ready!');
+	Log.debug('Guest pass service ready!');
 };
 
 /**

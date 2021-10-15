@@ -99,7 +99,13 @@ export const clearPOAPParticipants = async (db: Db, guildChannel: GuildChannel):
 		voiceChannelId: guildChannel.id,
 		discordServerId: guildChannel.guild.id,
 	});
-	Log.info('removed all previous participants.');
+	Log.info('removed all previous participants.', {
+		indexMeta: true,
+		meta: {
+			guildId: guildChannel.guild.id,
+			channelId: guildChannel.id,
+		},
+	});
 };
 
 export const storePresentMembers = async (guild: Guild, db: Db, channel: GuildChannel): Promise<any> => {

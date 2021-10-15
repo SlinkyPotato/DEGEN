@@ -76,7 +76,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
 		await guildMember.send({ content: 'Ok! Please upload the POAP links.txt file.' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
-		await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile);
+		await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile, poapSettingsDoc.event);
 		await guildMember.send({ content: 'POAP links sent out to participants!' });
 		return 'POAP_SENT';
 	} else {

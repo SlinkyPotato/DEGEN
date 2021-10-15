@@ -93,6 +93,14 @@ module.exports = class poap extends SlashCommand {
 					name: 'distribute',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'Distribute links to participants.',
+					options: [
+						{
+							name: 'event',
+							type: CommandOptionType.STRING,
+							description: 'The event name for the distribution',
+							required: false,
+						},
+					],
 				},
 			],
 			throttling: {
@@ -129,7 +137,7 @@ module.exports = class poap extends SlashCommand {
 				command = EndPOAP(ctx, guildMember);
 				break;
 			case 'distribute':
-				command = DistributePOAP(ctx, guildMember);
+				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event']);
 				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);

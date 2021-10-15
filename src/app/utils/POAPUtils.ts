@@ -64,8 +64,10 @@ const POAPUtils = {
 		return participants;
 	},
 
-	async sendOutPOAPLinks(guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], attachment: MessageAttachment): Promise<any> {
+	async sendOutPOAPLinks(guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], attachment: MessageAttachment, event?: string): Promise<any> {
 		let listOfPOAPLinks;
+		const guildName = guildMember.guild.name;
+		event = (event == null) ? 'event' : event;
 		try {
 			const response = await axios.get(attachment.url);
 			listOfPOAPLinks = response.data.split('\n');
@@ -77,14 +79,14 @@ const POAPUtils = {
 			try {
 				await guildMember.guild.members.fetch(listOfParticipants[i].id)
 					.then(async (participantMember: GuildMember) => {
-						await participantMember.send({ content: `Thank you for participating in the event! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
+						await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
 							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`, e);
 						});
 					}).catch(async (e) => {
 						LogUtils.logError(`failed trying to find: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, to give link ${listOfPOAPLinks[i]}`, e);
 						const tryAgainMember: GuildMember = await guildMember.guild.members.fetch(listOfParticipants[i].id);
 						Log.debug(`trying to send another message to user ${listOfParticipants[i].tag}`);
-						await tryAgainMember.send({ content: `Thank you for participating in the event! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e2) => {
+						await tryAgainMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e2) => {
 							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`, e2);
 						});
 					});

@@ -8,13 +8,15 @@ import constants from '../constants/constants';
 import { CommandContext } from 'slash-create';
 import { LogUtils } from '../../utils/Log';
 
-export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember, event?: string): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	await POAPUtils.validateUserAccess(guildMember, db);
+	await POAPUtils.validateEvent(guildMember, event);
+	
 	const participantsList: POAPFileParticipant[] = await askForParticipantsList(guildMember);
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
-	await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, linksMessageAttachment);
+	await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, linksMessageAttachment, event);
 };
 
 export const askForParticipantsList = async (guildMember: GuildMember): Promise<POAPFileParticipant[]> => {

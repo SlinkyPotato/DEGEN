@@ -8,7 +8,9 @@
    - fix `/poap schedule` command
    - misc enhancements
    - configure poap time to env variable
+   - set min poap participate time to 10 mins
    - display guild name and event for poap distribution message
+   - send message on instructions for POAP approval
 
 ## 1.7.2-RELEASE (2021-10-12)
 

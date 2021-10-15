@@ -22,6 +22,9 @@ export default class implements DiscordEvent {
 				await messageCreateOnBountyBoard(message).catch(e => {
 					console.error('ERROR: ', e);
 				});
+			}
+			if (message.channel.type === 'DM') {
+				// Run scoap squad DM flow
 				await messageSetScoapRoles(message).catch(e => {
 					console.error('ERROR: ', e);
 				});

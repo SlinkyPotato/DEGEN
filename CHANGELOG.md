@@ -4,6 +4,9 @@
 
 1. Fix scoap-squad and update start season 2
 2. Integrate with logDNA sdk, turn off native console.log
+   - fix CODE_OWNERS file
+   - fix `/poap schedule` command
+   - misc enhancements
 
 ## 1.7.2-RELEASE (2021-10-12)
 

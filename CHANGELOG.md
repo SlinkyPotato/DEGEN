@@ -7,7 +7,7 @@
    - fix CODE_OWNERS file
    - fix `/poap schedule` command
    - misc enhancements
-   - increase POAP participation time
+   - configure poap time to env variable
    - display guild name and event for poap distribution message
 
 ## 1.7.2-RELEASE (2021-10-12)

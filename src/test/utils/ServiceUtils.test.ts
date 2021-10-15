@@ -5,6 +5,7 @@ import roleIDs from '../../app/service/constants/roleIds';
 import ServiceUtils from '../../app/utils/ServiceUtils';
 import Log from '../../app/utils/Log';
 
+jest.mock('../../app/utils/Log');
 jest.mock('../../app/app', () => {
 	return {
 		client: jest.fn(),

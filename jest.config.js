@@ -4,20 +4,20 @@
  */
 
 module.exports = {
-    preset: '@shelf/jest-mongodb',
-    clearMocks: true,
-    collectCoverage: true,
-    coverageDirectory: 'coverage',
-    coverageProvider: 'v8',
-    transform: {
-        '^.+\\.(ts|tsx)$': 'ts-jest',
-    },
-    roots: ['<rootDir>/src'],
-    testMatch: [
-        '**/__tests__/**/*.+(ts|tsx|js)',
-        '**/?(*.)+(spec|test).+(ts|tsx|js)',
-    ],
-	watchPathIgnorePatterns: ['globalConfig']
+	preset: '@shelf/jest-mongodb',
+	clearMocks: true,
+	collectCoverage: true,
+	coverageDirectory: 'coverage',
+	coverageProvider: 'v8',
+	transform: {
+		'^.+\\.(ts|tsx)$': 'ts-jest',
+	},
+	roots: ['<rootDir>/src'],
+	testMatch: [
+		'**/__tests__/**/*.+(ts|tsx|js)',
+		'**/?(*.)+(spec|test).+(ts|tsx|js)',
+	],
+	watchPathIgnorePatterns: ['globalConfig'],
 };
 
 /*

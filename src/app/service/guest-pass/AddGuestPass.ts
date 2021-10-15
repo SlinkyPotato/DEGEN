@@ -3,6 +3,7 @@ import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { GuildMember } from 'discord.js';
+import Log, { LogUtils } from '../../utils/Log';
 
 export const expiresInHours = 168;
 
@@ -10,12 +11,12 @@ export default async (guestUser: GuildMember): Promise<any> => {
 	if (guestUser.user.bot) {
 		return;
 	}
-	console.log(`attempting to add guest role to ${guestUser.user.tag}`);
+	Log.info(`attempting to add guest role to ${guestUser.user.tag}`);
 	await addGuestUserToDb(guestUser);
 	await addGuestRoleToUser(guestUser);
 	notifyUserOfGuestExpiration(guestUser);
 	removeGuestRoleOnExpiration(guestUser);
-	return guestUser.send({ content: `Hi <@${guestUser.user.id}>, You have been granted guest access at Bankless DAO. Let us know if you have any questions!` }).catch(console.error);
+	return guestUser.send({ content: `Hi <@${guestUser.user.id}>, You have been granted guest access at Bankless DAO. Let us know if you have any questions!` }).catch(e => LogUtils.logError('failed to send message to new guest', e));
 };
 
 export const addGuestUserToDb = async (guestUser: GuildMember): Promise<any> => {
@@ -39,16 +40,16 @@ export const addGuestUserToDb = async (guestUser: GuildMember): Promise<any> => 
 		_id: guestUser.id,
 	}, guestDbUser, queryOptions);
 	if (dbUpdateResult == null) {
-		console.error('Failed to insert into DB');
+		Log.error('Failed to insert into DB');
 		return;
 	}
-	console.log(`/guest-pass end user ${guestUser.user.tag} inserted into guestUsers`);
+	Log.info(`/guest-pass end user ${guestUser.user.tag} inserted into guestUsers`);
 };
 
 export const addGuestRoleToUser = async (guestUser: GuildMember): Promise<void> => {
 	const guestRole = ServiceUtils.getGuestRole(guestUser.guild.roles);
 	await guestUser.roles.add(guestRole);
-	console.log(`user ${guestUser.user.tag} given ${guestRole.name} role`);
+	Log.info(`user ${guestUser.user.tag} given ${guestRole.name} role`);
 };
 
 export const notifyUserOfGuestExpiration = (guestUser: GuildMember): void =>{
@@ -73,16 +74,16 @@ export const removeGuestRoleOnExpiration = (guestUser: GuildMember): void => {
 		};
 		const dbDeleteResult = await timeoutDBGuestUsers.findOneAndDelete(guestDBQuery);
 		if (dbDeleteResult == null) {
-			console.error('Failed to remove from DB');
+			Log.info('Failed to remove from DB');
 			return;
 		}
-		console.log(`guest pass removed for ${guestUser.user.tag} in db`);
+		Log.info(`guest pass removed for ${guestUser.user.tag} in db`);
 
 		// Remove guest pass role
 		const guestRole = ServiceUtils.getGuestRole(guestUser.guild.roles);
-		await guestUser.roles.remove(guestRole).catch(console.error);
+		await guestUser.roles.remove(guestRole).catch(e => LogUtils.logError('failed to remove guest role from user', e));
 
-		console.log(`/guest-pass end; guest pass removed for ${guestUser.user.tag} in discord`);
+		Log.info(`/guest-pass end; guest pass removed for ${guestUser.user.tag} in discord`);
 
 		return guestUser.send({ content: `Hi <@${guestUser.id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!` });
 	}, expiresInHours * 1000 * 60 * 60);

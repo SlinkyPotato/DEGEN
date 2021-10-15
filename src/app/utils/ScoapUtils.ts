@@ -1,5 +1,6 @@
 import constants from '../service/constants/constants';
 import { scoapEmbedState, botConvoState, voteRecordState } from '../service/scoap-squad/ScoapDatabase';
+import Log from './Log';
 
 const isInteger = (value: any): boolean => {
 	return /^\d+$/.test(value);
@@ -68,7 +69,7 @@ const ScoapUtils = {
 	},
 
 	logToFile(log_string: string): any {
-		console.debug(log_string);
+		Log.debug(log_string);
 	},
 };
 

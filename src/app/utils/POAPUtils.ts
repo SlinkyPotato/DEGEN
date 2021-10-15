@@ -1,12 +1,12 @@
 import { GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
-import { Collection, Collection as MongoCollection, Cursor, Db, Logger, UpdateWriteOpResult } from 'mongodb';
+import { Collection, Collection as MongoCollection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../service/constants/constants';
 import { POAPParticipant } from '../types/poap/POAPParticipant';
 import axios from 'axios';
 import ValidationError from '../errors/ValidationError';
 import { POAPAdmin } from '../types/poap/POAPAdmin';
-import { LogUtils } from './Log';
-import dayjs, { Dayjs } from 'dayjs';
+import Log, { LogUtils } from './Log';
+import { Dayjs } from 'dayjs';
 import DateUtils from './DateUtils';
 
 export type POAPFileParticipant = {
@@ -25,7 +25,7 @@ const POAPUtils = {
 		});
 
 		if ((await resultCursor.count()) === 0) {
-			console.log(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
+			Log.info(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
 			return [];
 		}
 		
@@ -41,7 +41,7 @@ const POAPUtils = {
 					},
 				});
 			} catch (e) {
-				console.error(e);
+				LogUtils.logError('failed to update poap participants with endTime', e);
 			}
 			if (result == null) {
 				throw new Error('Mongodb operation failed');
@@ -70,7 +70,7 @@ const POAPUtils = {
 			const response = await axios.get(attachment.url);
 			listOfPOAPLinks = response.data.split('\n');
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('failed to process links.txt file', e);
 			return guildMember.send({ content: 'Could not process the links.txt file. Please make sure the file that is uploaded has every URL on a new line.' });
 		}
 		for (let i = 0; i < listOfParticipants.length; i++) {
@@ -78,23 +78,21 @@ const POAPUtils = {
 				await guildMember.guild.members.fetch(listOfParticipants[i].id)
 					.then(async (participantMember: GuildMember) => {
 						await participantMember.send({ content: `Thank you for participating in the event! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
-							console.log(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`);
-							console.error(e);
+							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`, e);
 						});
-					}).catch(async () => {
-						console.log(`failed trying to find: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, to give link ${listOfPOAPLinks[i]}`);
+					}).catch(async (e) => {
+						LogUtils.logError(`failed trying to find: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, to give link ${listOfPOAPLinks[i]}`, e);
 						const tryAgainMember: GuildMember = await guildMember.guild.members.fetch(listOfParticipants[i].id);
-						console.log(`trying to send another message to user ${listOfParticipants[i].tag}`);
-						await tryAgainMember.send({ content: `Thank you for participating in the event! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
-							console.log(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`);
-							console.error(e);
+						Log.debug(`trying to send another message to user ${listOfParticipants[i].tag}`);
+						await tryAgainMember.send({ content: `Thank you for participating in the event! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e2) => {
+							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`, e2);
 						});
 					});
 			} catch (e) {
-				console.log('user might have been banned');
+				LogUtils.logError('user might have been banned', e);
 			}
 		}
-		console.log(`Links sent to ${listOfParticipants.length} participants.`);
+		Log.info(`Links sent to ${listOfParticipants.length} participants.`);
 	},
 
 	async validateEvent(guildMember: GuildMember, event?: string): Promise<any> {

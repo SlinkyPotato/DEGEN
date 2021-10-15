@@ -6,7 +6,7 @@ import { Page } from '@notionhq/client/build/src/api-types';
 import { Db } from 'mongodb';
 import dbInstance from '../../utils/dbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
-import Log from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 
 const sleep = sleepTimer.promisify(setTimeout);
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
@@ -45,7 +45,7 @@ export default async (client: DiscordClient): Promise<void> => {
 		Log.log('expired userid: ' + expiredUserId);
 
 		const guildMember = await guild.members.fetch(expiredUserId);
-		await guildMember.roles.remove(guestRole).catch(console.error);
+		await guildMember.roles.remove(guestRole).catch(e => LogUtils.logError('failed to remove role', e));
 
 		Log.log(`guest pass removed for ${expiredUserId} in discord`);
 
@@ -83,7 +83,7 @@ export default async (client: DiscordClient): Promise<void> => {
 		// Remove user's guest pass
 		setTimeout(async () => {
 			const guildMember = await guild.members.fetch(activeUser._id);
-			await guildMember.roles.remove(guestRole).catch(console.error);
+			await guildMember.roles.remove(guestRole).catch(e => LogUtils.logError('failed to remove role', e));
 
 			Log.log(`guest pass removed for ${activeUser._id} in discord`);
 

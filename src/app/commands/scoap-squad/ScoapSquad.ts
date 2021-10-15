@@ -10,7 +10,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import CreateNewScoapPoll from '../../service/scoap-squad/CreateNewScoapPoll';
 import ValidationError from '../../errors/ValidationError';
 import discordServerIds from '../../service/constants/discordServerIds';
-import Log, { LogUtils } from '../../utils/Log';
+import { LogUtils } from '../../utils/Log';
 
 module.exports = class ScoapSquad extends SlashCommand {
 	constructor(creator: SlashCreator) {

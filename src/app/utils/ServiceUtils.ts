@@ -2,8 +2,8 @@
  * Utilities for service layer
  */
 import {
-	AwaitMessagesOptions,
-	Collection, DMChannel,
+	Collection,
+	DMChannel,
 	Guild,
 	GuildMember,
 	Permissions,
@@ -75,7 +75,6 @@ const ServiceUtils = {
 	},
 
 	isAnyLevel(guildMember: GuildMember): boolean {
-		console.log(guildMember.roles.cache);
 		return ServiceUtils.hasSomeRole(guildMember, [
 			roleIDs.level1,
 			roleIDs.level2,

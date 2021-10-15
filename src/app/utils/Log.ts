@@ -1,6 +1,5 @@
 import logdna, { Logger, LogOptions } from '@logdna/logger';
 import { CommandContext } from 'slash-create';
-import { Guild } from 'discord.js';
 
 class Log {
 	static logger: Logger;

@@ -6,6 +6,7 @@ import { Db } from 'mongodb';
 import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { CommandContext } from 'slash-create';
+import { LogUtils } from '../../utils/Log';
 
 export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
@@ -40,7 +41,7 @@ export const askForParticipantsList = async (guildMember: GuildMember): Promise<
 		participantsList.shift();
 		participantsList.pop();
 	} catch (e) {
-		console.log(e);
+		LogUtils.logError('failed to ask for participants list', e);
 		await guildMember.send({ content: 'Invalid attachment. Please try the command again.' });
 		throw new ValidationError('Please try again.');
 	}

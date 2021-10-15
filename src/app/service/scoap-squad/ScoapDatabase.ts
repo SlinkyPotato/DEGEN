@@ -10,6 +10,7 @@ import constants from '../constants/constants';
 import scoapSquadNotion from '../constants/scoapSquadNotion';
 import { createReactionCollector, collectReactions } from './ScoapPoll';
 import { updateStatusSelectField } from './ScoapNotion';
+import Log from '../../utils/Log';
 
 
 // ScoapSquad state initialization
@@ -95,16 +96,15 @@ export const restoreScoapEmbedAndVoteRecord = async (): Promise<boolean> => {
 				await restoreReactionCollector(scoapEmbed, voteRecord);
 				ScoapUtils.logToFile(`Restored two objects (scoapEMbed & voteRecord) from Mongo, id: ${scoapEmbed.getId()}`);
 			} else {
-				console.log('removing timed out objects from database');
+				Log.debug('removing timed out objects from database');
 				await deleteScoapEmbedAndVoteRecord(scoapEmbed.getId());
-				console.log('removed ', scoapEmbed.getId());
-				console.log('updating notion');
+				Log.debug('removed ' + scoapEmbed.getId() + 'and updating notion');
 				await updateStatusSelectField(scoapEmbed.getNotionPageId(), scoapSquadNotion.SCOAP_SQUAD_NOTION_FIELDS.status.categories.cancelled);
 			}
 		}
 		return true;
 	} else {
-		console.log('No uncompleted poll data in mongodb to restore');
+		Log.debug('No uncompleted poll data in mongodb to restore');
 		return false;
 	}
 };

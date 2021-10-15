@@ -10,6 +10,7 @@ import ServiceUtils from '../../../utils/ServiceUtils';
 import envUrls from '../../constants/envUrls';
 import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
 import ValidationError from '../../../errors/ValidationError';
+import Log, { LogUtils } from '../../../utils/Log';
 
 export default async (guildMember: GuildMember, params: BountyCreateNew): Promise<any> => {
 	const title = params.title;
@@ -57,7 +58,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 			try {
 				convertedDueDateFromMessage = BountyUtils.validateDate(guildMember, dueAtMessage);
 			} catch(e) {
-				console.log(e);
+				Log.warn('user entered invalid date for bounty');
 				await guildMember.send({ content: 'Please try `UTC` date in format `yyyy-mm-dd`, i.e 2021-08-15' });
 			}
 		} else if (dueAtMessage === 'no') {
@@ -77,10 +78,10 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 
 	const dbInsertResult = await dbBounty.insertMany(listOfPrepBounties, { ordered: false });
 	if (dbInsertResult == null) {
-		console.error('failed to insert bounties into DB');
+		Log.error('failed to insert bounties into DB');
 		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
-	console.log(`user ${guildMember.user.tag} inserted into db`);
+	Log.info(`user ${guildMember.user.tag} inserted bounty into db`);
 	const listOfBountyIds = Object.values(dbInsertResult.insertedIds).map(String);
 	const newBounty = listOfPrepBounties[0];
 	const messageOptions: MessageOptions = {
@@ -157,13 +158,13 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, bounty
 	}).then(async collected => {
 		const reaction: MessageReaction = collected.first();
 		if (reaction.emoji.name === '👍') {
-			console.log('/bounty create new | :thumbsup: up given');
+			Log.info('/bounty create new | :thumbsup: up given');
 			for (const bountyId of bountyIds) {
 				await finalizeBounty(guildMember, bountyId);
 			}
 			return;
 		} else if (reaction.emoji.name === '📝') {
-			console.log('/bounty create new | :pencil: given');
+			Log.info('/bounty create new | :pencil: given');
 			if (bountyIds.length > 1) {
 				// TODO: add support to edit multiple bounties in UI
 				await guildMember.send({ content: 'Sorry, edit not available for multiple bounties' });
@@ -178,11 +179,11 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, bounty
 			}
 			return;
 		} else {
-			console.log('/bounty create new | delete given');
+			Log.info('/bounty create new | delete given');
 			for (const bountyId of bountyIds) {
 				await deleteBountyForValidId(guildMember, bountyId);
 			}
 			return;
 		}
-	}).catch(console.error);
+	}).catch(e => LogUtils.logError('failed to handle bounty reaction', e));
 };

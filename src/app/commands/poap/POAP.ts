@@ -7,7 +7,7 @@ import EndPOAP from '../../service/poap/EndPOAP';
 import DistributePOAP from '../../service/poap/DistributePOAP';
 import ConfigPOAP from '../../service/poap/ConfigPOAP';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
-import Log, { LogUtils } from '../../utils/Log';
+import { LogUtils } from '../../utils/Log';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {

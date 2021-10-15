@@ -8,6 +8,7 @@ import { scoapEmbedState, voteRecordState, botConvoState } from './ScoapDatabase
 import ScoapUtils from '../../utils/ScoapUtils';
 import { updateScoapOnNotion, updateStatusSelectField } from './ScoapNotion';
 import { updateScoapEmbedAndVoteRecordDb, deleteScoapEmbedAndVoteRecord } from './ScoapDatabase';
+import Log, { LogUtils } from '../../utils/Log';
 
 
 export default async (channel: TextChannel, scoapEmbed: ScoapEmbed): Promise<any> => {
@@ -93,8 +94,8 @@ export const collectReactions = async (scoapEmbed: ScoapEmbed, voteRecord: VoteR
 					voteRecord.getUserVoteLedger(),
 				);
 				voteRecord.update(vote);
-				console.log('received vote from user: ', user.tag, ' ', reaction.emoji.name);
-				console.log(voteRecord.getUserVoteLedger());
+				Log.debug(`received vote from user: ${user.tag} ${reaction.emoji.name}`);
+				Log.debug(voteRecord.getUserVoteLedger());
 
 
 				if (vote.getType() === 'CHANGEVOTE') {
@@ -176,7 +177,7 @@ export const collectReactions = async (scoapEmbed: ScoapEmbed, voteRecord: VoteR
 			discord_tags: discordTags,
 			summary: roleSummaryString,
 		};
-		console.log('NOTION PAGE ID ', scoapEmbed.getNotionPageId());
+		Log.debug(`NOTION PAGE ID ${scoapEmbed.getNotionPageId()}`);
 		await updateScoapOnNotion(scoapEmbed.getNotionPageId(), notionInputs);
 		delete scoapEmbedState[scoapEmbed.getId()];
 		delete voteRecordState[scoapEmbed.getId()];
@@ -185,7 +186,7 @@ export const collectReactions = async (scoapEmbed: ScoapEmbed, voteRecord: VoteR
 							` botConvoState: ${JSON.stringify(botConvoState)}  \n` +
 							` voteRecordState: ${JSON.stringify(voteRecordState)}`);
 		await deleteScoapEmbedAndVoteRecord(scoapEmbed.getId());
-		console.log('POLL COMPLETE');
+		Log.debug('POLL COMPLETE');
 		await embedMessage.reactions.removeAll();
 		return;
 	});
@@ -198,8 +199,8 @@ export const collectReactions = async (scoapEmbed: ScoapEmbed, voteRecord: VoteR
 		);
 		if (vote.getType() === 'UNVOTE') {
 			voteRecord.update(vote);
-			console.log('removed vote from user: ', user.id, ' ', reaction.emoji.name);
-			console.log(voteRecord.getUserVoteLedger());
+			Log.debug(`removed vote from user: ${user.id} reaction.emoji.name`);
+			Log.debug(voteRecord.getUserVoteLedger());
 			for (const key in voteRecord.getProgressStrings()) {
 				scoapEmbed.updateProgressString(
 					key,
@@ -245,9 +246,8 @@ const handleDeletePoll = async (user, scoapEmbed, embedMessage, collector) => {
 			} else if (delReaction.emoji.name === '❌') {
 				return;
 			}
-		}).catch(_ => {
-			console.log(_);
-			console.log('did not react');
+		}).catch(e => {
+			LogUtils.logError('did not react', e);
 		});
 	}
 	return;
@@ -269,7 +269,7 @@ const removeReaction = async (collected, userId, emoji, choiceValid, scoapEmbed)
 			}
 		}
 	} catch (error) {
-		console.error('Failed to remove reactions.');
+		LogUtils.logError('failed to remove reactions', error);
 	}
 };
 

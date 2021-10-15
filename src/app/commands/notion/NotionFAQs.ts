@@ -2,7 +2,7 @@ import { SlashCommand, CommandOptionType, CommandContext, SlashCreator } from 's
 import client from '../../app';
 import RetrieveFAQs from '../../service/notion/RetrieveFAQs';
 import discordServerIds from '../../service/constants/discordServerIds';
-import Log, { LogUtils } from '../../utils/Log';
+import { LogUtils } from '../../utils/Log';
 const trimPageId = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageId}`;
 

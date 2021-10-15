@@ -5,6 +5,7 @@ import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import envUrls from '../constants/envUrls';
 import { randomUUID } from 'crypto';
+import Log from '../../utils/Log';
 
 export default async (guildMember: GuildMember, bountyId: string, message?: Message): Promise<any> => {
 	const secretEditKey: string = randomUUID();
@@ -16,17 +17,17 @@ export default async (guildMember: GuildMember, bountyId: string, message?: Mess
 	});
 
 	if (bounty === null) {
-		console.log(`bounty ${bountyId} is deleted`);
+		Log.info(`bounty ${bountyId} is deleted`);
 		return message?.delete();
 	}
 	
 	if (!(bounty.status === 'Draft' || bounty.status === 'Open')) {
-		console.log(`${bountyId} bounty not eligible to be edited`);
+		Log.info(`${bountyId} bounty not eligible to be edited`);
 		return guildMember.send({ content: `Sorry bounty is not in draft or open. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
 	}
 	
 	if (guildMember.user.id !== bounty.createdBy.discordId) {
-		console.log(`${guildMember.user.tag} is attempting to edit a bounty they did not create`);
+		Log.info(`${guildMember.user.tag} is attempting to edit a bounty they did not create`);
 		return guildMember.send({ content: ` Sorry you are not allowed to edit ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
 	}
 
@@ -37,7 +38,7 @@ export default async (guildMember: GuildMember, bountyId: string, message?: Mess
 	});
 	
 	if (bountyResult.modifiedCount != 1) {
-		console.log(`bounty ${bountyId} not updated is deleted`);
+		Log.info(`bounty ${bountyId} not updated is deleted`);
 		return guildMember.send({ content: 'Sorry something is not working, can you try again?' });
 	}
 	

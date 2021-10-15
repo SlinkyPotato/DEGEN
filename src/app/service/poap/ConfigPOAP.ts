@@ -14,6 +14,7 @@ import { POAPAdmin } from '../../types/poap/POAPAdmin';
 import dbUtils from '../../utils/dbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { CommandContext } from 'slash-create';
+import Log, { LogUtils } from '../../utils/Log';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
 	if (!ServiceUtils.isDiscordAdmin(guildMember)) {
@@ -86,7 +87,7 @@ export const askForGrantOrRemoval = async (
 	};
 	
 	const message: Message = await guildMember.send({ embeds: [intro, whichRolesAreAllowedQuestion] });
-	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`).catch(console.error);
+	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`).catch(e => LogUtils.logError('failed to send dm to user', e));
 	await message.react('👍');
 	await message.react('❌');
 	await message.react('📝');
@@ -101,13 +102,13 @@ export const askForGrantOrRemoval = async (
 	});
 	const reaction: MessageReaction = collected.first();
 	if (reaction.emoji.name === '👍') {
-		console.log('/poap config add');
+		Log.info('/poap config add');
 		return true;
 	} else if (reaction.emoji.name === '❌') {
-		console.log('/poap config remove');
+		Log.info('/poap config remove');
 		return false;
 	} else if (reaction.emoji.name === '📝') {
-		console.log('/poap config edit');
+		Log.info('/poap config edit');
 		await guildMember.send({ content: 'Configuration setup ended.' });
 		throw new ValidationError('Please re-initiate poap configuration.');
 	}
@@ -122,7 +123,7 @@ export const retrieveRoles = async (guildMember: GuildMember, authorizedRoles: s
 			const roleManager: Role = await guildMember.guild.roles.fetch(authRole);
 			roles.push(roleManager);
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('failed to retrieve role from user', e);
 		}
 	}
 	return roles;
@@ -136,7 +137,7 @@ export const retrieveUsers = async (guildMember: GuildMember, authorizedUsers: s
 			const member: GuildMember = await guildMember.guild.members.fetch(authUser);
 			users.push(member);
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('failed to retrieve role from user', e);
 		}
 	}
 	return users;
@@ -174,9 +175,9 @@ export const storePOAPAdmins = async (
 		});
 	} catch (e) {
 		if (e instanceof BulkWriteError && e.code === 11000) {
-			console.log('dup key found, proceeding');
+			LogUtils.logError('dup key found, proceeding', e);
 		}
-		console.log(e);
+		LogUtils.logError('failed to store poap admins from db', e);
 		return;
 	}
 	
@@ -205,7 +206,7 @@ export const removePOAPAdmins = async (
 			});
 		}
 	} catch (e) {
-		console.error(e);
+		LogUtils.logError('failed to remove poap admins from db', e);
 	}
 };
 

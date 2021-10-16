@@ -1,7 +1,7 @@
 import { Message, MessageActionRow, MessageSelectMenu } from 'discord.js';
 import constants from '../constants/constants';
 import { scoapEmbedState } from './ScoapDatabase';
-import { publishDraftScoapEmbed } from '../../service/scoap-squad/CreateNewScoapPoll';
+import { publishDraftScoapEmbed } from './CreateNewScoapPoll';
 import ScoapUtils from '../../utils/ScoapUtils';
 import { incrementMessageFlowIndex } from './BotConversationMessageFlow';
 import { BotConversation, ScoapEmbed } from './ScoapClasses';
@@ -119,8 +119,7 @@ export const scoapEmbedEdit = (scoapEmbed: ScoapEmbed): any => {
 				.setPlaceholder('Nothing selected')
 				.addOptions(selectOptions),
 		);
-	const editMessageObject = { content: infoMessage, components: [row] };
-	return editMessageObject;
+	return { content: infoMessage, components: [row] };
 };
 
 

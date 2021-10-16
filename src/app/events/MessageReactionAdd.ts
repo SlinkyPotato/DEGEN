@@ -2,6 +2,7 @@ import { MessageReaction, PartialUser, User } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import messageReactionAddBounty from './bounty/MessageReactionAddBounty';
 import ServiceUtils from '../utils/ServiceUtils';
+import { LogUtils } from '../utils/Log';
 
 export default class implements DiscordEvent {
 	name = 'messageReactionAdd';
@@ -18,7 +19,7 @@ export default class implements DiscordEvent {
 				try {
 					await user.fetch();
 				} catch (error) {
-					console.error('Something is not working for pulling the user, maybe account was removed? lol');
+					LogUtils.logError('failed to pull user partial', error);
 					return;
 				}
 			}
@@ -27,10 +28,10 @@ export default class implements DiscordEvent {
 				return;
 			}
 			if (ServiceUtils.isBanklessDAO(reaction.message.guild)) {
-				await messageReactionAddBounty(reaction, user as User).catch(console.error);
+				await messageReactionAddBounty(reaction, user as User).catch(e => LogUtils.logError('failed to react to bounty', e));
 			}
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('failed to process event messageReactionAdd', e);
 		}
 	}
 }

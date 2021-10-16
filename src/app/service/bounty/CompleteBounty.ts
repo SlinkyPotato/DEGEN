@@ -4,6 +4,7 @@ import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
+import Log from '../../utils/Log';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -25,12 +26,12 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 	
 	if (dbBountyResult.createdBy.discordId !== guildMember.user.id) {
-		console.log(`${bountyId} bounty created by ${guildMember.user.tag} but it is created by ${dbBountyResult.createdBy.discordHandle}`);
+		Log.info(`${bountyId} bounty created by ${guildMember.user.tag} but it is created by ${dbBountyResult.createdBy.discordHandle}`);
 		return guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is created by someone else.` });
 	}
 
 	if (dbBountyResult.status !== 'In-Review') {
-		console.log(`${bountyId} bounty not in review`);
+		Log.info(`${bountyId} bounty not in review`);
 		return guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is not in review` });
 	}
 
@@ -54,10 +55,10 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 	});
 
 	if (writeResult.modifiedCount != 1) {
-		console.log(`failed to update record ${bountyId} with reviewer user  <@${guildMember.user.tag}>`);
+		Log.warn(`failed to update record ${bountyId} with reviewer user  <@${guildMember.user.tag}>`);
 		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
-	console.log(`${bountyId} bounty reviewed by ${guildMember.user.tag}`);
+	Log.info(`${bountyId} bounty reviewed by ${guildMember.user.tag}`);
 	await completeBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 	await guildMember.send({ content: `Bounty complete! Please remember to tip <@${dbBountyResult.claimedBy.discordId}>` });
 	return;
@@ -72,10 +73,10 @@ export const completeBountyMessage = async (guildMember: GuildMember, bountyMess
 	embedMessage.addField('Reviewed by', guildMember.user.tag, true);
 	embedMessage.setFooter('🆘 - help');
 	await message.edit({ embeds: [embedMessage] });
-	addCompletedReactions(message);
+	await addCompletedReactions(message);
 };
 
-export const addCompletedReactions = (message: Message): void => {
-	message.reactions.removeAll();
-	message.react('🆘');
+export const addCompletedReactions = async (message: Message): Promise<any> => {
+	await message.reactions.removeAll();
+	await message.react('🆘');
 };

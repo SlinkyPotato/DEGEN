@@ -4,6 +4,7 @@ import { Message } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import MessageCreateOnDEGEN from './chat/MessageCreateOnDEGEN';
 import ServiceUtils from '../utils/ServiceUtils';
+import { LogUtils } from '../utils/Log';
 
 export default class implements DiscordEvent {
 	name = 'messageCreate';
@@ -12,25 +13,26 @@ export default class implements DiscordEvent {
 	async execute(message: Message): Promise<any> {
 		try {
 			if(message.author.bot) return;
+
+			// DEGEN says hello
+			await MessageCreateOnDEGEN(message).catch(e => {
+				LogUtils.logError('DEGEN failed to say hello', e);
+			});
 			
 			if (ServiceUtils.isBanklessDAO(message.guild)) {
-				// DEGEN says hello
-				await MessageCreateOnDEGEN(message).catch(e => {
-					console.error('ERROR: ', e);
-				});
 				// Run for webhook
 				await messageCreateOnBountyBoard(message).catch(e => {
-					console.error('ERROR: ', e);
+					LogUtils.logError('failed to create bounty message from webhook', e);
 				});
 			}
 			if (message.channel.type === 'DM') {
 				// Run scoap squad DM flow
 				await messageSetScoapRoles(message).catch(e => {
-					console.error('ERROR: ', e);
+					LogUtils.logError('failed to run scoap-squad DM flow', e);
 				});
 			}
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('failed to process event messageCreate', e);
 		}
 	}
 }

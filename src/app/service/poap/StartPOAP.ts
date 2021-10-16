@@ -16,6 +16,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import EarlyTermination from '../../errors/EarlyTermination';
 import POAPUtils from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
+import Log, { LogUtils } from '../../utils/Log';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, event?: string): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
@@ -30,7 +31,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	});
 	const activeSettings: POAPSettings = await activeSettingsCursor.next();
 	if (activeSettings != null) {
-		console.log('unable to start due to active event');
+		Log.info('unable to start due to active event');
 		await guildMember.send({ content: 'An event is already active.' });
 		throw new ValidationError(`Please end the active event \`${activeSettings.voiceChannelName}\`.`);
 	}
@@ -46,13 +47,13 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	});
 
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
-		console.log('unable to start due to active event');
+		Log.info('unable to start due to active event');
 		await guildMember.send({ content: 'Event is already active.' });
 		throw new ValidationError(`\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`);
 	}
 
 	if (poapSettingsDoc == null) {
-		console.log(`setting up first time poap configuration for ${guildMember.user.tag}`);
+		Log.info(`setting up first time poap configuration for ${guildMember.user.tag}`);
 		await setupPoapSetting(guildMember, poapSettingsDB, channelChoice, event);
 	}
 
@@ -92,13 +93,19 @@ export const setupPoapSetting = async (guildMember: GuildMember, poapSettingsDB:
 };
 
 export const clearPOAPParticipants = async (db: Db, guildChannel: GuildChannel): Promise<void> => {
-	console.log(`attempting to delete all previous participants for ${guildChannel.guild.name} on channel: ${guildChannel.name}`);
+	Log.info(`attempting to delete all previous participants for ${guildChannel.guild.name} on channel: ${guildChannel.name}`);
 	const poapParticipantsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
 	await poapParticipantsDB.deleteMany({
 		voiceChannelId: guildChannel.id,
 		discordServerId: guildChannel.guild.id,
 	});
-	console.log('removed all previous participants.');
+	Log.info('removed all previous participants.', {
+		indexMeta: true,
+		meta: {
+			guildId: guildChannel.guild.id,
+			channelId: guildChannel.id,
+		},
+	});
 };
 
 export const storePresentMembers = async (guild: Guild, db: Db, channel: GuildChannel): Promise<any> => {
@@ -107,7 +114,7 @@ export const storePresentMembers = async (guild: Guild, db: Db, channel: GuildCh
 			updateUserForPOAP(member, db, channel, true);
 		});
 	} catch (e) {
-		console.error(e);
+		LogUtils.logError('failed to store present members', e);
 	}
 };
 

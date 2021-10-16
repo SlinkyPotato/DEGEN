@@ -2,6 +2,7 @@ import { GuildMember, MessageEmbed } from 'discord.js';
 import { Client } from '@notionhq/client';
 import notionPageRefs from '../../service/notion/NotionGuildPages';
 import { notionQueue } from '../../service/notion/NotionQueue';
+import { LogUtils } from '../../utils/Log';
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -40,7 +41,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember):
 				return;
 			}
 		} catch (err) {
-			console.warn(err);
+			LogUtils.logError('failed to process welcome mat properties project', err);
 			return;
 		}
 
@@ -50,7 +51,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember):
 				message += `${description}\n`;
 			}
 		} catch (err) {
-			console.warn(err);
+			LogUtils.logError('failed to process welcome mat properties summary', err);
 		}
 
 		try {
@@ -68,7 +69,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember):
 				});
 			}
 		} catch (err) {
-			console.warn(err);
+			LogUtils.logError('failed to process welcome mat properties tech stack', err);
 		}
 
 		try {
@@ -78,7 +79,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember):
 				message += `Github: [${githubRepo}](${githubLink})\n`;
 			}
 		} catch (err) {
-			console.warn(err);
+			LogUtils.logError('failed to process welcome mat properties github', err);
 		}
 
 		try {
@@ -88,7 +89,7 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember):
 				message += `Discord: [${discordChannel}](${discordLink})\n`;
 			}
 		} catch (err) {
-			console.warn(err);
+			LogUtils.logError('failed to process welcome mat discord channel', err);
 		}
 
 		message += '\n';

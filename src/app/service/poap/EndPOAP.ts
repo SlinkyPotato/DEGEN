@@ -11,6 +11,7 @@ import Log from '../../utils/Log';
 
 export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	
 	await POAPUtils.validateUserAccess(guildMember, db);
 	
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
@@ -53,12 +54,30 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 	const currentDate = (new Date()).toISOString();
 	const fileName = `${channel.guild.name}_${channel.name}_${listOfParticipants.length}_participants.csv`;
 	await guildMember.send({
-		content: `Total Participants: \`${listOfParticipants.length} participants\`\n` +
-			`Guild: \`${channel.guild.name}\`\n` +
-			`Channel: \`${channel.name}\`\n` +
-			`Date: \`${currentDate} UTC\`.`,
+		embeds: [
+			{
+				title: 'POAP Distribution Results',
+				fields: [
+					{ name: 'Date', value: `${currentDate} UTC` },
+					{ name: 'Event', value: `${poapSettingsDoc.event}` },
+					{ name: 'Total Participants', value: `${listOfParticipants.length}` },
+					{ name: 'Discord Server', value: channel.guild.name },
+					{ name: 'Location', value: channel.name },
+				],
+			},
+		],
 		files: [{ name: fileName, attachment: bufferFile }],
 	});
+	Log.info('POAPs distributed', {
+		indexMeta: true,
+		meta: {
+			guildId: guildMember.guild.id,
+			guildName: guildMember.guild.name,
+			totalParticipants: listOfParticipants.length,
+			location: channel.name,
+		},
+	});
+	
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 
 	if (guildMember.id !== guildMember.user.id) {

@@ -128,25 +128,12 @@ const POAPUtils = {
 		if (duration == null) {
 			return;
 		}
-		if (duration > 180 || duration < 10) {
+		if (duration > constants.POAP_MAX_DURATION_MINUTES || duration < 10) {
 			await guildMember.send({
 				content: `<@${guildMember.user.id}>\n` +
-					'A minimum of 10 minutes is required for an event to be active and no more than 180 minutes.',
+					`A minimum of 10 minutes is required for an event to be active and no more than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`,
 			});
-			throw new ValidationError('Please try a value greater than 10 or less than 180 minutes.');
-		}
-	},
-
-	async validateMinAttendance(guildMember: GuildMember, minAttendance?: number): Promise<any> {
-		if (minAttendance == null) {
-			return;
-		}
-		if (minAttendance < constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
-			await guildMember.send({
-				content: `<@${guildMember.user.id}>\n` +
-					'Please try a greater value.',
-			});
-			throw new ValidationError('Please try a greater value.');
+			throw new ValidationError(`Please try a value greater than 10 and less than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`);
 		}
 	},
 	

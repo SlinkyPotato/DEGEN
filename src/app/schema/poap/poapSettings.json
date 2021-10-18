@@ -8,8 +8,6 @@
       "voiceChannelName",
       "discordServerId",
       "startTime",
-      "endTime",
-      "minAttendance"
     ],
     "properties": {
       "event": {

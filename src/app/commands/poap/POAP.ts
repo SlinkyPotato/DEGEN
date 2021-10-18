@@ -8,6 +8,7 @@ import DistributePOAP from '../../service/poap/DistributePOAP';
 import ConfigPOAP from '../../service/poap/ConfigPOAP';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
 import { LogUtils } from '../../utils/Log';
+import discordServerIds from '../../service/constants/discordServerIds';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -83,15 +84,9 @@ module.exports = class poap extends SlashCommand {
 							required: false,
 						},
 						{
-							name: 'duration',
+							name: 'duration-minutes',
 							type: CommandOptionType.STRING,
 							description: 'Number of minutes the event will remain active.',
-							required: false,
-						},
-						{
-							name: 'min-attendance',
-							type: CommandOptionType.STRING,
-							description: 'Minimum required number of minutes participants must attend to be eligible for POAP.',
 							required: false,
 						},
 					],
@@ -143,7 +138,7 @@ module.exports = class poap extends SlashCommand {
 				command = SchedulePOAP(ctx, guildMember, ctx.options.schedule['mint-copies']);
 				break;
 			case 'start':
-				command = StartPOAP(ctx, guildMember, ctx.options.start.event, ctx.options.start.duration, ctx.options.start['min-attendance']);
+				command = StartPOAP(ctx, guildMember, ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
 				command = EndPOAP(ctx, guildMember);

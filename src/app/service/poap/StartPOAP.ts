@@ -17,14 +17,14 @@ import EarlyTermination from '../../errors/EarlyTermination';
 import POAPUtils from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
 import Log, { LogUtils } from '../../utils/Log';
+import dayjs, { Dayjs } from 'dayjs';
 
-export default async (ctx: CommandContext, guildMember: GuildMember, event?: string, duration?: number, minAttendance?: number): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember, event?: string, duration?: number): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 
 	await POAPUtils.validateUserAccess(guildMember, db);
 	await POAPUtils.validateEvent(guildMember, event);
 	await POAPUtils.validateDuration(guildMember, duration);
-	await POAPUtils.validateMinAttendance(guildMember, minAttendance);
 	
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const activeSettingsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
@@ -58,31 +58,33 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 		Log.info(`setting up first time poap configuration for ${guildMember.user.tag}`);
 		await setupPoapSetting(guildMember, poapSettingsDB, channelChoice, event);
 	}
-
-	const replyOptions: AwaitMessagesOptions = {
-		max: 1,
-		time: 180000,
-		errors: ['time'],
-	};
-	await guildMember.send({ content: 'Would you like the event to automatically end? (y/n)' });
+	
 	const dmChannel: DMChannel = await guildMember.createDM();
-	const isAutomaticEnd: boolean = (await dmChannel.awaitMessages(replyOptions)).first().content === 'y';
+	let isAutomaticEnd = false;
+	if (duration == null) {
+		await guildMember.send({ content: 'Would you like the event to end automatically? (y/n)' });
+		isAutomaticEnd = (await ServiceUtils.getFirstUserReply(dmChannel)) == 'y';
+	}
 	
 	if (!isAutomaticEnd) {
-		await guildMember.send({ content: 'Please use the `/poap end` at the end of the event. ' });
+		await guildMember.send({ content: `Please use the \`/poap end\` at the end of the event. Additionally the event will run for a maximum of ${constants.POAP_MAX_DURATION_MINUTES} minutes. ` });
 	} else {
-		await askForEventMinutes(guildMember, dmChannel, replyOptions);
+		duration = await askForEventMinutes(guildMember, dmChannel);
 	}
 	
 	await clearPOAPParticipants(db, channelChoice);
-	const currentDateStr = (new Date()).toISOString();
+	const currentDate: Dayjs = dayjs();
+	const currentDateISO: string = currentDate.toISOString();
+	const endDateISO: string = currentDate.add(duration, 'minute').toISOString();
+	
 	await poapSettingsDB.updateOne({
 		discordServerId: channelChoice.guild.id,
 		voiceChannelId: channelChoice.id,
 	}, {
 		$set: {
 			isActive: true,
-			startTime: currentDateStr,
+			startTime: currentDateISO,
+			endTime: endDateISO,
 			discordUserId: guildMember.user.id,
 			event: event,
 		},
@@ -205,11 +207,16 @@ export const askUserForChannel = async (guildMember: GuildMember, dmMessage: Mes
 	}
 };
 
-const askForEventMinutes = async (guildMember: GuildMember, dmChannel: DMChannel, replyOptions: AwaitMessagesOptions) => {
+const askForEventMinutes = async (guildMember: GuildMember, dmChannel: DMChannel): Promise<number> => {
 	try {
-		await guildMember.send({ content: 'How long should the event stay active? (in minutes)' });
-		const durationOfEventInMinutes = (await dmChannel.awaitMessages(replyOptions)).first().content;
+		await guildMember.send({ content: `How long should the event stay active? (max: ${constants.POAP_MAX_DURATION_MINUTES} minutes)` });
+		const durationOfEventInMinutes: string = await ServiceUtils.getFirstUserReply(dmChannel);
+		const duration = Number(durationOfEventInMinutes);
+		await POAPUtils.validateDuration(guildMember, duration);
+		return duration;
 	} catch (e) {
+		LogUtils.logError('failed to process duration time', e);
+		throw new ValidationError('please try another duration amount');
 	}
 };
 

@@ -6,6 +6,7 @@ import { Page } from '@notionhq/client/build/src/api-types';
 import { Db } from 'mongodb';
 import dbInstance from '../../utils/dbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
+import Log, { LogUtils } from '../../utils/Log';
 
 const sleep = sleepTimer.promisify(setTimeout);
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
@@ -41,22 +42,22 @@ export default async (client: DiscordClient): Promise<void> => {
 
 	// Begin removal of guest users
 	for (const expiredUserId of listOfExpiredGuests) {
-		console.log('expired userid: ' + expiredUserId);
+		Log.log('expired userid: ' + expiredUserId);
 
 		const guildMember = await guild.members.fetch(expiredUserId);
-		await guildMember.roles.remove(guestRole).catch(console.error);
+		await guildMember.roles.remove(guestRole).catch(e => LogUtils.logError('failed to remove role', e));
 
-		console.log(`guest pass removed for ${expiredUserId} in discord`);
+		Log.log(`guest pass removed for ${expiredUserId} in discord`);
 
 		const guestDBQuery = {
 			_id: expiredUserId,
 		};
 		const dbDeleteResult = await dbGuestUsers.findOneAndDelete(guestDBQuery);
 		if (dbDeleteResult == null) {
-			console.error('Failed to remove user from DB');
+			Log.error('Failed to remove user from DB');
 			continue;
 		}
-		console.log(`guest pass removed for ${expiredUserId} in db`);
+		Log.log(`guest pass removed for ${expiredUserId} in db`);
 
 		await guildMember.send({ content: `Hi <@${expiredUserId}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!` });
 
@@ -66,7 +67,7 @@ export default async (client: DiscordClient): Promise<void> => {
 
 	// Begin reminder of active guest users
 	for (const activeUser of listOfActiveGuests) {
-		console.log('active userid: ' + activeUser._id);
+		Log.log('active userid: ' + activeUser._id);
 
 		const expiresInMilli = Math.max(activeUser.expiresTimestamp - Date.now(), 0);
 
@@ -82,9 +83,9 @@ export default async (client: DiscordClient): Promise<void> => {
 		// Remove user's guest pass
 		setTimeout(async () => {
 			const guildMember = await guild.members.fetch(activeUser._id);
-			await guildMember.roles.remove(guestRole).catch(console.error);
+			await guildMember.roles.remove(guestRole).catch(e => LogUtils.logError('failed to remove role', e));
 
-			console.log(`guest pass removed for ${activeUser._id} in discord`);
+			Log.log(`guest pass removed for ${activeUser._id} in discord`);
 
 			const guestDBQuery = {
 				_id: activeUser._id,
@@ -93,10 +94,10 @@ export default async (client: DiscordClient): Promise<void> => {
 			const timeoutDBGuestUsers = timeoutDB.collection(constants.DB_COLLECTION_GUEST_USERS);
 			const dbDeleteResult = await timeoutDBGuestUsers.findOneAndDelete(guestDBQuery);
 			if (dbDeleteResult == null) {
-				console.error('Failed to remove user from DB');
+				Log.error('Failed to remove user from DB');
 				return;
 			}
-			console.log(`guest pass removed for ${activeUser._id} in db`);
+			Log.log(`guest pass removed for ${activeUser._id} in db`);
 
 			await guildMember.send({ content: `Hi <@${activeUser._id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!` });
 
@@ -105,7 +106,7 @@ export default async (client: DiscordClient): Promise<void> => {
 		}, expiresInMilli);
 
 	}
-	console.log('Guest pass service ready!');
+	Log.debug('Guest pass service ready!');
 };
 
 /**
@@ -114,7 +115,7 @@ export default async (client: DiscordClient): Promise<void> => {
  * @param {string} tag Discord tag (e.g. hydrabolt#0001)
  */
 module.exports.findGuestPassPageByDiscordTag = async (tag: string): Promise<Page> => {
-	console.log('finding guest pass page by discord tag');
+	Log.log('finding guest pass page by discord tag');
 	const response = await notion.databases.query({
 		database_id: process.env.NOTION_GUEST_PASS_DATABASE_ID,
 		filter: {

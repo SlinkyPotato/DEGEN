@@ -6,6 +6,7 @@ import { URL } from 'url';
 import envUrls from '../service/constants/envUrls';
 import BountyMessageNotFound from '../errors/BountyMessageNotFound';
 import ServiceUtils from './ServiceUtils';
+import Log, { LogUtils } from './Log';
 
 /**
  * Utilities file for bounty commands
@@ -42,7 +43,7 @@ const BountyUtils = {
 					' - OPEN\n' +
 					' - CREATED_BY_ME\n' +
 					' - CLAIMED_BY_ME',
-			}).catch(console.log);
+			}).catch(e => LogUtils.logError('failed to validate bounty type', e));
 			throw new ValidationError('Please try another bounty type.');
 		}
 	},
@@ -118,7 +119,7 @@ const BountyUtils = {
 		try {
 			return new Date(date + 'T00:00:00.000Z');
 		} catch (e) {
-			console.log(e);
+			LogUtils.logError('failed to validate date', e);
 			throw new ValidationError('Please try `UTC` date in format yyyy-mm-dd, i.e 2021-08-15');
 		}
 	},
@@ -140,18 +141,18 @@ const BountyUtils = {
 
 	async checkBountyExists(guildMember: GuildMember, dbBountyResult: any | null, bountyId: string): Promise<any> {
 		if (dbBountyResult == null) {
-			console.log(`${bountyId} bounty not found in db`);
+			Log.info(`${bountyId} bounty not found in db`);
 			await guildMember.send({ content: `Sorry <@${guildMember.user.id}>, we're not able to find an open bounty with ID \`${bountyId}\`.` });
 			throw new ValidationError('Please try another bounty Id');
 		}
-		console.log(`found bounty ${bountyId} in db`);
+		Log.info(`found bounty ${bountyId} in db`);
 	},
 
 	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<Message> {
 		if (message == null) {
 			const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(channelIds.bountyBoard) as TextChannel;
 			return bountyChannel.messages.fetch(bountyMessageId).catch(e => {
-				console.log(e);
+				LogUtils.logError('failed to get bounty', e);
 				throw new BountyMessageNotFound('could not find bounty in discord #bounty-board channel');
 			});
 		} else {

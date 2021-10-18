@@ -1,6 +1,27 @@
 # Changelog
 
-## 1.7.0-SNAPSHOT
+## 1.8.0-SNAPSHOT
+
+1. Fix scoap-squad and update start season 2
+2. Integrate with logDNA sdk, turn off native console.log
+   - fix CODE_OWNERS file
+   - fix `/poap schedule` command
+   - misc enhancements
+   - configure poap time to env variable
+   - set min poap participate time to 10 mins
+   - display guild name and event for poap distribution message
+   - send message on instructions for POAP approval
+
+## 1.7.2-RELEASE (2021-10-12)
+
+1. Update deployment actions for pre-release and DEGEN
+2. Update yarn lockfile
+
+## 1.7.1-RELEASE (2021-10-12)
+
+1. Update slash-create dependency 
+
+## 1.7.0-RELEASE (2021-10-11)
 
 1. Add scoap-squad feature for BanklessDAO
 2. Add /poap schedule command
@@ -8,6 +29,9 @@
    - wrap events call to bankelss DAO server
    - misc text message updates
 3. Setup Major Motoko Kusanagi bot
+4. Fix MessageCreate event
+5. Open bounties to all (except creating new bounties)
+6. Remove voice permissions
 
 ## 1.6.0-RELEASE (2021-10-01)
 

@@ -5,6 +5,7 @@ import { Allowlist } from '../types/discord/Allowlist';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import dbInstance from '../utils/dbUtils';
 import ServiceUtils from '../utils/ServiceUtils';
+import Log, { LogUtils } from '../utils/Log';
 
 export default class implements DiscordEvent {
 	name = 'guildBanRemove';
@@ -13,6 +14,14 @@ export default class implements DiscordEvent {
 	async execute(ban: GuildBan): Promise<any> {
 		try {
 			if (ServiceUtils.isBanklessDAO(ban.guild)) {
+				Log.debug(`unbanning user: ${ban.user.tag}`, {
+					indexMeta: true,
+					meta: {
+						userId: ban.user.id,
+						userTag: ban.user.tag,
+						guildId: ban.guild.id,
+					},
+				});
 				// Add unbanned users to allowlist so they don't get auto-banned by the bot
 				const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 				const dbAllowlist = db.collection(constants.DB_COLLECTION_ALLOWLIST);
@@ -26,7 +35,7 @@ export default class implements DiscordEvent {
 				}
 			}
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('failed to process event guildBanRemove', e);
 		}
 	}
 }

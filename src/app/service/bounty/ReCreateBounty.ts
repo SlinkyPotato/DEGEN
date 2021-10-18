@@ -7,6 +7,7 @@ import BountyUtils from '../../utils/BountyUtils';
 import channelIds from '../constants/channelIds';
 import envUrls from '../constants/envUrls';
 import ServiceUtils from '../../utils/ServiceUtils';
+import Log from '../../utils/Log';
 
 /**
  * This service will refresh the bounty in the Bounty board with the correct information
@@ -22,7 +23,7 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 	});
 	
 	if (bountyCollection === null) {
-		console.log(`bounty ${bountyId} is deleted`);
+		Log.info(`bounty ${bountyId} is deleted`);
 		throw new Error('bounty not found');
 	}
 
@@ -57,10 +58,10 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<Messa
 	case 'Draft':
 	case 'Deleted':
 	default:
-		console.log(`bounty ${bountyId} is deleted`);
+		Log.info(`bounty ${bountyId} is deleted`);
 		throw new Error('bounty not valid');
 	}
-	console.log('bounty recreated to #bounty-board');
+	Log.info('bounty recreated to #bounty-board');
 	return message;
 };
 

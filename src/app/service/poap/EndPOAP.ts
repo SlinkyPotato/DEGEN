@@ -7,6 +7,7 @@ import { Buffer } from 'buffer';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
+import Log from '../../utils/Log';
 
 export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
@@ -31,7 +32,14 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 	if (updateSettingsResult.modifiedCount !== 1) {
 		throw new ValidationError('Event is not active.');
 	}
-	console.log(`event ${poapSettingsDoc.event} ended in ${poapSettingsDoc.discordServerId} for ${poapSettingsDoc.voiceChannelName}`);
+	Log.info('event ended', {
+		indexMeta: true,
+		meta: {
+			discordId: poapSettingsDoc.discordServerId,
+			voiceChannelId: poapSettingsDoc.voiceChannelId,
+			event: poapSettingsDoc.event,
+		},
+	});
 	const channel: GuildChannel = await guildMember.guild.channels.fetch(poapSettingsDoc.voiceChannelId);
 	const listOfParticipants = await POAPUtils.getListOfParticipants(guildMember, db, channel);
 	
@@ -57,18 +65,18 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` });
 	}
 
-	const sendOutPOAPReplyMessage = await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(yes/no)`' });
-	const dmChannel: DMChannel = await sendOutPOAPReplyMessage.channel.fetch() as DMChannel;
+	await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(yes/no)`' });
+	const dmChannel: DMChannel = await guildMember.createDM();
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
-		time: 180000,
+		time: 900000,
 		errors: ['time'],
 	};
 	const sendOutPOAPYN = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
 		await guildMember.send({ content: 'Ok! Please upload the POAP links.txt file.' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
-		await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile);
+		await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile, poapSettingsDoc.event);
 		await guildMember.send({ content: 'POAP links sent out to participants!' });
 		return 'POAP_SENT';
 	} else {
@@ -79,7 +87,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 
 export const getBufferFromParticipants = async (participants: POAPFileParticipant[], voiceChannel: GuildChannel): Promise<Buffer> => {
 	if (participants.length === 0) {
-		console.log(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
+		Log.info(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
 		return Buffer.from('', 'utf-8');
 	}
 

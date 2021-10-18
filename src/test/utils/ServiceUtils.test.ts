@@ -3,7 +3,9 @@ import { Builder } from 'builder-pattern';
 import { Guild, GuildMember, GuildMemberRoleManager, Role } from 'discord.js';
 import roleIDs from '../../app/service/constants/roleIds';
 import ServiceUtils from '../../app/utils/ServiceUtils';
+import Log from '../../app/utils/Log';
 
+jest.mock('../../app/utils/Log');
 jest.mock('../../app/app', () => {
 	return {
 		client: jest.fn(),
@@ -41,6 +43,7 @@ describe('Service Utils', () => {
 	} as any;
 
 	beforeAll(() => {
+		new Log();
 		// Populate collection of guild members
 		guildMembers.set('830462333029460010',
 			Builder(defaultGuildMember)

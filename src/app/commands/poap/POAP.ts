@@ -7,6 +7,7 @@ import EndPOAP from '../../service/poap/EndPOAP';
 import DistributePOAP from '../../service/poap/DistributePOAP';
 import ConfigPOAP from '../../service/poap/ConfigPOAP';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
+import { LogUtils } from '../../utils/Log';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -92,6 +93,14 @@ module.exports = class poap extends SlashCommand {
 					name: 'distribute',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'Distribute links to participants.',
+					options: [
+						{
+							name: 'event',
+							type: CommandOptionType.STRING,
+							description: 'The event name for the distribution',
+							required: false,
+						},
+					],
 				},
 			],
 			throttling: {
@@ -103,6 +112,7 @@ module.exports = class poap extends SlashCommand {
 	}
 
 	async run(ctx: CommandContext) {
+		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot || ctx.guildID == undefined) return 'Please try /poap within discord channel.';
 		
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
@@ -113,41 +123,35 @@ module.exports = class poap extends SlashCommand {
 		try {
 			switch (ctx.subcommands[0]) {
 			case 'config':
-				console.log(`/poap config ${ctx.user.username}#${ctx.user.discriminator}`);
 				authorizedRoles = [ctx.options.config['role-1'], ctx.options.config['role-2'], ctx.options.config['role-3']];
 				authorizedUsers = [ctx.options.config['user-1'], ctx.options.config['user-2'], ctx.options.config['user-3']];
 				command = ConfigPOAP(ctx, guildMember, authorizedRoles, authorizedUsers);
 				break;
 			case 'schedule':
-				console.log(`/poap schedule ${ctx.user.username}#${ctx.user.discriminator}`);
 				command = SchedulePOAP(ctx, guildMember, ctx.options.schedule['mint-copies']);
 				break;
 			case 'start':
-				console.log(`/poap start ${ctx.user.username}#${ctx.user.discriminator}`);
 				command = StartPOAP(ctx, guildMember, ctx.options.start.event);
 				break;
 			case 'end':
-				console.log(`/poap end ${ctx.user.username}#${ctx.user.discriminator}`);
 				command = EndPOAP(ctx, guildMember);
 				break;
 			case 'distribute':
-				console.log(`/poap distribute ${ctx.user.username}#${ctx.user.discriminator}`);
-				command = DistributePOAP(ctx, guildMember);
+				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event']);
 				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);
 			}
 			return this.handleCommandError(ctx, command);
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('failed to process POAP command', e);
 		}
 	}
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
 		command.then((result) => {
-			console.log(`end /poap ${ctx.user.username}#${ctx.user.discriminator}`);
 			if (result === 'POAP_SENT') {
-				return ctx.send('POAPS sent. Expect delivery shortly.');
+				return ctx.send('POAPS sent! Expect delivery shortly.');
 			} else if (result === 'POAP_END') {
 				return ctx.send('POAP event ended. POAPs will be delivered at a later time.');
 			}
@@ -157,7 +161,7 @@ module.exports = class poap extends SlashCommand {
 			} else if (e instanceof EarlyTermination) {
 				return ctx.send(e.message);
 			} else {
-				console.error(e);
+				LogUtils.logError('failed to handle poap command', e);
 				return ctx.send('Sorry something is not working and our devs are looking into it.');
 			}
 		});

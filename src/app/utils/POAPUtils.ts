@@ -5,6 +5,9 @@ import { POAPParticipant } from '../types/poap/POAPParticipant';
 import axios from 'axios';
 import ValidationError from '../errors/ValidationError';
 import { POAPAdmin } from '../types/poap/POAPAdmin';
+import Log, { LogUtils } from './Log';
+import { Dayjs } from 'dayjs';
+import DateUtils from './DateUtils';
 
 export type POAPFileParticipant = {
 	id: string,
@@ -22,7 +25,7 @@ const POAPUtils = {
 		});
 
 		if ((await resultCursor.count()) === 0) {
-			console.log(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
+			Log.info(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
 			return [];
 		}
 		
@@ -38,7 +41,7 @@ const POAPUtils = {
 					},
 				});
 			} catch (e) {
-				console.error(e);
+				LogUtils.logError('failed to update poap participants with endTime', e);
 			}
 			if (result == null) {
 				throw new Error('Mongodb operation failed');
@@ -50,7 +53,7 @@ const POAPUtils = {
 			}
 			let durationInMinutes: number = (endTime - (new Date(participant.startTime)).getTime());
 			durationInMinutes = (durationInMinutes <= 0) ? 0 : durationInMinutes / (1000 * 60);
-			if (durationInMinutes >= 5) {
+			if (durationInMinutes >= constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
 				participants.push({
 					id: participant.discordUserId,
 					tag: participant.discordUserTag,
@@ -61,37 +64,37 @@ const POAPUtils = {
 		return participants;
 	},
 
-	async sendOutPOAPLinks(guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], attachment: MessageAttachment): Promise<any> {
+	async sendOutPOAPLinks(guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], attachment: MessageAttachment, event?: string): Promise<any> {
 		let listOfPOAPLinks;
+		const guildName = guildMember.guild.name;
+		event = (event == null) ? 'event' : event;
 		try {
 			const response = await axios.get(attachment.url);
 			listOfPOAPLinks = response.data.split('\n');
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('failed to process links.txt file', e);
 			return guildMember.send({ content: 'Could not process the links.txt file. Please make sure the file that is uploaded has every URL on a new line.' });
 		}
 		for (let i = 0; i < listOfParticipants.length; i++) {
 			try {
 				await guildMember.guild.members.fetch(listOfParticipants[i].id)
 					.then(async (participantMember: GuildMember) => {
-						await participantMember.send({ content: `Thank you for participating in the event! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
-							console.log(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`);
-							console.error(e);
+						await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
+							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`, e);
 						});
-					}).catch(async () => {
-						console.log(`failed trying to find: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, to give link ${listOfPOAPLinks[i]}`);
+					}).catch(async (e) => {
+						LogUtils.logError(`failed trying to find: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, to give link ${listOfPOAPLinks[i]}`, e);
 						const tryAgainMember: GuildMember = await guildMember.guild.members.fetch(listOfParticipants[i].id);
-						console.log(`trying to send another message to user ${listOfParticipants[i].tag}`);
-						await tryAgainMember.send({ content: `Thank you for participating in the event! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
-							console.log(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`);
-							console.error(e);
+						Log.debug(`trying to send another message to user ${listOfParticipants[i].tag}`);
+						await tryAgainMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e2) => {
+							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`, e2);
 						});
 					});
 			} catch (e) {
-				console.log('user might have been banned');
+				LogUtils.logError('user might have been banned', e);
 			}
 		}
-		console.log(`Links sent to ${listOfParticipants.length} participants.`);
+		Log.info(`Links sent to ${listOfParticipants.length} participants.`);
 	},
 
 	async validateEvent(guildMember: GuildMember, event?: string): Promise<any> {
@@ -143,6 +146,24 @@ const POAPUtils = {
 			}
 		}
 		throw new ValidationError('Only authorized users can use this command. Please reach out to an admin for configuration help.');
+	},
+	
+	getDateString(date: Dayjs): string {
+		return date.format('MM-DD-YYYY');
+	},
+	
+	getExpiryDate(date: string): string {
+		try {
+			const dateObject: Dayjs = DateUtils.getDate(date);
+			return dateObject.add(1, 'month').format('MM-DD-YYYY');
+		} catch (e) {
+			LogUtils.logError('failed to parse expiry date', e);
+			throw new Error('processing failed');
+		}
+	},
+	
+	getEventYear(startDateObj: Dayjs): string {
+		return startDateObj.year().toString();
 	},
 };
 

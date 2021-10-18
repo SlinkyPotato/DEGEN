@@ -4,20 +4,20 @@
  */
 
 module.exports = {
-    preset: '@shelf/jest-mongodb',
-    clearMocks: true,
-    collectCoverage: true,
-    coverageDirectory: 'coverage',
-    coverageProvider: 'v8',
-    transform: {
-        '^.+\\.(ts|tsx)$': 'ts-jest',
-    },
-    roots: ['<rootDir>/src'],
-    testMatch: [
-        '**/__tests__/**/*.+(ts|tsx|js)',
-        '**/?(*.)+(spec|test).+(ts|tsx|js)',
-    ],
-	watchPathIgnorePatterns: ['globalConfig']
+	preset: '@shelf/jest-mongodb',
+	clearMocks: true,
+	collectCoverage: true,
+	coverageDirectory: 'coverage',
+	coverageProvider: 'v8',
+	transform: {
+		'^.+\\.(ts|tsx)$': 'ts-jest',
+	},
+	roots: ['<rootDir>/src'],
+	testMatch: [
+		'**/__tests__/**/*.+(ts|tsx|js)',
+		'**/?(*.)+(spec|test).+(ts|tsx|js)',
+	],
+	watchPathIgnorePatterns: ['globalConfig'],
 };
 
 /*
@@ -45,3 +45,4 @@ process.env.DISCORD_ROLE_LVL_4 = '80003';
 process.env.DISCORD_ROLE_LEVEL_3 = '80004';
 process.env.DISCORD_ROLE_CONTRIBUTORS_LVL_2 = '80005';
 process.env.DISCORD_ROLE_DEVELOPERS_GUILD = '80006';
+process.env.LOGDNA_TOKEN = '1234567';

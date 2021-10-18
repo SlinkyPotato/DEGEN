@@ -6,6 +6,7 @@ import dbInstance from '../../utils/dbUtils';
 import envUrls from '../../service/constants/envUrls';
 import { addPublishReactions } from '../../service/bounty/create/PublishBounty';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
+import Log from '../../utils/Log';
 
 export default async (message: Message): Promise<any> => {
 	if (message.author.username !== constants.BOUNTY_BOARD_WEBSITE_WEBHOOK_NAME) return;
@@ -31,7 +32,7 @@ export default async (message: Message): Promise<any> => {
 	});
 
 	if (writeResult.modifiedCount != 1) {
-		console.log(`failed to update record ${bountyId} for user <@${guildMember.user.id}>`);
+		Log.error(`failed to update record ${bountyId} for user <@${guildMember.user.id}>`);
 		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
 

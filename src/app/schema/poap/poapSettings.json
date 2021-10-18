@@ -6,7 +6,10 @@
       "discordUserId",
       "voiceChannelId",
       "voiceChannelName",
-      "discordServerId"
+      "discordServerId",
+      "startTime",
+      "endTime",
+      "minAttendance"
     ],
     "properties": {
       "event": {
@@ -40,6 +43,10 @@
       "discordServerId": {
         "bsonType": "string",
         "description": "Identifier for the discord guild"
+      },
+      "minAttendance": {
+        "bsonType": "string",
+        "description": "Minimum attendance time required in minutes."
       }
     }
   }

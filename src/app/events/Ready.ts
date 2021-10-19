@@ -28,7 +28,7 @@ export default class implements DiscordEvent {
 				await restoreScoapEmbedAndVoteRecord().catch(Log.error);
 			}
 			
-			await POAPService(client).catch(Log.error);
+			await POAPService.run(client).catch(Log.error);
 			
 			Log.info('DEGEN is ready!');
 		} catch (e) {

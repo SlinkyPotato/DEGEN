@@ -72,7 +72,7 @@ export default async (client: DiscordClient): Promise<void> => {
 		// Send out reminder for user
 		setTimeout(async () => {
 			const guildMember = await guild.members.fetch(activeUser._id);
-			await guildMember.send({ content: `Hey <@${activeUser._id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!` });
+			await guildMember.send({ content: `Hey <@${activeUser._id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!` }).catch(e => LogUtils.logError('failed to messager guest user', e));
 
 			// Discord api rate limit of 50 calls per second
 			await sleep(1000);

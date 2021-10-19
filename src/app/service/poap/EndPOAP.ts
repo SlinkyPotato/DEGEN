@@ -9,7 +9,7 @@ import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
 
-export default async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
+export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	
 	await POAPUtils.validateUserAccess(guildMember, db);
@@ -46,7 +46,9 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 	
 	if (listOfParticipants.length <= 0) {
 		await guildMember.send({ content: `Event ended. No participants found for \`${channel.name}\` in \`${channel.guild.name}\`.` });
-		await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
+		if (ctx) {
+			await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
+		}
 		return;
 	}
 	
@@ -77,8 +79,10 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 			location: channel.name,
 		},
 	});
-	
-	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
+
+	if (ctx) {
+		await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
+	}
 
 	if (guildMember.id !== guildMember.user.id) {
 		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` });

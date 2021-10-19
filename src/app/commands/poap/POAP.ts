@@ -8,7 +8,6 @@ import DistributePOAP from '../../service/poap/DistributePOAP';
 import ConfigPOAP from '../../service/poap/ConfigPOAP';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
 import { LogUtils } from '../../utils/Log';
-import discordServerIds from '../../service/constants/discordServerIds';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -141,7 +140,7 @@ module.exports = class poap extends SlashCommand {
 				command = StartPOAP(ctx, guildMember, ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
-				command = EndPOAP(ctx, guildMember);
+				command = EndPOAP(guildMember, ctx);
 				break;
 			case 'distribute':
 				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event']);

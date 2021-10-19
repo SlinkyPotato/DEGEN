@@ -67,9 +67,9 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 		const isManualEnd = (await ServiceUtils.getFirstUserReply(dmChannel)) == 'y';
 		if (!isManualEnd) {
 			duration = await askForEventMinutes(guildMember, dmChannel);
+		} else {
+			duration = constants.POAP_MAX_DURATION_MINUTES;
 		}
-	} else {
-		duration = constants.POAP_MAX_DURATION_MINUTES;
 	}
 	
 	await clearPOAPParticipants(db, channelChoice);

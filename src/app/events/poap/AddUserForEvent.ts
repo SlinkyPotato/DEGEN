@@ -5,6 +5,8 @@ import constants from '../../service/constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import { POAPParticipant } from '../../types/poap/POAPParticipant';
 import Log, { LogUtils } from '../../utils/Log';
+import dayjs, { Dayjs } from 'dayjs';
+import EndPOAP from '../../service/poap/EndPOAP';
 
 export default async (oldState: VoiceState, newState: VoiceState): Promise<any> => {
 	if (oldState.channelId === newState.channelId) {
@@ -23,9 +25,17 @@ export default async (oldState: VoiceState, newState: VoiceState): Promise<any> 
 		discordServerId: guild.id,
 	});
 	for await (const poapSetting of activeChannelsCursor) {
+		const currentDate: Dayjs = dayjs();
 		try {
-			const voiceChannel: GuildChannel = await guild.channels.fetch(poapSetting.voiceChannelId);
-			await addUserToDb(oldState, newState, db, voiceChannel, member);
+			const endDate: Dayjs = (poapSetting.endTime == null) ? currentDate : dayjs(poapSetting.endTime);
+			if (currentDate.isBefore(endDate)) {
+				const voiceChannel: GuildChannel = await guild.channels.fetch(poapSetting.voiceChannelId);
+				await addUserToDb(oldState, newState, db, voiceChannel, member);
+			} else {
+				Log.debug(`current date is after or equal to event end date, currentDate: ${currentDate}, endDate: ${endDate}`);
+				const poapOrganizerGuildMember: GuildMember = await guild.members.fetch(poapSetting.discordUserId);
+				await EndPOAP(poapOrganizerGuildMember);
+			}
 		} catch (e) {
 			LogUtils.logError(`failed to add ${member.user.tag} to db`, e);
 		}
@@ -63,7 +73,7 @@ export const updateUserForPOAP = async (
 	});
 
 	if (!hasJoined) {
-		Log.debug(`${member.user.tag} | left ${channel.name} from ${channel.guild.name}`);
+		Log.debug(`${member.user.tag} | left ${channel.name} in ${channel.guild.name}`);
 		return poapParticipantsDb.updateOne(poapParticipant, {
 			$set: {
 				endTime: (new Date).toISOString(),
@@ -72,7 +82,7 @@ export const updateUserForPOAP = async (
 	}
 
 	if (poapParticipant !== null && poapParticipant.discordUserId === member.user.id) {
-		Log.debug(`${member.user.tag} | rejoined ${channel.name} from ${channel.guild.name}`);
+		Log.debug(`${member.user.tag} | rejoined ${channel.name} in ${channel.guild.name}`);
 		return poapParticipantsDb.updateOne(poapParticipant, {
 			$unset: {
 				endTime: null,
@@ -90,5 +100,5 @@ export const updateUserForPOAP = async (
 	if (result == null || result.insertedCount !== 1) {
 		throw new MongoError('failed to insert poapParticipant');
 	}
-	Log.debug(`${member.user.tag} | joined ${channel.name} from ${channel.guild.name}`);
+	Log.debug(`${member.user.tag} | joined ${channel.name} in ${channel.guild.name}`);
 };

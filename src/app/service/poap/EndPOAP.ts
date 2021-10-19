@@ -45,7 +45,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 	const listOfParticipants = await POAPUtils.getListOfParticipants(guildMember, db, channel);
 	
 	if (listOfParticipants.length <= 0) {
-		await guildMember.send({ content: `Event ended. No participants found for ${channel.name} in ${channel.guild.name}.` });
+		await guildMember.send({ content: `Event ended. No participants found for \`${channel.name}\` in \`${channel.guild.name}\`.` });
 		await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 		return;
 	}
@@ -58,11 +58,11 @@ export default async (ctx: CommandContext, guildMember: GuildMember): Promise<an
 			{
 				title: 'POAP Distribution Results',
 				fields: [
-					{ name: 'Date', value: `${currentDate} UTC` },
-					{ name: 'Event', value: `${poapSettingsDoc.event}` },
-					{ name: 'Total Participants', value: `${listOfParticipants.length}` },
-					{ name: 'Discord Server', value: channel.guild.name },
-					{ name: 'Location', value: channel.name },
+					{ name: 'Date', value: `${currentDate} UTC`, inline: true },
+					{ name: 'Event', value: `${poapSettingsDoc.event}`, inline: true },
+					{ name: 'Discord Server', value: channel.guild.name, inline: true },
+					{ name: 'Location', value: channel.name, inline: true },
+					{ name: 'Total Participants', value: `${listOfParticipants.length}`, inline: true },
 				],
 			},
 		],

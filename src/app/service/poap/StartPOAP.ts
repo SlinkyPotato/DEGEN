@@ -29,6 +29,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const activeSettingsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
 		discordUserId: guildMember.id,
+		discordServerId: guildMember.guild.id,
 		isActive: true,
 	});
 	const activeSettings: POAPSettings = await activeSettingsCursor.next();
@@ -60,16 +61,15 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	}
 	
 	const dmChannel: DMChannel = await guildMember.createDM();
-	let isAutomaticEnd = false;
-	if (duration == null) {
-		await guildMember.send({ content: 'Would you like the event to end automatically? (y/n)' });
-		isAutomaticEnd = (await ServiceUtils.getFirstUserReply(dmChannel)) == 'y';
-	}
 	
-	if (!isAutomaticEnd) {
-		await guildMember.send({ content: `Please use the \`/poap end\` at the end of the event. Additionally the event will run for a maximum of ${constants.POAP_MAX_DURATION_MINUTES} minutes. ` });
+	if (duration == null) {
+		await guildMember.send({ content: 'Would you like to manually end the event? (y/n)' });
+		const isManualEnd = (await ServiceUtils.getFirstUserReply(dmChannel)) == 'y';
+		if (!isManualEnd) {
+			duration = await askForEventMinutes(guildMember, dmChannel);
+		}
 	} else {
-		duration = await askForEventMinutes(guildMember, dmChannel);
+		duration = constants.POAP_MAX_DURATION_MINUTES;
 	}
 	
 	await clearPOAPParticipants(db, channelChoice);
@@ -90,7 +90,21 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 		},
 	});
 	await storePresentMembers(guildMember.guild, db, channelChoice);
-	return guildMember.send({ content: `POAP tracking started for \`${channelChoice.name}\`.` });
+	await guildMember.send({
+		embeds: [
+			{
+				title: 'Event Started',
+				fields: [
+					{ name: 'Event', value: `${event} `, inline: true },
+					{ name: 'Organizer', value: `${guildMember.user.tag} `, inline: true },
+					{ name: 'Discord Server', value: `${guildMember.guild.name} `, inline: true },
+					{ name: 'Location', value: `${channelChoice.name} `, inline: true },
+					{ name: 'Duration', value: `${duration} minutes`, inline: true },
+				],
+			},
+		],
+	});
+	return;
 };
 
 export const setupPoapSetting = async (guildMember: GuildMember, poapSettingsDB: Collection, guildChannel: GuildChannel, event?: string): Promise<POAPSettings> => {
@@ -216,7 +230,7 @@ const askForEventMinutes = async (guildMember: GuildMember, dmChannel: DMChannel
 		return duration;
 	} catch (e) {
 		LogUtils.logError('failed to process duration time', e);
-		throw new ValidationError('please try another duration amount');
+		throw new ValidationError('Please try another duration amount.');
 	}
 };
 

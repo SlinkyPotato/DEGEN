@@ -13,7 +13,7 @@
    - send message on instructions for POAP approval
 3. Add option to automatically end poap events
    - format poap start and end messages
-   - 
+   - fix guest pass auto removal
 
 ## 1.7.2-RELEASE (2021-10-12)
 

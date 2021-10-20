@@ -5,7 +5,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 import Log, { LogUtils } from '../utils/Log';
 
 const EventsAPI = {
-	scheduleEvent: async (request: EventsRequestType): Promise<EventsResponseType | void> => {
+	scheduleEvent: async (request: EventsRequestType): Promise<EventsResponseType> => {
 		const formData: FormData = new FormData();
 		formData.append('name', request.name);
 		formData.append('description', request.description);
@@ -46,6 +46,7 @@ const EventsAPI = {
 			return response.data;
 		} catch (e) {
 			LogUtils.logError('failed to send poap event to POAP BackOffice', e);
+			throw new Error();
 		}
 	},
 };

@@ -52,7 +52,7 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 		return;
 	}
 	
-	const bufferFile = await getBufferFromParticipants(listOfParticipants, channel);
+	const bufferFile = getBufferFromParticipants(listOfParticipants, channel);
 	const currentDate = (new Date()).toISOString();
 	const fileName = `${channel.guild.name}_${channel.name}_${listOfParticipants.length}_participants.csv`;
 	await guildMember.send({
@@ -91,16 +91,19 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 		await guildMember.send({ content: 'Ok! Please upload the POAP links.txt file.' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 		const listOfFailedPOAPs: FailedPOAPAttendee[] = await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile, poapSettingsDoc.event);
+		const failedPOAPsBuffer: Buffer = getBufferForFailedParticipants(listOfFailedPOAPs);
 		await guildMember.send({
 			embeds: [
 				{
-					title: 'POAPs Distributed',
+					title: 'POAPs Distribution Results',
 					fields: [
-						{ name: 'Sent', value: `${listOfParticipants.length}` },
-						{ name: 'Failed to send', value: `${listOfFailedPOAPs.length}` },
+						{ name: 'Attempted to Send', value: `${listOfParticipants.length}`, inline: true },
+						{ name: 'Successfully Sent', value: `${listOfParticipants.length - listOfFailedPOAPs.length}`, inline: true },
+						{ name: 'Failed to Send', value: `${listOfFailedPOAPs.length}`, inline: true },
 					],
 				},
 			],
+			files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
 		});
 
 		Log.info('POAPs Distributed', {
@@ -119,7 +122,8 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 	}
 };
 
-export const getBufferFromParticipants = async (participants: POAPFileParticipant[], voiceChannel: GuildChannel): Promise<Buffer> => {
+// TODO: Consolidate to single method generateCSV from object
+const getBufferFromParticipants = (participants: POAPFileParticipant[], voiceChannel: GuildChannel): Buffer => {
 	if (participants.length === 0) {
 		Log.info(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
 		return Buffer.from('', 'utf-8');
@@ -131,4 +135,18 @@ export const getBufferFromParticipants = async (participants: POAPFileParticipan
 	});
 
 	return Buffer.from(participantsStr, 'utf-8');
+};
+
+const getBufferForFailedParticipants = (failedPOAPs: FailedPOAPAttendee[]): Buffer => {
+	if (failedPOAPs.length === 0) {
+		Log.info('All POAPs delivered successfully');
+		return Buffer.from('', 'utf-8');
+	}
+	
+	let failedPOAPStr = 'discordUserId,discordUserTag,poapLink\n';
+	failedPOAPs.forEach((failedPOAP: FailedPOAPAttendee) => {
+		failedPOAPStr += `${failedPOAP.discordUserId},${failedPOAP.discordUserTag},${failedPOAP.poapLink}` + '\n';
+	});
+
+	return Buffer.from(failedPOAPStr, 'utf-8');
 };

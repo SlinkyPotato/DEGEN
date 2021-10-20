@@ -25,6 +25,7 @@ import dbInstance from '../utils/dbUtils';
 import { Confusables } from './Confusables';
 import discordServerIds from '../service/constants/discordServerIds';
 import Log from './Log';
+import { Buffer } from 'buffer';
 
 const nonStandardCharsRegex = /[^\w\s\p{P}\p{S}Ξ]/gu;
 const emojiRegex = /\p{So}/gu;

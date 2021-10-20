@@ -22,7 +22,7 @@ export default async (client: DiscordClient): Promise<void> => {
 	// Retrieve Guest Pass Role
 	const guestRole = ServiceUtils.getGuestRole(guild.roles);
 
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	const dbGuestUsers = db.collection(constants.DB_COLLECTION_GUEST_USERS);
 
 	// Query all guest pass users from db
@@ -42,12 +42,12 @@ export default async (client: DiscordClient): Promise<void> => {
 
 	// Begin removal of guest users
 	for (const expiredUserId of listOfExpiredGuests) {
-		Log.log('expired userid: ' + expiredUserId);
+		Log.debug('expired userid: ' + expiredUserId);
 
 		const guildMember = await guild.members.fetch(expiredUserId);
 		await guildMember.roles.remove(guestRole).catch(e => LogUtils.logError('failed to remove role', e));
 
-		Log.log(`guest pass removed for ${expiredUserId} in discord`);
+		Log.debug(`guest pass removed for ${expiredUserId} in discord`);
 
 		const guestDBQuery = {
 			_id: expiredUserId,
@@ -57,9 +57,7 @@ export default async (client: DiscordClient): Promise<void> => {
 			Log.error('Failed to remove user from DB');
 			continue;
 		}
-		Log.log(`guest pass removed for ${expiredUserId} in db`);
-
-		await guildMember.send({ content: `Hi <@${expiredUserId}>, your guest pass has expired. Let us know at Bankless DAO if you have any questions!` });
+		Log.debug(`guest pass removed for ${expiredUserId} in db`);
 
 		// discord api rate limit of 50 calls per second
 		await sleep(1000);
@@ -74,7 +72,7 @@ export default async (client: DiscordClient): Promise<void> => {
 		// Send out reminder for user
 		setTimeout(async () => {
 			const guildMember = await guild.members.fetch(activeUser._id);
-			await guildMember.send({ content: `Hey <@${activeUser._id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!` });
+			await guildMember.send({ content: `Hey <@${activeUser._id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!` }).catch(e => LogUtils.logError('failed to messager guest user', e));
 
 			// Discord api rate limit of 50 calls per second
 			await sleep(1000);
@@ -85,7 +83,7 @@ export default async (client: DiscordClient): Promise<void> => {
 			const guildMember = await guild.members.fetch(activeUser._id);
 			await guildMember.roles.remove(guestRole).catch(e => LogUtils.logError('failed to remove role', e));
 
-			Log.log(`guest pass removed for ${activeUser._id} in discord`);
+			Log.debug(`guest pass removed for ${activeUser._id} in discord`);
 
 			const guestDBQuery = {
 				_id: activeUser._id,
@@ -97,16 +95,14 @@ export default async (client: DiscordClient): Promise<void> => {
 				Log.error('Failed to remove user from DB');
 				return;
 			}
-			Log.log(`guest pass removed for ${activeUser._id} in db`);
-
-			await guildMember.send({ content: `Hi <@${activeUser._id}>, your guest pass has expired. Let us know at Bankless DAO if this was a mistake!` });
+			Log.debug(`guest pass removed for ${activeUser._id} in db`);
 
 			// Discord api rate limit of 50 calls per second
 			await sleep(1000);
 		}, expiresInMilli);
 
 	}
-	Log.debug('Guest pass service ready!');
+	Log.debug('Guest pass service ready.');
 };
 
 /**

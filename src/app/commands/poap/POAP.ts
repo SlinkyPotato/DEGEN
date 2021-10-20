@@ -82,6 +82,12 @@ module.exports = class poap extends SlashCommand {
 							description: 'The event name for the discussion',
 							required: false,
 						},
+						{
+							name: 'duration-minutes',
+							type: CommandOptionType.STRING,
+							description: 'Number of minutes the event will remain active.',
+							required: false,
+						},
 					],
 				},
 				{
@@ -131,10 +137,10 @@ module.exports = class poap extends SlashCommand {
 				command = SchedulePOAP(ctx, guildMember, ctx.options.schedule['mint-copies']);
 				break;
 			case 'start':
-				command = StartPOAP(ctx, guildMember, ctx.options.start.event);
+				command = StartPOAP(ctx, guildMember, ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
-				command = EndPOAP(ctx, guildMember);
+				command = EndPOAP(guildMember, ctx);
 				break;
 			case 'distribute':
 				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event']);

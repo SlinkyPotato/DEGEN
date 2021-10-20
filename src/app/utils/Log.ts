@@ -28,9 +28,9 @@ class Log {
 	}
 
 	static debug(statement: string | any, options?: Omit<LogOptions, 'level'>): void {
-		if (process.env.NODE_ENV === 'development') {
+		if (process.env.NODE_ENV === 'development' && process.env.LOGDNA_DEFAULT_LEVEL == 'debug') {
 			// eslint-disable-next-line no-console
-			// console.debug(statement);
+			console.debug(statement);
 		}
 		this.logger.debug(statement, options);
 	}

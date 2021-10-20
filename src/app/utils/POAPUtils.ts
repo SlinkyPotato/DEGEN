@@ -144,12 +144,12 @@ const POAPUtils = {
 		if (duration == null) {
 			return;
 		}
-		if (duration > constants.POAP_MAX_DURATION_MINUTES || duration < 10) {
+		if (duration > constants.POAP_MAX_DURATION_MINUTES || duration < 10 || duration < constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
 			await guildMember.send({
 				content: `<@${guildMember.user.id}>\n` +
-					`A minimum of 10 minutes is required for an event to be active and no more than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`,
+					`A minimum of ${constants.POAP_REQUIRED_PARTICIPATION_DURATION} minutes is required for an event to be active and no more than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`,
 			});
-			throw new ValidationError(`Please try a value greater than 10 and less than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`);
+			throw new ValidationError(`Please try a value greater than ${constants.POAP_REQUIRED_PARTICIPATION_DURATION} and less than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`);
 		}
 	},
 	

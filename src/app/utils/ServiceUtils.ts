@@ -73,6 +73,10 @@ const ServiceUtils = {
 	isDiscordAdmin(guildMember: GuildMember): boolean {
 		return guildMember.permissions.has(Permissions.FLAGS.ADMINISTRATOR);
 	},
+	
+	isDiscordServerManager(guildMember: GuildMember): boolean {
+		return guildMember.permissions.has(Permissions.FLAGS.MANAGE_GUILD);
+	},
 
 	isAnyLevel(guildMember: GuildMember): boolean {
 		return ServiceUtils.hasSomeRole(guildMember, [

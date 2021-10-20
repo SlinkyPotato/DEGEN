@@ -196,34 +196,38 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	if (!approval) {
 		await guildMember.send({ content: 'POAP event removed!' });
 	} else {
-		const response: EventsResponseType = await EventsAPI.scheduleEvent(request);
-		await guildMember.send({
-			embeds: [
-				{
-					title: 'POAP Event Created',
-					description: 'POAP event created and links.txt file should be sent out shortly. Please keep an eye out on your email inbox.',
-					fields: [
-						{ name: 'POAP Backroom URL', value: 'https://app.poap.xyz/admin/events/' + response.fancy_id },
-						{ name: 'POAP ID', value: response.id.toString() },
-					],
-				},
-				{
-					title: 'POAP Mint Approval Instructions',
-					description: 'Until December 1st, there will be two options for those wishing to host events with POAP. ' +
-						'@Early Issuers  will be able to request approval in the approval-requests channel. For everyone else, ' +
-						'a request will need to be submitted to our implementation team through poap.xyz/form. Please submit ' +
-						'as an "I want to use POAP at my next event" outreach; we don’t promise we’ll make it happen, but ' +
-						'are going to do what we can to approve reasonable requests. Entitled behaviour ' +
-						'(like pushing the team on urgency, or white-glove customer support requirements) will result in ' +
-						'a pretty immediate refusal of service, so please self-reflect before engaging....(read more)',
-					fields: [
-						{ name: 'POAP Approval Request Form', value: 'https://poap.xyz/form' },
-						{ name: 'POAP Invite Link', value: 'https://discord.gg/phzxc7xem8' },
-						{ name: 'POAP Announcement Message', value: 'https://discord.com/channels/622859637309571072/761627974440452121/898289547450941511' },
-					],
-				},
-			],
-		});
+		try {
+			const response: EventsResponseType | void = await EventsAPI.scheduleEvent(request);
+			await guildMember.send({
+				embeds: [
+					{
+						title: 'POAP Event Created',
+						description: 'POAP event created and links.txt file should be sent out shortly. Please keep an eye out on your email inbox.',
+						fields: [
+							{ name: 'POAP Backroom URL', value: 'https://app.poap.xyz/admin/events/' + response.fancy_id },
+							{ name: 'POAP ID', value: response.id.toString() },
+						],
+					},
+					{
+						title: 'POAP Mint Approval Instructions',
+						description: 'Until December 1st, there will be two options for those wishing to host events with POAP. ' +
+							'@Early Issuers  will be able to request approval in the approval-requests channel. For everyone else, ' +
+							'a request will need to be submitted to our implementation team through poap.xyz/form. Please submit ' +
+							'as an "I want to use POAP at my next event" outreach; we don’t promise we’ll make it happen, but ' +
+							'are going to do what we can to approve reasonable requests. Entitled behaviour ' +
+							'(like pushing the team on urgency, or white-glove customer support requirements) will result in ' +
+							'a pretty immediate refusal of service, so please self-reflect before engaging....(read more)',
+						fields: [
+							{ name: 'POAP Approval Request Form', value: 'https://poap.xyz/form' },
+							{ name: 'POAP Invite Link', value: 'https://discord.gg/phzxc7xem8' },
+							{ name: 'POAP Announcement Message', value: 'https://discord.com/channels/622859637309571072/761627974440452121/898289547450941511' },
+						],
+					},
+				],
+			});
+		} catch (e) {
+			await guildMember.send({ content: 'Sorry something broke, can you please try again in the discord server?' });
+		}
 	}
 };
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.8.0-SNAPSHOT
+## 1.8.0-RELEASE (2021-10-21)
 
 1. Fix scoap-squad and update start season 2
 2. Integrate with logDNA sdk, turn off native console.log
@@ -11,10 +11,12 @@
    - set min poap participate time to 10 mins
    - display guild name and event for poap distribution message
    - send message on instructions for POAP approval
+   - enable `/scoap-squad` in BanklessDAO
 3. Add option to automatically end poap events
    - format poap start and end messages
    - fix guest pass auto removal
 4. Return csv of failed participants at end of event
+5. Extend `/poap config` to guild/server managers
 
 ## 1.7.2-RELEASE (2021-10-12)
 

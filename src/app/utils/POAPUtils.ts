@@ -15,6 +15,12 @@ export type POAPFileParticipant = {
 	duration: number
 };
 
+export type FailedPOAPAttendee = {
+	discordUserId: string,
+	discordUserTag: string,
+	poapLink: string,
+}
+
 const POAPUtils = {
 	
 	async getListOfParticipants(guildMember: GuildMember, db: Db, voiceChannel: GuildChannel): Promise<POAPFileParticipant[]> {
@@ -64,8 +70,9 @@ const POAPUtils = {
 		return participants;
 	},
 
-	async sendOutPOAPLinks(guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], attachment: MessageAttachment, event?: string): Promise<any> {
+	async sendOutPOAPLinks(guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], attachment: MessageAttachment, event?: string): Promise<FailedPOAPAttendee[]> {
 		let listOfPOAPLinks;
+		const failedPOAPsList: FailedPOAPAttendee[] = [];
 		const guildName = guildMember.guild.name;
 		event = (event == null) ? 'event' : event;
 		try {
@@ -73,13 +80,19 @@ const POAPUtils = {
 			listOfPOAPLinks = response.data.split('\n');
 		} catch (e) {
 			LogUtils.logError('failed to process links.txt file', e);
-			return guildMember.send({ content: 'Could not process the links.txt file. Please make sure the file that is uploaded has every URL on a new line.' });
+			await guildMember.send({ content: 'Could not process the links.txt file. Please make sure the file that is uploaded has every URL on a new line.' });
+			return;
 		}
 		for (let i = 0; i < listOfParticipants.length; i++) {
 			try {
 				await guildMember.guild.members.fetch(listOfParticipants[i].id)
 					.then(async (participantMember: GuildMember) => {
 						await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
+							failedPOAPsList.push({
+								discordUserId: listOfParticipants[i].id,
+								discordUserTag: listOfParticipants[i].tag,
+								poapLink: listOfPOAPLinks[i],
+							});
 							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`, e);
 						});
 					}).catch(async (e) => {
@@ -87,14 +100,17 @@ const POAPUtils = {
 						const tryAgainMember: GuildMember = await guildMember.guild.members.fetch(listOfParticipants[i].id);
 						Log.debug(`trying to send another message to user ${listOfParticipants[i].tag}`);
 						await tryAgainMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e2) => {
+							failedPOAPsList.push({ discordUserId: listOfParticipants[i].id, discordUserTag: listOfParticipants[i].tag, poapLink: listOfPOAPLinks[i] });
 							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`, e2);
 						});
 					});
 			} catch (e) {
 				LogUtils.logError('user might have been banned', e);
+				failedPOAPsList.push({ discordUserId: listOfParticipants[i].id, discordUserTag: listOfParticipants[i].tag, poapLink: listOfPOAPLinks[i] });
 			}
 		}
 		Log.info(`Links sent to ${listOfParticipants.length} participants.`);
+		return failedPOAPsList;
 	},
 
 	async validateEvent(guildMember: GuildMember, event?: string): Promise<any> {

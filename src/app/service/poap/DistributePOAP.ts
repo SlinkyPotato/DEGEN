@@ -1,6 +1,6 @@
 import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageAttachment } from 'discord.js';
 import axios from 'axios';
-import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
+import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
 import ValidationError from '../../errors/ValidationError';
 import { Db } from 'mongodb';
 import dbInstance from '../../utils/dbUtils';
@@ -16,7 +16,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	const participantsList: POAPFileParticipant[] = await askForParticipantsList(guildMember);
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
-	await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, linksMessageAttachment, event);
+	const failedPOAPsList: FailedPOAPAttendee[] = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, linksMessageAttachment, event);
 };
 
 export const askForParticipantsList = async (guildMember: GuildMember): Promise<POAPFileParticipant[]> => {

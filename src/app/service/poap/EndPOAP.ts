@@ -5,7 +5,7 @@ import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
 import { POAPSettings } from '../../types/poap/POAPSettings';
-import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
+import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
 
@@ -42,7 +42,7 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 		},
 	});
 	const channel: GuildChannel = await guildMember.guild.channels.fetch(poapSettingsDoc.voiceChannelId);
-	const listOfParticipants = await POAPUtils.getListOfParticipants(guildMember, db, channel);
+	const listOfParticipants: POAPFileParticipant[] = await POAPUtils.getListOfParticipants(guildMember, db, channel);
 	
 	if (listOfParticipants.length <= 0) {
 		await guildMember.send({ content: `Event ended. No participants found for \`${channel.name}\` in \`${channel.guild.name}\`.` });
@@ -58,7 +58,7 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 	await guildMember.send({
 		embeds: [
 			{
-				title: 'POAP Distribution Results',
+				title: 'Event Ended',
 				fields: [
 					{ name: 'Date', value: `${currentDate} UTC`, inline: true },
 					{ name: 'Event', value: `${poapSettingsDoc.event}`, inline: true },
@@ -69,15 +69,6 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 			},
 		],
 		files: [{ name: fileName, attachment: bufferFile }],
-	});
-	Log.info('POAPs distributed', {
-		indexMeta: true,
-		meta: {
-			guildId: guildMember.guild.id,
-			guildName: guildMember.guild.name,
-			totalParticipants: listOfParticipants.length,
-			location: channel.name,
-		},
 	});
 
 	if (ctx) {
@@ -99,8 +90,28 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
 		await guildMember.send({ content: 'Ok! Please upload the POAP links.txt file.' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
-		await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile, poapSettingsDoc.event);
-		await guildMember.send({ content: 'POAP links sent out to participants!' });
+		const listOfFailedPOAPs: FailedPOAPAttendee[] = await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile, poapSettingsDoc.event);
+		await guildMember.send({
+			embeds: [
+				{
+					title: 'POAPs Distributed',
+					fields: [
+						{ name: 'Sent', value: `${listOfParticipants.length}` },
+						{ name: 'Failed to send', value: `${listOfFailedPOAPs.length}` },
+					],
+				},
+			],
+		});
+
+		Log.info('POAPs Distributed', {
+			indexMeta: true,
+			meta: {
+				guildId: guildMember.guild.id,
+				guildName: guildMember.guild.name,
+				totalParticipants: listOfParticipants.length,
+				location: channel.name,
+			},
+		});
 		return 'POAP_SENT';
 	} else {
 		await guildMember.send({ content: 'You got it!' });

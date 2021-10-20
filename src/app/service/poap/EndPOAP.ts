@@ -137,7 +137,7 @@ const getBufferFromParticipants = (participants: POAPFileParticipant[], voiceCha
 	return Buffer.from(participantsStr, 'utf-8');
 };
 
-const getBufferForFailedParticipants = (failedPOAPs: FailedPOAPAttendee[]): Buffer => {
+export const getBufferForFailedParticipants = (failedPOAPs: FailedPOAPAttendee[]): Buffer => {
 	if (failedPOAPs.length === 0) {
 		Log.info('All POAPs delivered successfully');
 		return Buffer.from('', 'utf-8');

@@ -5,7 +5,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 import Log, { LogUtils } from '../utils/Log';
 
 const EventsAPI = {
-	scheduleEvent: async (request: EventsRequestType): Promise<EventsResponseType> => {
+	scheduleEvent: async (request: EventsRequestType): Promise<EventsResponseType | void> => {
 		const formData: FormData = new FormData();
 		formData.append('name', request.name);
 		formData.append('description', request.description);

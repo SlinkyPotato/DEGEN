@@ -196,7 +196,11 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	if (!approval) {
 		await guildMember.send({ content: 'POAP event removed!' });
 	} else {
-		const response: EventsResponseType = await EventsAPI.scheduleEvent(request);
+		const response: EventsResponseType | void = await EventsAPI.scheduleEvent(request);
+		if (response == null) {
+			await guildMember.send({ content: 'Something is not working, please try the slash command again.' });
+			return;
+		}
 		await guildMember.send({
 			embeds: [
 				{

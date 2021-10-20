@@ -15,6 +15,7 @@
    - format poap start and end messages
    - fix guest pass auto removal
 4. Return csv of failed participants at end of event
+5. Integrate with the banklessDAO website
 
 ## 1.7.2-RELEASE (2021-10-12)
 

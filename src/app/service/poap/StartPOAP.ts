@@ -6,7 +6,14 @@ import {
 	StageChannel,
 	VoiceChannel,
 } from 'discord.js';
-import { Collection, Cursor, Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
+import {
+	Collection,
+	Cursor,
+	Db,
+	FindAndModifyWriteOpResultObject,
+	InsertOneWriteOpResult,
+	MongoError,
+} from 'mongodb';
 import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
@@ -18,6 +25,7 @@ import POAPUtils from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
 import Log, { LogUtils } from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
+import POAPService from './POAPService';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, event?: string, duration?: number): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
@@ -63,8 +71,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	const dmChannel: DMChannel = await guildMember.createDM();
 	
 	if (duration == null) {
-		await guildMember.send({ content: 'Would you like to manually end the event? (y/n)' });
-		const isManualEnd = (await ServiceUtils.getFirstUserReply(dmChannel)) == 'y';
+		await guildMember.send({ content: 'Would you like the event to end automatically? (y/n)' });
+		const isManualEnd = (await ServiceUtils.getFirstUserReply(dmChannel)) == 'n';
 		if (!isManualEnd) {
 			duration = await askForEventMinutes(guildMember, dmChannel);
 		} else {
@@ -77,7 +85,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	const currentDateISO: string = currentDate.toISOString();
 	const endDateISO: string = currentDate.add(duration, 'minute').toISOString();
 	
-	await poapSettingsDB.updateOne({
+	const activeEvent: FindAndModifyWriteOpResultObject<POAPSettings> = await poapSettingsDB.findOneAndUpdate({
 		discordServerId: channelChoice.guild.id,
 		voiceChannelId: channelChoice.id,
 	}, {
@@ -88,8 +96,14 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 			discordUserId: guildMember.user.id,
 			event: event,
 		},
+	}, {
+		returnDocument: 'after',
 	});
+	
 	await storePresentMembers(guildMember.guild, db, channelChoice);
+	
+	POAPService.setupAutoEndForEvent(guildMember.client, activeEvent.value);
+	
 	await guildMember.send({
 		embeds: [
 			{

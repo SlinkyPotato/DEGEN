@@ -6,6 +6,7 @@ import { connect } from '../utils/dbUtils';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import { restoreScoapEmbedAndVoteRecord } from '../service/scoap-squad/ScoapDatabase';
 import Log, { LogUtils } from '../utils/Log';
+import POAPService from '../service/poap/POAPService';
 
 export default class implements DiscordEvent {
 	name = 'ready';
@@ -26,9 +27,12 @@ export default class implements DiscordEvent {
 				await GuestPassService(client).catch(Log.error);
 				await restoreScoapEmbedAndVoteRecord().catch(Log.error);
 			}
+			
+			await POAPService.run(client).catch(Log.error);
+			
+			Log.info('DEGEN is ready!');
 		} catch (e) {
 			LogUtils.logError('Error processing event ready', e);
 		}
-		Log.info('DEGEN is ready!');
 	}
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.0-SNAPSHOT
+
+1. Add twitter spaced integration
+
 ## 1.8.0-RELEASE (2021-10-21)
 
 1. Fix scoap-squad and update start season 2

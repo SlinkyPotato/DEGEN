@@ -5,7 +5,7 @@ import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
 import { POAPSettings } from '../../types/poap/POAPSettings';
-import POAPUtils, { POAPFileParticipant } from '../../utils/POAPUtils';
+import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
 
@@ -42,7 +42,7 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 		},
 	});
 	const channel: GuildChannel = await guildMember.guild.channels.fetch(poapSettingsDoc.voiceChannelId);
-	const listOfParticipants = await POAPUtils.getListOfParticipants(guildMember, db, channel);
+	const listOfParticipants: POAPFileParticipant[] = await POAPUtils.getListOfParticipants(guildMember, db, channel);
 	
 	if (listOfParticipants.length <= 0) {
 		await guildMember.send({ content: `Event ended. No participants found for \`${channel.name}\` in \`${channel.guild.name}\`.` });
@@ -52,13 +52,13 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 		return;
 	}
 	
-	const bufferFile = await getBufferFromParticipants(listOfParticipants, channel);
+	const bufferFile = getBufferFromParticipants(listOfParticipants, channel);
 	const currentDate = (new Date()).toISOString();
 	const fileName = `${channel.guild.name}_${channel.name}_${listOfParticipants.length}_participants.csv`;
 	await guildMember.send({
 		embeds: [
 			{
-				title: 'POAP Distribution Results',
+				title: 'Event Ended',
 				fields: [
 					{ name: 'Date', value: `${currentDate} UTC`, inline: true },
 					{ name: 'Event', value: `${poapSettingsDoc.event}`, inline: true },
@@ -69,15 +69,6 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 			},
 		],
 		files: [{ name: fileName, attachment: bufferFile }],
-	});
-	Log.info('POAPs distributed', {
-		indexMeta: true,
-		meta: {
-			guildId: guildMember.guild.id,
-			guildName: guildMember.guild.name,
-			totalParticipants: listOfParticipants.length,
-			location: channel.name,
-		},
 	});
 
 	if (ctx) {
@@ -99,8 +90,31 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
 		await guildMember.send({ content: 'Ok! Please upload the POAP links.txt file.' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
-		await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile, poapSettingsDoc.event);
-		await guildMember.send({ content: 'POAP links sent out to participants!' });
+		const listOfFailedPOAPs: FailedPOAPAttendee[] = await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile, poapSettingsDoc.event);
+		const failedPOAPsBuffer: Buffer = getBufferForFailedParticipants(listOfFailedPOAPs);
+		await guildMember.send({
+			embeds: [
+				{
+					title: 'POAPs Distribution Results',
+					fields: [
+						{ name: 'Attempted to Send', value: `${listOfParticipants.length}`, inline: true },
+						{ name: 'Successfully Sent', value: `${listOfParticipants.length - listOfFailedPOAPs.length}`, inline: true },
+						{ name: 'Failed to Send', value: `${listOfFailedPOAPs.length}`, inline: true },
+					],
+				},
+			],
+			files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
+		});
+
+		Log.info('POAPs Distributed', {
+			indexMeta: true,
+			meta: {
+				guildId: guildMember.guild.id,
+				guildName: guildMember.guild.name,
+				totalParticipants: listOfParticipants.length,
+				location: channel.name,
+			},
+		});
 		return 'POAP_SENT';
 	} else {
 		await guildMember.send({ content: 'You got it!' });
@@ -108,7 +122,8 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 	}
 };
 
-export const getBufferFromParticipants = async (participants: POAPFileParticipant[], voiceChannel: GuildChannel): Promise<Buffer> => {
+// TODO: Consolidate to single method generateCSV from object
+const getBufferFromParticipants = (participants: POAPFileParticipant[], voiceChannel: GuildChannel): Buffer => {
 	if (participants.length === 0) {
 		Log.info(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
 		return Buffer.from('', 'utf-8');
@@ -120,4 +135,18 @@ export const getBufferFromParticipants = async (participants: POAPFileParticipan
 	});
 
 	return Buffer.from(participantsStr, 'utf-8');
+};
+
+export const getBufferForFailedParticipants = (failedPOAPs: FailedPOAPAttendee[]): Buffer => {
+	if (failedPOAPs.length === 0) {
+		Log.info('All POAPs delivered successfully');
+		return Buffer.from('', 'utf-8');
+	}
+	
+	let failedPOAPStr = 'discordUserId,discordUserTag,poapLink\n';
+	failedPOAPs.forEach((failedPOAP: FailedPOAPAttendee) => {
+		failedPOAPStr += `${failedPOAP.discordUserId},${failedPOAP.discordUserTag},${failedPOAP.poapLink}` + '\n';
+	});
+
+	return Buffer.from(failedPOAPStr, 'utf-8');
 };

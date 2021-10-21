@@ -1,9 +1,8 @@
-import { GuildMember, TextBasedChannels } from 'discord.js';
-// import { Collection } from '@discordjs/collection';
-// import { Snowflake } from 'discord-api-types';
+import {DMChannel, GuildMember, TextBasedChannels} from 'discord.js';
 
-export default async (member: GuildMember): Promise<any> => {
-	const dmChannel: TextBasedChannels = await member.user.createDM();
+export default async (member: GuildMember, dmChan:TextBasedChannels | string ): Promise<any> => {
+
+	const dmChannel: DMChannel = await getDMChannel(member, dmChan);
 
 	const verificationMessage = await dmChannel.send({ content:
 			'Hello! Welcome to BanklessDAO. We\'re glad you\'re here 🙂 \n \n' +
@@ -13,7 +12,7 @@ export default async (member: GuildMember): Promise<any> => {
 
 	await verificationMessage.awaitReactions({
 		max: 1,
-		time: (20000 * 60),
+		time: (10000 * 60),
 		errors: ['time'],
 		filter: async (reaction, user) => {
 			return ['👍'].includes(reaction.emoji.name) && !user.bot;
@@ -27,7 +26,7 @@ export default async (member: GuildMember): Promise<any> => {
 			await sendFqMessage(dmChannel, member);
 		})
 		.catch(async (e) => {
-			await dmChannel.send('Verification failed, please try again.');
+			await dmChannel.send('Verification failed, please try again. You can restart the verification process by responding with **!verification** ');
 			console.log(e);
 		});
 };
@@ -43,7 +42,7 @@ export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildM
 
 	await firstQuestMessage.awaitReactions({
 		max: 1,
-		time: (10000 * 60),
+		// time: (1000 * 60),
 		errors: ['time'],
 		filter: async (reaction, user) => {
 			return [fqMessage.emoji].includes(reaction.emoji.name) && !user.bot;
@@ -51,7 +50,11 @@ export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildM
 	})
 		.then(async (collected) => {
 			await switchRoles(member, fqMessage.start_role, fqMessage.end_role);
+			// if (fqMessage.start_role === 'First Quest Complete') {
+			// 	return await sendFqMessage(dmChannel, member);
+			// } else {
 			await sendFqMessage(dmChannel, member);
+			// }
 		})
 		.catch(async (e) => {
 			await dmChannel.send('The conversation timed out. ' +
@@ -62,6 +65,14 @@ export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildM
 			console.log(e);
 		});
 };
+
+const getDMChannel = async (member: GuildMember, dmChan: TextBasedChannels | string): Promise<DMChannel> => {
+	if (dmChan === 'undefined') {
+		return await member.user.createDM();
+	} else {
+		return dmChan as DMChannel;
+	}
+}
 
 const switchRoles = async (member: GuildMember, fromRole: string, toRole: string): Promise<void> => {
 	const guild = member.guild;
@@ -126,7 +137,7 @@ const fqMessageFlow = {
 	verified: { message_id: 'fq1', emoji: '🏦', start_role: 'verified', end_role: 'First Quest Welcome' },
 	welcome: { message_id: 'fq2', emoji: '🏦', start_role: 'First Quest Welcome', end_role: 'First Quest Membership' },
 	membership: { message_id: 'fq3', emoji: '🏦', start_role: 'First Quest Membership', end_role: 'Firehose' },
-	firehose: { message_id: 'fq4', emoji: '🏦', start_role: 'Firehose', end_role: 'First Quest Scholar' },
+	firehose: { message_id: 'fq4', emoji: '✏️', start_role: 'Firehose', end_role: 'First Quest Scholar' },
 	scholar: { message_id: 'fq5', emoji: '✏️', start_role: 'First Quest Scholar', end_role: 'First Quest Guest Pass' },
 	guest_pass: { message_id: 'fq6', emoji: '✏️', start_role: 'First Quest Guest Pass', end_role: 'First Quest' },
 	first_quest: { message_id: 'fq7', emoji: '🤠', start_role: 'First Quest', end_role: 'First Quest Complete' },

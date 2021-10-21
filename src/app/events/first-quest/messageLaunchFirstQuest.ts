@@ -1,10 +1,11 @@
 import ServiceUtils from '../../utils/ServiceUtils';
 import { sendFqMessage } from '../../service/first-quest/LaunchFirstQuest';
+import LaunchFirstQuest from '../../service/first-quest/LaunchFirstQuest';
 import { Message } from "discord.js";
 
 export default async (message: Message): Promise<any> => {
 	// gate everything that is not first-quest command
-	if (!(message.content === '!first-quest')) return;
+	if (!(['!first-quest', '!verification'].includes(message.content))) return;
 
 	const guilds = await message.client.guilds.fetch();
 
@@ -15,6 +16,10 @@ export default async (message: Message): Promise<any> => {
 			const guildMembers = await guild.members.fetch();
 
 			for (const member of guildMembers.values()) {
+				if (message.content === '!verification') {
+					return await LaunchFirstQuest(member, message.channel);
+				}
+
 				const isWelcome = await member.roles.cache.find(role => {
 					return [
 						'verified',

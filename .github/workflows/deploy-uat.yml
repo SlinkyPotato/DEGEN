@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'pre-release'
+      - 'DEGEN'
 jobs:
   build-test-deploy:
     environment:

@@ -43,64 +43,70 @@ export default async (client: DiscordClient): Promise<void> => {
 	// Begin removal of guest users
 	for (const expiredUserId of listOfExpiredGuests) {
 		Log.debug('expired userid: ' + expiredUserId);
+		try {
+			const guildMember = await guild.members.fetch(expiredUserId);
+			await guildMember.roles.remove(guestRole).catch(e => LogUtils.logError('failed to remove role', e));
 
-		const guildMember = await guild.members.fetch(expiredUserId);
-		await guildMember.roles.remove(guestRole).catch(e => LogUtils.logError('failed to remove role', e));
+			Log.debug(`guest pass removed for ${expiredUserId} in discord`);
 
-		Log.debug(`guest pass removed for ${expiredUserId} in discord`);
+			const guestDBQuery = {
+				_id: expiredUserId,
+			};
+			const dbDeleteResult = await dbGuestUsers.findOneAndDelete(guestDBQuery);
+			if (dbDeleteResult == null) {
+				Log.error('Failed to remove user from DB');
+				continue;
+			}
+			Log.debug(`guest pass removed for ${expiredUserId} in db`);
 
-		const guestDBQuery = {
-			_id: expiredUserId,
-		};
-		const dbDeleteResult = await dbGuestUsers.findOneAndDelete(guestDBQuery);
-		if (dbDeleteResult == null) {
-			Log.error('Failed to remove user from DB');
-			continue;
+			// discord api rate limit of 50 calls per second
+			await sleep(1000);
+		} catch (e) {
+			LogUtils.logError('failed to remove expired userid', e);
 		}
-		Log.debug(`guest pass removed for ${expiredUserId} in db`);
-
-		// discord api rate limit of 50 calls per second
-		await sleep(1000);
 	}
 
 	// Begin reminder of active guest users
 	for (const activeUser of listOfActiveGuests) {
-		Log.log('active userid: ' + activeUser._id);
+		try {
+			Log.log('active userid: ' + activeUser._id);
 
-		const expiresInMilli = Math.max(activeUser.expiresTimestamp - Date.now(), 0);
+			const expiresInMilli = Math.max(activeUser.expiresTimestamp - Date.now(), 0);
 
-		// Send out reminder for user
-		setTimeout(async () => {
-			const guildMember = await guild.members.fetch(activeUser._id);
-			await guildMember.send({ content: `Hey <@${activeUser._id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!` }).catch(e => LogUtils.logError('failed to messager guest user', e));
+			// Send out reminder for user
+			setTimeout(async () => {
+				const guildMember = await guild.members.fetch(activeUser._id);
+				await guildMember.send({ content: `Hey <@${activeUser._id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!` }).catch(e => LogUtils.logError('failed to messager guest user', e));
 
-			// Discord api rate limit of 50 calls per second
-			await sleep(1000);
-		}, Math.max(expiresInMilli - (1000 * 60 * 15), 0));
+				// Discord api rate limit of 50 calls per second
+				await sleep(1000);
+			}, Math.max(expiresInMilli - (1000 * 60 * 15), 0));
 
-		// Remove user's guest pass
-		setTimeout(async () => {
-			const guildMember = await guild.members.fetch(activeUser._id);
-			await guildMember.roles.remove(guestRole).catch(e => LogUtils.logError('failed to remove role', e));
+			// Remove user's guest pass
+			setTimeout(async () => {
+				const guildMember = await guild.members.fetch(activeUser._id);
+				await guildMember.roles.remove(guestRole).catch(e => LogUtils.logError('failed to remove role', e));
 
-			Log.debug(`guest pass removed for ${activeUser._id} in discord`);
+				Log.debug(`guest pass removed for ${activeUser._id} in discord`);
 
-			const guestDBQuery = {
-				_id: activeUser._id,
-			};
-			const timeoutDB: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
-			const timeoutDBGuestUsers = timeoutDB.collection(constants.DB_COLLECTION_GUEST_USERS);
-			const dbDeleteResult = await timeoutDBGuestUsers.findOneAndDelete(guestDBQuery);
-			if (dbDeleteResult == null) {
-				Log.error('Failed to remove user from DB');
-				return;
-			}
-			Log.debug(`guest pass removed for ${activeUser._id} in db`);
+				const guestDBQuery = {
+					_id: activeUser._id,
+				};
+				const timeoutDB: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+				const timeoutDBGuestUsers = timeoutDB.collection(constants.DB_COLLECTION_GUEST_USERS);
+				const dbDeleteResult = await timeoutDBGuestUsers.findOneAndDelete(guestDBQuery);
+				if (dbDeleteResult == null) {
+					Log.error('Failed to remove user from DB');
+					return;
+				}
+				Log.debug(`guest pass removed for ${activeUser._id} in db`);
 
-			// Discord api rate limit of 50 calls per second
-			await sleep(1000);
-		}, expiresInMilli);
-
+				// Discord api rate limit of 50 calls per second
+				await sleep(1000);
+			}, expiresInMilli);	
+		} catch (e) {
+			LogUtils.logError('failed to set reminder for guest user', e);
+		}
 	}
 	Log.debug('Guest pass service ready.');
 };

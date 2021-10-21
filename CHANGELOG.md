@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.1-RELEASE (2021-10-21)
+
+1. Fix removal of guest pass users by wraping in try/catch block in case of error
+
 ## 1.8.0-RELEASE (2021-10-21)
 
 1. Fix scoap-squad and update start season 2

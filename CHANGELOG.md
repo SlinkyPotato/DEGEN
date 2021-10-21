@@ -3,7 +3,7 @@
 ## 1.8.1-RELEASE (2021-10-21)
 
 1. Fix removal of guest pass users by wraping in try/catch block in case of error
-2. Add hotfix branch deployment to uat
+2. Add DEGEN branch deployment to uat
 
 ## 1.8.0-RELEASE (2021-10-21)
 

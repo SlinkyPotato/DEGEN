@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - 'pre-release'
+  pull_request:
+    branches:
       - 'DEGEN'
 jobs:
   build-test-deploy:

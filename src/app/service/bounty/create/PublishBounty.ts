@@ -7,6 +7,7 @@ import channelIDs from '../../constants/channelIds';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import envUrls from '../../constants/envUrls';
 import { BountyCollection } from '../../../types/bounty/BountyCollection';
+import Log from '../../../utils/Log';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -14,7 +15,7 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<any> 
 };
 
 export const finalizeBounty = async (guildMember: GuildMember, bountyId: string): Promise<any> => {
-	console.log('starting to finalize bounty: ' + bountyId);
+	Log.info('starting to finalize bounty: ' + bountyId);
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
@@ -26,14 +27,14 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 
 	if (dbBountyResult.status != 'Draft') {
-		console.log(`${bountyId} bounty is not drafted`);
+		Log.info(`${bountyId} bounty is not drafted`);
 		return guildMember.send({ content: 'Sorry bounty is not drafted.' });
 	}
 	const messageOptions: MessageEmbedOptions = generateEmbedMessage(dbBountyResult, 'Open');
 
 	const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(channelIDs.bountyBoard) as TextChannel;
 	const bountyMessage: Message = await bountyChannel.send({ embeds: [messageOptions] });
-	console.log('bounty published to #bounty-board');
+	Log.info('bounty published to #bounty-board');
 	addPublishReactions(bountyMessage);
 
 	const currentDate = (new Date()).toISOString();
@@ -51,7 +52,7 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 	});
 
 	if (writeResult.modifiedCount != 1) {
-		console.log(`failed to update record ${bountyId} for user <@${guildMember.user.id}>`);
+		Log.info(`failed to update record ${bountyId} for user <@${guildMember.user.id}>`);
 		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
 

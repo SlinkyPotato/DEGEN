@@ -1,6 +1,7 @@
 import { PartialUser, User } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import ServiceUtils from '../utils/ServiceUtils';
+import { LogUtils } from '../utils/Log';
 
 export default class implements DiscordEvent {
 	name = 'userUpdate';
@@ -25,8 +26,7 @@ export default class implements DiscordEvent {
 				}
 			}
 		} catch (e) {
-			console.error(e);
-			return;
+			LogUtils.logError('failed to process event userUpdate', e);
 		}
 	}
 }

@@ -6,7 +6,14 @@ import {
 	StageChannel,
 	VoiceChannel,
 } from 'discord.js';
-import { Collection, Cursor, Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
+import {
+	Collection,
+	Cursor,
+	Db,
+	FindAndModifyWriteOpResultObject,
+	InsertOneWriteOpResult,
+	MongoError,
+} from 'mongodb';
 import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
@@ -16,28 +23,33 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import EarlyTermination from '../../errors/EarlyTermination';
 import POAPUtils from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
+import Log, { LogUtils } from '../../utils/Log';
+import dayjs, { Dayjs } from 'dayjs';
+import POAPService from './POAPService';
 
-export default async (ctx: CommandContext, guildMember: GuildMember, event?: string): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember, event?: string, duration?: number): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 
 	await POAPUtils.validateUserAccess(guildMember, db);
 	await POAPUtils.validateEvent(guildMember, event);
+	await POAPUtils.validateDuration(guildMember, duration);
 	
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const activeSettingsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
 		discordUserId: guildMember.id,
+		discordServerId: guildMember.guild.id,
 		isActive: true,
 	});
 	const activeSettings: POAPSettings = await activeSettingsCursor.next();
 	if (activeSettings != null) {
-		console.log('unable to start due to active event');
+		Log.info('unable to start due to active event');
 		await guildMember.send({ content: 'An event is already active.' });
 		throw new ValidationError(`Please end the active event \`${activeSettings.voiceChannelName}\`.`);
 	}
 	
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
-	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) });
+	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	const channelChoice: GuildChannel = await askUserForChannel(guildMember, message, voiceChannels);
 
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
@@ -46,31 +58,67 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	});
 
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
-		console.log('unable to start due to active event');
+		Log.info('unable to start due to active event');
 		await guildMember.send({ content: 'Event is already active.' });
 		throw new ValidationError(`\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`);
 	}
 
 	if (poapSettingsDoc == null) {
-		console.log(`setting up first time poap configuration for ${guildMember.user.tag}`);
+		Log.info(`setting up first time poap configuration for ${guildMember.user.tag}`);
 		await setupPoapSetting(guildMember, poapSettingsDB, channelChoice, event);
 	}
-
+	
+	const dmChannel: DMChannel = await guildMember.createDM();
+	
+	if (duration == null) {
+		await guildMember.send({ content: 'Would you like the event to end automatically? (y/n)' });
+		const isManualEnd = (await ServiceUtils.getFirstUserReply(dmChannel)) == 'n';
+		if (!isManualEnd) {
+			duration = await askForEventMinutes(guildMember, dmChannel);
+		} else {
+			duration = constants.POAP_MAX_DURATION_MINUTES;
+		}
+	}
+	
 	await clearPOAPParticipants(db, channelChoice);
-	const currentDateStr = (new Date()).toISOString();
-	await poapSettingsDB.updateOne({
+	const currentDate: Dayjs = dayjs();
+	const currentDateISO: string = currentDate.toISOString();
+	const endDateISO: string = currentDate.add(duration, 'minute').toISOString();
+	
+	const activeEvent: FindAndModifyWriteOpResultObject<POAPSettings> = await poapSettingsDB.findOneAndUpdate({
 		discordServerId: channelChoice.guild.id,
 		voiceChannelId: channelChoice.id,
 	}, {
 		$set: {
 			isActive: true,
-			startTime: currentDateStr,
+			startTime: currentDateISO,
+			endTime: endDateISO,
 			discordUserId: guildMember.user.id,
 			event: event,
 		},
+	}, {
+		returnDocument: 'after',
 	});
+	
 	await storePresentMembers(guildMember.guild, db, channelChoice);
-	return guildMember.send({ content: `POAP tracking started for \`${channelChoice.name}\`.` });
+	
+	POAPService.setupAutoEndForEvent(guildMember.client, activeEvent.value);
+	
+	await guildMember.send({
+		embeds: [
+			{
+				title: 'Event Started',
+				fields: [
+					{ name: 'Event', value: `${event} `, inline: true },
+					{ name: 'Organizer', value: `${guildMember.user.tag} `, inline: true },
+					{ name: 'Discord Server', value: `${guildMember.guild.name} `, inline: true },
+					{ name: 'Location', value: `${channelChoice.name} `, inline: true },
+					{ name: 'Duration', value: `${duration} minutes`, inline: true },
+				],
+			},
+		],
+	});
+	return;
 };
 
 export const setupPoapSetting = async (guildMember: GuildMember, poapSettingsDB: Collection, guildChannel: GuildChannel, event?: string): Promise<POAPSettings> => {
@@ -92,13 +140,19 @@ export const setupPoapSetting = async (guildMember: GuildMember, poapSettingsDB:
 };
 
 export const clearPOAPParticipants = async (db: Db, guildChannel: GuildChannel): Promise<void> => {
-	console.log(`attempting to delete all previous participants for ${guildChannel.guild.name} on channel: ${guildChannel.name}`);
+	Log.info(`attempting to delete all previous participants for ${guildChannel.guild.name} on channel: ${guildChannel.name}`);
 	const poapParticipantsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
 	await poapParticipantsDB.deleteMany({
 		voiceChannelId: guildChannel.id,
 		discordServerId: guildChannel.guild.id,
 	});
-	console.log('removed all previous participants.');
+	Log.info('removed all previous participants.', {
+		indexMeta: true,
+		meta: {
+			guildId: guildChannel.guild.id,
+			channelId: guildChannel.id,
+		},
+	});
 };
 
 export const storePresentMembers = async (guild: Guild, db: Db, channel: GuildChannel): Promise<any> => {
@@ -107,7 +161,7 @@ export const storePresentMembers = async (guild: Guild, db: Db, channel: GuildCh
 			updateUserForPOAP(member, db, channel, true);
 		});
 	} catch (e) {
-		console.error(e);
+		LogUtils.logError('failed to store present members', e);
 	}
 };
 
@@ -178,6 +232,19 @@ export const askUserForChannel = async (guildMember: GuildMember, dmMessage: Mes
 			return voiceChannel;
 		}
 		i++;
+	}
+};
+
+const askForEventMinutes = async (guildMember: GuildMember, dmChannel: DMChannel): Promise<number> => {
+	try {
+		await guildMember.send({ content: `How long should the event stay active? (max: ${constants.POAP_MAX_DURATION_MINUTES} minutes)` });
+		const durationOfEventInMinutes: string = await ServiceUtils.getFirstUserReply(dmChannel);
+		const duration = Number(durationOfEventInMinutes);
+		await POAPUtils.validateDuration(guildMember, duration);
+		return duration;
+	} catch (e) {
+		LogUtils.logError('failed to process duration time', e);
+		throw new ValidationError('Please try another duration amount.');
 	}
 };
 

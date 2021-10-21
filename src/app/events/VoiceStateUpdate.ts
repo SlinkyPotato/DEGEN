@@ -1,6 +1,7 @@
 import { VoiceState } from 'discord.js';
 import addUserForEvent from './poap/AddUserForEvent';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
+import { LogUtils } from '../utils/Log';
 
 /**
  * voiceStateUpdate
@@ -17,9 +18,9 @@ export default class implements DiscordEvent {
 	 */
 	async execute(oldState: VoiceState, newState: VoiceState): Promise<any> {
 		try {
-			await addUserForEvent(oldState, newState).catch(console.error);
+			await addUserForEvent(oldState, newState).catch(e => LogUtils.logError('failed to add user for POAP event', e, oldState.guild.id));
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('failed to process event voiceStateUpdate', e);
 		}
 	}
 }

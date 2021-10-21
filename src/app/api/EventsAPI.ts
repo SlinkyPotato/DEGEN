@@ -2,6 +2,7 @@ import { EventsRequestType } from './types/poap-events/EventsRequestType';
 import { EventsResponseType } from './types/poap-events/EventsResponseType';
 import FormData from 'form-data';
 import axios, { AxiosRequestConfig } from 'axios';
+import Log, { LogUtils } from '../utils/Log';
 
 const EventsAPI = {
 	scheduleEvent: async (request: EventsRequestType): Promise<EventsResponseType> => {
@@ -34,9 +35,19 @@ const EventsAPI = {
 			},
 			data : formData,
 		};
-		const response = await axios.post('https://api.poap.xyz/events', formData, config);
-		console.log(response.data);
-		return response.data;
+		try {
+			const response = await axios.post('https://api.poap.xyz/events', formData, config);
+			Log.info('poap schedule response', {
+				indexMeta: true,
+				meta: {
+					data: response.data,
+				},
+			});
+			return response.data;
+		} catch (e) {
+			LogUtils.logError('failed to send poap event to POAP BackOffice', e);
+			throw new Error();
+		}
 	},
 };
 

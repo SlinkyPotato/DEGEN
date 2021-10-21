@@ -1,6 +1,7 @@
 import { Message, TextBasedChannels, MessageEmbed } from 'discord.js';
 import { v1 as uuidv1 } from 'uuid';
 import ScoapUtils from '../../utils/ScoapUtils';
+import Log from '../../utils/Log';
 
 
 export class BotConversation {
@@ -321,18 +322,18 @@ export class Vote {
 		if (Object.prototype.hasOwnProperty.call(user_vote_ledger, this.user_id)) {
 			// user has already voted
 			if (user_vote_ledger[this.user_id] === '') {
-				console.log('vote type check: REVOTE');
+				Log.debug('vote type check: REVOTE');
 				return 'REVOTE';
 			} else if (user_vote_ledger[this.user_id] === this.emoji) {
-				console.log('vote type check: UNVOTE');
+				Log.debug('vote type check: UNVOTE');
 				return 'UNVOTE';
 			} else if (user_vote_ledger[this.user_id] !== this.emoji) {
-				console.log('vote type check: CHANGEVOTE');
+				Log.debug('vote type check: CHANGEVOTE');
 				return 'CHANGEVOTE';
 			}
 		} else {
 			user_vote_ledger[this.user_id] = this.emoji;
-			console.log('vote type check: NEWVOTE');
+			Log.debug('vote type check: NEWVOTE');
 			return 'NEWVOTE';
 		}
 	}

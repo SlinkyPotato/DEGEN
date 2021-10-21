@@ -35,4 +35,7 @@ export default Object.freeze({
 		memo: String.fromCodePoint(0x1F4DD),
 		cross_mark: '\u274C',
 	},
+	
+	POAP_REQUIRED_PARTICIPATION_DURATION: Number(process.env.POAP_REQUIRED_PARTICIPATION_DURATION),
+	POAP_MAX_DURATION_MINUTES: Number(process.env.POAP_MAX_EVENT_DURATION_MINUTES),
 });

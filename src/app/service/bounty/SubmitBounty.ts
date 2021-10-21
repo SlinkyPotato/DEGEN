@@ -5,6 +5,7 @@ import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import envUrls from '../constants/envUrls';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
+import Log from '../../utils/Log';
 
 export default async (guildMember: GuildMember, bountyId: string, urlOfWork?: string, notes?: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -33,12 +34,12 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 	
 	if (dbBountyResult.claimedBy.discordId !== guildMember.user.id) {
-		console.log(`${bountyId} bounty not claimed by ${guildMember.user.tag} but it is claimed by ${dbBountyResult.claimedBy.discordHandle}`);
+		Log.info(`${bountyId} bounty not claimed by ${guildMember.user.tag} but it is claimed by ${dbBountyResult.claimedBy.discordHandle}`);
 		return guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is claimed by someone else.` });
 	}
 
 	if (dbBountyResult.status !== 'In-Progress') {
-		console.log(`${bountyId} bounty not in progress`);
+		Log.info(`${bountyId} bounty not in progress`);
 		return guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is not in progress.` });
 	}
 
@@ -64,11 +65,11 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	});
 
 	if (writeResult.modifiedCount != 1) {
-		console.log(`failed to update record ${bountyId} with submitted user  <@${guildMember.user.tag}>`);
+		Log.info(`failed to update record ${bountyId} with submitted user  <@${guildMember.user.tag}>`);
 		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
 
-	console.log(`${bountyId} bounty submitted by ${guildMember.user.tag}`);
+	Log.info(`${bountyId} bounty submitted by ${guildMember.user.tag}`);
 	await submitBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 	
 	const bountyUrl = envUrls.BOUNTY_BOARD_URL + dbBountyResult._id;
@@ -87,12 +88,12 @@ export const submitBountyMessage = async (guildMember: GuildMember, bountyMessag
 	embedMessage.addField('Submitted by', guildMember.user.tag, true);
 	embedMessage.setFooter('✅ - complete | 🔄 - refresh | 🆘 - help');
 	await message.edit({ embeds: [embedMessage] });
-	addSubmitReactions(message);
+	await addSubmitReactions(message);
 };
 
-export const addSubmitReactions = (message: Message): void => {
-	message.reactions.removeAll();
-	message.react('✅');
-	message.react('🔄');
-	message.react('🆘');
+export const addSubmitReactions = async (message: Message): Promise<any> => {
+	await message.reactions.removeAll();
+	await message.react('✅');
+	await message.react('🔄');
+	await message.react('🆘');
 };

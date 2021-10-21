@@ -5,6 +5,7 @@ import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import envUrls from '../constants/envUrls';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
+import Log from '../../utils/Log';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -31,6 +32,6 @@ export const seekHelpValidBountyId = async (guildMember: GuildMember,
 	} else if (guildMember.id === claimedByUser.id) {
 		await createdByUser.send({ content: `<@${guildMember.user.id}> from Bankless DAO needs some help with bounty ${bountyUrl}. Please reach out to them to check.` });
 	}
-	console.log(`message sent requesting help for bounty ${bountyId} submitted by ${guildMember.user.tag}`);
+	Log.info(`message sent requesting help for bounty ${bountyId} submitted by ${guildMember.user.tag}`);
 	return guildMember.send({ content: `SOS sent, look out for a follow up message for bounty ${bountyUrl}` });
 };

@@ -15,6 +15,7 @@ import ClaimBounty from '../../service/bounty/ClaimBounty';
 import SubmitBounty from '../../service/bounty/SubmitBounty';
 import CompleteBounty from '../../service/bounty/CompleteBounty';
 import discordServerIds from '../../service/constants/discordServerIds';
+import Log, { LogUtils } from '../../utils/Log';
 
 export default class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -170,8 +171,8 @@ export default class Bounty extends SlashCommand {
 	}
 
 	async run(ctx: CommandContext): Promise<any> {
+		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;
-		console.log(`start /bounty ${ctx.user.username}#${ctx.user.discriminator}`);
 
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		let command: Promise<any>;
@@ -180,32 +181,25 @@ export default class Bounty extends SlashCommand {
 		try {
 			switch (ctx.subcommands[0]) {
 			case 'claim':
-				console.log('/bounty claim');
 				command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
 				break;
 			case 'create':
 				params = this.buildBountyCreateNewParams(ctx.options.create);
-				console.log('/bounty create ' + params.title);
 				command = CreateNewBounty(guildMember, params);
 				break;
 			case 'publish':
-				console.log('/bounty publish ');
 				command = PublishBounty(guildMember, ctx.options.publish['bounty-id']);
 				break;
 			case 'complete':
-				console.log('/bounty complete');
 				command = CompleteBounty(guildMember, ctx.options.complete['bounty-id']);
 				break;
 			case 'delete':
-				console.log('/bounty delete');
 				command = DeleteBounty(guildMember, ctx.options.delete['bounty-id']);
 				break;
 			case 'list':
-				console.log('/bounty list');
 				command = ListBounty(guildMember, ctx.options.list['list-type']);
 				break;
 			case 'submit':
-				console.log('/bounty submit');
 				command = SubmitBounty(guildMember, ctx.options.submit['bounty-id'], ctx.options.submit['url'], ctx.options.submit['notes']);
 				break;
 			default:
@@ -213,19 +207,18 @@ export default class Bounty extends SlashCommand {
 			}
 			this.handleCommandError(ctx, command);
 		} catch (e) {
-			console.error(e);
+			Log.error(e);
 		}
 	}
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>): void {
 		command.then(() => {
-			console.log(`end /bounty ${ctx.user.username}#${ctx.user.discriminator}`);
 			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
 		}).catch(e => {
 			if (e instanceof ValidationError) {
 				return ctx.send(e.message);
 			} else {
-				console.error('ERROR', e);
+				LogUtils.logError('error', e);
 				return ctx.send('Sorry something is not working and our devs are looking into it.');
 			}
 		});

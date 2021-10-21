@@ -11,7 +11,7 @@ jobs:
     deploy:
         environment:
             name: preview
-            url: https://serendipity-mk1.herokuapp.com/
+            url: https://app.logdna.com/273e532689/logs/view?apps=serendipity-mk1
         runs-on: ubuntu-20.04
         steps:
             - uses: actions/checkout@v2
@@ -42,3 +42,4 @@ jobs:
                   HD_MONGODB_PASS: ${{secrets.QA_MONGODB_PASS}}
                   HD_MONGODB_CLUSTER: ${{secrets.QA_MONGODB_CLUSTER}}
                   HD_NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
+                  HD_LOGDNA_TOKEN: ${{secrets.QA_LOGDNA_TOKEN}}

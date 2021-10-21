@@ -9,6 +9,7 @@ import { scoapEmbedState, botConvoState, voteRecordState } from './ScoapDatabase
 import { scoapEmbedEdit } from './EditScoapDraft';
 import ScoapUtils from '../../utils/ScoapUtils';
 import { createNewScoapOnNotion } from './ScoapNotion';
+import { LogUtils } from '../../utils/Log';
 
 
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
@@ -53,8 +54,7 @@ export const handleScoapDraftReaction = (option: string, params: Array<any>): Pr
 			botConvo.setCurrentMessage(selectInputMessage);
 		}
 	}).catch(e => {
-		console.log(e);
-		console.log('did not react');
+		LogUtils.logError('did not react', e);
 	});
 };
 

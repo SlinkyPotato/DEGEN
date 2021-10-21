@@ -4,6 +4,9 @@ import dbInstance from '../../utils/dbUtils';
 import constants from '../../service/constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import { POAPParticipant } from '../../types/poap/POAPParticipant';
+import Log, { LogUtils } from '../../utils/Log';
+import dayjs, { Dayjs } from 'dayjs';
+import EndPOAP from '../../service/poap/EndPOAP';
 
 export default async (oldState: VoiceState, newState: VoiceState): Promise<any> => {
 	if (oldState.channelId === newState.channelId) {
@@ -13,7 +16,6 @@ export default async (oldState: VoiceState, newState: VoiceState): Promise<any> 
 	const guild: Guild = (oldState.guild != null) ? oldState.guild : newState.guild;
 	const member: GuildMember = (oldState.guild != null) ? oldState.member : newState.member;
 	
-	// TODO: implement cache instead of calling db
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 
@@ -23,11 +25,19 @@ export default async (oldState: VoiceState, newState: VoiceState): Promise<any> 
 		discordServerId: guild.id,
 	});
 	for await (const poapSetting of activeChannelsCursor) {
+		const currentDate: Dayjs = dayjs();
 		try {
-			const voiceChannel: GuildChannel = await guild.channels.fetch(poapSetting.voiceChannelId);
-			await addUserToDb(oldState, newState, db, voiceChannel, member);
+			const endDate: Dayjs = (poapSetting.endTime == null) ? currentDate : dayjs(poapSetting.endTime);
+			if (currentDate.isBefore(endDate)) {
+				const voiceChannel: GuildChannel = await guild.channels.fetch(poapSetting.voiceChannelId);
+				await addUserToDb(oldState, newState, db, voiceChannel, member);
+			} else {
+				Log.debug(`current date is after or equal to event end date, currentDate: ${currentDate}, endDate: ${endDate}`);
+				const poapOrganizerGuildMember: GuildMember = await guild.members.fetch(poapSetting.discordUserId);
+				await EndPOAP(poapOrganizerGuildMember);
+			}
 		} catch (e) {
-			console.log(`failed to add ${member.user.tag} to db`);
+			LogUtils.logError(`failed to add ${member.user.tag} to db`, e);
 		}
 	}
 };
@@ -42,9 +52,9 @@ export const addUserToDb = async (
 
 	// Check if user joined channel
 	if (newState.channelId === channel.id) {
-		await updateUserForPOAP(member, db, channel, true).catch(console.error);
+		await updateUserForPOAP(member, db, channel, true).catch(e => LogUtils.logError('failed to capture user joined for poap', e));
 	} else {
-		await updateUserForPOAP(member, db, channel, false).catch(console.error);
+		await updateUserForPOAP(member, db, channel, false).catch(e => LogUtils.logError('failed to capture user left for poap', e));
 	}
 
 	return;
@@ -63,7 +73,7 @@ export const updateUserForPOAP = async (
 	});
 
 	if (!hasJoined) {
-		console.log(`${member.user.tag} | left ${channel.name} from ${channel.guild.name}`);
+		Log.debug(`${member.user.tag} | left ${channel.name} in ${channel.guild.name}`);
 		return poapParticipantsDb.updateOne(poapParticipant, {
 			$set: {
 				endTime: (new Date).toISOString(),
@@ -72,7 +82,7 @@ export const updateUserForPOAP = async (
 	}
 
 	if (poapParticipant !== null && poapParticipant.discordUserId === member.user.id) {
-		console.log(`${member.user.tag} | rejoined ${channel.name} from ${channel.guild.name}`);
+		Log.debug(`${member.user.tag} | rejoined ${channel.name} in ${channel.guild.name}`);
 		return poapParticipantsDb.updateOne(poapParticipant, {
 			$unset: {
 				endTime: null,
@@ -90,5 +100,5 @@ export const updateUserForPOAP = async (
 	if (result == null || result.insertedCount !== 1) {
 		throw new MongoError('failed to insert poapParticipant');
 	}
-	console.log(`${member.user.tag} | joined ${channel.name} from ${channel.guild.name}`);
+	Log.debug(`${member.user.tag} | joined ${channel.name} in ${channel.guild.name}`);
 };

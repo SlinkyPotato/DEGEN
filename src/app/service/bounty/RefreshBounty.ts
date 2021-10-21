@@ -8,6 +8,7 @@ import { addClaimReactions } from './ClaimBounty';
 import { addSubmitReactions } from './SubmitBounty';
 import { addCompletedReactions } from './CompleteBounty';
 import BountyUtils from '../../utils/BountyUtils';
+import Log from '../../utils/Log';
 
 /**
  * This service will refresh the bounty in the Bounty board with the correct information
@@ -24,7 +25,7 @@ export default async (guildMember: GuildMember, bountyId: string, message: Messa
 	});
 	
 	if (bountyCollection === null) {
-		console.log(`bounty ${bountyId} is deleted`);
+		Log.info(`bounty ${bountyId} is deleted`);
 		return message.delete();
 	}
 	
@@ -81,12 +82,12 @@ export default async (guildMember: GuildMember, bountyId: string, message: Messa
 			inline: true,
 		};
 		await message.edit({ embeds: [embedMessage] });
-		addCompletedReactions(message);
+		await addCompletedReactions(message);
 		break;
 	case 'Draft':
 	case 'Deleted':
 	default:
-		console.log(`bounty ${bountyId} is deleted`);
+		Log.info(`bounty ${bountyId} is deleted`);
 		return message.delete();
 	}
 	return;

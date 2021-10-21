@@ -103,7 +103,7 @@ export default async (client: DiscordClient): Promise<void> => {
 
 				// Discord api rate limit of 50 calls per second
 				await sleep(1000);
-			}, expiresInMilli);	
+			}, expiresInMilli);
 		} catch (e) {
 			LogUtils.logError('failed to set reminder for guest user', e);
 		}

@@ -7,6 +7,7 @@ import { GuildMember, Message } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import BountyMessageNotFound from '../../errors/BountyMessageNotFound';
 import roleIDs from '../constants/roleIds';
+import Log, { LogUtils } from '../../utils/Log';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -25,19 +26,19 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
 
 	if (dbBountyResult.status === 'Deleted') {
-		console.log(`${bountyId} bounty already deleted`);
+		Log.info(`${bountyId} bounty already deleted`);
 		return guildMember.send(`<@${guildMember.user.id}> looks like bounty \`${bountyId}\` is already deleted!`);
 	}
 
 	if (!(ServiceUtils.hasRole(guildMember, roleIDs.admin) || dbBountyResult.createdBy.discordId === guildMember.id)) {
-		console.log(`${guildMember.user.tag} does not have access to delete bounty`);
+		Log.info(`${guildMember.user.tag} does not have access to delete bounty`);
 		return guildMember.send(`<@${guildMember.user.id}> Sorry you do not have access to delete!`);
 	}
-	
-	console.log(`${guildMember.user.tag} is authorized to delete bounties`);
+
+	Log.info(`${guildMember.user.tag} is authorized to delete bounties`);
 
 	if (!(dbBountyResult.status === 'Draft' || dbBountyResult.status === 'Open')) {
-		console.log(`${bountyId} bounty is not open or in draft`);
+		Log.info(`${bountyId} bounty is not open or in draft`);
 		return guildMember.send(`Sorry bounty \`${bountyId}\` is not Open or in Draft.`);
 	}
 
@@ -60,11 +61,11 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 	});
 
 	if (writeResult.modifiedCount != 1) {
-		console.log(`failed to update record ${bountyId} with claimed user  <@${guildMember.user.id}>`);
+		Log.error(`failed to update record ${bountyId} with claimed user  <@${guildMember.user.id}>`);
 		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
-	
-	console.log(`${bountyId} bounty deleted by ${guildMember.user.tag}`);
+
+	Log.info(`${bountyId} bounty deleted by ${guildMember.user.tag}`);
 	await deleteBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
 	return guildMember.send({ content: `Bounty \`${bountyId}\` deleted, thanks.` });
 };
@@ -75,7 +76,7 @@ export const deleteBountyMessage = async (guildMember: GuildMember, bountyMessag
 			return embedMessage.delete();
 		})
 		.catch(e => {
-			console.log(e);
+			LogUtils.logError('failed to get bounty message', e);
 			if (e instanceof BountyMessageNotFound) {
 				return;
 			}

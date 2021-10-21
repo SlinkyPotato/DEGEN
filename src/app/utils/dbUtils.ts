@@ -1,5 +1,6 @@
 import { Db, MongoClient, MongoClientOptions } from 'mongodb';
 import constants from '../service/constants/constants';
+import Log from './Log';
 
 const state: { dbMap: Map<string, Db>, clientMap: Map<string, MongoClient> } = {
 	dbMap: new Map(),
@@ -17,7 +18,7 @@ export default {
 };
 
 export const connect = async (database: string): Promise<void> => {
-	console.log(`Connecting to ${database} for first time!`);
+	Log.debug(`Connecting to ${database} for first time!`);
 	const options: MongoClientOptions = {
 		writeConcern: {
 			w: 'majority',

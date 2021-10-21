@@ -2,6 +2,7 @@ import interactionEditScoapDraft from './scoap-squad/interactionEditScoapDraft';
 import { Interaction } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import ServiceUtils from '../utils/ServiceUtils';
+import { LogUtils } from '../utils/Log';
 
 export default class implements DiscordEvent {
 	name = 'interactionCreate';
@@ -11,7 +12,7 @@ export default class implements DiscordEvent {
 		if (ServiceUtils.isBanklessDAO(interaction.guild)) {
 			if (interaction.isSelectMenu()) {
 				await interactionEditScoapDraft(interaction).catch(e => {
-					console.error('ERROR: ', e);
+					LogUtils.logError('scoap-squad interaction failed', e);
 				});
 			}
 		}

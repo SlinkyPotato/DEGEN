@@ -39,4 +39,16 @@ export default Object.freeze({
 	
 	POAP_REQUIRED_PARTICIPATION_DURATION: Number(process.env.POAP_REQUIRED_PARTICIPATION_DURATION),
 	POAP_MAX_DURATION_MINUTES: Number(process.env.POAP_MAX_EVENT_DURATION_MINUTES),
+
+	FIRST_QUEST_ROLES : {
+		unverified: 'unverified',
+		verified: 'verified',
+		first_quest_welcome: 'First Quest Welcome',
+		first_quest_membership: 'First Quest Membership',
+		firehose: 'Firehose',
+		first_quest_scholar: 'First Quest Scholar',
+		first_quest_guest_pass: 'First Quest Guest Pass',
+		first_quest: 'First Quest',
+		first_quest_complete: 'First Quest Complete',
+	}
 });

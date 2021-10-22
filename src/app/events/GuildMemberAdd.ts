@@ -14,14 +14,17 @@ export default class implements DiscordEvent {
 				if (await ServiceUtils.runUsernameSpamFilter(member)) {
 					return;
 				} else {
-					const guild = member.guild;
-					const roles = await guild.roles.fetch();
-					for (const role of roles.values()) {
-						if (role.name === 'unverified') {
-							await member.roles.add(role);
-							await LaunchFirstQuest(member, 'undefined').catch(e => {
-								console.error('ERROR: ', e);
-							});
+					if (!(member.user.bot)) {
+						const guild = member.guild;
+						const roles = await guild.roles.fetch();
+						for (const role of roles.values()) {
+							// should we slap this role on bots too?
+							if (role.name === 'unverified') {
+								await member.roles.add(role);
+								await LaunchFirstQuest(member, 'undefined').catch(e => {
+									console.error('ERROR: ', e);
+								});
+							}
 						}
 					}
 				}

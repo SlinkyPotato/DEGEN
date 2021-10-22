@@ -1,4 +1,5 @@
 import {DMChannel, GuildMember, TextBasedChannels} from 'discord.js';
+import constants from '../constants/constants';
 
 export default async (member: GuildMember, dmChan:TextBasedChannels | string ): Promise<any> => {
 
@@ -19,20 +20,21 @@ export default async (member: GuildMember, dmChan:TextBasedChannels | string ): 
 		},
 	})
 		.then(async () => {
-			await switchRoles(member, 'unverified', 'verified');
+			await switchRoles(member, constants.FIRST_QUEST_ROLES.unverified, constants.FIRST_QUEST_ROLES.verified);
 
 			await dmChannel.send({ content:'Verification successful!\n\n' });
 
 			await sendFqMessage(dmChannel, member);
 		})
 		.catch(async (e) => {
-			await dmChannel.send('Verification failed, please try again. You can restart the verification process by responding with **!verification** ');
+			await dmChannel.send('Verification failed, please try again. You can restart ' +
+										'the verification process by responding with **!verification** ');
 			console.log(e);
 		});
 };
 
 export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildMember): Promise<void> => {
-	const fqMessage = await retrieveFqMessage(member);
+	const fqMessage = retrieveFqMessage(member);
 
 	const content = fqMessageContent[fqMessage.message_id];
 
@@ -50,11 +52,15 @@ export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildM
 	})
 		.then(async (collected) => {
 			await switchRoles(member, fqMessage.start_role, fqMessage.end_role);
-			// if (fqMessage.start_role === 'First Quest Complete') {
-			// 	return await sendFqMessage(dmChannel, member);
-			// } else {
-			await sendFqMessage(dmChannel, member);
-			// }
+
+			//give some time for the role update to come through
+			await new Promise(r => setTimeout(r, 500));
+
+			if (!(fqMessage.end_role === constants.FIRST_QUEST_ROLES.first_quest_complete)) {
+				await sendFqMessage(dmChannel, member);
+			} else {
+				await dmChannel.send({content: fqMessageContent[getFqMessage(constants.FIRST_QUEST_ROLES.first_quest_complete).message_id]});
+			}
 		})
 		.catch(async (e) => {
 			await dmChannel.send('The conversation timed out. ' +
@@ -74,7 +80,7 @@ const getDMChannel = async (member: GuildMember, dmChan: TextBasedChannels | str
 	}
 }
 
-const switchRoles = async (member: GuildMember, fromRole: string, toRole: string): Promise<void> => {
+export const switchRoles = async (member: GuildMember, fromRole: string, toRole: string): Promise<void> => {
 	const guild = member.guild;
 
 	const roles = await guild.roles.fetch();
@@ -90,12 +96,12 @@ const switchRoles = async (member: GuildMember, fromRole: string, toRole: string
 	}
 };
 
-const retrieveFqMessage = async (member):Promise<any> => {
+const retrieveFqMessage = (member) => {
 
 	const roles = member.roles.cache;
 
 	for (const role of roles.values()) {
-		if (rolesArray.includes(role.name)) {
+		if (Object.values(constants.FIRST_QUEST_ROLES).indexOf(role.name) > -1) {
 			return getFqMessage(role.name);
 		}
 	}
@@ -103,45 +109,74 @@ const retrieveFqMessage = async (member):Promise<any> => {
 
 const getFqMessage = (roleName: string) => {
 	switch (roleName) {
-	case ('verified'):
+	case (constants.FIRST_QUEST_ROLES.verified):
 		return fqMessageFlow['verified'];
-	case ('First Quest Welcome'):
+	case (constants.FIRST_QUEST_ROLES.first_quest_welcome):
 		return fqMessageFlow['welcome'];
-	case ('First Quest Membership'):
+	case (constants.FIRST_QUEST_ROLES.first_quest_membership):
 		return fqMessageFlow['membership'];
-	case ('Firehose'):
+	case (constants.FIRST_QUEST_ROLES.firehose):
 		return fqMessageFlow['firehose'];
-	case ('First Quest Scholar'):
+	case (constants.FIRST_QUEST_ROLES.first_quest_scholar):
 		return fqMessageFlow['scholar'];
-	case ('First Quest Guest Pass'):
+	case (constants.FIRST_QUEST_ROLES.first_quest_guest_pass):
 		return fqMessageFlow['guest_pass'];
-	case ('First Quest'):
+	case (constants.FIRST_QUEST_ROLES.first_quest):
 		return fqMessageFlow['first_quest'];
-	case ('First Quest Complete'):
+	case (constants.FIRST_QUEST_ROLES.first_quest_complete):
 		return fqMessageFlow['complete'];
 	}
 };
 
-const rolesArray = [
-	'verified',
-	'First Quest Welcome',
-	'First Quest Membership',
-	'Firehose',
-	'First Quest Scholar',
-	'First Quest Guest Pass',
-	'First Quest',
-	'First Quest Complete',
-];
-
 const fqMessageFlow = {
-	verified: { message_id: 'fq1', emoji: '🏦', start_role: 'verified', end_role: 'First Quest Welcome' },
-	welcome: { message_id: 'fq2', emoji: '🏦', start_role: 'First Quest Welcome', end_role: 'First Quest Membership' },
-	membership: { message_id: 'fq3', emoji: '🏦', start_role: 'First Quest Membership', end_role: 'Firehose' },
-	firehose: { message_id: 'fq4', emoji: '✏️', start_role: 'Firehose', end_role: 'First Quest Scholar' },
-	scholar: { message_id: 'fq5', emoji: '✏️', start_role: 'First Quest Scholar', end_role: 'First Quest Guest Pass' },
-	guest_pass: { message_id: 'fq6', emoji: '✏️', start_role: 'First Quest Guest Pass', end_role: 'First Quest' },
-	first_quest: { message_id: 'fq7', emoji: '🤠', start_role: 'First Quest', end_role: 'First Quest Complete' },
-	complete: { message_id: 'fq8', emoji: '🌟', start_role: 'First Quest Complete', end_role: 'verified' },
+	verified: {
+		message_id: 'fq1',
+		emoji: '🏦',
+		start_role: constants.FIRST_QUEST_ROLES.verified,
+		end_role: constants.FIRST_QUEST_ROLES.first_quest_welcome,
+	},
+	welcome: {
+		message_id: 'fq2',
+		emoji: '🏦',
+		start_role: constants.FIRST_QUEST_ROLES.first_quest_welcome,
+		end_role: constants.FIRST_QUEST_ROLES.first_quest_membership,
+	},
+	membership: {
+		message_id: 'fq3',
+		emoji: '🏦',
+		start_role: constants.FIRST_QUEST_ROLES.first_quest_membership,
+		end_role: constants.FIRST_QUEST_ROLES.firehose,
+	},
+	firehose: {
+		message_id: 'fq4',
+		emoji: '✏️',
+		start_role: constants.FIRST_QUEST_ROLES.firehose,
+		end_role: constants.FIRST_QUEST_ROLES.first_quest_scholar,
+	},
+	scholar: {
+		message_id: 'fq5',
+		emoji: '✏️',
+		start_role: constants.FIRST_QUEST_ROLES.first_quest_scholar,
+		end_role: constants.FIRST_QUEST_ROLES.first_quest_guest_pass,
+	},
+	guest_pass: {
+		message_id: 'fq6',
+		emoji: '✏️',
+		start_role: constants.FIRST_QUEST_ROLES.first_quest_guest_pass,
+		end_role: constants.FIRST_QUEST_ROLES.first_quest,
+	},
+	first_quest: {
+		message_id: 'fq7',
+		emoji: '🤠',
+		start_role: constants.FIRST_QUEST_ROLES.first_quest,
+		end_role: constants.FIRST_QUEST_ROLES.first_quest_complete,
+	},
+	complete: {
+		message_id: 'fq8',
+		emoji: '',
+		start_role: constants.FIRST_QUEST_ROLES.first_quest_complete,
+		end_role: constants.FIRST_QUEST_ROLES.verified,
+	},
 };
 
 const fqMessageContent = {
@@ -262,8 +297,5 @@ const fqMessageContent = {
 		'-----------------------------------------------------\n',
 	fq8: '\'Congratulations! You have reached the end of first quest. \\n\' +\n' +
 		'\n' +
-		'Click on the 🌟 to clean up your roles.\n' +
-		'\n' +
-		'Only click the reaction after you are done!\n' +
-		'You might have to restart again, if you want to view the first quest channels. You have been warned!',
+		'If you want to repeat first quest, you can reset your role and start over by responding with **!first-quest**.\n',
 };

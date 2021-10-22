@@ -117,6 +117,10 @@ export const LogUtils = {
 			},
 		});
 	},
+
+	logWarn(message: string): void {
+		Log.warn(message);
+	},
 };
 
 export default Log;

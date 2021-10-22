@@ -1,5 +1,6 @@
 import {DMChannel, GuildMember, TextBasedChannels} from 'discord.js';
 import constants from '../constants/constants';
+import {LogUtils} from "../../utils/Log";
 
 export default async (member: GuildMember, dmChan:TextBasedChannels | string ): Promise<any> => {
 
@@ -13,7 +14,7 @@ export default async (member: GuildMember, dmChan:TextBasedChannels | string ): 
 
 	await verificationMessage.awaitReactions({
 		max: 1,
-		time: (10000 * 60),
+		time: (1000 * 10),
 		errors: ['time'],
 		filter: async (reaction, user) => {
 			return ['👍'].includes(reaction.emoji.name) && !user.bot;
@@ -33,7 +34,7 @@ export default async (member: GuildMember, dmChan:TextBasedChannels | string ): 
 		});
 };
 
-export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildMember): Promise<void> => {
+export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildMember, ): Promise<void> => {
 	const fqMessage = retrieveFqMessage(member);
 
 	const content = fqMessageContent[fqMessage.message_id];
@@ -42,34 +43,51 @@ export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildM
 
 	await firstQuestMessage.react(fqMessage.emoji);
 
-	await firstQuestMessage.awaitReactions({
-		max: 1,
-		// time: (1000 * 60),
-		errors: ['time'],
-		filter: async (reaction, user) => {
-			return [fqMessage.emoji].includes(reaction.emoji.name) && !user.bot;
-		},
-	})
-		.then(async (collected) => {
+	const filter = (reaction, user) => {
+		return [fqMessage.emoji].includes(reaction.emoji.name) && !user.bot;
+	};
+
+	const collector = firstQuestMessage.createReactionCollector({ filter, max: 1, time: (1000*60), dispose: true });
+
+	// collector.on('collect', async (): Promise<void> => {
+	//
+	// });
+
+	collector.on('end', async (collected, reason) => {
+		console.log(`Collected ${collected.size} items, reason for end ${reason}`);
+
+		if (reason === 'limit') {
 			await switchRoles(member, fqMessage.start_role, fqMessage.end_role);
 
 			//give some time for the role update to come through
-			await new Promise(r => setTimeout(r, 500));
+			// await new Promise(r => setTimeout(r, 500));
 
 			if (!(fqMessage.end_role === constants.FIRST_QUEST_ROLES.first_quest_complete)) {
 				await sendFqMessage(dmChannel, member);
 			} else {
 				await dmChannel.send({content: fqMessageContent[getFqMessage(constants.FIRST_QUEST_ROLES.first_quest_complete).message_id]});
 			}
-		})
-		.catch(async (e) => {
+
+			return;
+		}
+
+		// if firstQuestMessage is not the last message, time out silently (user probably invoked !first-quest)
+
+		// console.log('message Ids ', firstQuestMessage.id, dmChannel.lastMessage.id)
+
+		if (firstQuestMessage.id === dmChannel.lastMessage.id) {
 			await dmChannel.send('The conversation timed out. ' +
 				'All your progress has been saved. ' +
 				'You can continue at any time by ' +
 				'responding to this conversation ' +
 				'with **!first-quest** ');
-			console.log(e);
-		});
+		}
+
+		if (!['limit', 'time'].includes(reason)){
+			LogUtils.logWarn(`First Quest reaction collector stopped for unknown reason: ${reason}`);
+			console.log(`First Quest reaction collector stopped for unknown reason: ${reason}`);
+		}
+	});
 };
 
 const getDMChannel = async (member: GuildMember, dmChan: TextBasedChannels | string): Promise<DMChannel> => {

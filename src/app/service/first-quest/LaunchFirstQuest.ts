@@ -58,16 +58,21 @@ export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildM
 
 		if (reason === 'limit') {
 			await switchRoles(member, fqMessage.start_role, fqMessage.end_role);
-
-			//give some time for the role update to come through
-			// await new Promise(r => setTimeout(r, 500));
-
-			if (!(fqMessage.end_role === constants.FIRST_QUEST_ROLES.first_quest_complete)) {
-				await sendFqMessage(dmChannel, member);
-			} else {
-				await dmChannel.send({content: fqMessageContent[getFqMessage(constants.FIRST_QUEST_ROLES.first_quest_complete).message_id]});
+			try {
+				if (!(fqMessage.end_role === constants.FIRST_QUEST_ROLES.first_quest_complete)) {
+					await sendFqMessage(dmChannel, member);
+				} else {
+					await dmChannel.send({content: fqMessageContent[getFqMessage(constants.FIRST_QUEST_ROLES.first_quest_complete).message_id]});
+				}
+			} catch {
+				//give some time for the role update to come through and try again
+				await new Promise(r => setTimeout(r, 1000));
+				if (!(fqMessage.end_role === constants.FIRST_QUEST_ROLES.first_quest_complete)) {
+					await sendFqMessage(dmChannel, member);
+				} else {
+					await dmChannel.send({content: fqMessageContent[getFqMessage(constants.FIRST_QUEST_ROLES.first_quest_complete).message_id]});
+				}
 			}
-
 			return;
 		}
 

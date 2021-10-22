@@ -20,27 +20,15 @@ export default async (message: Message): Promise<any> => {
 				if (message.content === '!verification') {
 					try {
 						const fqUnverified = await member.roles.cache.find((role ,key) => {
-							// console.log(role);
-							console.log(member.user.username);
-							console.log(message.author.username)
-							console.log(role.name);
-							console.log(constants.FIRST_QUEST_ROLES.unverified);
 							return role.name === constants.FIRST_QUEST_ROLES.unverified
 						});
-						console.log('fqUnverified ', fqUnverified.name);
-
 						if ( fqUnverified.name === constants.FIRST_QUEST_ROLES.unverified) {
 							return await LaunchFirstQuest(member, message.channel).catch(e => {
 								console.error('ERROR: ', e);
 							});
-						} 
+						}
 					} catch {
 						return await message.channel.send({content: 'You are already verified. if you want to run first-quest, try !first-quest'});
-						// return await message.channel.send({content: 'Something went wrong, ' +
-						// 							'please try to re-enter the discord server to restart ' +
-						// 							'the verification process. ' +
-						// 							'If you are unable to verify, please get ' +
-						// 							'in touch with us. We will help you sort this out.'});
 					}
 				}
 
@@ -58,15 +46,20 @@ export default async (message: Message): Promise<any> => {
 
 							if ( fqCompleted.name === constants.FIRST_QUEST_ROLES.first_quest_complete) {
 								await switchRoles(member, constants.FIRST_QUEST_ROLES.first_quest_complete, constants.FIRST_QUEST_ROLES.verified);
+								try {
+									return await sendFqMessage(message.channel, member).catch(e => {
 
-								await new Promise(r => setTimeout(r, 500));
+										console.error('ERROR: ', e);
+									});
 
-								return await sendFqMessage(message.channel, member).catch(e => {
+								} catch {
+									await new Promise(r => setTimeout(r, 1000));
+									return await sendFqMessage(message.channel, member).catch(e => {
 
-									console.error('ERROR: ', e);
-								});
+										console.error('ERROR: ', e);
+									});
+								}
 							}
-
 						} catch {
 							return await sendFqMessage(message.channel, member).catch(e => {
 

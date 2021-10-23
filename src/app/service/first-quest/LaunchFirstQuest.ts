@@ -4,6 +4,47 @@ import Log from '../../utils/Log';
 import dbInstance from '../../utils/dbUtils';
 import { Db } from 'mongodb';
 
+setInterval(async function (): Promise<void> { await fqRescueCall() }, (10000)); //1000*60*60*10
+
+const fqRescueCall = async () => {
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+
+	const firstQuestTracker = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
+
+	const data = await firstQuestTracker.find({}).toArray();
+
+	console.log('FQ tracker is here: ', data);
+	for (const fqUser of data) {
+		if (!(fqUser.role === constants.FIRST_QUEST_ROLES.first_quest_complete) && (fqUser.doneRescueCall === false)){
+			console.log('we have a winner, with role ', fqUser.role)
+
+			if ((+new Date() - fqUser.timestamp) >= (1000*30)) {
+				console.log('To the rescue my friend ', fqUser._id);
+
+				const filter = { _id: fqUser._id };
+
+				const options = { upsert: false };
+
+				const updateDoc = { $set: { doneRescueCall: true } };
+
+				await firstQuestTracker.updateOne(filter, updateDoc, options);
+			}
+		}
+	}
+};
+
+export const firstQuestHandleUserRemove = async (member: GuildMember): Promise<void> => {
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+
+	const firstQuestTracker = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
+
+	try {
+		await firstQuestTracker.deleteOne( { _id: member.user.id } );
+	} catch {
+		Log.error(`First Quest: Could not remove user ${member.user} from firstQuestTracker collection`);
+	}
+};
+
 export default async (member: GuildMember, dmChan:TextBasedChannels | string ): Promise<any> => {
 
 	const dmChannel: DMChannel = await getDMChannel(member, dmChan);
@@ -105,8 +146,8 @@ const messagesState = [];
 
 const getMessageContentFromDb = async (): Promise<void> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
-	const dbFirstQuest = await db.collection(constants.DB_COLLECTION_FIRST_QUEST).find({});
-	const data = await dbFirstQuest.toArray();
+	const firstQuestContent = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_CONTENT).find({});
+	const data = await firstQuestContent.toArray();
 	messagesState.push(data[0].messages);
 }
 
@@ -127,6 +168,13 @@ export const switchRoles = async (member: GuildMember, fromRole: string, toRole:
 	for (const role of roles.values()) {
 		if (role.name === toRole) {
 			await member.roles.add(role);
+
+			const filter = { _id: member.user.id };
+			const options = { upsert: true };
+			const updateDoc = { $set: { role: role.name, doneRescueCall: false, timestamp: Date.now() } };
+			const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+			const dbFirstQuestTracker = db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
+			await dbFirstQuestTracker.updateOne(filter, updateDoc, options);
 		}
 
 		if (role.name === fromRole) {

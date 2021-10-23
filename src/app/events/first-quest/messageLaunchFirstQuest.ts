@@ -16,7 +16,10 @@ export default async (message: Message): Promise<any> => {
 
 		const guildMembers = await guild.members.fetch();
 
-		for (const member of guildMembers.values()) {
+		for (let member of guildMembers.values()) {
+			if (member.partial) {
+				member = await member.fetch();
+			}
 			if ((member.user.username === message.author.username) && ServiceUtils.isBanklessDAO(guild)) {
 				if (message.content === '!verification') {
 					try {

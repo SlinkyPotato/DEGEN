@@ -1,3 +1,4 @@
+
 export default Object.freeze({
 	DB_NAME_DEGEN: 'degen',
 	DB_NAME_BOUNTY_BOARD: 'bountyboard',
@@ -9,6 +10,7 @@ export default Object.freeze({
 	DB_COLLECTION_SCOAP_SQUAD: 'scoapSquad',
 	DB_COLLECTION_POAP_ADMINS: 'poapAdmins',
 	DB_COLLECTION_ALLOWLIST: 'allowList',
+	DB_COLLECTION_FIRST_QUEST: 'firstQuest',
 	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}${process.env.MONGODB_URL_ENDPOINT}`,
 	// MONGODB_URI_PARTIAL: `${process.env.MONGODB_PREFIX}://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',

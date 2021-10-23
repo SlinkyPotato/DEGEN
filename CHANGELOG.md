@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.8.2-SNAPSHOT
+## 1.8.2-RELEASE (2021-10-23)
 
 1. Fix poap attendee duration time
 2. Fix failed to send poaps message

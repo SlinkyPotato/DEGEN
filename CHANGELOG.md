@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.2-SNAPSHOT
+
+1. Fix poap attendee duration time
+
 ## 1.8.1-RELEASE (2021-10-21)
 
 1. Fix removal of guest pass users by wraping in try/catch block in case of error

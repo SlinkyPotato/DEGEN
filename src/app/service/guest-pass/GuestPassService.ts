@@ -69,7 +69,7 @@ export default async (client: DiscordClient): Promise<void> => {
 	// Begin reminder of active guest users
 	for (const activeUser of listOfActiveGuests) {
 		try {
-			Log.log('active userid: ' + activeUser._id);
+			Log.debug('active userid: ' + activeUser._id);
 
 			const expiresInMilli = Math.max(activeUser.expiresTimestamp - Date.now(), 0);
 

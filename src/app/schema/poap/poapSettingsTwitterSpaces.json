@@ -3,11 +3,12 @@
     "bsonType": "object",
     "required": [
       "isActive",
+      "twitterSpaceId",
       "discordUserId",
-      "voiceChannelId",
-      "voiceChannelName",
+      "twitterId",
       "discordServerId",
-      "startTime"
+      "startDate",
+      "endDate"
     ],
     "properties": {
       "event": {

@@ -18,14 +18,14 @@ export default class Verify extends SlashCommand {
 					description: 'Link DEGEN to your account or wallet.',
 					options: [
 						{
-							name: 'type-verify',
+							name: 'type',
 							type: CommandOptionType.STRING,
 							description: 'Type of account or wallet to verify and link.',
 							required: true,
 							choices: [
 								{
-									name: 'Twitter Spaces',
-									value: 'TWITTER_SPACES',
+									name: 'Twitter',
+									value: 'TWITTER_ACCOUNT',
 								},
 							],
 						},

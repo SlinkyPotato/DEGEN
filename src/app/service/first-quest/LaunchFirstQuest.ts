@@ -13,6 +13,9 @@ export default async (member: GuildMember, dmChan:TextBasedChannels | string ): 
 
 	const verificationMessage = await dmChannel.send({ content:
 			'Hello! Welcome to BanklessDAO. We\'re glad you\'re here 🙂 \n \n' +
+			'We would like to encourage all new members to **activate 2 factor authentication (2FA)** ' +
+			'on their discord account for added security and to make scams less likely to occur.\n' +
+			'See how it\'s done: <https://support.discord.com/hc/en-us/articles/219576828-Setting-up-Two-Factor-Authentication>\n\n ' +
 			'Before we start you have to prove that you are human by reacting with 👍 ' });
 
 	await verificationMessage.react('👍');

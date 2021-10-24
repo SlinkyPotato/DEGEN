@@ -3,47 +3,9 @@ import constants from '../constants/constants';
 import Log from '../../utils/Log';
 import dbInstance from '../../utils/dbUtils';
 import { Db } from 'mongodb';
+import client from '../../app';
 
 setInterval(async function (): Promise<void> { await fqRescueCall() }, (10000)); //1000*60*60*10
-
-const fqRescueCall = async () => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
-
-	const firstQuestTracker = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
-
-	const data = await firstQuestTracker.find({}).toArray();
-
-	console.log('FQ tracker is here: ', data);
-	for (const fqUser of data) {
-		if (!(fqUser.role === constants.FIRST_QUEST_ROLES.first_quest_complete) && (fqUser.doneRescueCall === false)){
-			console.log('we have a winner, with role ', fqUser.role)
-
-			if ((+new Date() - fqUser.timestamp) >= (1000*30)) {
-				console.log('To the rescue my friend ', fqUser._id);
-
-				const filter = { _id: fqUser._id };
-
-				const options = { upsert: false };
-
-				const updateDoc = { $set: { doneRescueCall: true } };
-
-				await firstQuestTracker.updateOne(filter, updateDoc, options);
-			}
-		}
-	}
-};
-
-export const firstQuestHandleUserRemove = async (member: GuildMember): Promise<void> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
-
-	const firstQuestTracker = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
-
-	try {
-		await firstQuestTracker.deleteOne( { _id: member.user.id } );
-	} catch {
-		Log.error(`First Quest: Could not remove user ${member.user} from firstQuestTracker collection`);
-	}
-};
 
 export default async (member: GuildMember, dmChan:TextBasedChannels | string ): Promise<any> => {
 
@@ -142,6 +104,47 @@ export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildM
 	});
 };
 
+const fqRescueCall = async () => {
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+
+	const firstQuestTracker = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
+
+	const data = await firstQuestTracker.find({}).toArray();
+
+	console.log('FQ tracker is here: ', data);
+	for (const fqUser of data) {
+		if (!(fqUser.role === constants.FIRST_QUEST_ROLES.first_quest_complete) && (fqUser.doneRescueCall === false)){
+			console.log('we have a winner, with role ', fqUser.role)
+
+			if ((+new Date() - fqUser.timestamp) >= (1000*30)) {
+				console.log('To the rescue my friend ', fqUser._id);
+
+				const filter = { _id: fqUser._id };
+
+				const options = { upsert: false };
+
+				const updateDoc = { $set: { doneRescueCall: true } };
+
+				await firstQuestTracker.updateOne(filter, updateDoc, options);
+
+				const supportChannel = await client.guilds.fetch()
+
+				for (const oAuth2Guild of supportChannel.values()) {
+					const guild = await oAuth2Guild.fetch();
+
+					if (guild.id === fqUser.guild) {
+						const channels = await guild.channels.fetch();
+
+						const supportChannel = channels.get(process.env.DISCORD_CHANNEL_SUPPORT_ID) as TextBasedChannels ;
+
+						await supportChannel.send({ content: `User <@${fqUser._id}> appears to be stuck in first-quest, please extend some help.` })
+					}
+				}
+			}
+		}
+	}
+};
+
 const messagesState = [];
 
 const getMessageContentFromDb = async (): Promise<void> => {
@@ -160,6 +163,18 @@ const getDMChannel = async (member: GuildMember, dmChan: TextBasedChannels | str
 	}
 }
 
+export const firstQuestHandleUserRemove = async (member: GuildMember): Promise<void> => {
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+
+	const firstQuestTracker = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
+
+	try {
+		await firstQuestTracker.deleteOne( { _id: member.user.id } );
+	} catch {
+		Log.error(`First Quest: Could not remove user ${member.user} from firstQuestTracker collection`);
+	}
+};
+
 export const switchRoles = async (member: GuildMember, fromRole: string, toRole: string): Promise<void> => {
 	const guild = member.guild;
 
@@ -171,7 +186,7 @@ export const switchRoles = async (member: GuildMember, fromRole: string, toRole:
 
 			const filter = { _id: member.user.id };
 			const options = { upsert: true };
-			const updateDoc = { $set: { role: role.name, doneRescueCall: false, timestamp: Date.now() } };
+			const updateDoc = { $set: { role: role.name, doneRescueCall: false, timestamp: Date.now(), guild: guild.id } };
 			const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 			const dbFirstQuestTracker = db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
 			await dbFirstQuestTracker.updateOne(filter, updateDoc, options);

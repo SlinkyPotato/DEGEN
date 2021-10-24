@@ -23,7 +23,7 @@ export default async (message: Message): Promise<any> => {
 			if ((member.user.username === message.author.username) && ServiceUtils.isBanklessDAO(guild)) {
 				if (message.content === '!verification') {
 					try {
-						const fqUnverified = await member.roles.cache.find((role ,key) => {
+						const fqUnverified = await member.roles.cache.find((role) => {
 							return role.name === constants.FIRST_QUEST_ROLES.unverified
 						});
 						if ( fqUnverified.name === constants.FIRST_QUEST_ROLES.unverified) {

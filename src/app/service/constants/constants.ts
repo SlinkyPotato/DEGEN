@@ -1,4 +1,3 @@
-
 export default Object.freeze({
 	DB_NAME_DEGEN: 'degen',
 	DB_NAME_BOUNTY_BOARD: 'bountyboard',
@@ -53,5 +52,5 @@ export default Object.freeze({
 		first_quest_guest_pass: 'First Quest Guest Pass',
 		first_quest: 'First Quest',
 		first_quest_complete: 'First Quest Complete',
-	}
+	},
 });

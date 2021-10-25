@@ -1,13 +1,13 @@
-import {DMChannel, GuildMember, TextBasedChannels} from 'discord.js';
+import { DMChannel, GuildMember, TextBasedChannels } from 'discord.js';
 import constants from '../constants/constants';
 import Log from '../../utils/Log';
 import dbInstance from '../../utils/dbUtils';
 import { Db } from 'mongodb';
 import client from '../../app';
 
-setInterval(async function (): Promise<void> { await fqRescueCall() }, (1000*60*60*10));
+setInterval(async function(): Promise<void> { await fqRescueCall(); }, (1000 * 60 * 60 * 10));
 
-export default async (member: GuildMember, dmChan:TextBasedChannels | string ): Promise<any> => {
+export default async (member: GuildMember, dmChan:TextBasedChannels | string): Promise<any> => {
 
 	const dmChannel: DMChannel = await getDMChannel(member, dmChan);
 
@@ -42,7 +42,7 @@ export default async (member: GuildMember, dmChan:TextBasedChannels | string ): 
 		});
 };
 
-export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildMember ): Promise<void> => {
+export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildMember): Promise<void> => {
 
 	if (messagesState.length === 0) {
 		await getMessageContentFromDb();
@@ -62,7 +62,7 @@ export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildM
 		return [fqMessage.emoji].includes(reaction.emoji.name) && !user.bot;
 	};
 
-	const collector = firstQuestMessage.createReactionCollector({ filter, max: 1, time: (20000*60), dispose: true });
+	const collector = firstQuestMessage.createReactionCollector({ filter, max: 1, time: (20000 * 60), dispose: true });
 
 	collector.on('end', async (collected, reason) => {
 
@@ -76,7 +76,7 @@ export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildM
 					await dmChannel.send({ content: fqMessageContent[getFqMessage(constants.FIRST_QUEST_ROLES.first_quest_complete).message_id].replace(/\\n/g, '\n') });
 				}
 			} catch {
-				//give some time for the role update to come through and try again
+				// give some time for the role update to come through and try again
 				await new Promise(r => setTimeout(r, 1000));
 
 				if (!(fqMessage.end_role === constants.FIRST_QUEST_ROLES.first_quest_complete)) {
@@ -100,7 +100,7 @@ export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildM
 				'with **!first-quest** ');
 		}
 
-		if (!['limit', 'time'].includes(reason)){
+		if (!['limit', 'time'].includes(reason)) {
 			Log.debug(`First Quest reaction collector stopped for unknown reason: ${reason}`);
 		}
 	});
@@ -113,13 +113,10 @@ const fqRescueCall = async () => {
 
 	const data = await firstQuestTracker.find({}).toArray();
 
-	console.log('FQ tracker is here: ', data);
 	for (const fqUser of data) {
-		if (!(fqUser.role === constants.FIRST_QUEST_ROLES.first_quest_complete) && (fqUser.doneRescueCall === false)){
-			console.log('we have a winner, with role ', fqUser.role)
+		if (!(fqUser.role === constants.FIRST_QUEST_ROLES.first_quest_complete) && (fqUser.doneRescueCall === false)) {
 
-			if ((+new Date() - fqUser.timestamp) >= (1000*60*60*24)) {
-				console.log('To the rescue my friend ', fqUser._id);
+			if ((+new Date() - fqUser.timestamp) >= (1000 * 60 * 60 * 24)) {
 
 				const filter = { _id: fqUser._id };
 
@@ -129,17 +126,17 @@ const fqRescueCall = async () => {
 
 				await firstQuestTracker.updateOne(filter, updateDoc, options);
 
-				const supportChannel = await client.guilds.fetch()
+				const guilds = await client.guilds.fetch();
 
-				for (const oAuth2Guild of supportChannel.values()) {
+				for (const oAuth2Guild of guilds.values()) {
 					const guild = await oAuth2Guild.fetch();
 
 					if (guild.id === fqUser.guild) {
 						const channels = await guild.channels.fetch();
 
-						const supportChannel = channels.get(process.env.DISCORD_CHANNEL_SUPPORT_ID) as TextBasedChannels ;
+						const supportChannel = channels.get(process.env.DISCORD_CHANNEL_SUPPORT_ID) as TextBasedChannels;
 
-						await supportChannel.send({ content: `User <@${fqUser._id}> appears to be stuck in first-quest, please extend some help.` })
+						await supportChannel.send({ content: `User <@${fqUser._id}> appears to be stuck in first-quest, please extend some help.` });
 					}
 				}
 			}
@@ -157,7 +154,7 @@ const getMessageContentFromDb = async (): Promise<void> => {
 	const data = await firstQuestContent.toArray();
 
 	messagesState.push(data[0].messages);
-}
+};
 
 const getDMChannel = async (member: GuildMember, dmChan: TextBasedChannels | string): Promise<DMChannel> => {
 	if (dmChan === 'undefined') {
@@ -166,7 +163,7 @@ const getDMChannel = async (member: GuildMember, dmChan: TextBasedChannels | str
 	} else {
 		return dmChan as DMChannel;
 	}
-}
+};
 
 export const firstQuestHandleUserRemove = async (member: GuildMember): Promise<void> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
@@ -174,7 +171,7 @@ export const firstQuestHandleUserRemove = async (member: GuildMember): Promise<v
 	const firstQuestTracker = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
 
 	try {
-		await firstQuestTracker.deleteOne( { _id: member.user.id } );
+		await firstQuestTracker.deleteOne({ _id: member.user.id });
 	} catch {
 		Log.error(`First Quest: Could not remove user ${member.user} from firstQuestTracker collection`);
 	}

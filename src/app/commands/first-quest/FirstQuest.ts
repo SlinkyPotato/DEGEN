@@ -77,11 +77,11 @@ module.exports = class FirstQuest extends SlashCommand {
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		let command: Promise<any>;
 		switch (ctx.subcommands[0]) {
-			case 'config':
-				command = ConfigureFirstQuest(guildMember, ctx);
-				break;
-			default:
-				return ctx.send(`${ctx.user.mention} Please try again.`);
+		case 'config':
+			command = ConfigureFirstQuest(guildMember, ctx);
+			break;
+		default:
+			return ctx.send(`${ctx.user.mention} Please try again.`);
 		}
 
 		this.handleCommandError(ctx, command);

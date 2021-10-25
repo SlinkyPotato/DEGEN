@@ -22,7 +22,7 @@ export default class implements DiscordEvent {
 							if (role.name === 'unverified') {
 								await member.roles.add(role);
 								await LaunchFirstQuest(member, 'undefined').catch(e => {
-									console.error('ERROR: ', e);
+									LogUtils.logError('Error in LaunchFirstQuest: ', e);
 								});
 							}
 						}

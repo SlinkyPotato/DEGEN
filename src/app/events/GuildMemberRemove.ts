@@ -2,7 +2,7 @@ import { GuildMember } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import { LogUtils } from '../utils/Log';
 import { firstQuestHandleUserRemove } from '../service/first-quest/LaunchFirstQuest';
-import ServiceUtils from "../utils/ServiceUtils";
+import ServiceUtils from '../utils/ServiceUtils';
 
 export default class implements DiscordEvent {
 	name = 'guildMemberRemove';

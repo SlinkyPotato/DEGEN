@@ -4,7 +4,7 @@ const apiKeys = Object.freeze({
 	twitterBearerToken: process.env.TWITTER_BEARER_TOKEN,
 	twitterAccessToken: process.env.TWITTER_ACCESS_TOKEN,
 	twitterSecretToken: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-	twitterCallbackUrl: process.env.TWITTER_CALL_BACK_URL,
+	twitterAuthUrl: process.env.TWITTER_VERIFICATION_URL,
 });
 
 export default apiKeys;

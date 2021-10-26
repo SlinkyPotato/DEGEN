@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.3-RELEASE (2021-10-26)
+
+1. Check rate limit
+
 ## 1.8.2-RELEASE (2021-10-23)
 
 1. Fix poap attendee duration time

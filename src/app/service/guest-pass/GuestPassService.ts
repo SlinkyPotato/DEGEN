@@ -1,5 +1,4 @@
 import constants from '../constants/constants';
-import sleepTimer from 'util';
 import { Client } from '@notionhq/client';
 import { Client as DiscordClient } from 'discord.js';
 import { Page } from '@notionhq/client/build/src/api-types';
@@ -8,7 +7,6 @@ import dbInstance from '../../utils/dbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 import Log, { LogUtils } from '../../utils/Log';
 
-const sleep = sleepTimer.promisify(setTimeout);
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
 /**
@@ -58,9 +56,6 @@ export default async (client: DiscordClient): Promise<void> => {
 				continue;
 			}
 			Log.debug(`guest pass removed for ${expiredUserId} in db`);
-
-			// discord api rate limit of 50 calls per second
-			await sleep(1000);
 		} catch (e) {
 			LogUtils.logError('failed to remove expired userid', e);
 		}
@@ -77,9 +72,7 @@ export default async (client: DiscordClient): Promise<void> => {
 			setTimeout(async () => {
 				const guildMember = await guild.members.fetch(activeUser._id);
 				await guildMember.send({ content: `Hey <@${activeUser._id}>, your guest pass is set to expire in 15 minutes. Let us know if you have any questions!` }).catch(e => LogUtils.logError('failed to messager guest user', e));
-
-				// Discord api rate limit of 50 calls per second
-				await sleep(1000);
+				
 			}, Math.max(expiresInMilli - (1000 * 60 * 15), 0));
 
 			// Remove user's guest pass
@@ -100,9 +93,7 @@ export default async (client: DiscordClient): Promise<void> => {
 					return;
 				}
 				Log.debug(`guest pass removed for ${activeUser._id} in db`);
-
-				// Discord api rate limit of 50 calls per second
-				await sleep(1000);
+				
 			}, expiresInMilli);
 		} catch (e) {
 			LogUtils.logError('failed to set reminder for guest user', e);

@@ -8,6 +8,7 @@
 
 1. Check rate limit
 2. Fix github actions for forked repos
+3. Set guestpass limit for 2 weeks instead of 1 week
 
 ## 1.8.2-RELEASE (2021-10-23)
 

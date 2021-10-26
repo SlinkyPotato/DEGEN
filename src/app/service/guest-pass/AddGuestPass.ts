@@ -5,7 +5,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import { GuildMember } from 'discord.js';
 import Log, { LogUtils } from '../../utils/Log';
 
-export const expiresInHours = 168;
+export const expiresInHours = Number(process.env.DAO_GUEST_PASS_EXPIRATION_DAYS) * 24;
 
 export default async (guestUser: GuildMember): Promise<any> => {
 	if (guestUser.user.bot) {

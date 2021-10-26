@@ -44,8 +44,8 @@ export default class Account extends SlashCommand {
 		try {
 			await VerifyTwitter(ctx, guildMember);
 		} catch (e) {
-			LogUtils.logError('failed to verify user', e);
-			await ctx.send('error');
+			LogUtils.logError('failed to verify user', e, guildMember.guild.id);
+			await ctx.send('Something is not working...');
 		}
 	}
 }

@@ -10,8 +10,20 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Pro
 		appSecret: apiKeys.twitterAppSecret,
 	});
 	
-	const authLink: string = await twitterClient.generateAuthLink()
+	const authLink = await twitterClient.generateAuthLink(apiKeys.twitterCallbackUrl);
 	// const currentUser = await twitterClient.currentUser();
+	
+	await guildMember.send({
+		embeds: [
+			{
+				title: 'Twitter Authentication',
+				description: 'Please verify your twitter by following the link below.',
+				fields: [
+					{ name: 'URL', value: `${authLink.url}` },
+				],
+			},
+		],
+	});
 	
 	// await ctx.send({
 	// 	embeds: [

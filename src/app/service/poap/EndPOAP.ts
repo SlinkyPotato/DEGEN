@@ -8,6 +8,7 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
+import dayjs from 'dayjs';
 
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
@@ -22,18 +23,20 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 	});
 	
 	if (poapSettingsDoc == null) {
-		throw new ValidationError(`No active event found for <@${guildMember.id}>.`);
+		throw new ValidationError(`<@${guildMember.id}> Hmm it doesn't seem you are hosting an active event.`);
 	}
+	const currentDateISO = dayjs().toISOString();
 	const updateSettingsResult: UpdateWriteOpResult = await poapSettingsDB.updateOne(poapSettingsDoc, {
 		$set: {
 			isActive: false,
+			endTime: currentDateISO,
 		},
 	});
 
 	if (updateSettingsResult.modifiedCount !== 1) {
-		throw new ValidationError('Event is not active.');
+		throw new Error('failed to end event');
 	}
-	Log.info('event ended', {
+	Log.debug(`event ended for ${guildMember.user.tag}`, {
 		indexMeta: true,
 		meta: {
 			discordId: poapSettingsDoc.discordServerId,
@@ -42,7 +45,7 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 		},
 	});
 	const channel: GuildChannel = await guildMember.guild.channels.fetch(poapSettingsDoc.voiceChannelId);
-	const listOfParticipants: POAPFileParticipant[] = await POAPUtils.getListOfParticipants(guildMember, db, channel);
+	const listOfParticipants: POAPFileParticipant[] = await POAPUtils.getListOfParticipants(db, channel);
 	
 	if (listOfParticipants.length <= 0) {
 		await guildMember.send({ content: `Event ended. No participants found for \`${channel.name}\` in \`${channel.guild.name}\`.` });

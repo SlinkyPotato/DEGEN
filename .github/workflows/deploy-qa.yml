@@ -5,10 +5,9 @@ on:
           - 'develop'
     pull_request:
         branches:
-          - 'develop'
           - 'release/**'
 jobs:
-    deploy:
+    deploy-qa:
         environment:
             name: preview
             url: https://app.logdna.com/273e532689/logs/view?apps=serendipity-mk1

@@ -20,8 +20,36 @@
         "description": "List of discord servers the user is active in"
       },
       "twitter": {
-        "bsonType": ["object", null],
-        "description": "The user's linked twitter account"
+        "bsonType": ["object", "null"],
+        "description": "The user's linked twitter account.",
+        "required": [
+          "twitterId",
+          "twitterHandle",
+          "isLinked"
+        ],
+        "properties": {
+          "twitterId":  {
+            "bsonType": "string"
+          },
+          "twitterHandle": {
+            "bsonType": "string"
+          },
+          "isLinked": {
+            "bsonType": "bool"
+          },
+          "auth": {
+            "bsonType": "object",
+            "description": "Authentication details for the account.",
+            "properties": {
+              "oauthToken": {
+                "bsonType": "string"
+              },
+              "oauthTokenSecret": {
+                "bsonType": "string"
+              }
+            }
+          }
+        }
       }
     }
   }

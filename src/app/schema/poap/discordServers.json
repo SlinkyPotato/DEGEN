@@ -16,7 +16,7 @@
         "description": "Discord server name"
       },
       "isDegenActive": {
-        "bsonType": "boolean",
+        "bsonType": "bool",
         "description": "Flag that is true if the discord server has DEGEN active"
       }
     }

@@ -1,11 +1,13 @@
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 import Log, { LogUtils } from '../../utils/Log';
+import VerifyTwitter from '../../service/account/VerifyTwitter';
+import ServiceUtils from '../../utils/ServiceUtils';
 
-export default class Verify extends SlashCommand {
+export default class Account extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
-			name: 'verify',
-			description: 'Verify ownership of external accounts and wallets',
+			name: 'account',
+			description: 'Manage your accounts integration.',
 			throttling: {
 				usages: 1,
 				duration: 2,
@@ -13,7 +15,7 @@ export default class Verify extends SlashCommand {
 			defaultPermission: true,
 			options: [
 				{
-					name: 'account',
+					name: 'verify',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'Link DEGEN to your account or wallet.',
 					options: [
@@ -38,7 +40,12 @@ export default class Verify extends SlashCommand {
 	async run(ctx: CommandContext): Promise<any> {
 		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;
-		
-		Log.info(ctx.user.avatarURL);
+		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
+		try {
+			await VerifyTwitter(ctx, guildMember);
+		} catch (e) {
+			LogUtils.logError('failed to verify user', e);
+			await ctx.send('error');
+		}
 	}
 }

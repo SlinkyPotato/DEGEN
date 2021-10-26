@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.3-RELEASE (2021-10-26)
+
+1. Check rate limit
+2. Fix github actions for forked repos
+3. Set guestpass limit for 2 weeks instead of 1 week
+
 ## 1.8.2-RELEASE (2021-10-23)
 
 1. Fix poap attendee duration time

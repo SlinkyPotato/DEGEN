@@ -2,7 +2,7 @@ name: Build and Test
 on:
     push:
         branches:
-          - '*'
+          - '**'
 jobs:
     build-test:
         runs-on: ubuntu-20.04

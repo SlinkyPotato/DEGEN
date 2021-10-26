@@ -1,9 +1,8 @@
-import { CommandContext } from 'slash-create';
 import { GuildMember } from 'discord.js';
 import { TwitterApi } from 'twitter-api-v2';
 import apiKeys from '../constants/apiKeys';
 
-const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
+const VerifyTwitter = async (guildMember: GuildMember): Promise<any> => {
 	const twitterClient = new TwitterApi({
 		appKey: apiKeys.twitterAppToken,
 		appSecret: apiKeys.twitterAppSecret,
@@ -16,7 +15,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Pro
 		embeds: [
 			{
 				title: 'Twitter Authentication',
-				description: 'Please verify your twitter by following the link below.',
+				description: 'Please verify your twitter account by following the link below.',
 				fields: [
 					{ name: 'URL', value: `${authLink.url}` },
 				],
@@ -24,19 +23,6 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Pro
 		],
 	});
 	
-	// await ctx.send({
-	// 	embeds: [
-	// 		{
-	// 			title: 'Twitter Info',
-	// 			fields: [
-	// 				{ name: 'ID', value: `${currentUser.id}` },
-	// 				{ name: 'Handle', value: `${currentUser.screen_name}` },
-	// 				{ name: 'Description', value: `${currentUser.description}` },
-	// 			],
-	// 		},
-	// 	],
-	// });
-	// Log.debug(currentUser);
 	return;
 };
 

@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.8.3-RELEASE (2021-10-26)
+
+1. Check rate limit
+2. Fix github actions for forked repos
+3. Set guestpass limit for 2 weeks instead of 1 week
+
+## 1.8.2-RELEASE (2021-10-23)
+
+1. Fix poap attendee duration time
+2. Fix failed to send poaps message
+
+## 1.8.1-RELEASE (2021-10-21)
+
+1. Fix removal of guest pass users by wraping in try/catch block in case of error
+2. Add DEGEN branch deployment to uat
+
 ## 1.8.0-RELEASE (2021-10-21)
 
 1. Fix scoap-squad and update start season 2

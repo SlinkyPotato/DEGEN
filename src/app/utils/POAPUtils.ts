@@ -6,7 +6,7 @@ import axios from 'axios';
 import ValidationError from '../errors/ValidationError';
 import { POAPAdmin } from '../types/poap/POAPAdmin';
 import Log, { LogUtils } from './Log';
-import { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import DateUtils from './DateUtils';
 
 export type POAPFileParticipant = {
@@ -23,7 +23,7 @@ export type FailedPOAPAttendee = {
 
 const POAPUtils = {
 	
-	async getListOfParticipants(guildMember: GuildMember, db: Db, voiceChannel: GuildChannel): Promise<POAPFileParticipant[]> {
+	async getListOfParticipants(db: Db, voiceChannel: GuildChannel): Promise<POAPFileParticipant[]> {
 		const poapParticipants: MongoCollection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
 		const resultCursor: Cursor<POAPParticipant> = await poapParticipants.find({
 			voiceChannelId: voiceChannel.id,
@@ -31,32 +31,15 @@ const POAPUtils = {
 		});
 
 		if ((await resultCursor.count()) === 0) {
-			Log.info(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
+			Log.debug(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
 			return [];
 		}
 		
-		let endTime: number = Date.now();
-		const currentDateStr = (new Date()).toISOString();
+		await POAPUtils.setEndDateForPresentParticipants(poapParticipants, resultCursor);
+
 		const participants = [];
-		for await (const participant of resultCursor) {
-			let result: UpdateWriteOpResult;
-			try {
-				result = await poapParticipants.updateOne(participant, {
-					$set: {
-						endTime: currentDateStr,
-					},
-				});
-			} catch (e) {
-				LogUtils.logError('failed to update poap participants with endTime', e);
-			}
-			if (result == null) {
-				throw new Error('Mongodb operation failed');
-			}
-		}
 		await resultCursor.forEach((participant: POAPParticipant) => {
-			if (participant.endTime) {
-				endTime = new Date(participant.endTime).getTime();
-			}
+			const endTime = new Date(participant.endTime).getTime();
 			let durationInMinutes: number = (endTime - (new Date(participant.startTime)).getTime());
 			durationInMinutes = (durationInMinutes <= 0) ? 0 : durationInMinutes / (1000 * 60);
 			if (durationInMinutes >= constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
@@ -68,6 +51,31 @@ const POAPUtils = {
 			}
 		});
 		return participants;
+	},
+	
+	async setEndDateForPresentParticipants(poapParticipantsCollection: MongoCollection, poapParticipantsCursor: Cursor<POAPParticipant>): Promise<void> {
+		Log.debug('starting to set endDate for present participants in db');
+		const currentDateStr = dayjs().toISOString();
+		for await (const participant of poapParticipantsCursor) {
+			if (participant.endTime != null) {
+				// skip setting endDate for present endTime;
+				continue;
+			}
+			let result: UpdateWriteOpResult;
+			try {
+				result = await poapParticipantsCollection.updateOne(participant, {
+					$set: {
+						endTime: currentDateStr,
+					},
+				});
+			} catch (e) {
+				LogUtils.logError('failed to update poap participants with endTime', e);
+			}
+			if (result == null) {
+				throw new Error('Mongodb operation failed');
+			}
+		}
+		Log.debug('finished setting endDate for present participants in db');
 	},
 
 	async sendOutPOAPLinks(guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], attachment: MessageAttachment, event?: string): Promise<FailedPOAPAttendee[]> {
@@ -85,6 +93,14 @@ const POAPUtils = {
 		}
 		for (let i = 0; i < listOfParticipants.length; i++) {
 			try {
+				if (listOfPOAPLinks[i] == null || listOfPOAPLinks[i] == '') {
+					failedPOAPsList.push({
+						discordUserId: listOfParticipants[i].id,
+						discordUserTag: listOfParticipants[i].tag,
+						poapLink: 'n/a',
+					});
+					continue;
+				}
 				await guildMember.guild.members.fetch(listOfParticipants[i].id)
 					.then(async (participantMember: GuildMember) => {
 						await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
@@ -144,7 +160,7 @@ const POAPUtils = {
 		if (duration == null) {
 			return;
 		}
-		if (duration > constants.POAP_MAX_DURATION_MINUTES || duration < 10 || duration < constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
+		if (duration > constants.POAP_MAX_DURATION_MINUTES || duration < constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
 			await guildMember.send({
 				content: `<@${guildMember.user.id}>\n` +
 					`A minimum of ${constants.POAP_REQUIRED_PARTICIPATION_DURATION} minutes is required for an event to be active and no more than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`,

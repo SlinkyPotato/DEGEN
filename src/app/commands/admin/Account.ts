@@ -1,5 +1,5 @@
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
-import Log, { LogUtils } from '../../utils/Log';
+import { LogUtils } from '../../utils/Log';
 import VerifyTwitter from '../../service/account/VerifyTwitter';
 import ServiceUtils from '../../utils/ServiceUtils';
 

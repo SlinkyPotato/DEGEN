@@ -1,8 +1,7 @@
 import { CommandContext } from 'slash-create';
 import { GuildMember } from 'discord.js';
-import { TwitterApi, UserV1 } from 'twitter-api-v2';
+import { TwitterApi } from 'twitter-api-v2';
 import apiKeys from '../constants/apiKeys';
-import Log from '../../utils/Log';
 
 const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	const twitterClient = new TwitterApi({

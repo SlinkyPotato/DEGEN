@@ -17,8 +17,8 @@ import { CommandContext } from 'slash-create';
 import Log, { LogUtils } from '../../utils/Log';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
-	if (!ServiceUtils.isDiscordAdmin(guildMember)) {
-		throw new ValidationError('Sorry, only discord admins can configure poap settings.');
+	if (!(ServiceUtils.isDiscordAdmin(guildMember) || ServiceUtils.isDiscordServerManager(guildMember))) {
+		throw new ValidationError('Sorry, only discord admins and managers can configure poap settings.');
 	}
 	const authorizedRoles: Role[] = await retrieveRoles(guildMember, roles);
 	const authorizedUsers: GuildMember[] = await retrieveUsers(guildMember, users);

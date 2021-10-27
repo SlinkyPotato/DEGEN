@@ -46,6 +46,7 @@ const EventsAPI = {
 			return response.data;
 		} catch (e) {
 			LogUtils.logError('failed to send poap event to POAP BackOffice', e);
+			throw new Error();
 		}
 	},
 };

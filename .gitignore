@@ -115,3 +115,6 @@ build
 
 # jest-mongodb output
 globalConfig.json
+
+jest.config.js
+https://discord.com/api/oauth2/authorize?client_id=901799442502516766&permissions=4027055222&scope=bot%20&applications.commands

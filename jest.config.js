@@ -28,10 +28,12 @@ process.env.DISCORD_BOT_PUBLIC_KEY = 'sdafsdafasdfsdaf';
 process.env.DISCORD_BOT_TOKEN =
     'asfsadf.YLsadfvgyg.106GODufx1masdfsdaf8JwsPdru0KWuG8BY';
 process.env.DISCORD_OWNER_ID = '23432434';
-process.env.MONGODB_USERNAME = 'user';
-process.env.MONGODB_PASS = 'asfsdfasf';
-process.env.MONGODB_CLUSTER = 'clusasfdasdf.asdfsd';
-process.env.NOTION_TOKEN = 'secret+asfsdfsdfasdfsadf';
+process.env.MONGODB_USERNAME;
+process.env.MONGODB_PASS;
+process.env.MONGODB_CLUSTER;
+process.env.MONGODB_PREFIX;
+
+process.env.NOTION_TOKEN = 'cluster0-7znrv.mongodb.net/test';
 process.env.FAQS_PAGE_ID = '6a2ba0a4-fd1e-4381-b365-6ad5afd418fa';
 process.env.DISCORD_SERVER_ID = '24332423423';
 process.env.DISCORD_ROLE_GUEST_PASS = '857683488131907624';

@@ -1,0 +1,47 @@
+import { GuildMember, MessageEmbedOptions } from 'discord.js';
+import dbInstance from '../../utils/dbUtils';
+import { Collection, Db, Cursor } from 'mongodb';
+import constants from '../constants/constants';
+import { Timecard } from '../../types/timecard.ts/Timecard';
+import Log from '../../utils/Log';
+import { generateEmbedMessage } from './publishTimecards/publishTimecards';
+
+export default async (guildMember: GuildMember): Promise<any> => {
+
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_TIMECARD);
+	const timecardDb: Collection = db.collection(constants.DB_COLLECTION_TIMECARDS);
+
+	const completedTimeCards = await timecardDb.find({
+		discordUserId: guildMember.user.id,
+		discordServerId: guildMember.guild.id,
+		isActive: false,
+	});
+
+	
+	if (completedTimeCards == null) {
+		guildMember.send('No timecards found');
+		return 'No timecards found';
+	}
+		
+	const listOfTimeCards = await sendMultipleMessages(guildMember, completedTimeCards);
+	
+	
+	Log.info('Hours Requestsed', {
+		indexMeta: true,
+		meta: {
+			HoursReturned: 'completedTimeCards',
+		},
+	});
+	return listOfTimeCards;
+};
+const sendMultipleMessages = async (guildMember: GuildMember, dbRecords: Cursor): Promise<any> => {
+	const listOfTimecards = [];
+	while (listOfTimecards.length < 10 && await dbRecords.hasNext()) {
+		const record: Timecard = await dbRecords.next();
+		const messageOptions: MessageEmbedOptions = generateEmbedMessage(record);
+		listOfTimecards.push(messageOptions);
+	}
+	await (guildMember.send({ embeds: listOfTimecards }));
+	return listOfTimecards;
+};
+	

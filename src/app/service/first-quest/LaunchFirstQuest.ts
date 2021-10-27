@@ -5,8 +5,6 @@ import dbInstance from '../../utils/dbUtils';
 import { Db } from 'mongodb';
 import client from '../../app';
 
-setInterval(async function(): Promise<void> { await fqRescueCall(); }, (1000 * 60 * 60 * 10));
-
 export default async (member: GuildMember, dmChan:TextBasedChannels | string): Promise<any> => {
 
 	const dmChannel: DMChannel = await getDMChannel(member, dmChan);
@@ -106,7 +104,7 @@ export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildM
 	});
 };
 
-const fqRescueCall = async () => {
+export const fqRescueCall = async (): Promise<void> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 
 	const firstQuestTracker = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);

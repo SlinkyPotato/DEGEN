@@ -1,4 +1,5 @@
 import GuestPassService from '../service/guest-pass/GuestPassService';
+import FirstQuestRescueService from '../service/first-quest/FirstQuestRescueService';
 import { Client, Guild } from 'discord.js';
 import constants from '../service/constants/constants';
 import discordServerIds from '../service/constants/discordServerIds';
@@ -25,6 +26,7 @@ export default class implements DiscordEvent {
 			if (client.guilds.cache.some((guild) => guild.id == discordServerIds.banklessDAO || guild.id == discordServerIds.discordBotGarage)) {
 				await connect(constants.DB_NAME_BOUNTY_BOARD);
 				await GuestPassService(client).catch(Log.error);
+				await FirstQuestRescueService();
 				await restoreScoapEmbedAndVoteRecord().catch(Log.error);
 			}
 			

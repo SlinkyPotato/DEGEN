@@ -1,6 +1,6 @@
-import Checkin from '../../../app/service/timecard/checkin';
-import Checkout from '../../../app/service/timecard/checkout';
-import Hours from '../../../app/service/timecard/hours';
+import Checkin from '../../../app/service/timecard/Checkin';
+import Checkout from '../../../app/service/timecard/Checkout';
+import Hours from '../../../app/service/timecard/Hours';
 import { connect } from '../../../app/utils/dbUtils';
 import constants from '../../../app/service/constants/constants';
 import { Collection, Db } from 'mongodb';

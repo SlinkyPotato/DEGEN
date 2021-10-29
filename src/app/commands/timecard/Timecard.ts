@@ -62,15 +62,12 @@ export default class Timecard extends SlashCommand {
 		try {
 			switch (ctx.subcommands[0]) {
 			case 'checkin':
-				console.log('/timecard checkin ' + Date.now());
 				command = Checkin(guildMember, Date.now());
 				break;
 			case 'checkout':
-				console.log('/timecard checkout ' + Date.now() + ctx.options.checkout['description']);
 				command = Checkout(guildMember, Date.now(), ctx.options.checkout['description']);
 				break;
 			case 'hours':
-				console.log('/timecard hours ');
 				command = Hours(guildMember);
 				break;
 			default:

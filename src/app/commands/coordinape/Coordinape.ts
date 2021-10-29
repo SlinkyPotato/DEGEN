@@ -12,7 +12,7 @@ import ValidationError from '../../errors/ValidationError';
 import discordServerIds from '../../service/constants/discordServerIds';
 import { LogUtils } from '../../utils/Log';
 
-module.exports = class FirstQuest extends SlashCommand {
+module.exports = class Coordinape extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'coordinape',
@@ -79,7 +79,7 @@ module.exports = class FirstQuest extends SlashCommand {
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
 		command.catch(e => {
 			if (!(e instanceof ValidationError)) {
-				LogUtils.logError('failed to handle first-quest command', e);
+				LogUtils.logError('failed to handle coordinape command', e);
 				return ctx.send('Sorry something is not working and our devs are looking into it');
 			}
 		});

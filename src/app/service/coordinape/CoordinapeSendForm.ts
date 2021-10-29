@@ -12,8 +12,8 @@ export default async (member: GuildMember, ctx?: CommandContext): Promise<any> =
 
 	for (const role of member.roles.cache.values()) {
 		if (role.name === 'Level 1') {
-			for (const role of member.roles.cache.values()) {
-				if (role.name === 'Contributors (Lvl 2)') {
+			for (const role2 of member.roles.cache.values()) {
+				if (role2.name === 'Contributors (Lvl 2)') {
 					await dmChannel.send({ content: 'Here is your form: <https://docs.google.com/forms/d/16qaDbz14C7d31pTZoOTRiDVShfzOimiwZlxUBit0Fmw/>' });
 					return;
 				}

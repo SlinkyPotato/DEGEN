@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 
 export default async (guildMember: GuildMember, date: number, description: string): Promise<any> => {
 
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_TIMECARD);
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	const timecardDb: Collection = db.collection(constants.DB_COLLECTION_TIMECARDS);
 
 	const activeTimecard: Timecard = await timecardDb.findOne({

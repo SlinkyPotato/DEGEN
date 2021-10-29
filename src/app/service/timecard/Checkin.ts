@@ -21,7 +21,7 @@ export default async (guildMember: GuildMember, date: number): Promise<any> => {
 		isActive: true,
 	};
 
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_TIMECARD);
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	const timecardDb: Collection = await db.collection(constants.DB_COLLECTION_TIMECARDS);
 
 	const activeTimecard: Timecard = await timecardDb.findOne({

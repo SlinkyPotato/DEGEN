@@ -1,8 +1,6 @@
 export default Object.freeze({
 	DB_NAME_DEGEN: 'degen',
 	DB_NAME_BOUNTY_BOARD: 'bountyboard',
-	DB_NAME_TIMECARD: 'timecard',
-	
 	
 	DB_COLLECTION_TIMECARDS: 'timecards',
 	DB_COLLECTION_GUEST_USERS: 'guestUsers',

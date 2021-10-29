@@ -8,7 +8,7 @@ import { generateEmbedMessage } from './publishTimecards/publishTimecards';
 
 export default async (guildMember: GuildMember): Promise<any> => {
 
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_TIMECARD);
+	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 	const timecardDb: Collection = db.collection(constants.DB_COLLECTION_TIMECARDS);
 
 	const completedTimeCards = await timecardDb.find({

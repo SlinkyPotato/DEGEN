@@ -1,5 +1,6 @@
 import { DMChannel, GuildMember } from 'discord.js';
 import { CommandContext } from 'slash-create';
+import roleIds from '../constants/roleIds';
 
 export default async (member: GuildMember, ctx?: CommandContext): Promise<any> => {
 	ctx?.send(`Hi, ${ctx.user.mention}! I sent you a DM with more information.`);
@@ -11,9 +12,9 @@ export default async (member: GuildMember, ctx?: CommandContext): Promise<any> =
 	}
 
 	for (const role of member.roles.cache.values()) {
-		if (role.name === 'Level 1') {
+		if (role.id === roleIds.level1) {
 			for (const role2 of member.roles.cache.values()) {
-				if (role2.name === 'Contributors (Lvl 2)') {
+				if (role2.id === roleIds.level2) {
 					await dmChannel.send({ content: 'Here is your form: <https://docs.google.com/forms/d/16qaDbz14C7d31pTZoOTRiDVShfzOimiwZlxUBit0Fmw/>' });
 					return;
 				}

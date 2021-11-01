@@ -5,7 +5,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import { GuildMember } from 'discord.js';
 import Log, { LogUtils } from '../../utils/Log';
 
-export const expiresInHours = 168;
+export const expiresInHours = Number(process.env.DAO_GUEST_PASS_EXPIRATION_DAYS) * 24;
 
 export default async (guestUser: GuildMember): Promise<any> => {
 	if (guestUser.user.bot) {
@@ -16,7 +16,12 @@ export default async (guestUser: GuildMember): Promise<any> => {
 	await addGuestRoleToUser(guestUser);
 	notifyUserOfGuestExpiration(guestUser);
 	removeGuestRoleOnExpiration(guestUser);
-	return guestUser.send({ content: `Hi <@${guestUser.user.id}>, You have been granted guest access at Bankless DAO. Let us know if you have any questions!` }).catch(e => LogUtils.logError('failed to send message to new guest', e));
+	return guestUser.send({
+		content: `You have been granted guest access at Bankless DAO! Guest passes last for 
+		${process.env.DAO_GUEST_PASS_EXPIRATION_DAYS} days and will expire afterwards. To renew your guest pass, ask any 
+		Level 2 contributor to renew it, or post in #get-involved. In the future, we'll automate guest pass renewal based on 
+		your activity in the DAO!` })
+		.catch(e => LogUtils.logError('failed to send message to new guest', e));
 };
 
 export const addGuestUserToDb = async (guestUser: GuildMember): Promise<any> => {

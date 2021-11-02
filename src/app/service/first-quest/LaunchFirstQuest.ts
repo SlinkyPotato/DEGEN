@@ -5,42 +5,9 @@ import dbInstance from '../../utils/dbUtils';
 import { Db } from 'mongodb';
 import client from '../../app';
 
-export default async (member: GuildMember, dmChan:TextBasedChannels | string): Promise<any> => {
+export const sendFqMessage = async (dmChan:TextBasedChannels | string, member: GuildMember): Promise<void> => {
 
 	const dmChannel: DMChannel = await getDMChannel(member, dmChan);
-
-	const verificationMessage = await dmChannel.send({ content:
-			'Hello! Welcome to BanklessDAO. We\'re glad you\'re here 🙂 \n \n' +
-			'We would like to encourage all new members to **activate 2 factor authentication (2FA)** ' +
-			'on their discord account for added security and to make scams less likely to occur.\n' +
-			'See how it\'s done: <https://support.discord.com/hc/en-us/articles/219576828-Setting-up-Two-Factor-Authentication>\n\n ' +
-			'Before we start you have to prove that you are human by reacting with 👍 ' });
-
-	await verificationMessage.react('👍');
-
-	await verificationMessage.awaitReactions({
-		max: 1,
-		time: (5000 * 60),
-		errors: ['time'],
-		filter: async (reaction, user) => {
-			return ['👍'].includes(reaction.emoji.name) && !user.bot;
-		},
-	})
-		.then(async () => {
-			await switchRoles(member, constants.FIRST_QUEST_ROLES.unverified, constants.FIRST_QUEST_ROLES.verified);
-
-			await dmChannel.send({ content:'Verification successful!\n\n' });
-
-			await sendFqMessage(dmChannel, member);
-		})
-		.catch(async (e) => {
-			await dmChannel.send('Verification failed, please try again. You can restart ' +
-										'the verification process by responding with **!verification** ');
-			Log.error(e);
-		});
-};
-
-export const sendFqMessage = async (dmChannel: TextBasedChannels, member: GuildMember): Promise<void> => {
 
 	if (messagesState.length === 0) {
 		await getMessageContentFromDb();
@@ -181,14 +148,14 @@ export const switchRoles = async (member: GuildMember, fromRole: string, toRole:
 	const roles = await guild.roles.fetch();
 
 	for (const role of roles.values()) {
-		if (role.name === toRole) {
+		if (role.id === toRole) {
 			await member.roles.add(role);
 
 			const filter = { _id: member.user.id };
 
 			const options = { upsert: true };
 
-			const updateDoc = { $set: { role: role.name, doneRescueCall: false, timestamp: Date.now(), guild: guild.id } };
+			const updateDoc = { $set: { role: role.id, doneRescueCall: false, timestamp: Date.now(), guild: guild.id } };
 
 			const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 
@@ -197,7 +164,7 @@ export const switchRoles = async (member: GuildMember, fromRole: string, toRole:
 			await dbFirstQuestTracker.updateOne(filter, updateDoc, options);
 		}
 
-		if (role.name === fromRole) {
+		if (role.id === fromRole) {
 			await member.roles.remove(role);
 		}
 	}
@@ -208,8 +175,8 @@ const retrieveFqMessage = (member) => {
 	const roles = member.roles.cache;
 
 	for (const role of roles.values()) {
-		if (Object.values(constants.FIRST_QUEST_ROLES).indexOf(role.name) > -1) {
-			return getFqMessage(role.name);
+		if (Object.values(constants.FIRST_QUEST_ROLES).indexOf(role.id) > -1) {
+			return getFqMessage(role.id);
 		}
 	}
 };

@@ -96,6 +96,4 @@ describe('Timecard Services', () => {
 		const hoursResponse = await Hours(guildMember);
 		expect(hoursResponse.length).toEqual(0);
 	});
-
-
 });

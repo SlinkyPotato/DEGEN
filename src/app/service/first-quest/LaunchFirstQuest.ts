@@ -1,5 +1,6 @@
 import { DMChannel, GuildMember, TextBasedChannels } from 'discord.js';
 import constants from '../constants/constants';
+import fqConstants from '../constants/firstQuest';
 import Log from '../../utils/Log';
 import dbInstance from '../../utils/dbUtils';
 import { Db } from 'mongodb';
@@ -34,21 +35,21 @@ export const sendFqMessage = async (dmChan:TextBasedChannels | string, member: G
 		if (reason === 'limit') {
 			await switchRoles(member, fqMessage.start_role, fqMessage.end_role);
 			try {
-				if (!(fqMessage.end_role === constants.FIRST_QUEST_ROLES.first_quest_complete)) {
+				if (!(fqMessage.end_role === fqConstants.FIRST_QUEST_ROLES.first_quest_complete)) {
 					await sendFqMessage(dmChannel, member);
 
 				} else {
-					await dmChannel.send({ content: fqMessageContent[getFqMessage(constants.FIRST_QUEST_ROLES.first_quest_complete).message_id].replace(/\\n/g, '\n') });
+					await dmChannel.send({ content: fqMessageContent[getFqMessage(fqConstants.FIRST_QUEST_ROLES.first_quest_complete).message_id].replace(/\\n/g, '\n') });
 				}
 			} catch {
 				// give some time for the role update to come through and try again
 				await new Promise(r => setTimeout(r, 1000));
 
-				if (!(fqMessage.end_role === constants.FIRST_QUEST_ROLES.first_quest_complete)) {
+				if (!(fqMessage.end_role === fqConstants.FIRST_QUEST_ROLES.first_quest_complete)) {
 					await sendFqMessage(dmChannel, member);
 
 				} else {
-					await dmChannel.send({ content: fqMessageContent[getFqMessage(constants.FIRST_QUEST_ROLES.first_quest_complete).message_id].replace(/\\n/g, '\n') });
+					await dmChannel.send({ content: fqMessageContent[getFqMessage(fqConstants.FIRST_QUEST_ROLES.first_quest_complete).message_id].replace(/\\n/g, '\n') });
 				}
 			}
 			return;
@@ -79,7 +80,7 @@ export const fqRescueCall = async (): Promise<void> => {
 	const data = await firstQuestTracker.find({}).toArray();
 
 	for (const fqUser of data) {
-		if (!(fqUser.role === constants.FIRST_QUEST_ROLES.first_quest_complete) && (fqUser.doneRescueCall === false)) {
+		if (!(fqUser.role === fqConstants.FIRST_QUEST_ROLES.first_quest_complete) && (fqUser.doneRescueCall === false)) {
 
 			if ((+new Date() - fqUser.timestamp) >= (1000 * 60 * 60 * 24)) {
 
@@ -175,7 +176,7 @@ const retrieveFqMessage = (member) => {
 	const roles = member.roles.cache;
 
 	for (const role of roles.values()) {
-		if (Object.values(constants.FIRST_QUEST_ROLES).indexOf(role.id) > -1) {
+		if (Object.values(fqConstants.FIRST_QUEST_ROLES).indexOf(role.id) > -1) {
 			return getFqMessage(role.id);
 		}
 	}
@@ -183,21 +184,21 @@ const retrieveFqMessage = (member) => {
 
 const getFqMessage = (roleName: string) => {
 	switch (roleName) {
-	case (constants.FIRST_QUEST_ROLES.verified):
+	case (fqConstants.FIRST_QUEST_ROLES.verified):
 		return fqMessageFlow['verified'];
-	case (constants.FIRST_QUEST_ROLES.first_quest_welcome):
+	case (fqConstants.FIRST_QUEST_ROLES.first_quest_welcome):
 		return fqMessageFlow['welcome'];
-	case (constants.FIRST_QUEST_ROLES.first_quest_membership):
+	case (fqConstants.FIRST_QUEST_ROLES.first_quest_membership):
 		return fqMessageFlow['membership'];
-	case (constants.FIRST_QUEST_ROLES.firehose):
+	case (fqConstants.FIRST_QUEST_ROLES.firehose):
 		return fqMessageFlow['firehose'];
-	case (constants.FIRST_QUEST_ROLES.first_quest_scholar):
+	case (fqConstants.FIRST_QUEST_ROLES.first_quest_scholar):
 		return fqMessageFlow['scholar'];
-	case (constants.FIRST_QUEST_ROLES.first_quest_guest_pass):
+	case (fqConstants.FIRST_QUEST_ROLES.first_quest_guest_pass):
 		return fqMessageFlow['guest_pass'];
-	case (constants.FIRST_QUEST_ROLES.first_quest):
+	case (fqConstants.FIRST_QUEST_ROLES.first_quest):
 		return fqMessageFlow['first_quest'];
-	case (constants.FIRST_QUEST_ROLES.first_quest_complete):
+	case (fqConstants.FIRST_QUEST_ROLES.first_quest_complete):
 		return fqMessageFlow['complete'];
 	}
 };
@@ -206,49 +207,49 @@ const fqMessageFlow = {
 	verified: {
 		message_id: 'fq1',
 		emoji: '🏦',
-		start_role: constants.FIRST_QUEST_ROLES.verified,
-		end_role: constants.FIRST_QUEST_ROLES.first_quest_welcome,
+		start_role: fqConstants.FIRST_QUEST_ROLES.verified,
+		end_role: fqConstants.FIRST_QUEST_ROLES.first_quest_welcome,
 	},
 	welcome: {
 		message_id: 'fq2',
 		emoji: '🏦',
-		start_role: constants.FIRST_QUEST_ROLES.first_quest_welcome,
-		end_role: constants.FIRST_QUEST_ROLES.first_quest_membership,
+		start_role: fqConstants.FIRST_QUEST_ROLES.first_quest_welcome,
+		end_role: fqConstants.FIRST_QUEST_ROLES.first_quest_membership,
 	},
 	membership: {
 		message_id: 'fq3',
 		emoji: '🏦',
-		start_role: constants.FIRST_QUEST_ROLES.first_quest_membership,
-		end_role: constants.FIRST_QUEST_ROLES.firehose,
+		start_role: fqConstants.FIRST_QUEST_ROLES.first_quest_membership,
+		end_role: fqConstants.FIRST_QUEST_ROLES.firehose,
 	},
 	firehose: {
 		message_id: 'fq4',
 		emoji: '✏️',
-		start_role: constants.FIRST_QUEST_ROLES.firehose,
-		end_role: constants.FIRST_QUEST_ROLES.first_quest_scholar,
+		start_role: fqConstants.FIRST_QUEST_ROLES.firehose,
+		end_role: fqConstants.FIRST_QUEST_ROLES.first_quest_scholar,
 	},
 	scholar: {
 		message_id: 'fq5',
 		emoji: '✏️',
-		start_role: constants.FIRST_QUEST_ROLES.first_quest_scholar,
-		end_role: constants.FIRST_QUEST_ROLES.first_quest_guest_pass,
+		start_role: fqConstants.FIRST_QUEST_ROLES.first_quest_scholar,
+		end_role: fqConstants.FIRST_QUEST_ROLES.first_quest_guest_pass,
 	},
 	guest_pass: {
 		message_id: 'fq6',
 		emoji: '✏️',
-		start_role: constants.FIRST_QUEST_ROLES.first_quest_guest_pass,
-		end_role: constants.FIRST_QUEST_ROLES.first_quest,
+		start_role: fqConstants.FIRST_QUEST_ROLES.first_quest_guest_pass,
+		end_role: fqConstants.FIRST_QUEST_ROLES.first_quest,
 	},
 	first_quest: {
 		message_id: 'fq7',
 		emoji: '🤠',
-		start_role: constants.FIRST_QUEST_ROLES.first_quest,
-		end_role: constants.FIRST_QUEST_ROLES.first_quest_complete,
+		start_role: fqConstants.FIRST_QUEST_ROLES.first_quest,
+		end_role: fqConstants.FIRST_QUEST_ROLES.first_quest_complete,
 	},
 	complete: {
 		message_id: 'fq8',
 		emoji: '',
-		start_role: constants.FIRST_QUEST_ROLES.first_quest_complete,
-		end_role: constants.FIRST_QUEST_ROLES.verified,
+		start_role: fqConstants.FIRST_QUEST_ROLES.first_quest_complete,
+		end_role: fqConstants.FIRST_QUEST_ROLES.verified,
 	},
 };

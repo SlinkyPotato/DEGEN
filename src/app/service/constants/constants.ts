@@ -10,10 +10,8 @@ export default Object.freeze({
 	DB_COLLECTION_POAP_ADMINS: 'poapAdmins',
 	DB_COLLECTION_ALLOWLIST: 'allowList',
 	DB_COLLECTION_FIRST_QUEST_CONTENT: 'firstQuestContent',
-	DB_COLLECTION_FIRST_QUEST_CONTENT_BACKUP: 'firstQuestContentBackup',
 	DB_COLLECTION_FIRST_QUEST_TRACKER: 'firstQuestTracker',
-	MONGODB_URI_PARTIAL: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}${process.env.MONGODB_URL_ENDPOINT}`,
-	// MONGODB_URI_PARTIAL: `${process.env.MONGODB_PREFIX}://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
+	MONGODB_URI_PARTIAL: `${process.env.MONGODB_PREFIX}://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
 	
 	BOUNTY_BOARD_WEBSITE_WEBHOOK_NAME: 'bounty-board-website',
@@ -42,15 +40,4 @@ export default Object.freeze({
 	
 	POAP_REQUIRED_PARTICIPATION_DURATION: Number(process.env.POAP_REQUIRED_PARTICIPATION_DURATION),
 	POAP_MAX_DURATION_MINUTES: Number(process.env.POAP_MAX_EVENT_DURATION_MINUTES),
-
-	FIRST_QUEST_ROLES : {
-		verified: process.env.DISCORD_ROLE_FIRST_QUEST_START,
-		first_quest_welcome: process.env.DISCORD_ROLE_FIRST_QUEST_WELCOME,
-		first_quest_membership: process.env.DISCORD_ROLE_FIRST_QUEST_MEMBERSHIP,
-		firehose: process.env.DISCORD_ROLE_FIRST_QUEST_FIREHOSE,
-		first_quest_scholar: process.env.DISCORD_ROLE_FIRST_QUEST_SCHOLAR,
-		first_quest_guest_pass: process.env.DISCORD_ROLE_FIRST_QUEST_GUEST_PASS,
-		first_quest: process.env.DISCORD_ROLE_FIRST_QUEST,
-		first_quest_complete: process.env.DISCORD_ROLE_FIRST_QUEST_COMPLETE,
-	},
 });

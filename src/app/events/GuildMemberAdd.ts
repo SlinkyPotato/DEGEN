@@ -5,7 +5,7 @@ import { LogUtils } from '../utils/Log';
 import { sendFqMessage } from '../service/first-quest/LaunchFirstQuest';
 import client from '../app';
 import { Captcha } from 'discord.js-captcha';
-import constants from '../service/constants/constants';
+import fqConstants from '../service/constants/firstQuest';
 
 export default class implements DiscordEvent {
 	name = 'guildMemberAdd';
@@ -24,21 +24,19 @@ export default class implements DiscordEvent {
 
 					const captcha = new Captcha(client, {
 						guildID: member.guild.id,
-						roleID: constants.FIRST_QUEST_ROLES.verified,
+						roleID: fqConstants.FIRST_QUEST_ROLES.verified,
 						channelID: process.env.DISCORD_CHANNEL_SUPPORT_ID,
 						kickOnFailure: true,
 						attempts: 3,
 						timeout: 60000,
 						showAttemptCount: true,
-						// customPromptEmbed: null, // customise the embed that will be sent to the user when the captcha is requested
-						// customSuccessEmbed: new MessageEmbed(), // customise the embed that will be sent to the user when the captcha is solved
-						// customFailureEmbed: new MessageEmbed(), // customise the embed that will be sent to the user when they fail to solve the captcha
 					});
 
 					captcha.present(member);
 
 					captcha.on('success', async () => {
 						await new Promise(r => setTimeout(r, 1000));
+
 						await sendFqMessage('undefined', member).catch(e => {
 							LogUtils.logError('First attempt to launch first-quest failed: ', e);
 						});

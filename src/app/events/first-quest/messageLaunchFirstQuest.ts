@@ -1,7 +1,7 @@
 import ServiceUtils from '../../utils/ServiceUtils';
 import { sendFqMessage, switchRoles } from '../../service/first-quest/LaunchFirstQuest';
 import { Message } from 'discord.js';
-import constants from '../../service/constants/constants';
+import fqConstants from '../../service/constants/firstQuest';
 import Log from '../../utils/Log';
 
 export default async (message: Message): Promise<any> => {
@@ -20,15 +20,15 @@ export default async (message: Message): Promise<any> => {
 				member = await member.fetch();
 			}
 			if ((member.user === message.author) && ServiceUtils.isBanklessDAO(guild)) {
-				if (member.roles.cache.size > 1) return;
+				if (member.roles.cache.size <= 1) return;
 				
 				try {
-					if (!await member.roles.cache.find(role => role.id === constants.FIRST_QUEST_ROLES.first_quest_complete)) {
+					if (!await member.roles.cache.find(role => role.id === fqConstants.FIRST_QUEST_ROLES.first_quest_complete)) {
 						return await sendFqMessage(message.channel, member).catch(e => {
 							Log.error('ERROR: ', e);
 						});
 					} else {
-						await switchRoles(member, constants.FIRST_QUEST_ROLES.first_quest_complete, constants.FIRST_QUEST_ROLES.verified);
+						await switchRoles(member, fqConstants.FIRST_QUEST_ROLES.first_quest_complete, fqConstants.FIRST_QUEST_ROLES.verified);
 						try {
 							return await sendFqMessage(message.channel, member).catch(e => {
 								Log.error('ERROR: ', e);

@@ -28,7 +28,7 @@ module.exports = class FirstQuest extends SlashCommand {
 
 			],
 			throttling: {
-				usages: 2,
+				usages: 1,
 				duration: 1,
 			},
 			defaultPermission: false,

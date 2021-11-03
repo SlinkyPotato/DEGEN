@@ -3,6 +3,8 @@ import { CommandContext } from 'slash-create';
 import { Db, ObjectID } from 'mongodb';
 import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
+import fqConstants from '../constants/firstQuest';
+import Log from '../../utils/Log';
 
 export default async (member: GuildMember, ctx?: CommandContext): Promise<any> => {
 	ctx?.send(`Hi, ${ctx.user.mention}! I sent you a DM with more information.`);
@@ -66,7 +68,6 @@ const createSelectMessage = async (dmChannel, member): Promise<void> => {
 		}
 	});
 };
-
 
 const collectConfirmation = async (message, member, key, origMessages): Promise<void> => {
 
@@ -136,7 +137,7 @@ const collectUserInput = async (dmChannel: DMChannel, member: GuildMember, key: 
 
 						const dbResponse = await updateDatabase(member.user.id, responseContent, key, origMessages);
 
-						await dmChannel.send({ content: `Database update complete. Status: ${dbResponse}` });
+						await dmChannel.send({ content: dbResponse });
 
 						await createSelectMessage(dmChannel, member);
 
@@ -152,19 +153,30 @@ const collectUserInput = async (dmChannel: DMChannel, member: GuildMember, key: 
 	});
 };
 
-const updateDatabase = async (user_id, content, key, origMessages) => {
+const updateDatabase = async (userId, content, key, origMessages) => {
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 
-	const firstQuestContentBackup = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_CONTENT_BACKUP);
-
 	const timestamp = Date.now();
 
-	const backup = await firstQuestContentBackup.insertOne({ messages: origMessages, timestamp: timestamp, user_id: user_id });
+	const logMeta = {
+		origContent: origMessages[key],
+		newContent: content,
+		messageKey: key,
+		updatedBy: userId,
+		timestamp: timestamp,
+	};
+
+	const opts = {
+		level: 'info',
+		meta: logMeta,
+	};
+
+	Log.info('First Quest message content updated', opts);
 
 	const firstQuestContent = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_CONTENT);
 
-	const filter = { _id: ObjectID('61743936a3f05763f8d90719') };
+	const filter = { _id: ObjectID(fqConstants.FIRST_QUEST_DB_DOCUMENT_ID) };
 
 	const options = { upsert: false };
 
@@ -174,15 +186,20 @@ const updateDatabase = async (user_id, content, key, origMessages) => {
 
 	const update = await firstQuestContent.updateOne(filter, updateDoc, options);
 
-	return `Exit status backup : ${backup.result.ok}, Exit status update : ${update.result.ok}`;
+	return (update.result.ok && update.result.nModified) ? 'Message updated successfully' : 'Could not update message, please try again';
 };
 
 const fetchData = async () => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 
 	const firstQuestContent = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_CONTENT).find({});
-
-	return await firstQuestContent.toArray();
+	
+	const data = await firstQuestContent.toArray();
+	
+	// if (data.length === 0) {
+	// 	data = await fqInit(db);
+	// }
+	return data;
 };
 
 const createEmbed = async (data) => {

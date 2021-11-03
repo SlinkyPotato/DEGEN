@@ -99,3 +99,9 @@ describe('Timecard Services', () => {
 	});
 });
 */
+
+describe('Timecard test', () => {
+	it('should pass', () => {
+		expect(true).toBe(true);
+	});
+});

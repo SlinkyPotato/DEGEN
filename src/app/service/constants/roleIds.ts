@@ -8,5 +8,4 @@ export default Object.freeze({
 	level2: process.env.DISCORD_ROLE_CONTRIBUTORS_LVL_2,
 	level1: process.env.DISCORD_ROLE_LEVEL_1,
 	developersGuild: process.env.DISCORD_ROLE_DEVELOPERS_GUILD,
-	AFK: process.env.DISCORD_ROLE_AFK,
 });

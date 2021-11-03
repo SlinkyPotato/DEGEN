@@ -94,6 +94,6 @@ describe('Timecard Services', () => {
 	it('Looks for hours that do no exist', async () => {
 		const guildMember = defaultGuildMember2;
 		const hoursResponse = await Hours(guildMember);
-		expect(hoursResponse.length).toEqual(0);
+		expect(hoursResponse).toEqual('No timecards found');
 	});
 });

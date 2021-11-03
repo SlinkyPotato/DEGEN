@@ -5,9 +5,9 @@
 1. Introduce /coordinape form request command for BanklessDAO
 2. Update feedback request form to canny
 3. Add /timecard command
-- '/timecard checkin' begins a work session
-- '/timecard checkout description:' Ends and saves a work session with a description of work
-- '/timecard hours' returns a users last 10 timecards
+   - '/timecard checkin' begins a work session
+   - '/timecard checkout description:' Ends and saves a work session with a description of work
+   - '/timecard hours' returns a users last 10 timecards
 
 ## 1.8.3-RELEASE (2021-10-26)
 

@@ -4,7 +4,8 @@
 
 1. Introduce /coordinape form request command for BanklessDAO
 2. Update feedback request form to canny
-3. Run build-test action on every pull request
+3. Add /timecard command
+4. Run build-test action on every pull request
 
 ## 1.8.3-RELEASE (2021-10-26)
 

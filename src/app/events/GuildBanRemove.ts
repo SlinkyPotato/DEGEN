@@ -3,9 +3,9 @@ import { Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
 import constants from '../service/constants/constants';
 import { Allowlist } from '../types/discord/Allowlist';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
-import dbInstance from '../utils/dbUtils';
 import ServiceUtils from '../utils/ServiceUtils';
 import Log, { LogUtils } from '../utils/Log';
+import MongoDbUtils from '../utils/dbUtils';
 
 export default class implements DiscordEvent {
 	name = 'guildBanRemove';
@@ -23,7 +23,7 @@ export default class implements DiscordEvent {
 					},
 				});
 				// Add unbanned users to allowlist so they don't get auto-banned by the bot
-				const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+				const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 				const dbAllowlist = db.collection(constants.DB_COLLECTION_ALLOWLIST);
 
 				const result: InsertOneWriteOpResult<Allowlist> = await dbAllowlist.insertOne({

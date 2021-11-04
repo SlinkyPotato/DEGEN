@@ -1,12 +1,12 @@
 import { Guild, GuildChannel, GuildMember, VoiceState } from 'discord.js';
 import { Collection, Cursor, Db, InsertOneWriteOpResult, MongoError } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../../service/constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import { POAPParticipant } from '../../types/poap/POAPParticipant';
 import Log, { LogUtils } from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
 import EndPOAP from '../../service/poap/EndPOAP';
+import MongoDbUtils from '../../utils/dbUtils';
 
 export default async (oldState: VoiceState, newState: VoiceState): Promise<any> => {
 	if (oldState.channelId === newState.channelId) {
@@ -16,7 +16,7 @@ export default async (oldState: VoiceState, newState: VoiceState): Promise<any> 
 	const guild: Guild = (oldState.guild != null) ? oldState.guild : newState.guild;
 	const member: GuildMember = (oldState.guild != null) ? oldState.member : newState.member;
 	
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);

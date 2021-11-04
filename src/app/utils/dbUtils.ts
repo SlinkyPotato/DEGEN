@@ -2,30 +2,29 @@ import { Db, MongoClient, MongoClientOptions } from 'mongodb';
 import constants from '../service/constants/constants';
 import Log from './Log';
 
-const state: { dbMap: Map<string, Db>, clientMap: Map<string, MongoClient> } = {
-	dbMap: new Map(),
-	clientMap: new Map(),
-};
+const MongoDbUtils = {
+	state: {
+		dbMap: new Map<string, Db>(),
+		clientMap: new Map<string, MongoClient>(),
+	},
 
-export default {
-	async dbConnect(database: string): Promise<Db> {
-		const db = state.dbMap.get(database);
+	connect: async (database: string): Promise<Db> => {
+		const db: Db | undefined = MongoDbUtils.state.dbMap.get(database);
 		if (db == null) {
-			await connect(database);
+			Log.debug(`Connecting to ${database} for first time!`);
+			const options: MongoClientOptions = {
+				writeConcern: {
+					w: 'majority',
+				},
+				useUnifiedTopology: true,
+			};
+			const mongoClient = await MongoClient.connect(constants.MONGODB_URI_PARTIAL + database, options);
+			MongoDbUtils.state.clientMap.set(database, mongoClient);
+			MongoDbUtils.state.dbMap.set(database, mongoClient.db(database));
 		}
 		return db;
 	},
+
 };
 
-export const connect = async (database: string): Promise<void> => {
-	Log.debug(`Connecting to ${database} for first time!`);
-	const options: MongoClientOptions = {
-		writeConcern: {
-			w: 'majority',
-		},
-		useUnifiedTopology: true,
-	};
-	const mongoClient = await MongoClient.connect(constants.MONGODB_URI_PARTIAL + database, options);
-	state.clientMap.set(database, mongoClient);
-	state.dbMap.set(database, mongoClient.db(database));
-};
+export default MongoDbUtils;

@@ -1,6 +1,5 @@
 import { GuildMember } from 'discord.js';
 import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { Timecard } from '../../types/timecard.ts/Timecard';
 import ValidationError from '../../errors/ValidationError';
@@ -8,10 +7,11 @@ import Log from '../../utils/Log';
 
 
 import dayjs from 'dayjs';
+import MongoDbUtils from '../../utils/dbUtils';
 
 export default async (guildMember: GuildMember, date: number, description: string): Promise<any> => {
 
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const timecardDb: Collection = db.collection(constants.DB_COLLECTION_TIMECARDS);
 
 	const activeTimecard: Timecard = await timecardDb.findOne({
@@ -23,10 +23,10 @@ export default async (guildMember: GuildMember, date: number, description: strin
 	if (activeTimecard == null) {
 		throw new ValidationError(`No active event found for <@${guildMember.id}>.`);
 	}
-		
+	
 	const sTime = dayjs(activeTimecard.startTime);
 	const eTime = dayjs(date);
-		
+	
 	const duration = eTime.diff(sTime, 'minutes');
 	
 	// validation tests?

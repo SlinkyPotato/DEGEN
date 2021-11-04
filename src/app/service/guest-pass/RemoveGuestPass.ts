@@ -1,9 +1,9 @@
 import { Db, DeleteWriteOpResultObject } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { GuildMember } from 'discord.js';
 import Log, { LogUtils } from '../../utils/Log';
+import MongoDbUtils from '../../utils/dbUtils';
 
 export default async (guestUser: GuildMember): Promise<any> => {
 	if (guestUser.user.bot) {
@@ -16,7 +16,7 @@ export default async (guestUser: GuildMember): Promise<any> => {
 };
 
 export const removeGuestUserFromDb = async (guestUser: GuildMember): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const dbGuestUsers = db.collection(constants.DB_COLLECTION_GUEST_USERS);
 	
 	const dbUpdateResult: DeleteWriteOpResultObject = await dbGuestUsers.deleteOne({ _id: guestUser.id });

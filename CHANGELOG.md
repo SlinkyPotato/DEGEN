@@ -3,6 +3,7 @@
 ## 1.9.0-SNAPSHOT
 
 1. Add twitter spaces integration
+   - refactor mongodbutils file
 
 ## 1.8.4-RELEASE (2021-11-03)
 

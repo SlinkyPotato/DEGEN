@@ -3,15 +3,15 @@ import axios from 'axios';
 import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
 import ValidationError from '../../errors/ValidationError';
 import { Db } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { CommandContext } from 'slash-create';
 import { LogUtils } from '../../utils/Log';
 import { Buffer } from 'buffer';
 import { getBufferForFailedParticipants } from './EndPOAP';
+import MongoDbUtils from '../../utils/dbUtils';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, event?: string): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	await POAPUtils.validateUserAccess(guildMember, db);
 	await POAPUtils.validateEvent(guildMember, event);
 	

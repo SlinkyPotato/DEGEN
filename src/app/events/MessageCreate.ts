@@ -13,6 +13,7 @@ export default class implements DiscordEvent {
 	async execute(message: Message): Promise<any> {
 		try {
 			if(message.author.bot) return;
+
 			// DEGEN says hello
 			await MessageCreateOnDEGEN(message).catch(e => {
 				LogUtils.logError('DEGEN failed to say hello', e);

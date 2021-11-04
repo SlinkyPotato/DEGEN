@@ -1,10 +1,10 @@
 import { GuildMember } from 'discord.js';
 import { Db, Collection } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { Timecard } from '../../types/timecard.ts/Timecard';
 import dayjs from 'dayjs';
 import ValidationError from '../../errors/ValidationError';
+import MongoDbUtils from '../../utils/dbUtils';
 
 export default async (guildMember: GuildMember, date: number): Promise<any> => {
 	if (guildMember.user.id === null) {
@@ -21,7 +21,7 @@ export default async (guildMember: GuildMember, date: number): Promise<any> => {
 		isActive: true,
 	};
 
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const timecardDb: Collection = await db.collection(constants.DB_COLLECTION_TIMECARDS);
 
 	const activeTimecard: Timecard = await timecardDb.findOne({

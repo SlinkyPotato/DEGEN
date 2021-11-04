@@ -1,6 +1,5 @@
 import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
 import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
@@ -9,9 +8,10 @@ import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/
 import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
 import dayjs from 'dayjs';
+import MongoDbUtils from '../../utils/dbUtils';
 
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
 	await POAPUtils.validateUserAccess(guildMember, db);
 	

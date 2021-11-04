@@ -1,7 +1,6 @@
 import { DMChannel, GuildMember, MessageAttachment } from 'discord.js';
 import POAPUtils from '../../utils/POAPUtils';
 import { Db } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { EventsRequestType } from '../../api/types/poap-events/EventsRequestType';
 import axios, { AxiosResponse } from 'axios';
@@ -12,9 +11,10 @@ import { CommandContext } from 'slash-create';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { LogUtils } from '../../utils/Log';
 import DateUtils from '../../utils/DateUtils';
+import MongoDbUtils from '../../utils/dbUtils';
 
 const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numberToMint: number): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	await POAPUtils.validateUserAccess(guildMember, db);
 	await POAPUtils.validateNumberToMint(guildMember, numberToMint);
 	

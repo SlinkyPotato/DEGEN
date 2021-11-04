@@ -14,7 +14,6 @@ import {
 	InsertOneWriteOpResult,
 	MongoError,
 } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import ValidationError from '../../errors/ValidationError';
@@ -26,9 +25,10 @@ import { CommandContext } from 'slash-create';
 import Log, { LogUtils } from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
 import POAPService from './POAPService';
+import MongoDbUtils from '../../utils/dbUtils';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, event?: string, duration?: number): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 
 	await POAPUtils.validateUserAccess(guildMember, db);
 	await POAPUtils.validateEvent(guildMember, event);

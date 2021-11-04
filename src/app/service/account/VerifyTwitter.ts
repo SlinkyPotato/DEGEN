@@ -1,15 +1,29 @@
-import { GuildMember } from 'discord.js';
+import { GuildMember, Message } from 'discord.js';
 import apiKeys from '../constants/apiKeys';
-// import constants from '../constants/constants';
-// import { Collection, Db } from 'mongodb';
-// import dbConnect from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/dbUtils';
+import constants from '../constants/constants';
+import { Collection, Db, ObjectID } from 'mongodb';
 
 const VerifyTwitter = async (guildMember: GuildMember): Promise<any> => {
 
-	// const db: Db = await dbConnect(constants.DB_NAME_NEXTAUTH);
-	// const accountsCollection: Collection = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
+	const accountsCollection: Collection = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);
+	
+	const nextAuthAccount:  = await accountsCollection.findOne({
+		providerId: 'discord',
+		providerAccountId: String(guildMember.user.id),
+	});
+	
+	if (nextAuthAccount == null || nextAuthAccount.userId == null) {
+		return await sendTwitterAuthenticationMessage(guildMember);
+	}
+	
+	
+	return;
+};
 
-	await guildMember.send({
+const sendTwitterAuthenticationMessage = (guildMember: GuildMember): Promise<Message> => {
+	return guildMember.send({
 		embeds: [
 			{
 				title: 'Twitter Authentication',
@@ -20,7 +34,6 @@ const VerifyTwitter = async (guildMember: GuildMember): Promise<any> => {
 			},
 		],
 	});
-	return;
 };
 
 export default VerifyTwitter;

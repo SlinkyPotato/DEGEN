@@ -172,14 +172,16 @@ module.exports = class poap extends SlashCommand {
 				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event']);
 				break;
 			case 'claim':
-				command = ClaimPOAP(ctx, guildMember, ctx.options.platform, ctx.options.claim['code']);
-				break;
+				await ClaimPOAP(ctx, guildMember, ctx.options.platform, ctx.options.claim['code']);
+				return;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);
 			}
-			return this.handleCommandError(ctx, command);
+			this.handleCommandError(ctx, command);
+			return;
 		} catch (e) {
 			LogUtils.logError('failed to process POAP command', e);
+			return ctx.send('Sorry something is not working and our devs are looking into it.');
 		}
 	}
 

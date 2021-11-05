@@ -5,6 +5,7 @@ export interface POAPUnclaimedParticipants extends Collection {
 	discordUserId: string,
 	discordUserTag: string,
 	discordServerId: string,
+	discordServerName: string,
 	twitterUserId: string,
 	claimCode: string,
 	poapLink: string,

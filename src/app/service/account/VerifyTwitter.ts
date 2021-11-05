@@ -43,7 +43,7 @@ const VerifyTwitter = async (guildMember: GuildMember): Promise<any> => {
 	});
 	
 	const userCall: UserV1 = await userClient.v1.verifyCredentials();
-	console.log(userCall);
+	
 	if (twitterId != userCall.id_str) {
 		await sendTwitterAuthenticationMessage(guildMember);
 		return;

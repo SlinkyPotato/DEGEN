@@ -1,5 +1,5 @@
 import { CommandContext } from 'slash-create';
-import { DMChannel, GuildMember, MessageEmbed } from 'discord.js';
+import { GuildMember, MessageEmbed } from 'discord.js';
 import { Collection, Cursor, Db } from 'mongodb';
 import MongoDbUtils from '../../utils/dbUtils';
 import constants from '../constants/constants';

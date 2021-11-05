@@ -121,6 +121,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 export const generateBountyRecord = (bountyParams: BountyCreateNew, guildMember: GuildMember): any => {
 	const currentDate = (new Date()).toISOString();
 	return {
+		customer_id: bountyParams.customer_id,
 		season: new Int32(Number(process.env.DAO_CURRENT_SEASON)),
 		title: bountyParams.title,
 		description: bountyParams.summary,

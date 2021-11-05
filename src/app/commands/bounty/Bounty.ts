@@ -184,7 +184,7 @@ export default class Bounty extends SlashCommand {
 				command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
 				break;
 			case 'create':
-				params = this.buildBountyCreateNewParams(ctx.options.create);
+				params = this.buildBountyCreateNewParams(ctx.guildID, ctx.options.create);
 				command = CreateNewBounty(guildMember, params);
 				break;
 			case 'publish':
@@ -224,18 +224,19 @@ export default class Bounty extends SlashCommand {
 		});
 	}
 	
-	buildBountyCreateNewParams(ctxOptions: { [key: string]: any }): BountyCreateNew {
+	buildBountyCreateNewParams(guild: string, ctxOptions: { [key: string]: any }): BountyCreateNew {
 		const [reward, symbol] = (ctxOptions.reward != null) ? ctxOptions.reward.split(' ') : [null, null];
 		const copies = (ctxOptions.copies == null || ctxOptions.copies <= 0) ? 1 : ctxOptions.copies;
 		let scale = reward.split('.')[1]?.length;
 		scale = (scale != null) ? scale : 0;
 		return {
+			customer_id: guild,
 			title: ctxOptions.title,
 			reward: {
 				amount: reward,
 				currencySymbol: symbol,
 				scale: scale,
-				amountWithoutScale:  reward.replace('.', ''),
+				amountWithoutScale: reward.replace('.', ''),
 			},
 			copies: copies,
 		};

@@ -8,6 +8,7 @@ import DistributePOAP from '../../service/poap/DistributePOAP';
 import ConfigPOAP from '../../service/poap/ConfigPOAP';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
 import { LogUtils } from '../../utils/Log';
+import ClaimPOAP from '../../service/poap/ClaimPOAP';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -108,9 +109,34 @@ module.exports = class poap extends SlashCommand {
 						},
 					],
 				},
+				{
+					name: 'claim',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Claim POAPs for all the events DEGEN failed to deliver.',
+					options: [
+						{
+							name: 'platform',
+							type: CommandOptionType.STRING,
+							description: 'Claim code given by the community organizer.',
+							required: true,
+							choices: [
+								{
+									name: 'Discord',
+									value: 'DISCORD',
+								},
+							],
+						},
+						{
+							name: 'code',
+							type: CommandOptionType.STRING,
+							description: 'Claim code given by the community organizer.',
+							required: true,
+						},
+					],
+				},
 			],
 			throttling: {
-				usages: 1,
+				usages: 10,
 				duration: 1,
 			},
 			defaultPermission: true,
@@ -144,6 +170,9 @@ module.exports = class poap extends SlashCommand {
 				break;
 			case 'distribute':
 				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event']);
+				break;
+			case 'claim':
+				command = ClaimPOAP(ctx, guildMember, ctx.options.platform, ctx.options.claim['code']);
 				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);

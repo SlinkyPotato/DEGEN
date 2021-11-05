@@ -20,7 +20,7 @@ export default class Account extends SlashCommand {
 					description: 'Link DEGEN to your account or wallet.',
 					options: [
 						{
-							name: 'type',
+							name: 'platform',
 							type: CommandOptionType.STRING,
 							description: 'Type of account or wallet to verify and link.',
 							required: true,

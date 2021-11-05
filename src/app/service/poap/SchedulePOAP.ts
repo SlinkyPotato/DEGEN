@@ -197,7 +197,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 		await guildMember.send({ content: 'POAP event removed!' });
 	} else {
 		try {
-			const response: EventsResponseType | void = await EventsAPI.scheduleEvent(request);
+			const response: EventsResponseType | void = await EventsAPI.scheduleEvent(request, guildMember);
 			await guildMember.send({
 				embeds: [
 					{
@@ -226,7 +226,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 				],
 			});
 		} catch (e) {
-			await guildMember.send({ content: 'Sorry something broke, can you please try again in the discord server?' });
+			await guildMember.send({ content: 'I couldn\'t finish processing so here\'s a super secret backroom office url https://app.poap.xyz/admin' });
 		}
 	}
 };

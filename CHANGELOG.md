@@ -2,7 +2,8 @@
 
 ## 1.9.0-SNAPSHOT
 
-1. Add twitter spaces integration
+1. Add guildId to bounty
+2. Add twitter spaces integration
    - refactor mongodbutils file
 
 ## 1.8.5-RELEASE  (2021-11-04)

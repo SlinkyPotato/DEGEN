@@ -6,16 +6,13 @@
 2. Add twitter spaces integration
    - refactor mongodbutils file
 
-## 1.8.5-RELEASE  (2021-11-04)
-
-1. Allow multiple coordinape usages for command 
-
 ## 1.8.4-RELEASE (2021-11-03)
 
 1. Introduce /coordinape form request command for BanklessDAO
 2. Update feedback request form to canny
 3. Add /timecard command
 4. Run build-test action on every pull request
+5. Allow multiple coordinape usages for command
 
 ## 1.8.3-RELEASE (2021-10-26)
 

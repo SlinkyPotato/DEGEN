@@ -9,7 +9,7 @@ const MongoDbUtils = {
 	},
 
 	connect: async (database: string): Promise<Db> => {
-		const db: Db | undefined = MongoDbUtils.state.dbMap.get(database);
+		let db: Db | undefined = MongoDbUtils.state.dbMap.get(database);
 		if (db == null) {
 			Log.debug(`Connecting to ${database} for first time!`);
 			const options: MongoClientOptions = {
@@ -21,6 +21,7 @@ const MongoDbUtils = {
 			const mongoClient = await MongoClient.connect(constants.MONGODB_URI_PARTIAL + database, options);
 			MongoDbUtils.state.clientMap.set(database, mongoClient);
 			MongoDbUtils.state.dbMap.set(database, mongoClient.db(database));
+			db = mongoClient.db();
 		}
 		return db;
 	},

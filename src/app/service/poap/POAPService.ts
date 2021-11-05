@@ -48,7 +48,7 @@ const POAPService = {
 		}
 		Log.debug('active events prepared to automatic end');
 
-		Log.info('POAP service ready.');
+		Log.debug('POAP service ready.');
 		return;
 	},
 	

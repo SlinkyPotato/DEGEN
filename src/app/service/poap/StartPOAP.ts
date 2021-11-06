@@ -293,7 +293,7 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 	}
 	
 	if (twitterSpaceResult.meta.result_count == 0) {
-		await guildMember.send({ content: 'Please start twitter space before starting poap event.' });
+		await guildMember.send({ content: 'Please start twitter spaces before starting POAP event.' });
 	}
 	
 };

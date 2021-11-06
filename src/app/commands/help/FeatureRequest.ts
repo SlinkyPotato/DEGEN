@@ -18,8 +18,8 @@ export default class FeatureRequest extends SlashCommand {
 		LogUtils.logCommandStart(ctx);
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
-		
-		const form = 'https://docs.google.com/forms/d/e/1FAIpQLSdTvYOyzF6A_YJKmco7iGeVDRzOBmJF2HfYKEiRnfATwcxjFw/viewform';
+
+		const form = 'https://degen.canny.io/';
 		await ctx.send(`Here you are ${ctx.user.mention}, the DEGEN feature request form: ${form}`);
 	}
 }

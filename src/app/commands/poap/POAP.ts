@@ -9,6 +9,7 @@ import ConfigPOAP from '../../service/poap/ConfigPOAP';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
 import { LogUtils } from '../../utils/Log';
 import ClaimPOAP from '../../service/poap/ClaimPOAP';
+import constants from '../../service/constants/constants';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -78,10 +79,26 @@ module.exports = class poap extends SlashCommand {
 					description: 'Begin POAP event and start tracking participants.',
 					options: [
 						{
+							name: 'platform',
+							type: CommandOptionType.STRING,
+							description: 'Where will the poap event be hosted?',
+							required: true,
+							choices: [
+								{
+									name: 'Discord',
+									value: constants.PLATFORM_TYPE_DISCORD,
+								},
+								{
+									name: 'Twitter Spaces',
+									value: constants.PLATFORM_TYPE_TWITTER,
+								},
+							],
+						},
+						{
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event name for the discussion',
-							required: false,
+							required: true,
 						},
 						{
 							name: 'duration-minutes',

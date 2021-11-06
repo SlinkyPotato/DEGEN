@@ -28,11 +28,14 @@ import POAPService from './POAPService';
 import MongoDbUtils from '../../utils/dbUtils';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, event?: string, duration?: number): Promise<any> => {
+	Log.debug('starting poap event...');
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 
 	await POAPUtils.validateUserAccess(guildMember, db);
 	await POAPUtils.validateEvent(guildMember, event);
 	await POAPUtils.validateDuration(guildMember, duration);
+	
+	Log.debug('poap start validated');
 	
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const activeSettingsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
@@ -42,7 +45,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	});
 	const activeSettings: POAPSettings = await activeSettingsCursor.next();
 	if (activeSettings != null) {
-		Log.info('unable to start due to active event');
+		Log.debug('unable to start due to active event');
 		await guildMember.send({ content: 'An event is already active.' });
 		throw new ValidationError(`Please end the active event \`${activeSettings.voiceChannelName}\`.`);
 	}

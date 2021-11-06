@@ -194,7 +194,7 @@ module.exports = class poap extends SlashCommand {
 				command = SchedulePOAP(ctx, guildMember, ctx.options.schedule['mint-copies']);
 				break;
 			case 'start':
-				command = StartPOAP(ctx, guildMember, ctx.options.start.event, ctx.options.start['duration-minutes']);
+				command = StartPOAP(ctx, guildMember, ctx.options.start['platform'],ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
 				command = EndPOAP(guildMember, ctx.options.end['code'], ctx);

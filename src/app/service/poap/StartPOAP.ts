@@ -26,8 +26,12 @@ import Log, { LogUtils } from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
 import POAPService from './POAPService';
 import MongoDbUtils from '../../utils/dbUtils';
+import VerifyTwitter from '../account/VerifyTwitter';
+import { SpaceV2LookupResult } from 'twitter-api-v2/dist/types';
+import TwitterApi, { TwitterApiv2 } from 'twitter-api-v2';
+import apiKeys from '../constants/apiKeys';
 
-export default async (ctx: CommandContext, guildMember: GuildMember, event?: string, duration?: number): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember, platform: string, event: string, duration?: number): Promise<any> => {
 	Log.debug('starting poap event...');
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 
@@ -36,6 +40,11 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	POAPUtils.validateDuration(duration);
 	
 	Log.debug('poap start validated');
+	
+	if (platform == constants.PLATFORM_TYPE_TWITTER) {
+		await startTwitterPOAPFlow(ctx, guildMember, db, event);
+		return;
+	}
 	
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const activeSettingsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
@@ -268,3 +277,23 @@ const askForEventMinutes = async (guildMember: GuildMember, dmChannel: DMChannel
 	}
 };
 
+const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMember, db: Db, event: string): Promise<any> => {
+	const { twitterUser, twitterClientV1 } = await VerifyTwitter(guildMember);
+	const twitterClientV2: TwitterApi = new TwitterApi(apiKeys.twitterBearerToken);
+	await ctx.send({ content: 'DM sent!' });
+	await guildMember.send({ content: 'Now starting poap event for twitter spaces :bird:' });
+	
+	let twitterSpaceResult: SpaceV2LookupResult;
+	try {
+		twitterSpaceResult = await twitterClientV2.v2.spacesByCreators(twitterUser.id_str);
+		console.log(twitterSpaceResult);
+	} catch (e) {
+		console.log(e);
+		LogUtils.logError('failed trying to get twitter spaces', e);
+	}
+	
+	if (twitterSpaceResult.meta.result_count == 0) {
+		await guildMember.send({ content: 'Please start twitter space before starting poap event.' });
+	}
+	
+};

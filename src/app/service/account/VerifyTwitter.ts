@@ -6,9 +6,12 @@ import { Collection, Db } from 'mongodb';
 import { NextAuthAccountCollection } from '../../types/nextauth/NextAuthAccountCollection';
 import Log from '../../utils/Log';
 import { TwitterApi, UserV1 } from 'twitter-api-v2';
+import ServiceUtils from '../../utils/ServiceUtils';
 
-const VerifyTwitter = async (guildMember: GuildMember): Promise<any> => {
+const VerifyTwitter = async (guildMember: GuildMember): Promise<{ twitterUser: UserV1, twitterClientV1: TwitterApi }> => {
 	Log.info(guildMember.user.id);
+	
+	await ServiceUtils.tryDMUser(guildMember);
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
 	const accountsCollection: Collection<NextAuthAccountCollection> = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);
@@ -35,7 +38,7 @@ const VerifyTwitter = async (guildMember: GuildMember): Promise<any> => {
 	const twitterAccessSecret = twitterCollection.accessSecret;
 	const twitterId = twitterCollection.providerAccountId;
 	
-	const userClient = new TwitterApi({
+	const userClient: TwitterApi = new TwitterApi({
 		appKey: apiKeys.twitterAppToken,
 		appSecret: apiKeys.twitterAppSecret,
 		accessToken: twitterAccessToken,
@@ -54,7 +57,7 @@ const VerifyTwitter = async (guildMember: GuildMember): Promise<any> => {
 		embeds: [
 			{
 				title: 'Twitter Authentication',
-				description: 'Twitter account linked.',
+				description: 'Twitter account linked 👍',
 				fields: [
 					{ name: 'Display Name', value: `${userCall.screen_name}` },
 					{ name: 'Description', value: `${userCall.description}` },
@@ -63,7 +66,10 @@ const VerifyTwitter = async (guildMember: GuildMember): Promise<any> => {
 			},
 		],
 	});
-	return;
+	return {
+		twitterUser: userCall,
+		twitterClientV1: userClient,
+	};
 };
 
 const sendTwitterAuthenticationMessage = (guildMember: GuildMember): Promise<Message> => {

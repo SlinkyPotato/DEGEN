@@ -9,6 +9,7 @@
    - setup POAP claiming for failed delivery
    - remove deaf users for poap events
    - organize error message validations
+   - capture present twitter spaces attendees
 
 ## 1.8.4-RELEASE (2021-11-03)
 

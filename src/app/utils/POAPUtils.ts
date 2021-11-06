@@ -121,7 +121,7 @@ const POAPUtils = {
 						});
 					});
 			} catch (e) {
-				LogUtils.logError('user might have been banned', e);
+				LogUtils.logError('user might have been banned or has DMs off', e);
 				failedPOAPsList.push({ discordUserId: listOfParticipants[i].id, discordUserTag: listOfParticipants[i].tag, poapLink: listOfPOAPLinks[i] });
 			}
 		}

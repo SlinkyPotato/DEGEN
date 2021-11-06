@@ -7,10 +7,11 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import MongoDbUtils from '../../utils/dbUtils';
+import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
 
-export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
+export default async (guildMember: GuildMember, code?: string, ctx?: CommandContext): Promise<any> => {
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
 	await POAPUtils.validateUserAccess(guildMember, db);
@@ -101,14 +102,13 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 					title: 'POAPs Distribution Results',
 					fields: [
 						{ name: 'Attempted to Send', value: `${listOfParticipants.length}`, inline: true },
-						{ name: 'Successfully Sent', value: `${listOfParticipants.length - listOfFailedPOAPs.length}`, inline: true },
-						{ name: 'Failed to Send', value: `${listOfFailedPOAPs.length}`, inline: true },
+						{ name: 'Successfully Sent... wgmi', value: `${listOfParticipants.length - listOfFailedPOAPs.length}`, inline: true },
+						{ name: 'Failed to Send... ngmi', value: `${listOfFailedPOAPs.length}`, inline: true },
 					],
 				},
 			],
 			files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
 		});
-
 		Log.info('POAPs Distributed', {
 			indexMeta: true,
 			meta: {
@@ -118,7 +118,40 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 				location: channel.name,
 			},
 		});
-		return 'POAP_SENT';
+		
+		if (listOfFailedPOAPs.length <= 0) {
+			Log.debug('all poap successfully delivered');
+			return 'POAP_SENT';
+		}
+		
+		if (listOfFailedPOAPs.length > 0) {
+			Log.debug(`${listOfFailedPOAPs.length} poaps failed to deliver`);
+			if (code == null) {
+				await guildMember.send({
+					content: 'Looks like some degens didn\'t make it... Shoot me a claim code and they can come chase me down 🏃',
+				});
+				code = (await dmChannel.awaitMessages(replyOptions)).first().content;
+			}
+			
+			const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
+			const unclaimedPOAPsList: any[] = listOfFailedPOAPs.map((failedAttendee: FailedPOAPAttendee) => {
+				return {
+					event: poapSettingsDoc.event,
+					discordUserId: failedAttendee.discordUserId,
+					discordUserTag: failedAttendee.discordUserTag,
+					discordServerId: guildMember.guild.id,
+					discordServerName: guildMember.guild.name,
+					claimCode: code,
+					poapLink: failedAttendee.poapLink,
+					expiresAt: (new Dayjs().add(2, 'week')).toISOString(),
+				};
+			});
+			await unclaimedCollection.insertMany(unclaimedPOAPsList);
+			Log.debug('stored poap claims for failed degens');
+			if (ctx) {
+				await ctx.send(`POAPs sent! Some didn't make it... The claim code is \`${code}\``);
+			}
+		}
 	} else {
 		await guildMember.send({ content: 'You got it!' });
 		return 'POAP_END';

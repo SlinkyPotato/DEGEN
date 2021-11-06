@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.6-RELEASE  (2021-11-07)
+
+1. /coordinape form request command: Treat level3 and level 4 roles equal to level 1 role.
+
 ## 1.8.5-RELEASE  (2021-11-04)
 
 1. Allow multiple coordinape usages for command 

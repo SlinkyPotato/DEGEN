@@ -9,12 +9,14 @@ import Log, { LogUtils } from '../../utils/Log';
 import { Buffer } from 'buffer';
 import { getBufferForFailedParticipants } from './EndPOAP';
 import MongoDbUtils from '../../utils/dbUtils';
+import ServiceUtils from '../../utils/ServiceUtils';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, event: string, code?: string): Promise<any> => {
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	await POAPUtils.validateUserAccess(guildMember, db);
-	await POAPUtils.validateEvent(guildMember, event);
+	POAPUtils.validateEvent(event);
 	
+	await ServiceUtils.tryDMUser(guildMember);
 	const participantsList: POAPFileParticipant[] = await askForParticipantsList(guildMember);
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);

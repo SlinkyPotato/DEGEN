@@ -5,10 +5,15 @@ import MongoDbUtils from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
 import Log from '../../utils/Log';
+import ServiceUtils from '../../utils/ServiceUtils';
+import POAPUtils from '../../utils/POAPUtils';
 
 const ClaimPOAP = async (ctx: CommandContext, guildMember: GuildMember, platform: string, code: string): Promise<any> => {
 	Log.debug(`starting claim with claimCode: ${code}`);
 	
+	POAPUtils.validateClaimCode(code);
+	
+	await ServiceUtils.tryDMUser(guildMember);
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
 		await ctx.send('Twitter platform is not supported at this time. Please reach out to community organizer for missing POAP');
 		return;
@@ -22,7 +27,7 @@ const ClaimPOAP = async (ctx: CommandContext, guildMember: GuildMember, platform
 	});
 	
 	if (!await unclaimedParticipants.hasNext()) {
-		await guildMember.send({ content: 'Hmm.. I tried looking for POAPs but I couldn\'t any 🤷' });
+		await guildMember.send({ content: 'Hmm.. I tried looking for POAPs but I couldn\'t find any 🤷' });
 		await ctx.send('Could not find any POAPs 🤷‍');
 		return;
 	}

@@ -180,14 +180,6 @@ module.exports = class poap extends SlashCommand {
 		
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		
-		try {
-			await guildMember.send({ content: 'Hello 👋' });
-		} catch (e) {
-			LogUtils.logError('DM is turned off', e, guildMember.guild.id);
-			await ctx.send('I\'m trying to send you a DM... Can you try turning DMs on?');
-			return;
-		}
-		
 		let command: Promise<any>;
 		let authorizedRoles: any[];
 		let authorizedUsers: any[];
@@ -211,7 +203,7 @@ module.exports = class poap extends SlashCommand {
 				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], ctx.options.distribute['code']);
 				break;
 			case 'claim':
-				await ClaimPOAP(ctx, guildMember, ctx.options.platform, ctx.options.claim['code']);
+				command = ClaimPOAP(ctx, guildMember, ctx.options.platform, ctx.options.claim['code']);
 				return;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);

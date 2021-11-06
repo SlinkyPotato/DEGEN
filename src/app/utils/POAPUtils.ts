@@ -171,42 +171,31 @@ const POAPUtils = {
 		await guildMember.send({ content: `POAP claiming setup! The code to claim it is \`${code}\`` });
 	},
 
-	async validateEvent(guildMember: GuildMember, event?: string): Promise<any> {
+	validateEvent(event?: string): void {
 		if (event == null) {
 			return;
 		}
 		const POAP_EVENT_REGEX = /^[\w\s\W]{1,250}$/;
 		if (!POAP_EVENT_REGEX.test(event)) {
-			await guildMember.send({
-				content: `<@${guildMember.user.id}>\n` +
-					'Please enter a valid event: \n' +
-					'- 250 characters maximum\n ' +
-					'- alphanumeric\n ' +
-					'- special characters: .!@#$%&,?',
-			});
-			throw new ValidationError('Please try another event.');
+			throw new ValidationError(
+				'Please enter a valid event: \n' +
+				'- 250 characters maximum\n ' +
+				'- alphanumeric\n ' +
+				'- special characters: .!@#$%&,?');
 		}
 	},
 	
-	async validateNumberToMint(guildMember: GuildMember, numberToMint: number): Promise<any> {
+	validateNumberToMint(numberToMint: number): void {
 		if (numberToMint >= 1000 || numberToMint <= 0) {
-			await guildMember.send({
-				content: `<@${guildMember.user.id}>\n` +
-					'A maximum of 1000 POAPs can be minted for a single event. Please let us know if you\'d like to see this increased. ',
-			});
-			throw new ValidationError('Please try another mint value.');
+			throw new ValidationError('A maximum of 1000 POAPs can be minted for a single event. Please let us know if you\'d like to see this increased. ');
 		}
 	},
 
-	async validateDuration(guildMember: GuildMember, duration?: number): Promise<any> {
+	validateDuration(duration?: number): void {
 		if (duration == null) {
 			return;
 		}
 		if (duration > constants.POAP_MAX_DURATION_MINUTES || duration < constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
-			await guildMember.send({
-				content: `<@${guildMember.user.id}>\n` +
-					`A minimum of ${constants.POAP_REQUIRED_PARTICIPATION_DURATION} minutes is required for an event to be active and no more than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`,
-			});
 			throw new ValidationError(`Please try a value greater than ${constants.POAP_REQUIRED_PARTICIPATION_DURATION} and less than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`);
 		}
 	},
@@ -233,6 +222,16 @@ const POAPUtils = {
 			}
 		}
 		throw new ValidationError('Only authorized users can use this command. Please reach out to an admin for configuration help.');
+	},
+	
+	validateClaimCode(code: string): void {
+		if (code == null) {
+			return;
+		}
+		const POAP_CODE_REGEX = /^[\w\s\W]{1,15}$/;
+		if (!POAP_CODE_REGEX.test(code)) {
+			throw new ValidationError('Please enter a claim code between 1 and 15 alphanumeric characters.');
+		}
 	},
 	
 	getDateString(date: Dayjs): string {

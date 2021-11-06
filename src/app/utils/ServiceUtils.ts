@@ -23,7 +23,7 @@ import roleIDs from '../service/constants/roleIds';
 import { Allowlist } from '../types/discord/Allowlist';
 import { Confusables } from './Confusables';
 import discordServerIds from '../service/constants/discordServerIds';
-import Log from './Log';
+import Log, { LogUtils } from './Log';
 import MongoDbUtils from '../utils/dbUtils';
 
 const nonStandardCharsRegex = /[^\w\s\p{P}\p{S}Ξ]/gu;
@@ -261,6 +261,17 @@ const ServiceUtils = {
 			errors: ['time'],
 		})).first().content;
 	},
+	
+	async tryDMUser(guildMember: GuildMember): Promise<any> {
+		try {
+			await guildMember.send({ content: 'Hello 👋' });
+		} catch (e) {
+			LogUtils.logError('DM is turned off', e, guildMember.guild.id);
+			new ValidationError('I\'m trying to send you a DM... Can you try turning DMs on?');
+			return;
+		}
+	},
+	
 };
 
 export default ServiceUtils;

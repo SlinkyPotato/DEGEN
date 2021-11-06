@@ -32,8 +32,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 
 	await POAPUtils.validateUserAccess(guildMember, db);
-	await POAPUtils.validateEvent(guildMember, event);
-	await POAPUtils.validateDuration(guildMember, duration);
+	POAPUtils.validateEvent(event);
+	POAPUtils.validateDuration(duration);
 	
 	Log.debug('poap start validated');
 	
@@ -46,10 +46,10 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	const activeSettings: POAPSettings = await activeSettingsCursor.next();
 	if (activeSettings != null) {
 		Log.debug('unable to start due to active event');
-		await guildMember.send({ content: 'An event is already active.' });
 		throw new ValidationError(`Please end the active event \`${activeSettings.voiceChannelName}\`.`);
 	}
 	
+	await ServiceUtils.tryDMUser(guildMember);
 	await guildMember.send({
 		content: 'For which voice channel should the POAP event occur?',
 	});

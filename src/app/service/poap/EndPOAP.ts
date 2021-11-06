@@ -9,6 +9,7 @@ import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
 import dayjs from 'dayjs';
 import MongoDbUtils from '../../utils/dbUtils';
+import ServiceUtils from '../../utils/ServiceUtils';
 
 export default async (guildMember: GuildMember, code?: string, ctx?: CommandContext): Promise<any> => {
 	Log.debug('attempting to ending poap event');
@@ -30,6 +31,7 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 		throw new ValidationError(`<@${guildMember.id}> Hmm it doesn't seem you are hosting an active event.`);
 	}
 	
+	await ServiceUtils.tryDMUser(guildMember);
 	Log.debug('poap event found');
 	const currentDateISO = dayjs().toISOString();
 	const updateSettingsResult: UpdateWriteOpResult = await poapSettingsDB.updateOne(poapSettingsDoc, {

@@ -15,12 +15,14 @@ import MongoDbUtils from '../../utils/dbUtils';
 
 const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numberToMint: number): Promise<any> => {
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+	
 	await POAPUtils.validateUserAccess(guildMember, db);
-	await POAPUtils.validateNumberToMint(guildMember, numberToMint);
+	POAPUtils.validateNumberToMint(numberToMint);
 	
 	const request: EventsRequestType = {} as EventsRequestType;
 	request.requested_codes = numberToMint.toString();
-
+	
+	await ServiceUtils.tryDMUser(guildMember);
 	await guildMember.send({
 		embeds: [
 			{

@@ -8,6 +8,7 @@
    - add POAP schedule error messaging
    - setup POAP claiming for failed delivery
    - remove deaf users for poap events
+   - organize error message validations
 
 ## 1.8.4-RELEASE (2021-11-03)
 

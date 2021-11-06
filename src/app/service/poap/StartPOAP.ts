@@ -50,6 +50,9 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 		throw new ValidationError(`Please end the active event \`${activeSettings.voiceChannelName}\`.`);
 	}
 	
+	await guildMember.send({
+		content: 'Hi 👋 - on which voice channel should the POAP event occur?',
+	});
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
 	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) });
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);

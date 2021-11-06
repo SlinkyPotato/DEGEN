@@ -260,7 +260,7 @@ const askForEventMinutes = async (guildMember: GuildMember, dmChannel: DMChannel
 		await guildMember.send({ content: `How long should the event stay active? \`(max: ${constants.POAP_MAX_DURATION_MINUTES} minutes)\`` });
 		const durationOfEventInMinutes: string = await ServiceUtils.getFirstUserReply(dmChannel);
 		const duration = Number(durationOfEventInMinutes);
-		await POAPUtils.validateDuration(guildMember, duration);
+		POAPUtils.validateDuration(duration);
 		return duration;
 	} catch (e) {
 		LogUtils.logError('failed to process duration time', e);

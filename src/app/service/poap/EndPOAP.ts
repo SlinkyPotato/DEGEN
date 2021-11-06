@@ -7,14 +7,16 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import MongoDbUtils from '../../utils/dbUtils';
-import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
 
 export default async (guildMember: GuildMember, code?: string, ctx?: CommandContext): Promise<any> => {
+	Log.debug('attempting to ending poap event');
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
 	await POAPUtils.validateUserAccess(guildMember, db);
+	
+	Log.debug('authorized to end poap event');
 	
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
@@ -24,8 +26,11 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 	});
 	
 	if (poapSettingsDoc == null) {
+		Log.debug('poap event not found');
 		throw new ValidationError(`<@${guildMember.id}> Hmm it doesn't seem you are hosting an active event.`);
 	}
+	
+	Log.debug('poap event found');
 	const currentDateISO = dayjs().toISOString();
 	const updateSettingsResult: UpdateWriteOpResult = await poapSettingsDB.updateOne(poapSettingsDoc, {
 		$set: {
@@ -35,9 +40,10 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 	});
 
 	if (updateSettingsResult.modifiedCount !== 1) {
+		Log.warn('failed to end poap event');
 		throw new Error('failed to end event');
 	}
-	Log.debug(`event ended for ${guildMember.user.tag}`, {
+	Log.debug(`event ended for ${guildMember.user.tag} and updated in db`, {
 		indexMeta: true,
 		meta: {
 			discordId: poapSettingsDoc.discordServerId,
@@ -49,6 +55,7 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 	const listOfParticipants: POAPFileParticipant[] = await POAPUtils.getListOfParticipants(db, channel);
 	
 	if (listOfParticipants.length <= 0) {
+		Log.debug('no eligible attendees found during event');
 		await guildMember.send({ content: `Event ended. No participants found for \`${channel.name}\` in \`${channel.guild.name}\`.` });
 		if (ctx) {
 			await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
@@ -59,6 +66,7 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 	const bufferFile = getBufferFromParticipants(listOfParticipants, channel);
 	const currentDate = (new Date()).toISOString();
 	const fileName = `${channel.guild.name}_${channel.name}_${listOfParticipants.length}_participants.csv`;
+	await guildMember.send({ content: 'The event has ended and here are the results.' });
 	await guildMember.send({
 		embeds: [
 			{
@@ -83,7 +91,7 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` });
 	}
 
-	await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(yes/no)`' });
+	await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(y/n)`' });
 	const dmChannel: DMChannel = await guildMember.createDM();
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -118,40 +126,11 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 				location: channel.name,
 			},
 		});
-		
 		if (listOfFailedPOAPs.length <= 0) {
 			Log.debug('all poap successfully delivered');
 			return 'POAP_SENT';
 		}
-		
-		if (listOfFailedPOAPs.length > 0) {
-			Log.debug(`${listOfFailedPOAPs.length} poaps failed to deliver`);
-			if (code == null) {
-				await guildMember.send({
-					content: 'Looks like some degens didn\'t make it... Shoot me a claim code and they can come chase me down 🏃',
-				});
-				code = (await dmChannel.awaitMessages(replyOptions)).first().content;
-			}
-			
-			const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
-			const unclaimedPOAPsList: any[] = listOfFailedPOAPs.map((failedAttendee: FailedPOAPAttendee) => {
-				return {
-					event: poapSettingsDoc.event,
-					discordUserId: failedAttendee.discordUserId,
-					discordUserTag: failedAttendee.discordUserTag,
-					discordServerId: guildMember.guild.id,
-					discordServerName: guildMember.guild.name,
-					claimCode: code,
-					poapLink: failedAttendee.poapLink,
-					expiresAt: (new Dayjs().add(2, 'week')).toISOString(),
-				};
-			});
-			await unclaimedCollection.insertMany(unclaimedPOAPsList);
-			Log.debug('stored poap claims for failed degens');
-			if (ctx) {
-				await ctx.send(`POAPs sent! Some didn't make it... The claim code is \`${code}\``);
-			}
-		}
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, code, ctx);
 	} else {
 		await guildMember.send({ content: 'You got it!' });
 		return 'POAP_END';

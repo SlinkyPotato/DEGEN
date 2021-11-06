@@ -5,7 +5,8 @@
 1. Add guildId to bounty
 2. Add twitter spaces integration
    - refactor mongodbutils file
-   - add poap schedule error messaging
+   - add POAP schedule error messaging
+   - setup POAP claiming for failed delivery
 
 ## 1.8.4-RELEASE (2021-11-03)
 

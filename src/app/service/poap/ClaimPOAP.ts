@@ -4,21 +4,13 @@ import { Collection, Cursor, Db } from 'mongodb';
 import MongoDbUtils from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
-import Log, { LogUtils } from '../../utils/Log';
+import Log from '../../utils/Log';
 
 const ClaimPOAP = async (ctx: CommandContext, guildMember: GuildMember, platform: string, code: string): Promise<any> => {
 	Log.debug(`starting claim with claimCode: ${code}`);
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
 		await ctx.send('Twitter platform is not supported at this time. Please reach out to community organizer for missing POAP');
-		return;
-	}
-	
-	try {
-		await guildMember.send({ content: 'Hello! Just need a moment to look for your poaps...' });
-	} catch (e) {
-		LogUtils.logError('DM is turned off', e, guildMember.guild.id);
-		await ctx.send('I\'m having trouble sending you a DM... Can you try turning it on and trying again?');
 		return;
 	}
 	
@@ -30,8 +22,8 @@ const ClaimPOAP = async (ctx: CommandContext, guildMember: GuildMember, platform
 	});
 	
 	if (!await unclaimedParticipants.hasNext()) {
-		await guildMember.send({ content: 'Hmm.. I could not find any poaps 🤷' });
-		await ctx.send('Could not find any poaps 🤷‍');
+		await guildMember.send({ content: 'Hmm.. I tried looking for POAPs but I couldn\'t any 🤷' });
+		await ctx.send('Could not find any POAPs 🤷‍');
 		return;
 	}
 	

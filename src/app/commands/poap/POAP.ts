@@ -116,7 +116,7 @@ module.exports = class poap extends SlashCommand {
 						{
 							name: 'code',
 							type: CommandOptionType.STRING,
-							description: 'Claim code used for failed delivery participants',
+							description: 'Claim code used for failed delivery participants.',
 							required: false,
 						},
 					],
@@ -130,6 +130,12 @@ module.exports = class poap extends SlashCommand {
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event name for the distribution',
+							required: true,
+						},
+						{
+							name: 'code',
+							type: CommandOptionType.STRING,
+							description: 'Claim code used for failed delivery participants.',
 							required: false,
 						},
 					],
@@ -174,6 +180,14 @@ module.exports = class poap extends SlashCommand {
 		
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		
+		try {
+			await guildMember.send({ content: 'Hello 👋' });
+		} catch (e) {
+			LogUtils.logError('DM is turned off', e, guildMember.guild.id);
+			await ctx.send('I\'m trying to send you a DM... Can you try turning DMs on?');
+			return;
+		}
+		
 		let command: Promise<any>;
 		let authorizedRoles: any[];
 		let authorizedUsers: any[];
@@ -191,10 +205,10 @@ module.exports = class poap extends SlashCommand {
 				command = StartPOAP(ctx, guildMember, ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
-				command = EndPOAP(guildMember, ctx.options.end['claim'], ctx);
+				command = EndPOAP(guildMember, ctx.options.end['code'], ctx);
 				break;
 			case 'distribute':
-				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event']);
+				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], ctx.options.distribute['code']);
 				break;
 			case 'claim':
 				await ClaimPOAP(ctx, guildMember, ctx.options.platform, ctx.options.claim['code']);
@@ -224,7 +238,7 @@ module.exports = class poap extends SlashCommand {
 				return ctx.send(e.message);
 			} else {
 				LogUtils.logError('failed to handle poap command', e);
-				return ctx.send('Sorry something is not working and our devs are looking into it.');
+				return ctx.send('Nothing to see here..');
 			}
 		});
 	}

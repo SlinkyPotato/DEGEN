@@ -1,4 +1,4 @@
-import { GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
+import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
 import { Collection, Collection as MongoCollection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../service/constants/constants';
 import { POAPParticipant } from '../types/poap/POAPParticipant';
@@ -8,6 +8,8 @@ import { POAPAdmin } from '../types/poap/POAPAdmin';
 import Log, { LogUtils } from './Log';
 import dayjs, { Dayjs } from 'dayjs';
 import DateUtils from './DateUtils';
+import { CommandContext } from 'slash-create';
+import MongoDbUtils from './dbUtils';
 
 export type POAPFileParticipant = {
 	id: string,
@@ -125,8 +127,48 @@ const POAPUtils = {
 				failedPOAPsList.push({ discordUserId: listOfParticipants[i].id, discordUserTag: listOfParticipants[i].tag, poapLink: listOfPOAPLinks[i] });
 			}
 		}
-		Log.info(`Links sent to ${listOfParticipants.length} participants.`);
+		Log.info(`Links sent to ${listOfParticipants.length - failedPOAPsList.length} participants.`);
 		return failedPOAPsList;
+	},
+	
+	async setupFailedAttendeesDelivery(
+		guildMember: GuildMember, listOfFailedPOAPs: FailedPOAPAttendee[], event: string, code?: string, ctx?: CommandContext,
+	): Promise<any> {
+		const replyOptions: AwaitMessagesOptions = {
+			max: 1,
+			time: 900000,
+			errors: ['time'],
+		};
+		const dmChannel: DMChannel = await guildMember.createDM();
+		Log.debug(`${listOfFailedPOAPs.length} poaps failed to deliver`);
+		if (code == null) {
+			await guildMember.send({
+				content: 'Looks like some degens didn\'t make it... I can setup a claim for them, what should be the claim code?',
+			});
+			code = (await dmChannel.awaitMessages(replyOptions)).first().content;
+		}
+		
+		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
+		const unclaimedPOAPsList: any[] = listOfFailedPOAPs.map((failedAttendee: FailedPOAPAttendee) => {
+			return {
+				event: event,
+				discordUserId: failedAttendee.discordUserId,
+				discordUserTag: failedAttendee.discordUserTag,
+				discordServerId: guildMember.guild.id,
+				discordServerName: guildMember.guild.name,
+				claimCode: code,
+				poapLink: failedAttendee.poapLink,
+				expiresAt: (dayjs().add(1, 'month')).toISOString(),
+			};
+		});
+		Log.debug('attempting to store failed attendees into db');
+		await unclaimedCollection.insertMany(unclaimedPOAPsList);
+		Log.debug('stored poap claims for failed degens');
+		if (ctx) {
+			await ctx.send(`POAPs sent! Some didn't make it... The claim code is \`${code}\``);
+		}
+		await guildMember.send({ content: `POAP claiming setup! The code to claim it is \`${code}\`` });
 	},
 
 	async validateEvent(guildMember: GuildMember, event?: string): Promise<any> {

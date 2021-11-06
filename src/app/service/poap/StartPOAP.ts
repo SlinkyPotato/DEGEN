@@ -51,7 +51,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	}
 	
 	await guildMember.send({
-		content: 'Hi 👋 on which voice channel should the POAP event occur?',
+		content: 'For which voice channel should the POAP event occur?',
 	});
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
 	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) });

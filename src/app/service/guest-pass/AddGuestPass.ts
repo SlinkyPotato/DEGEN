@@ -17,11 +17,11 @@ export default async (guestUser: GuildMember): Promise<any> => {
 	notifyUserOfGuestExpiration(guestUser);
 	removeGuestRoleOnExpiration(guestUser);
 	return guestUser.send({
-		content: `You have been granted guest access at Bankless DAO! Guest passes last for
-		${process.env.DAO_GUEST_PASS_EXPIRATION_DAYS} days and will expire afterwards. To renew your guest pass, ask any
-		Level 2 contributor to renew it, or post in #get-involved. In the future, we'll automate guest pass renewal based on
-		your activity in the DAO!` })
-		.catch(e => LogUtils.logError('failed to send message to new guest', e));
+		content: 'You have been granted guest access at Bankless DAO! Guest passes last for '
+			+ `${process.env.DAO_GUEST_PASS_EXPIRATION_DAYS}` + 'days and will expire afterwards. To renew your guest pass, '
+			+ 'ask any Level 2 contributor to renew it, or post in #get-involved. In the future, we\'ll automate guest pass '
+			+ 'renewal based on your activity in the DAO!',
+	}).catch(e => LogUtils.logError('failed to send message to new guest', e));
 };
 
 export const addGuestUserToDb = async (guestUser: GuildMember): Promise<any> => {

@@ -5,7 +5,7 @@ import { GuildMember, Message, MessageEmbed } from 'discord.js';
 import envUrls from '../constants/envUrls';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import Log from '../../utils/Log';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);

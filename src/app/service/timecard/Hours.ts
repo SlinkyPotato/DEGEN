@@ -4,7 +4,7 @@ import constants from '../constants/constants';
 import { Timecard } from '../../types/timecard.ts/Timecard';
 import Log from '../../utils/Log';
 import { generateEmbedMessage } from './publishTimecards/publishTimecards';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember): Promise<any> => {
 

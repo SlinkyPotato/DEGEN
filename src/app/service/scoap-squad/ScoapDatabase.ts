@@ -10,7 +10,7 @@ import scoapSquadNotion from '../constants/scoapSquadNotion';
 import { createReactionCollector, collectReactions } from './ScoapPoll';
 import { updateStatusSelectField } from './ScoapNotion';
 import Log from '../../utils/Log';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 
 // ScoapSquad state initialization

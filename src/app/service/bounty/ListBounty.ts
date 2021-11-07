@@ -5,7 +5,7 @@ import { GuildMember, MessageEmbedOptions } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import { generateEmbedMessage } from './create/PublishBounty';
 import Log from '../../utils/Log';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 const DB_RECORD_LIMIT = 10;
 

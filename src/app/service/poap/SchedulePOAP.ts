@@ -11,7 +11,7 @@ import { CommandContext } from 'slash-create';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { LogUtils } from '../../utils/Log';
 import DateUtils from '../../utils/DateUtils';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numberToMint: number): Promise<any> => {
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);

@@ -3,13 +3,12 @@
 ## 1.9.0-SNAPSHOT
 
 1. Add guildId to bounty
-2. Add twitter spaces integration
-   - refactor mongodbutils file
+2. Add twitter spaces integration (wip)
+   - refactor MongoDbUtils file
    - add POAP schedule error messaging
    - setup POAP claiming for failed delivery
    - remove deaf users for poap events
    - organize error message validations
-   - capture present twitter spaces attendees
    - add workflow env keys
    
 ## 1.8.4-RELEASE (2021-11-03 - 2021-11-07)

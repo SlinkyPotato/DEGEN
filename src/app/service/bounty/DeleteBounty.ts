@@ -7,7 +7,7 @@ import { BountyCollection } from '../../types/bounty/BountyCollection';
 import BountyMessageNotFound from '../../errors/BountyMessageNotFound';
 import roleIDs from '../constants/roleIds';
 import Log, { LogUtils } from '../../utils/Log';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);

@@ -8,7 +8,7 @@ import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/
 import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
 import dayjs from 'dayjs';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 
 export default async (guildMember: GuildMember, code?: string, ctx?: CommandContext): Promise<any> => {

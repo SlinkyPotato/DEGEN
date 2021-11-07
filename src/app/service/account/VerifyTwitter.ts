@@ -1,6 +1,6 @@
 import { GuildMember, Message } from 'discord.js';
 import apiKeys from '../constants/apiKeys';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';
 import { Collection, Db } from 'mongodb';
 import { NextAuthAccountCollection } from '../../types/nextauth/NextAuthAccountCollection';

@@ -7,7 +7,7 @@ import Log from '../../utils/Log';
 
 
 import dayjs from 'dayjs';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember, date: number, description: string): Promise<any> => {
 

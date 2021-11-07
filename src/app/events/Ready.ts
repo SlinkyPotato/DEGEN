@@ -6,7 +6,7 @@ import { DiscordEvent } from '../types/discord/DiscordEvent';
 import { restoreScoapEmbedAndVoteRecord } from '../service/scoap-squad/ScoapDatabase';
 import Log, { LogUtils } from '../utils/Log';
 import POAPService from '../service/poap/POAPService';
-import MongoDbUtils from '../utils/dbUtils';
+import MongoDbUtils from '../utils/MongoDbUtils';
 
 export default class implements DiscordEvent {
 	name = 'ready';

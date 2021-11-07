@@ -4,7 +4,7 @@ import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../constants/constants';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import Log from '../../utils/Log';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);

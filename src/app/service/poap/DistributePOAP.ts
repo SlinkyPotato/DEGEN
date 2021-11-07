@@ -8,7 +8,7 @@ import { CommandContext } from 'slash-create';
 import Log, { LogUtils } from '../../utils/Log';
 import { Buffer } from 'buffer';
 import { getBufferForFailedParticipants } from './EndPOAP';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, event: string, code?: string): Promise<any> => {

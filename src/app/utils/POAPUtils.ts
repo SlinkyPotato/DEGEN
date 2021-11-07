@@ -9,7 +9,7 @@ import Log, { LogUtils } from './Log';
 import dayjs, { Dayjs } from 'dayjs';
 import DateUtils from './DateUtils';
 import { CommandContext } from 'slash-create';
-import MongoDbUtils from './dbUtils';
+import MongoDbUtils from './MongoDbUtils';
 
 export type POAPFileParticipant = {
 	id: string,

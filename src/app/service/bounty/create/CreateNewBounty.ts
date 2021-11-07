@@ -10,7 +10,7 @@ import envUrls from '../../constants/envUrls';
 import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
 import ValidationError from '../../../errors/ValidationError';
 import Log, { LogUtils } from '../../../utils/Log';
-import MongoDbUtils from '../../../utils/dbUtils';
+import MongoDbUtils from '../../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember, params: BountyCreateNew): Promise<any> => {
 	const title = params.title;

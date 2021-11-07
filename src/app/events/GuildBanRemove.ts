@@ -5,7 +5,7 @@ import { Allowlist } from '../types/discord/Allowlist';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import ServiceUtils from '../utils/ServiceUtils';
 import Log, { LogUtils } from '../utils/Log';
-import MongoDbUtils from '../utils/dbUtils';
+import MongoDbUtils from '../utils/MongoDbUtils';
 
 export default class implements DiscordEvent {
 	name = 'guildBanRemove';

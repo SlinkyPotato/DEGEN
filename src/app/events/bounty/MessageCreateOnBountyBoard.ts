@@ -6,7 +6,7 @@ import envUrls from '../../service/constants/envUrls';
 import { addPublishReactions } from '../../service/bounty/create/PublishBounty';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import Log from '../../utils/Log';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (message: Message): Promise<any> => {
 	if (message.author.username !== constants.BOUNTY_BOARD_WEBSITE_WEBHOOK_NAME) return;

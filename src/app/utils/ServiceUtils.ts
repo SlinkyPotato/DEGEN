@@ -24,7 +24,7 @@ import { Allowlist } from '../types/discord/Allowlist';
 import { Confusables } from './Confusables';
 import discordServerIds from '../service/constants/discordServerIds';
 import Log, { LogUtils } from './Log';
-import MongoDbUtils from '../utils/dbUtils';
+import MongoDbUtils from '../utils/MongoDbUtils';
 
 const nonStandardCharsRegex = /[^\w\s\p{P}\p{S}Ξ]/gu;
 const emojiRegex = /\p{So}/gu;

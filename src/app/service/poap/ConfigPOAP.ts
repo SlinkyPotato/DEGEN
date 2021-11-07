@@ -14,7 +14,7 @@ import { POAPAdmin } from '../../types/poap/POAPAdmin';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { CommandContext } from 'slash-create';
 import Log, { LogUtils } from '../../utils/Log';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
 	if (!(ServiceUtils.isDiscordAdmin(guildMember) || ServiceUtils.isDiscordServerManager(guildMember))) {

@@ -5,7 +5,7 @@ import constants from '../constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import dayjs from 'dayjs';
 import EndPOAP from './EndPOAP';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 const POAPService = {
 	run: async (client: DiscordClient): Promise<void> => {

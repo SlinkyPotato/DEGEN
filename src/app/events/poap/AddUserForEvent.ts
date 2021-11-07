@@ -6,7 +6,7 @@ import { POAPParticipant } from '../../types/poap/POAPParticipant';
 import Log, { LogUtils } from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
 import EndPOAP from '../../service/poap/EndPOAP';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (oldState: VoiceState, newState: VoiceState): Promise<any> => {
 	if (oldState.channelId === newState.channelId && (oldState.deaf == newState.deaf)) {

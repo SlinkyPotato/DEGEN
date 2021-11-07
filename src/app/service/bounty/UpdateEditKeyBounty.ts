@@ -5,7 +5,7 @@ import constants from '../constants/constants';
 import envUrls from '../constants/envUrls';
 import { randomUUID } from 'crypto';
 import Log from '../../utils/Log';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember, bountyId: string, message?: Message): Promise<any> => {
 	const secretEditKey: string = randomUUID();

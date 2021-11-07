@@ -5,7 +5,7 @@ import { Page } from '@notionhq/client/build/src/api-types';
 import { Db } from 'mongodb';
 import ServiceUtils from '../../utils/ServiceUtils';
 import Log, { LogUtils } from '../../utils/Log';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 

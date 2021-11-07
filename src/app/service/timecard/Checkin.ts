@@ -4,7 +4,7 @@ import constants from '../constants/constants';
 import { Timecard } from '../../types/timecard.ts/Timecard';
 import dayjs from 'dayjs';
 import ValidationError from '../../errors/ValidationError';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember, date: number): Promise<any> => {
 	if (guildMember.user.id === null) {

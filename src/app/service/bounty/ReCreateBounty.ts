@@ -7,7 +7,7 @@ import channelIds from '../constants/channelIds';
 import envUrls from '../constants/envUrls';
 import ServiceUtils from '../../utils/ServiceUtils';
 import Log from '../../utils/Log';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 /**
  * This service will refresh the bounty in the Bounty board with the correct information

@@ -1,7 +1,7 @@
 import { CommandContext } from 'slash-create';
 import { GuildMember, MessageEmbed } from 'discord.js';
 import { Collection, Cursor, Db } from 'mongodb';
-import MongoDbUtils from '../../utils/dbUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';
 import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
 import Log from '../../utils/Log';

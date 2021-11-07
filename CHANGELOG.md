@@ -11,14 +11,15 @@
    - organize error message validations
    - capture present twitter spaces attendees
    - add workflow env keys
-
-## 1.8.4-RELEASE (2021-11-03)
+   
+## 1.8.4-RELEASE (2021-11-03 - 2021-11-07)
 
 1. Introduce /coordinape form request command for BanklessDAO
 2. Update feedback request form to canny
 3. Add /timecard command
 4. Run build-test action on every pull request
 5. Allow multiple coordinape usages for command
+6. /coordinape form request command: Treat level3 and level 4 roles equal to level 1 role.
 
 ## 1.8.3-RELEASE (2021-10-26)
 

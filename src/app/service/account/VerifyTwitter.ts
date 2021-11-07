@@ -9,8 +9,6 @@ import { TwitterApi, UserV1 } from 'twitter-api-v2';
 import ServiceUtils from '../../utils/ServiceUtils';
 
 const VerifyTwitter = async (guildMember: GuildMember): Promise<{ twitterUser: UserV1, twitterClientV1: TwitterApi }> => {
-	Log.info(guildMember.user.id);
-	
 	await ServiceUtils.tryDMUser(guildMember);
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);

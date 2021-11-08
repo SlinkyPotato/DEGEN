@@ -57,7 +57,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 		throw new ValidationError(`Please end the active event \`${activeSettings.voiceChannelName}\`.`);
 	}
 	
-	await ServiceUtils.tryDMUser(guildMember);
+	await ServiceUtils.tryDMUser(guildMember, 'Oh yea, time for a POAP event!...');
 	await guildMember.send({
 		content: 'For which voice channel should the POAP event occur?',
 	});

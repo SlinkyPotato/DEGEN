@@ -37,7 +37,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 			text: '@Bankless DAO 🏴',
 		},
 	};
-	await ServiceUtils.tryDMUser(guildMember);
+	await ServiceUtils.tryDMUser(guildMember, 'Hi - let me check my nuts and screws for you...');
 	const isApproval: boolean = await askForGrantOrRemoval(ctx, guildMember, authorizedRoles, authorizedUsers, intro);
 	const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	let confirmationMsg: MessageEmbedOptions;

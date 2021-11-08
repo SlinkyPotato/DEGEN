@@ -10,6 +10,7 @@
    - remove deaf users for poap events
    - organize error message validations
    - add workflow env keys
+3. Fix redelivery for failed participants
    
 ## 1.8.4-RELEASE (2021-11-03 - 2021-11-07)
 

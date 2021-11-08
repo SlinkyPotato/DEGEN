@@ -1,6 +1,5 @@
 import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
 import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
@@ -9,11 +8,16 @@ import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/
 import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
 import dayjs from 'dayjs';
+import MongoDbUtils from '../../utils/MongoDbUtils';
+import ServiceUtils from '../../utils/ServiceUtils';
 
-export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+export default async (guildMember: GuildMember, code?: string, ctx?: CommandContext): Promise<any> => {
+	Log.debug('attempting to ending poap event');
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
 	await POAPUtils.validateUserAccess(guildMember, db);
+	
+	Log.debug('authorized to end poap event');
 	
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
@@ -23,8 +27,12 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 	});
 	
 	if (poapSettingsDoc == null) {
+		Log.debug('poap event not found');
 		throw new ValidationError(`<@${guildMember.id}> Hmm it doesn't seem you are hosting an active event.`);
 	}
+	
+	await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one...');
+	Log.debug('poap event found');
 	const currentDateISO = dayjs().toISOString();
 	const updateSettingsResult: UpdateWriteOpResult = await poapSettingsDB.updateOne(poapSettingsDoc, {
 		$set: {
@@ -34,9 +42,10 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 	});
 
 	if (updateSettingsResult.modifiedCount !== 1) {
+		Log.warn('failed to end poap event');
 		throw new Error('failed to end event');
 	}
-	Log.debug(`event ended for ${guildMember.user.tag}`, {
+	Log.debug(`event ended for ${guildMember.user.tag} and updated in db`, {
 		indexMeta: true,
 		meta: {
 			discordId: poapSettingsDoc.discordServerId,
@@ -48,6 +57,7 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 	const listOfParticipants: POAPFileParticipant[] = await POAPUtils.getListOfParticipants(db, channel);
 	
 	if (listOfParticipants.length <= 0) {
+		Log.debug('no eligible attendees found during event');
 		await guildMember.send({ content: `Event ended. No participants found for \`${channel.name}\` in \`${channel.guild.name}\`.` });
 		if (ctx) {
 			await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
@@ -82,7 +92,7 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` });
 	}
 
-	await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(yes/no)`' });
+	await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(y/n)`' });
 	const dmChannel: DMChannel = await guildMember.createDM();
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -101,14 +111,13 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 					title: 'POAPs Distribution Results',
 					fields: [
 						{ name: 'Attempted to Send', value: `${listOfParticipants.length}`, inline: true },
-						{ name: 'Successfully Sent', value: `${listOfParticipants.length - listOfFailedPOAPs.length}`, inline: true },
-						{ name: 'Failed to Send', value: `${listOfFailedPOAPs.length}`, inline: true },
+						{ name: 'Successfully Sent... wgmi', value: `${listOfParticipants.length - listOfFailedPOAPs.length}`, inline: true },
+						{ name: 'Failed to Send... ngmi', value: `${listOfFailedPOAPs.length}`, inline: true },
 					],
 				},
 			],
 			files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
 		});
-
 		Log.info('POAPs Distributed', {
 			indexMeta: true,
 			meta: {
@@ -118,7 +127,11 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 				location: channel.name,
 			},
 		});
-		return 'POAP_SENT';
+		if (listOfFailedPOAPs.length <= 0) {
+			Log.debug('all poap successfully delivered');
+			return 'POAP_SENT';
+		}
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, code, ctx);
 	} else {
 		await guildMember.send({ content: 'You got it!' });
 		return 'POAP_END';

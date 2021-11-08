@@ -1,14 +1,14 @@
 import { GuildMember, MessageEmbedOptions } from 'discord.js';
-import dbInstance from '../../utils/dbUtils';
 import { Collection, Db, Cursor } from 'mongodb';
 import constants from '../constants/constants';
 import { Timecard } from '../../types/timecard.ts/Timecard';
 import Log from '../../utils/Log';
 import { generateEmbedMessage } from './publishTimecards/publishTimecards';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember): Promise<any> => {
 
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const timecardDb: Collection = db.collection(constants.DB_COLLECTION_TIMECARDS);
 
 	const completedTimeCards = await timecardDb.find({
@@ -23,7 +23,7 @@ export default async (guildMember: GuildMember): Promise<any> => {
 		guildMember.send('No timecards found');
 		return 'No timecards found';
 	}
-		
+	
 	const listOfTimeCards = await sendMultipleMessages(guildMember, completedTimeCards);
 	
 	
@@ -45,4 +45,4 @@ const sendMultipleMessages = async (guildMember: GuildMember, dbRecords: Cursor)
 	await (guildMember.send({ embeds: listOfTimecards }));
 	return listOfTimecards;
 };
-	
+

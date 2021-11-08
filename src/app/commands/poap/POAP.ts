@@ -228,7 +228,8 @@ module.exports = class poap extends SlashCommand {
 			return;
 		} catch (e) {
 			LogUtils.logError('failed to process POAP command', e);
-			return ctx.send('Sorry something is not working and our devs are looking into it.');
+			return ctx.send('Welp, something is definitely broken. I would blame you, but I know better. I\'ll let my devs ' +
+				'know something is wrong.');
 		}
 	}
 

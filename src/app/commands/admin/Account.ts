@@ -48,7 +48,7 @@ export default class Account extends SlashCommand {
 			await ctx.send({ content: 'Let\'s continue your Twitter verification in your DMs.' });
 		} catch (e) {
 			LogUtils.logError('failed to verify user', e, guildMember.guild.id);
-			await ctx.send('Welp, something is definitely broken. I would blame, but I know better. I\'ll let my devs ' +
+			await ctx.send('Welp, something is definitely broken. I would blame you, but I know better. I\'ll let my devs ' +
 				'know something is wrong.');
 		}
 	}

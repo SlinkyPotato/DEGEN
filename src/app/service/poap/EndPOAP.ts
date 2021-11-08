@@ -31,7 +31,7 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 		throw new ValidationError(`<@${guildMember.id}> Hmm it doesn't seem you are hosting an active event.`);
 	}
 	
-	await ServiceUtils.tryDMUser(guildMember, 'Finally it\'s over...');
+	await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one...');
 	Log.debug('poap event found');
 	const currentDateISO = dayjs().toISOString();
 	const updateSettingsResult: UpdateWriteOpResult = await poapSettingsDB.updateOne(poapSettingsDoc, {

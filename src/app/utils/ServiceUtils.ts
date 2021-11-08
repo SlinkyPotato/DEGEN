@@ -266,9 +266,8 @@ const ServiceUtils = {
 		try {
 			await guildMember.send({ content: message });
 		} catch (e) {
-			LogUtils.logError('DM is turned off', e, guildMember.guild.id);
-			new ValidationError('I\'m trying to send you a DM... Can you try turning DMs on?');
-			return;
+			LogUtils.logError('DM is turned off', e);
+			throw new ValidationError('I\'m trying to send you a DM... Can you try turning DMs on?');
 		}
 	},
 	

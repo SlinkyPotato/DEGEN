@@ -31,7 +31,7 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 		throw new ValidationError(`<@${guildMember.id}> Hmm it doesn't seem you are hosting an active event.`);
 	}
 	
-	await ServiceUtils.tryDMUser(guildMember, 'Hello, I\'m really enjoying the event...');
+	await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one...');
 	Log.debug('poap event found');
 	const currentDateISO = dayjs().toISOString();
 	const updateSettingsResult: UpdateWriteOpResult = await poapSettingsDB.updateOne(poapSettingsDoc, {
@@ -68,7 +68,6 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 	const bufferFile = getBufferFromParticipants(listOfParticipants, channel);
 	const currentDate = (new Date()).toISOString();
 	const fileName = `${channel.guild.name}_${channel.name}_${listOfParticipants.length}_participants.csv`;
-	await guildMember.send({ content: 'Finally it\'s over...' });
 	await guildMember.send({
 		embeds: [
 			{

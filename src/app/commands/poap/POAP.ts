@@ -219,8 +219,8 @@ module.exports = class poap extends SlashCommand {
 				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['type'], ctx.options.distribute['event'], ctx.options.distribute['code']);
 				break;
 			case 'claim':
-				command = ClaimPOAP(ctx, guildMember, ctx.options.platform, ctx.options.claim['code']);
-				return;
+				command = ClaimPOAP(ctx, guildMember, ctx.options.claim.platform, ctx.options.claim['code']);
+				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);
 			}

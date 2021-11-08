@@ -39,7 +39,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
 		// await startTwitterPOAPFlow(ctx, guildMember, db, event);
-		await guildMember.send('coming soon');
+		await ctx.send('Coming soon...');
 		return;
 	}
 	

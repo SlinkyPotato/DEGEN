@@ -1,9 +1,9 @@
 import { Db } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { GuildMember } from 'discord.js';
 import Log, { LogUtils } from '../../utils/Log';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export const expiresInHours = Number(process.env.DAO_GUEST_PASS_EXPIRATION_DAYS) * 24;
 
@@ -17,17 +17,17 @@ export default async (guestUser: GuildMember): Promise<any> => {
 	notifyUserOfGuestExpiration(guestUser);
 	removeGuestRoleOnExpiration(guestUser);
 	return guestUser.send({
-		content: `You have been granted guest access at Bankless DAO! Guest passes last for 
-		${process.env.DAO_GUEST_PASS_EXPIRATION_DAYS} days and will expire afterwards. To renew your guest pass, ask any 
-		Level 2 contributor to renew it, or post in #get-involved. In the future, we'll automate guest pass renewal based on 
-		your activity in the DAO!` })
-		.catch(e => LogUtils.logError('failed to send message to new guest', e));
+		content: 'You have been granted guest access at Bankless DAO! Guest passes last for '
+			+ `${process.env.DAO_GUEST_PASS_EXPIRATION_DAYS}` + 'days and will expire afterwards. To renew your guest pass, '
+			+ 'ask any Level 2 contributor to renew it, or post in #get-involved. In the future, we\'ll automate guest pass '
+			+ 'renewal based on your activity in the DAO!',
+	}).catch(e => LogUtils.logError('failed to send message to new guest', e));
 };
 
 export const addGuestUserToDb = async (guestUser: GuildMember): Promise<any> => {
 
 	// DB Connected
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const dbGuestUsers = db.collection(constants.DB_COLLECTION_GUEST_USERS);
 	const queryOptions = {
 		upsert: true,
@@ -72,7 +72,7 @@ export const notifyUserOfGuestExpiration = (guestUser: GuildMember): void =>{
 export const removeGuestRoleOnExpiration = (guestUser: GuildMember): void => {
 	// Handle removal of guest pass
 	setTimeout(async () => {
-		const timeoutDB: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+		const timeoutDB: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const timeoutDBGuestUsers = timeoutDB.collection(constants.DB_COLLECTION_GUEST_USERS);
 		const guestDBQuery = {
 			_id: guestUser.id,

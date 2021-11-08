@@ -3,22 +3,29 @@ import axios from 'axios';
 import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
 import ValidationError from '../../errors/ValidationError';
 import { Db } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { CommandContext } from 'slash-create';
-import { LogUtils } from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import { Buffer } from 'buffer';
 import { getBufferForFailedParticipants } from './EndPOAP';
+import MongoDbUtils from '../../utils/MongoDbUtils';
+import ServiceUtils from '../../utils/ServiceUtils';
 
-export default async (ctx: CommandContext, guildMember: GuildMember, event?: string): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+export default async (ctx: CommandContext, guildMember: GuildMember, type: string, event: string, code?: string): Promise<any> => {
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	await POAPUtils.validateUserAccess(guildMember, db);
-	await POAPUtils.validateEvent(guildMember, event);
+	POAPUtils.validateEvent(event);
 	
-	const participantsList: POAPFileParticipant[] = await askForParticipantsList(guildMember);
+	await ServiceUtils.tryDMUser(guildMember, 'Hi, just need a moment to stretch before I run off sending POAPS...');
+	const participantsList: POAPFileParticipant[] | FailedPOAPAttendee[] = await askForParticipantsList(guildMember, type);
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
-	const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
-	const failedPOAPsList: FailedPOAPAttendee[] = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, linksMessageAttachment, event);
+	let failedPOAPsList: FailedPOAPAttendee[];
+	if (type == 'MANUAL_DELIVERY') {
+		const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
+		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList as POAPFileParticipant[], linksMessageAttachment, event);
+	} else {
+		failedPOAPsList = await POAPUtils.sendOutFailedPOAPLinks(guildMember, participantsList as FailedPOAPAttendee[], event);
+	}
 	const failedPOAPsBuffer: Buffer = getBufferForFailedParticipants(failedPOAPsList);
 	await guildMember.send({
 		embeds: [
@@ -33,10 +40,16 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 		],
 		files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
 	});
+	if (failedPOAPsList.length <= 0) {
+		Log.debug('all poap successfully delivered');
+		return;
+	}
+	await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, code, ctx);
+	return;
 };
 
-export const askForParticipantsList = async (guildMember: GuildMember): Promise<POAPFileParticipant[]> => {
-	const message: Message = await guildMember.send({ content: 'Please upload participants.csv file.' });
+export const askForParticipantsList = async (guildMember: GuildMember, type: string): Promise<POAPFileParticipant[] | FailedPOAPAttendee[]> => {
+	const message: Message = await guildMember.send({ content: 'Please upload delivery .csv file. POAPs will be distributed to these degens.' });
 	const dmChannel: DMChannel = await message.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -49,11 +62,19 @@ export const askForParticipantsList = async (guildMember: GuildMember): Promise<
 		const fileResponse = await axios.get(participantAttachment.url);
 		participantsList = fileResponse.data.split('\n').map(participant => {
 			const values = participant.split(',');
-			return {
-				id: values[0],
-				tag: values[1],
-				duration: values[2],
-			};
+			if (type == 'MANUAL_DELIVERY') {
+				return {
+					id: values[0],
+					tag: values[1],
+					duration: values[2],
+				};
+			} else {
+				return {
+					discordUserId: values[0],
+					discordUserTag: values[1],
+					poapLink: values[2],
+				};
+			}
 		});
 		// remove first and last object
 		participantsList.shift();

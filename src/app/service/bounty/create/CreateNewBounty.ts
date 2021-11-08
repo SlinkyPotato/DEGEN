@@ -3,7 +3,6 @@ import BountyUtils from '../../../utils/BountyUtils';
 import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
 import { finalizeBounty } from './PublishBounty';
 import { Db, Int32 } from 'mongodb';
-import dbInstance from '../../../utils/dbUtils';
 import { deleteBountyForValidId } from '../DeleteBounty';
 import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
 import ServiceUtils from '../../../utils/ServiceUtils';
@@ -11,6 +10,7 @@ import envUrls from '../../constants/envUrls';
 import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
 import ValidationError from '../../../errors/ValidationError';
 import Log, { LogUtils } from '../../../utils/Log';
+import MongoDbUtils from '../../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember, params: BountyCreateNew): Promise<any> => {
 	const title = params.title;
@@ -68,7 +68,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 	} while (convertedDueDateFromMessage.toString() === 'Invalid Date');
 	params.dueAt = convertedDueDateFromMessage ? convertedDueDateFromMessage : BountyUtils.getDateFromISOString(constants.BOUNTY_BOARD_END_OF_SEASON_DATE);
 
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
 
 	const listOfPrepBounties = [];
@@ -121,6 +121,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 export const generateBountyRecord = (bountyParams: BountyCreateNew, guildMember: GuildMember): any => {
 	const currentDate = (new Date()).toISOString();
 	return {
+		customer_id: bountyParams.customer_id,
 		season: new Int32(Number(process.env.DAO_CURRENT_SEASON)),
 		title: bountyParams.title,
 		description: bountyParams.summary,

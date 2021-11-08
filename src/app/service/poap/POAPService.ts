@@ -1,15 +1,15 @@
 import { Client as DiscordClient, Guild, GuildMember } from 'discord.js';
 import Log, { LogUtils } from '../../utils/Log';
 import { Collection, Cursor, Db } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import dayjs from 'dayjs';
 import EndPOAP from './EndPOAP';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 const POAPService = {
 	run: async (client: DiscordClient): Promise<void> => {
-		const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 		const currentDateISO: string = dayjs().toISOString();
 		const poapSettingsExpiredEventsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
@@ -48,7 +48,7 @@ const POAPService = {
 		}
 		Log.debug('active events prepared to automatic end');
 
-		Log.info('POAP service ready.');
+		Log.debug('POAP service ready.');
 		return;
 	},
 	

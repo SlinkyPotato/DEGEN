@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.10.0-SNAPSHOT
+
+1. Tweet spaces event upon startup
+
 ## 1.9.0-RELEASE (2021-11-08)
 
 1. Add guildId to bounty

@@ -127,6 +127,22 @@ module.exports = class poap extends SlashCommand {
 					description: 'Distribute links to participants.',
 					options: [
 						{
+							name: 'type',
+							type: CommandOptionType.STRING,
+							description: 'Type of distribution',
+							required: true,
+							choices: [
+								{
+									name: 'Manual Delivery',
+									value: 'MANUAL_DELIVERY',
+								},
+								{
+									name: 'Redeliver Failed Participants',
+									value: 'REDELIVER_FAILED_PARTICIPANTS',
+								},
+							],
+						},
+						{
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event name for the distribution',
@@ -200,7 +216,7 @@ module.exports = class poap extends SlashCommand {
 				command = EndPOAP(guildMember, ctx.options.end['code'], ctx);
 				break;
 			case 'distribute':
-				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], ctx.options.distribute['code']);
+				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['type'], ctx.options.distribute['event'], ctx.options.distribute['code']);
 				break;
 			case 'claim':
 				command = ClaimPOAP(ctx, guildMember, ctx.options.platform, ctx.options.claim['code']);
@@ -212,7 +228,8 @@ module.exports = class poap extends SlashCommand {
 			return;
 		} catch (e) {
 			LogUtils.logError('failed to process POAP command', e);
-			return ctx.send('Sorry something is not working and our devs are looking into it.');
+			return ctx.send('Welp, something is definitely broken. I would blame you, but I know better. I\'ll let my devs ' +
+				'know something is wrong.');
 		}
 	}
 

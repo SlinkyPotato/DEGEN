@@ -11,6 +11,7 @@ import ConfigureFirstQuest from '../../service/first-quest/ConfigureFirstQuest';
 import ValidationError from '../../errors/ValidationError';
 import discordServerIds from '../../service/constants/discordServerIds';
 import { LogUtils } from '../../utils/Log';
+import FirstQuestPOAP from '../../service/first-quest/FirstQuestPOAP';
 
 module.exports = class FirstQuest extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -24,6 +25,29 @@ module.exports = class FirstQuest extends SlashCommand {
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'Configure First Quest Message Content',
 					options: [],
+				},
+				{
+					name: 'poap-refill',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Update the POAP claim links',
+					options: [
+						{
+							name: 'refill-type',
+							type: CommandOptionType.STRING,
+							description: 'Add (POAP is same as current) or replace (It\'s a new POAP) POAPs ',
+							required: true,
+							choices: [
+								{
+									name: 'add',
+									value: 'ADD',
+								},
+								{
+									name: 'replace',
+									value: 'REPLACE',
+								},
+							],
+						},
+					],
 				},
 
 			],
@@ -79,6 +103,9 @@ module.exports = class FirstQuest extends SlashCommand {
 		switch (ctx.subcommands[0]) {
 		case 'config':
 			command = ConfigureFirstQuest(guildMember, ctx);
+			break;
+		case 'poap-refill':
+			command = FirstQuestPOAP(guildMember, ctx);
 			break;
 		default:
 			return ctx.send(`${ctx.user.mention} Please try again.`);

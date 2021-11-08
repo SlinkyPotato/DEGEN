@@ -1,10 +1,12 @@
-import { DMChannel, GuildMember } from 'discord.js';
+import { DMChannel, GuildMember, TextBasedChannels } from 'discord.js';
 import { CommandContext } from 'slash-create';
 import { Db, ObjectID } from 'mongodb';
 import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import fqConstants from '../constants/firstQuest';
 import Log from '../../utils/Log';
+import channelIds from '../constants/channelIds';
+import roleIds from '../constants/roleIds';
 
 export default async (member: GuildMember, ctx?: CommandContext): Promise<any> => {
 	ctx?.send(`Hi, ${ctx.user.mention}! I sent you a DM with more information.`);
@@ -128,7 +130,7 @@ const collectUserInput = async (dmChannel: DMChannel, member: GuildMember, key: 
 
 				if (users.has(member.user.id)) {
 					if (reac.emoji.name === '👍') {
-						const dbResponse = await updateDatabase(member.user.id, responseContent, key, origMessages);
+						const dbResponse = await updateDatabase(member, responseContent, key, origMessages);
 
 						await dmChannel.send({ content: `Database update complete. Status: ${dbResponse}` });
 
@@ -153,7 +155,7 @@ const collectUserInput = async (dmChannel: DMChannel, member: GuildMember, key: 
 	});
 };
 
-const updateDatabase = async (userId, content, key, origMessages) => {
+const updateDatabase = async (member, content, key, origMessages) => {
 
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 
@@ -163,7 +165,7 @@ const updateDatabase = async (userId, content, key, origMessages) => {
 		origContent: origMessages[key],
 		newContent: content,
 		messageKey: key,
-		updatedBy: userId,
+		updatedBy: member.user.id,
 		timestamp: timestamp,
 	};
 
@@ -171,8 +173,6 @@ const updateDatabase = async (userId, content, key, origMessages) => {
 		level: 'info',
 		meta: logMeta,
 	};
-
-	Log.info('First Quest message content updated', opts);
 
 	const firstQuestContent = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_CONTENT);
 
@@ -186,6 +186,16 @@ const updateDatabase = async (userId, content, key, origMessages) => {
 
 	const update = await firstQuestContent.updateOne(filter, updateDoc, options);
 
+	Log.info('First Quest message content updated', opts);
+
+	const channels = await member.guild.channels.fetch();
+
+	const fqProjectChannel = channels.get(channelIds.firstQuestProject) as TextBasedChannels;
+
+	await fqProjectChannel.send({ content: `<@&${ roleIds.firstQuestProject }> : First Quest message content was updated by user ${ member.user.username } with user id: ${ member.user.id } \n\n` +
+					`**original message:**\n\n${ logMeta.origContent }\n\n` +
+					`**new message:**\n\n${ logMeta.newContent }` });
+
 	return (update.result.ok && update.result.nModified) ? 'Message updated successfully' : 'Could not update message, please try again';
 };
 
@@ -193,21 +203,16 @@ const fetchData = async () => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 
 	const firstQuestContent = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_CONTENT).find({});
-	
-	const data = await firstQuestContent.toArray();
-	
-	// if (data.length === 0) {
-	// 	data = await fqInit(db);
-	// }
-	return data;
+
+	return await firstQuestContent.toArray();
 };
 
 const createEmbed = async (data) => {
 
 	const embed = {
-		title: 'Overview of currrent message content',
+		title: 'Overview of current message content',
 		fields: [],
-		footer: { text: 'select number to edit corresponding question' },
+		footer: { text: 'select emote to edit corresponding question' },
 	};
 
 	for (const [index, [, value]] of Object.entries(Object.entries(data[0].messages as Record<string, string>))) {

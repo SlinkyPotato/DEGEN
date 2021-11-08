@@ -5,16 +5,14 @@ import Log from '../../utils/Log';
 import dbInstance from '../../utils/dbUtils';
 import { Db } from 'mongodb';
 import client from '../../app';
+import channelIds from '../constants/channelIds';
+import { getPOAPLink } from './FirstQuestPOAP';
 
 export const sendFqMessage = async (dmChan:TextBasedChannels | string, member: GuildMember): Promise<void> => {
 
 	const dmChannel: DMChannel = await getDMChannel(member, dmChan);
 
-	if (messagesState.length === 0) {
-		await getMessageContentFromDb();
-	}
-
-	const fqMessageContent = messagesState[0];
+	const fqMessageContent = await getMessageContentFromDb();
 
 	const fqMessage = retrieveFqMessage(member);
 
@@ -40,6 +38,9 @@ export const sendFqMessage = async (dmChan:TextBasedChannels | string, member: G
 
 				} else {
 					await dmChannel.send({ content: fqMessageContent[getFqMessage(fqConstants.FIRST_QUEST_ROLES.first_quest_complete).message_id].replace(/\\n/g, '\n') });
+
+					await getPOAPLink(member);
+
 				}
 			} catch {
 				// give some time for the role update to come through and try again
@@ -50,6 +51,9 @@ export const sendFqMessage = async (dmChan:TextBasedChannels | string, member: G
 
 				} else {
 					await dmChannel.send({ content: fqMessageContent[getFqMessage(fqConstants.FIRST_QUEST_ROLES.first_quest_complete).message_id].replace(/\\n/g, '\n') });
+
+
+
 				}
 			}
 			return;
@@ -100,7 +104,7 @@ export const fqRescueCall = async (): Promise<void> => {
 					if (guild.id === fqUser.guild) {
 						const channels = await guild.channels.fetch();
 
-						const supportChannel = channels.get(process.env.DISCORD_CHANNEL_SUPPORT_ID) as TextBasedChannels;
+						const supportChannel = channels.get(channelIds.generalSupport) as TextBasedChannels;
 
 						await supportChannel.send({ content: `User <@${fqUser._id}> appears to be stuck in first-quest, please extend some help.` });
 					}
@@ -110,8 +114,6 @@ export const fqRescueCall = async (): Promise<void> => {
 	}
 };
 
-const messagesState = [];
-
 const getMessageContentFromDb = async (): Promise<void> => {
 	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
 
@@ -119,7 +121,7 @@ const getMessageContentFromDb = async (): Promise<void> => {
 
 	const data = await firstQuestContent.toArray();
 
-	messagesState.push(data[0].messages);
+	return data[0].messages;
 };
 
 const getDMChannel = async (member: GuildMember, dmChan: TextBasedChannels | string): Promise<DMChannel> => {
@@ -182,8 +184,8 @@ const retrieveFqMessage = (member) => {
 	}
 };
 
-const getFqMessage = (roleName: string) => {
-	switch (roleName) {
+const getFqMessage = (roleId: string) => {
+	switch (roleId) {
 	case (fqConstants.FIRST_QUEST_ROLES.verified):
 		return fqMessageFlow['verified'];
 	case (fqConstants.FIRST_QUEST_ROLES.first_quest_welcome):

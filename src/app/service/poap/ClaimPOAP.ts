@@ -14,7 +14,8 @@ const ClaimPOAP = async (ctx: CommandContext, guildMember: GuildMember, platform
 	POAPUtils.validateClaimCode(code);
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		await ctx.send('Twitter platform is not supported at this time. Please reach out to community organizer for missing POAP');
+		await ctx.send('So, the Twitter platform isn\'t supported with what you\'re trying to do here. ' +
+			'Reach out to community organizer to hook you up with your POAP.');
 		return;
 	}
 	

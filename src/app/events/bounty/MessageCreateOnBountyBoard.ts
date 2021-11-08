@@ -2,11 +2,11 @@ import { GuildMember, Message } from 'discord.js';
 import constants from '../../service/constants/constants';
 import BountyUtils from '../../utils/BountyUtils';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import envUrls from '../../service/constants/envUrls';
 import { addPublishReactions } from '../../service/bounty/create/PublishBounty';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import Log from '../../utils/Log';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (message: Message): Promise<any> => {
 	if (message.author.username !== constants.BOUNTY_BOARD_WEBSITE_WEBHOOK_NAME) return;
@@ -16,7 +16,7 @@ export default async (message: Message): Promise<any> => {
 
 	const bountyId: string = BountyUtils.getBountyIdFromEmbedMessage(message);
 	
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
 	const dbBountyResult: BountyCollection = await dbCollection.findOne({
 		_id: new mongo.ObjectId(bountyId),

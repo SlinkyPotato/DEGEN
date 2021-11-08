@@ -8,6 +8,8 @@ import DistributePOAP from '../../service/poap/DistributePOAP';
 import ConfigPOAP from '../../service/poap/ConfigPOAP';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
 import { LogUtils } from '../../utils/Log';
+import ClaimPOAP from '../../service/poap/ClaimPOAP';
+import constants from '../../service/constants/constants';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -77,10 +79,26 @@ module.exports = class poap extends SlashCommand {
 					description: 'Begin POAP event and start tracking participants.',
 					options: [
 						{
+							name: 'platform',
+							type: CommandOptionType.STRING,
+							description: 'Where will the poap event be hosted?',
+							required: true,
+							choices: [
+								{
+									name: 'Discord',
+									value: constants.PLATFORM_TYPE_DISCORD,
+								},
+								{
+									name: 'Twitter Spaces',
+									value: constants.PLATFORM_TYPE_TWITTER,
+								},
+							],
+						},
+						{
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event name for the discussion',
-							required: false,
+							required: true,
 						},
 						{
 							name: 'duration-minutes',
@@ -94,6 +112,14 @@ module.exports = class poap extends SlashCommand {
 					name: 'end',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'End POAP event and receive a list of participants.',
+					options: [
+						{
+							name: 'code',
+							type: CommandOptionType.STRING,
+							description: 'Claim code used for failed delivery participants.',
+							required: false,
+						},
+					],
 				},
 				{
 					name: 'distribute',
@@ -104,13 +130,44 @@ module.exports = class poap extends SlashCommand {
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event name for the distribution',
+							required: true,
+						},
+						{
+							name: 'code',
+							type: CommandOptionType.STRING,
+							description: 'Claim code used for failed delivery participants.',
 							required: false,
+						},
+					],
+				},
+				{
+					name: 'claim',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Claim POAPs for all the events DEGEN failed to deliver.',
+					options: [
+						{
+							name: 'platform',
+							type: CommandOptionType.STRING,
+							description: 'Claim code given by the community organizer.',
+							required: true,
+							choices: [
+								{
+									name: 'Discord',
+									value: 'DISCORD',
+								},
+							],
+						},
+						{
+							name: 'code',
+							type: CommandOptionType.STRING,
+							description: 'Claim code given by the community organizer.',
+							required: true,
 						},
 					],
 				},
 			],
 			throttling: {
-				usages: 1,
+				usages: 10,
 				duration: 1,
 			},
 			defaultPermission: true,
@@ -137,20 +194,25 @@ module.exports = class poap extends SlashCommand {
 				command = SchedulePOAP(ctx, guildMember, ctx.options.schedule['mint-copies']);
 				break;
 			case 'start':
-				command = StartPOAP(ctx, guildMember, ctx.options.start.event, ctx.options.start['duration-minutes']);
+				command = StartPOAP(ctx, guildMember, ctx.options.start['platform'], ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
-				command = EndPOAP(guildMember, ctx);
+				command = EndPOAP(guildMember, ctx.options.end['code'], ctx);
 				break;
 			case 'distribute':
-				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event']);
+				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], ctx.options.distribute['code']);
 				break;
+			case 'claim':
+				command = ClaimPOAP(ctx, guildMember, ctx.options.platform, ctx.options.claim['code']);
+				return;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);
 			}
-			return this.handleCommandError(ctx, command);
+			this.handleCommandError(ctx, command);
+			return;
 		} catch (e) {
 			LogUtils.logError('failed to process POAP command', e);
+			return ctx.send('Sorry something is not working and our devs are looking into it.');
 		}
 	}
 
@@ -168,7 +230,7 @@ module.exports = class poap extends SlashCommand {
 				return ctx.send(e.message);
 			} else {
 				LogUtils.logError('failed to handle poap command', e);
-				return ctx.send('Sorry something is not working and our devs are looking into it.');
+				return ctx.send('Nothing to see here..');
 			}
 		});
 	}

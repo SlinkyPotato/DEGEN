@@ -14,7 +14,6 @@ import {
 	InsertOneWriteOpResult,
 	MongoError,
 } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import ValidationError from '../../errors/ValidationError';
@@ -26,13 +25,23 @@ import { CommandContext } from 'slash-create';
 import Log, { LogUtils } from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
 import POAPService from './POAPService';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
-export default async (ctx: CommandContext, guildMember: GuildMember, event?: string, duration?: number): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+export default async (ctx: CommandContext, guildMember: GuildMember, platform: string, event: string, duration?: number): Promise<any> => {
+	Log.debug('starting poap event...');
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 
 	await POAPUtils.validateUserAccess(guildMember, db);
-	await POAPUtils.validateEvent(guildMember, event);
-	await POAPUtils.validateDuration(guildMember, duration);
+	POAPUtils.validateEvent(event);
+	POAPUtils.validateDuration(duration);
+	
+	Log.debug('poap start validated');
+	
+	if (platform == constants.PLATFORM_TYPE_TWITTER) {
+		// await startTwitterPOAPFlow(ctx, guildMember, db, event);
+		await guildMember.send('coming soon');
+		return;
+	}
 	
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const activeSettingsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
@@ -42,11 +51,14 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 	});
 	const activeSettings: POAPSettings = await activeSettingsCursor.next();
 	if (activeSettings != null) {
-		Log.info('unable to start due to active event');
-		await guildMember.send({ content: 'An event is already active.' });
+		Log.debug('unable to start due to active event');
 		throw new ValidationError(`Please end the active event \`${activeSettings.voiceChannelName}\`.`);
 	}
 	
+	await ServiceUtils.tryDMUser(guildMember);
+	await guildMember.send({
+		content: 'For which voice channel should the POAP event occur?',
+	});
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
 	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) });
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
@@ -254,7 +266,7 @@ const askForEventMinutes = async (guildMember: GuildMember, dmChannel: DMChannel
 		await guildMember.send({ content: `How long should the event stay active? \`(max: ${constants.POAP_MAX_DURATION_MINUTES} minutes)\`` });
 		const durationOfEventInMinutes: string = await ServiceUtils.getFirstUserReply(dmChannel);
 		const duration = Number(durationOfEventInMinutes);
-		await POAPUtils.validateDuration(guildMember, duration);
+		POAPUtils.validateDuration(duration);
 		return duration;
 	} catch (e) {
 		LogUtils.logError('failed to process duration time', e);
@@ -262,3 +274,24 @@ const askForEventMinutes = async (guildMember: GuildMember, dmChannel: DMChannel
 	}
 };
 
+// const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMember, db: Db, event: string): Promise<any> => {
+// 	const { twitterUser, twitterClientV1 } = await VerifyTwitter(guildMember);
+// 	const twitterClientV2: TwitterApi = new TwitterApi(apiKeys.twitterBearerToken);
+// 	await ctx.send({ content: 'DM sent!' });
+// 	await guildMember.send({ content: 'Now starting poap event for twitter spaces :bird:' });
+//
+// 	// let twitterSpaceResult: SpaceV2LookupResult;
+// 	// try {
+// 	// 	twitterSpaceResult = await twitterClientV2.v2.spacesByCreators(twitterUser.id_str);
+// 	// 	console.log(twitterSpaceResult);
+// 	// 	console.log(twitterSpaceResult.includes.users);
+// 	// } catch (e) {
+// 	// 	console.log(e);
+// 	// 	LogUtils.logError('failed trying to get twitter spaces', e);
+// 	// }
+//
+// 	// if (twitterSpaceResult.meta.result_count == 0) {
+// 	// 	await guildMember.send({ content: 'Please start twitter spaces before starting POAP event.' });
+// 	// }
+//
+// };

@@ -11,10 +11,10 @@ import { Snowflake } from 'discord-api-types';
 import { Db } from 'mongodb';
 import constants from '../constants/constants';
 import { POAPAdmin } from '../../types/poap/POAPAdmin';
-import dbUtils from '../../utils/dbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { CommandContext } from 'slash-create';
 import Log, { LogUtils } from '../../utils/Log';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
 	if (!(ServiceUtils.isDiscordAdmin(guildMember) || ServiceUtils.isDiscordServerManager(guildMember))) {
@@ -37,8 +37,9 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 			text: '@Bankless DAO 🏴',
 		},
 	};
+	await ServiceUtils.tryDMUser(guildMember);
 	const isApproval: boolean = await askForGrantOrRemoval(ctx, guildMember, authorizedRoles, authorizedUsers, intro);
-	const dbInstance: Db = await dbUtils.dbConnect(constants.DB_NAME_DEGEN);
+	const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	let confirmationMsg: MessageEmbedOptions;
 	if (isApproval) {
 		await storePOAPAdmins(guildMember, dbInstance, authorizedUsers, authorizedRoles);

@@ -3,18 +3,20 @@ import axios from 'axios';
 import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
 import ValidationError from '../../errors/ValidationError';
 import { Db } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { CommandContext } from 'slash-create';
-import { LogUtils } from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import { Buffer } from 'buffer';
 import { getBufferForFailedParticipants } from './EndPOAP';
+import MongoDbUtils from '../../utils/MongoDbUtils';
+import ServiceUtils from '../../utils/ServiceUtils';
 
-export default async (ctx: CommandContext, guildMember: GuildMember, event?: string): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+export default async (ctx: CommandContext, guildMember: GuildMember, event: string, code?: string): Promise<any> => {
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	await POAPUtils.validateUserAccess(guildMember, db);
-	await POAPUtils.validateEvent(guildMember, event);
+	POAPUtils.validateEvent(event);
 	
+	await ServiceUtils.tryDMUser(guildMember);
 	const participantsList: POAPFileParticipant[] = await askForParticipantsList(guildMember);
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
@@ -33,10 +35,15 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event?: str
 		],
 		files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
 	});
+	if (failedPOAPsList.length <= 0) {
+		Log.debug('all poap successfully delivered');
+		return;
+	}
+	await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, code, ctx);
 };
 
 export const askForParticipantsList = async (guildMember: GuildMember): Promise<POAPFileParticipant[]> => {
-	const message: Message = await guildMember.send({ content: 'Please upload participants.csv file.' });
+	const message: Message = await guildMember.send({ content: 'Please upload participants.csv file. POAPs will be distributed to these degens.' });
 	const dmChannel: DMChannel = await message.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,

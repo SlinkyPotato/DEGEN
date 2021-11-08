@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.9.0-SNAPSHOT
+## 1.9.0-RELEASE (2021-11-08)
 
 1. Add guildId to bounty
 2. Add twitter spaces integration (wip)

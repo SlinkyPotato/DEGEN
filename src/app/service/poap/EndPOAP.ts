@@ -68,7 +68,7 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 	const bufferFile = getBufferFromParticipants(listOfParticipants, channel);
 	const currentDate = (new Date()).toISOString();
 	const fileName = `${channel.guild.name}_${channel.name}_${listOfParticipants.length}_participants.csv`;
-	await guildMember.send({ content: 'The event has ended and here are the results.' });
+	await guildMember.send({ content: 'Finally it\'s over...' });
 	await guildMember.send({
 		embeds: [
 			{

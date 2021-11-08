@@ -8,7 +8,7 @@ export default class Account extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'account',
-			description: 'Manage your accounts integration.',
+			description: 'Manage your account\'s integration.',
 			throttling: {
 				usages: 1,
 				duration: 2,
@@ -45,10 +45,11 @@ export default class Account extends SlashCommand {
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		try {
 			await VerifyTwitter(guildMember);
-			await ctx.send({ content: 'Twitter verification sent to your DM!' });
+			await ctx.send({ content: 'Let\'s continue your Twitter verification in your DMs.' });
 		} catch (e) {
 			LogUtils.logError('failed to verify user', e, guildMember.guild.id);
-			await ctx.send('Something is not working...');
+			await ctx.send('Welp, something is definitely broken. I would blame, but I know better. I\'ll let my devs ' +
+				'know something is wrong.');
 		}
 	}
 }

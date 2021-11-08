@@ -26,7 +26,7 @@ const ClaimPOAP = async (ctx: CommandContext, guildMember: GuildMember, platform
 	});
 	
 	if (!await unclaimedParticipants.hasNext()) {
-		await ctx.send('Could not find any POAPs 🤷‍');
+		await ctx.send('Listen, I looked for the POAPs, but I failed to find them. I\'d apologize, but this is not a me thing 🤷‍');
 		return;
 	}
 	

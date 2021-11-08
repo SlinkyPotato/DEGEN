@@ -22,7 +22,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	const request: EventsRequestType = {} as EventsRequestType;
 	request.requested_codes = numberToMint.toString();
 	
-	await ServiceUtils.tryDMUser(guildMember);
+	await ServiceUtils.tryDMUser(guildMember, 'Hi, I heard you want to mint a POAP for your stellar event...');
 	await guildMember.send({
 		embeds: [
 			{

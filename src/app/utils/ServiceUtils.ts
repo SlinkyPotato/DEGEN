@@ -262,9 +262,9 @@ const ServiceUtils = {
 		})).first().content;
 	},
 	
-	async tryDMUser(guildMember: GuildMember): Promise<any> {
+	async tryDMUser(guildMember: GuildMember, message: string): Promise<any> {
 		try {
-			await guildMember.send({ content: 'Hello 👋' });
+			await guildMember.send({ content: message });
 		} catch (e) {
 			LogUtils.logError('DM is turned off', e, guildMember.guild.id);
 			new ValidationError('I\'m trying to send you a DM... Can you try turning DMs on?');

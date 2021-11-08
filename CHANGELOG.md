@@ -11,6 +11,7 @@
    - organize error message validations
    - add workflow env keys
 3. Fix redelivery for failed participants
+   - add custom start messages
    
 ## 1.8.4-RELEASE (2021-11-03 - 2021-11-07)
 

@@ -43,7 +43,7 @@ const ClaimPOAP = async (ctx: CommandContext, guildMember: GuildMember, platform
 		});
 	}).toArray();
 	
-	await ServiceUtils.tryDMUser(guildMember);
+	await ServiceUtils.tryDMUser(guildMember, 'So you want a POAP? *sigh*...');
 	await guildMember.send({
 		embeds: embedMessageList,
 	});

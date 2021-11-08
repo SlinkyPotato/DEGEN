@@ -10,7 +10,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 
 const VerifyTwitter = async (guildMember: GuildMember): Promise<{ twitterUser: UserV1, twitterClientV1: TwitterApi }> => {
 	Log.debug('verifying twitter account link');
-	await ServiceUtils.tryDMUser(guildMember);
+	await ServiceUtils.tryDMUser(guildMember, 'Hello! Let me check your twitter info...');
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
 	const accountsCollection: Collection<NextAuthAccountCollection> = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);

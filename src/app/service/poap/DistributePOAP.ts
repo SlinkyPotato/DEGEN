@@ -16,7 +16,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, type: strin
 	await POAPUtils.validateUserAccess(guildMember, db);
 	POAPUtils.validateEvent(event);
 	
-	await ServiceUtils.tryDMUser(guildMember);
+	await ServiceUtils.tryDMUser(guildMember, 'Hi, just need a moment to stretch before I run off sending POAPS...');
 	const participantsList: POAPFileParticipant[] | FailedPOAPAttendee[] = await askForParticipantsList(guildMember, type);
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	let failedPOAPsList: FailedPOAPAttendee[];

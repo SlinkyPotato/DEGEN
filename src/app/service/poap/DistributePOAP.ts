@@ -15,6 +15,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, type: strin
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	await POAPUtils.validateUserAccess(guildMember, db);
 	POAPUtils.validateEvent(event);
+	POAPUtils.validateClaimCode(code);
 	
 	await ServiceUtils.tryDMUser(guildMember, 'Hi, just need a moment to stretch before I run off sending POAPS...');
 	const participantsList: POAPFileParticipant[] | FailedPOAPAttendee[] = await askForParticipantsList(guildMember, type);

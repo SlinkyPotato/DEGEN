@@ -199,9 +199,9 @@ const POAPUtils = {
 		const unclaimedPOAPsList: any[] = listOfFailedPOAPs.map((failedAttendee: FailedPOAPAttendee) => {
 			return {
 				event: event,
-				discordUserId: failedAttendee.discordUserId,
+				discordUserId: `${failedAttendee.discordUserId}`,
 				discordUserTag: failedAttendee.discordUserTag,
-				discordServerId: guildMember.guild.id,
+				discordServerId: `${guildMember.guild.id}`,
 				discordServerName: guildMember.guild.name,
 				claimCode: code,
 				poapLink: failedAttendee.poapLink,
@@ -274,7 +274,7 @@ const POAPUtils = {
 		if (code == null) {
 			return;
 		}
-		const POAP_CODE_REGEX = /^[\w\s\W]{1,15}$/;
+		const POAP_CODE_REGEX = /^[\w\s\W]{1,30}$/;
 		if (!POAP_CODE_REGEX.test(code)) {
 			throw new ValidationError('Please enter a claim code between 1 and 15 alphanumeric characters.');
 		}

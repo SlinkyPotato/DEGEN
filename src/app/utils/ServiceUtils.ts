@@ -3,8 +3,10 @@
  */
 import {
 	Collection,
+	DMChannel,
 	Guild,
 	GuildMember,
+	Permissions,
 	Role,
 	RoleManager,
 	Snowflake,
@@ -19,8 +21,10 @@ import ValidationError from '../errors/ValidationError';
 import constants from '../service/constants/constants';
 import roleIDs from '../service/constants/roleIds';
 import { Allowlist } from '../types/discord/Allowlist';
-import dbInstance from '../utils/dbUtils';
 import { Confusables } from './Confusables';
+import discordServerIds from '../service/constants/discordServerIds';
+import Log, { LogUtils } from './Log';
+import MongoDbUtils from '../utils/MongoDbUtils';
 
 const nonStandardCharsRegex = /[^\w\s\p{P}\p{S}Ξ]/gu;
 const emojiRegex = /\p{So}/gu;
@@ -65,9 +69,16 @@ const ServiceUtils = {
 		}
 		return false;
 	},
+	
+	isDiscordAdmin(guildMember: GuildMember): boolean {
+		return guildMember.permissions.has(Permissions.FLAGS.ADMINISTRATOR);
+	},
+	
+	isDiscordServerManager(guildMember: GuildMember): boolean {
+		return guildMember.permissions.has(Permissions.FLAGS.MANAGE_GUILD);
+	},
 
 	isAnyLevel(guildMember: GuildMember): boolean {
-		console.log(guildMember.roles.cache);
 		return ServiceUtils.hasSomeRole(guildMember, [
 			roleIDs.level1,
 			roleIDs.level2,
@@ -112,11 +123,18 @@ const ServiceUtils = {
 		};
 		return (new Date(dateIso)).toLocaleString('en-US', options);
 	},
+	
+	isBanklessDAO(guild: Guild): boolean {
+		if (guild == null || guild.id == null) {
+			return false;
+		}
+		return guild.id == discordServerIds.banklessDAO || guild.id == discordServerIds.discordBotGarage;
+	},
 
 	/**
-	 * Bans a guild member if they have a nickname or username similar to that of a high ranking member 
-	 * of the Discord. 
-	 * 
+	 * Bans a guild member if they have a nickname or username similar to that of a high ranking member
+	 * of the Discord.
+	 *
 	 * @param member guild member object
 	 * @returns boolean indicating if user was banned
 	 */
@@ -131,12 +149,12 @@ const ServiceUtils = {
 		}
 
 		if (!member.bannable) {
-			console.log(`Skipping username spam filter because ${member.user.tag} is not bannable.`);
+			Log.log(`Skipping username spam filter because ${member.user.tag} is not bannable.`);
 			return false;
 		}
 
 		if (await ServiceUtils.onAllowlist(member)) {
-			console.log(`Skipping username spam filter because ${member.user.tag} is on the allowlist.`);
+			Log.log(`Skipping username spam filter because ${member.user.tag} is on the allowlist.`);
 			return false;
 		}
 
@@ -166,19 +184,19 @@ const ServiceUtils = {
 			const aboveAverageJoe = await member.guild.members.fetch('198981821147381760');
 			const frogmonkee = await member.guild.members.fetch('197852493537869824');
 
-			// Send DM to user before banning them because bot can't DM user after banning them. 
+			// Send DM to user before banning them because bot can't DM user after banning them.
 			await member.send(`You were auto-banned from the ${member.guild.name} server. If you believe this was a mistake, please contact <@${aboveAverageJoe.id}> or <@${frogmonkee.id}>.`)
 				.catch(e => {
 					// Users that have blocked the bot or disabled DMs cannot receive a DM from the bot
-					console.log(`Unable to message user before auto-banning them. ${debugMessage} ${e}`);
+					Log.log(`Unable to message user before auto-banning them. ${debugMessage} ${e}`);
 				});
 
 			await member.ban({ reason: `Auto-banned by username spam filter. ${debugMessage}` })
 				.then(() => {
-					console.log(`Auto-banned user. ${debugMessage}`);
+					Log.log(`Auto-banned user. ${debugMessage}`);
 				})
 				.catch(e => {
-					console.log(`Unable to auto-ban user. ${debugMessage} ${e}`);
+					Log.log(`Unable to auto-ban user. ${debugMessage} ${e}`);
 				});
 			
 			return true;
@@ -189,7 +207,7 @@ const ServiceUtils = {
 
 	/**
 	 * Sanitizes a username by converting confusable unicode characters to latin.
-	 * 
+	 *
 	 * @param name username to sanitize
 	 * @returns sanitized username
 	 */
@@ -203,12 +221,12 @@ const ServiceUtils = {
 
 	/**
 	 * Checks if member is on allowlist for guild.
-	 * 
+	 *
 	 * @param member guild member object
 	 * @returns boolean indicating if member is on allowlist for guild
 	 */
 	async onAllowlist(member: GuildMember): Promise<boolean> {
-		const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const dbAllowlist = db.collection(constants.DB_COLLECTION_ALLOWLIST);
 
 		const allowlist: Allowlist = await dbAllowlist.findOne({
@@ -229,6 +247,30 @@ const ServiceUtils = {
 				(guildChannel.type === 'GUILD_VOICE'
 					|| guildChannel.type === 'GUILD_STAGE_VOICE')) as Collection<string, VoiceChannel | StageChannel>;
 	},
+
+	/**
+	 * Returns the first message in DM channel from the user
+	 * @param dmChannel direct message channel
+	 * @param waitInMilli number of milliseconds the bot should wait for a reply
+	 */
+	async getFirstUserReply(dmChannel: DMChannel, waitInMilli?: number): Promise<any> {
+		waitInMilli = (waitInMilli == null) ? 600000 : waitInMilli;
+		return (await dmChannel.awaitMessages({
+			max: 1,
+			time: waitInMilli,
+			errors: ['time'],
+		})).first().content;
+	},
+	
+	async tryDMUser(guildMember: GuildMember, message: string): Promise<any> {
+		try {
+			await guildMember.send({ content: message });
+		} catch (e) {
+			LogUtils.logError('DM is turned off', e);
+			throw new ValidationError('I\'m trying to send you a DM... Can you try turning DMs on?');
+		}
+	},
+	
 };
 
 export default ServiceUtils;

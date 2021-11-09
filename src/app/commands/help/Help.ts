@@ -4,20 +4,15 @@ import {
 	SlashCommand,
 	SlashCreator,
 } from 'slash-create';
-import HowToBounty from '../../service/help/HowToBounty';
 import HowToPOAP from '../../service/help/HowToPOAP';
+import { LogUtils } from '../../utils/Log';
 
 export default class Help extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'help',
-			description: 'Get help on creating bounties, adding guests, and other operations',
+			description: 'Additional information on the POAP distribution commands.',
 			options: [
-				{
-					name: 'bounty',
-					type: CommandOptionType.SUB_COMMAND,
-					description: 'Information on how to create, claim, complete, and delete bounties',
-				},
 				{
 					name: 'poap',
 					type: CommandOptionType.SUB_COMMAND,
@@ -33,22 +28,15 @@ export default class Help extends SlashCommand {
 	}
 	
 	async run(ctx: CommandContext): Promise<any> {
+		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;
-		console.log(`/help start ${ctx.user.username}#${ctx.user.discriminator}`);
 		
 		let messageOptions: MessageOptions;
 		switch (ctx.subcommands[0]) {
-		case 'bounty':
-			console.log('/help bounty');
-			messageOptions = HowToBounty();
-			break;
 		case 'poap':
-			console.log('/help poap');
 			messageOptions = HowToPOAP();
 			break;
 		}
-
-		console.log(`end /help ${ctx.user.username}#${ctx.user.discriminator}`);
 		return ctx.send(messageOptions);
 	}
 }

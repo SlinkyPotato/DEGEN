@@ -1,12 +1,91 @@
 # Changelog
 
-## 1.6.0-SNAPSHOT
+## 1.9.0-RELEASE (2021-11-08)
+
+1. Add guildId to bounty
+2. Add twitter spaces integration (wip)
+   - refactor MongoDbUtils file
+   - add POAP schedule error messaging
+   - setup POAP claiming for failed delivery
+   - remove deaf users for poap events
+   - organize error message validations
+   - add workflow env keys
+3. Fix redelivery for failed participants
+   - add custom start messages
+   
+## 1.8.4-RELEASE (2021-11-03 - 2021-11-07)
+
+1. Introduce /coordinape form request command for BanklessDAO
+2. Update feedback request form to canny
+3. Add /timecard command
+4. Run build-test action on every pull request
+5. Allow multiple coordinape usages for command
+6. /coordinape form request command: Treat level3 and level 4 roles equal to level 1 role.
+
+## 1.8.3-RELEASE (2021-10-26)
+
+1. Check rate limit
+2. Fix github actions for forked repos
+3. Set guestpass limit for 2 weeks instead of 1 week
+
+## 1.8.2-RELEASE (2021-10-23)
+
+1. Fix poap attendee duration time
+2. Fix failed to send poaps message
+
+## 1.8.1-RELEASE (2021-10-21)
+
+1. Fix removal of guest pass users by wraping in try/catch block in case of error
+2. Add DEGEN branch deployment to uat
+
+## 1.8.0-RELEASE (2021-10-21)
+
+1. Fix scoap-squad and update start season 2
+2. Integrate with logDNA sdk, turn off native console.log
+   - fix CODE_OWNERS file
+   - fix `/poap schedule` command
+   - misc enhancements
+   - configure poap time to env variable
+   - set min poap participate time to 10 mins
+   - display guild name and event for poap distribution message
+   - send message on instructions for POAP approval
+   - enable `/scoap-squad` in BanklessDAO
+3. Add option to automatically end poap events
+   - format poap start and end messages
+   - fix guest pass auto removal
+4. Return csv of failed participants at end of event
+5. Extend `/poap config` to guild/server managers
+
+## 1.7.2-RELEASE (2021-10-12)
+
+1. Update deployment actions for pre-release and DEGEN
+2. Update yarn lockfile
+
+## 1.7.1-RELEASE (2021-10-12)
+
+1. Update slash-create dependency 
+
+## 1.7.0-RELEASE (2021-10-11)
+
+1. Add scoap-squad feature for BanklessDAO
+2. Add /poap schedule command
+   - enhance stability
+   - wrap events call to bankelss DAO server
+   - misc text message updates
+3. Setup Major Motoko Kusanagi bot
+4. Fix MessageCreate event
+5. Open bounties to all (except creating new bounties)
+6. Remove voice permissions
+
+## 1.6.0-RELEASE (2021-10-01)
 
 1. Fixed RetrieveFAQs tests to properly use mocking and fix yarn linting script
 2. Misc fixes for POAP commands and enable HELP commands for all discords
 3. Migrate github actions deployment to digital ocean droplet
 4. Add username spam filter
 5. Misc fixes for bounties
+6. Reference production environment files
+7. Enhance stability of DEGEN
 
 ## 1.5.2-RELEASE (2021-09-10)
 

@@ -11,11 +11,14 @@ import { Snowflake } from 'discord-api-types';
 import { Db } from 'mongodb';
 import constants from '../constants/constants';
 import { POAPAdmin } from '../../types/poap/POAPAdmin';
-import dbUtils from '../../utils/dbUtils';
+import ServiceUtils from '../../utils/ServiceUtils';
+import { CommandContext } from 'slash-create';
+import Log, { LogUtils } from '../../utils/Log';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
-export default async (guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
-	if (guildMember.guild.ownerId != guildMember.id) {
-		throw new ValidationError('Sorry, only the discord owner can configure poap distribution.');
+export default async (ctx: CommandContext, guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
+	if (!(ServiceUtils.isDiscordAdmin(guildMember) || ServiceUtils.isDiscordServerManager(guildMember))) {
+		throw new ValidationError('Sorry, only discord admins and managers can configure poap settings.');
 	}
 	const authorizedRoles: Role[] = await retrieveRoles(guildMember, roles);
 	const authorizedUsers: GuildMember[] = await retrieveUsers(guildMember, users);
@@ -34,8 +37,9 @@ export default async (guildMember: GuildMember, roles?: string[], users?: string
 			text: '@Bankless DAO 🏴',
 		},
 	};
-	const isApproval: boolean = await askForGrantOrRemoval(guildMember, authorizedRoles, authorizedUsers, intro);
-	const dbInstance: Db = await dbUtils.dbConnect(constants.DB_NAME_DEGEN);
+	await ServiceUtils.tryDMUser(guildMember, 'Hi - let me check my nuts and screws for you...');
+	const isApproval: boolean = await askForGrantOrRemoval(ctx, guildMember, authorizedRoles, authorizedUsers, intro);
+	const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	let confirmationMsg: MessageEmbedOptions;
 	if (isApproval) {
 		await storePOAPAdmins(guildMember, dbInstance, authorizedUsers, authorizedRoles);
@@ -56,7 +60,7 @@ export default async (guildMember: GuildMember, roles?: string[], users?: string
 };
 
 export const askForGrantOrRemoval = async (
-	guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[], intro?: MessageEmbedOptions,
+	ctx: CommandContext, guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[], intro?: MessageEmbedOptions,
 ): Promise<boolean> => {
 	const fields = [];
 	for (const role of authorizedRoles) {
@@ -84,6 +88,7 @@ export const askForGrantOrRemoval = async (
 	};
 	
 	const message: Message = await guildMember.send({ embeds: [intro, whichRolesAreAllowedQuestion] });
+	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`).catch(e => LogUtils.logError('failed to send dm to user', e));
 	await message.react('👍');
 	await message.react('❌');
 	await message.react('📝');
@@ -98,13 +103,13 @@ export const askForGrantOrRemoval = async (
 	});
 	const reaction: MessageReaction = collected.first();
 	if (reaction.emoji.name === '👍') {
-		console.log('/poap config add');
+		Log.info('/poap config add');
 		return true;
 	} else if (reaction.emoji.name === '❌') {
-		console.log('/poap config remove');
+		Log.info('/poap config remove');
 		return false;
 	} else if (reaction.emoji.name === '📝') {
-		console.log('/poap config edit');
+		Log.info('/poap config edit');
 		await guildMember.send({ content: 'Configuration setup ended.' });
 		throw new ValidationError('Please re-initiate poap configuration.');
 	}
@@ -119,7 +124,7 @@ export const retrieveRoles = async (guildMember: GuildMember, authorizedRoles: s
 			const roleManager: Role = await guildMember.guild.roles.fetch(authRole);
 			roles.push(roleManager);
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('failed to retrieve role from user', e);
 		}
 	}
 	return roles;
@@ -133,7 +138,7 @@ export const retrieveUsers = async (guildMember: GuildMember, authorizedUsers: s
 			const member: GuildMember = await guildMember.guild.members.fetch(authUser);
 			users.push(member);
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('failed to retrieve role from user', e);
 		}
 	}
 	return users;
@@ -171,9 +176,9 @@ export const storePOAPAdmins = async (
 		});
 	} catch (e) {
 		if (e instanceof BulkWriteError && e.code === 11000) {
-			console.log('dup key found, proceeding');
+			LogUtils.logError('dup key found, proceeding', e);
 		}
-		console.log(e);
+		LogUtils.logError('failed to store poap admins from db', e);
 		return;
 	}
 	
@@ -202,7 +207,7 @@ export const removePOAPAdmins = async (
 			});
 		}
 	} catch (e) {
-		console.error(e);
+		LogUtils.logError('failed to remove poap admins from db', e);
 	}
 };
 

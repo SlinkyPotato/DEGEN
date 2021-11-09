@@ -1,0 +1,78 @@
+name: Deploy to UAT Environment
+on:
+  push:
+    branches:
+      - 'pre-release'
+  pull_request:
+    branches:
+      - 'DEGEN'
+jobs:
+  deploy-uat:
+    environment:
+      name: uat
+      url: https://app.logdna.com/273e532689/logs/view/4f421c1c11?q=app%3Duat-bot
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16.10.0'
+      - name: Install dependencies
+        run: yarn install
+      - name: Lint Code
+        run: yarn lint
+      - name: Build and Compile Typescript
+        run: yarn build
+      - name: Run test cases
+        run: yarn test --watchAll=false
+      - name: Deploy to Host environment
+        uses: appleboy/ssh-action@v0.1.4
+        env:
+          DISCORD_BOT_TOKEN: ${{secrets.PRE_DISCORD_TOKEN}}
+          DISCORD_BOT_PUBLIC_KEY: ${{secrets.PRE_BOT_PUBLIC_KEY}}
+          DISCORD_BOT_APPLICATION_ID: ${{secrets.PRE_BOT_APPLICATION_ID}}
+          DISCORD_OWNER_ID: ${{secrets.QA_DISCORD_OWNER_ID}}
+          MONGODB_USERNAME: ${{secrets.QA_MONGODB_USERNAME}}
+          MONGODB_PASS: ${{secrets.QA_MONGODB_PASS}}
+          MONGODB_CLUSTER: ${{secrets.QA_MONGODB_CLUSTER}}
+          NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
+          LOGDNA_TOKEN: ${{secrets.QA_LOGDNA_TOKEN}}
+          TWITTER_API_TOKEN: ${{secrets.QA_TWITTER_API_TOKEN}}
+          TWITTER_API_SECRET: ${{secrets.QA_TWITTER_API_SECRET}}
+          TWITTER_BEARER_TOKEN: ${{secrets.QA_TWITTER_API_BEARER_TOKEN}}
+          TWITTER_ACCESS_TOKEN_SECRET: ${{secrets.QA_TWITTER_API_ACCESS_TOKEN_SECRET}}
+        with:
+          host: ${{ secrets.PROD_DO_HOST }}
+          username: ${{ secrets.PROD_DO_USERNAME }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script_stop: true
+          envs: DISCORD_BOT_TOKEN,DISCORD_BOT_PUBLIC_KEY,DISCORD_BOT_APPLICATION_ID,DISCORD_OWNER_ID,MONGODB_USERNAME,MONGODB_PASS,MONGODB_CLUSTER,NOTION_TOKEN,LOGDNA_TOKEN,TWITTER_API_TOKEN,TWITTER_API_SECRET,TWITTER_BEARER_TOKEN,TWITTER_ACCESS_TOKEN_SECRET
+          script: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install 16.10.0
+            nvm use 16.10.0
+            rm -r -f discord-bots/
+            git clone --branch pre-release https://github.com/BanklessDAO/discord-bots.git
+            cd discord-bots
+            npm -g install yarn
+            npm -g install pm2
+            pm2 stop uat-bot
+            yarn install
+            yarn build
+            DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
+            DISCORD_BOT_PUBLIC_KEY=$DISCORD_BOT_PUBLIC_KEY \
+            DISCORD_BOT_APPLICATION_ID=$DISCORD_BOT_APPLICATION_ID \
+            DISCORD_OWNER_ID=$DISCORD_OWNER_ID \
+            MONGODB_USERNAME=$MONGODB_USERNAME \
+            MONGODB_PASS=$MONGODB_PASS \
+            MONGODB_CLUSTER=$MONGODB_CLUSTER \
+            NOTION_TOKEN=$NOTION_TOKEN \
+            LOGDNA_TOKEN=$LOGDNA_TOKEN \
+            TWITTER_API_TOKEN=$TWITTER_API_TOKEN \
+            TWITTER_API_SECRET=$TWITTER_API_SECRET \
+            TWITTER_BEARER_TOKEN=$TWITTER_BEARER_TOKEN \
+            TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET \
+            TWITTER_VERIFICATION_URL=$TWITTER_VERIFICATION_URL \
+            pm2 start pm2.config.js --only uat-bot
+            pm2 save

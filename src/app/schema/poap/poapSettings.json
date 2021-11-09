@@ -6,7 +6,9 @@
       "discordUserId",
       "voiceChannelId",
       "voiceChannelName",
-      "discordServerId"
+      "discordServerId",
+      "startTime",
+      "endTime"
     ],
     "properties": {
       "event": {
@@ -18,11 +20,11 @@
         "description": "Indicator whether the call is currently active."
       },
       "startTime": {
-        "bsonType": ["string", "null"],
+        "bsonType": ["string"],
         "description": "ISO8601 of when the meeting started."
       },
       "endTime": {
-        "bsonType": ["string", "null"],
+        "bsonType": ["string"],
         "description": "ISO8601 of when the meeting ended."
       },
       "discordUserId": {
@@ -40,6 +42,10 @@
       "discordServerId": {
         "bsonType": "string",
         "description": "Identifier for the discord guild"
+      },
+      "minAttendance": {
+        "bsonType": ["string", "null"],
+        "description": "Minimum attendance time required in minutes."
       }
     }
   }

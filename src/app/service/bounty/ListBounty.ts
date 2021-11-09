@@ -1,10 +1,11 @@
 import constants from '../constants/constants';
 import { Cursor, Db } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
-import dbInstance from '../../utils/dbUtils';
 import { GuildMember, MessageEmbedOptions } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import { generateEmbedMessage } from './create/PublishBounty';
+import Log from '../../utils/Log';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 const DB_RECORD_LIMIT = 10;
 
@@ -12,7 +13,7 @@ export default async (guildMember: GuildMember, listType: string): Promise<any> 
 	await BountyUtils.validateBountyType(guildMember, listType);
 
 	let dbRecords: Cursor;
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
 
 	switch (listType) {
@@ -32,7 +33,7 @@ export default async (guildMember: GuildMember, listType: string): Promise<any> 
 		dbRecords = dbCollection.find({ status: 'In-Progress' }).limit(DB_RECORD_LIMIT);
 		break;
 	default:
-		console.log('invalid list-type');
+		Log.info('invalid list-type');
 		return guildMember.send({ content: 'Please use a valid list-type' });
 	}
 	if (!await dbRecords.hasNext()) {

@@ -5,12 +5,17 @@ export default (): MessageOptions => {
 		embeds: [{
 			title: 'POAP Distribution Information',
 			description: 'Thank you for checking out POAP distribution!\n\n' +
-				'I can record attendees and distribute POAP links to those same attendees. A maximum of one active event ' +
-				'is allowed per voice channel.',
+				'Before commands can be used, authorized users and roles must first be set with the `/poap config` command by an admin. ' +
+				'Users can then use the `/poap schedule` command to mint PNG images into POAPs.',
 			fields: [
 				{
 					name: '-> /poap config',
-					value: 'Assign poap command access to roles or specific users.',
+					value: 'Authorize users and roles who can use the following poap commands. A malicious user and role can also be removed.',
+					inline: false,
+				},
+				{
+					name: '-> /poap schedule',
+					value: 'Schedule a POAP event, upload the PNG image to be minted, and get the links.txt file over email.',
 					inline: false,
 				},
 				{
@@ -22,7 +27,7 @@ export default (): MessageOptions => {
 				{
 					name: '-> /poap start',
 					value: 'Start tracking attendees as they enter and exit the specified voice channel. ' +
-						'Once event is started it must be stopped by the same user or configured user/role.',
+						'Once the event is started it must be stopped by the same user or configured user/role.',
 					inline: false,
 				},
 				{

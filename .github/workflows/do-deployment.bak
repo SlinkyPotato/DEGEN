@@ -1,0 +1,64 @@
+name: Deploy to Production Environment
+on:
+  push:
+    branches:
+      - 'DEGEN'
+jobs:
+  build-test-deploy:
+    environment:
+      name: production
+      url: https://app.logdna.com/273e532689/logs/view/4f421c1c11?q=app%3DDEGEN
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16.10.0'
+      - name: Install dependencies
+        run: yarn install
+      - name: Lint Code
+        run: yarn lint
+      - name: Build and Compile Typescript
+        run: yarn build
+      - name: Run test cases
+        run: yarn test --watchAll=false
+      - name: Deploy to Host environment
+        uses: appleboy/ssh-action@v0.1.4
+        env:
+          DISCORD_BOT_TOKEN: ${{secrets.PROD_DISCORD_TOKEN}}
+          DISCORD_BOT_PUBLIC_KEY: ${{secrets.PROD_BOT_PUBLIC_KEY}}
+          DISCORD_BOT_APPLICATION_ID: ${{secrets.PROD_BOT_APPLICATION_ID}}
+          DISCORD_OWNER_ID: ${{secrets.PROD_DISCORD_OWNER_ID}}
+          MONGODB_USERNAME: ${{secrets.PROD_MONGODB_USERNAME}}
+          MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}
+          MONGODB_CLUSTER: ${{secrets.PROD_MONGODB_CLUSTER}}
+          NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
+        with:
+          host: ${{ secrets.PROD_DO_HOST }}
+          username: ${{ secrets.PROD_DO_USERNAME }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script_stop: true
+          envs: DISCORD_BOT_TOKEN,DISCORD_BOT_PUBLIC_KEY,DISCORD_BOT_APPLICATION_ID,DISCORD_OWNER_ID,MONGODB_USERNAME,MONGODB_PASS,MONGODB_CLUSTER,NOTION_TOKEN
+          script: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install 16.10.0
+            nvm use 16.10.0
+            rm -r -f discord-bots/
+            git clone https://github.com/BanklessDAO/discord-bots.git
+            cd discord-bots
+            npm -g install yarn
+            npm -g install pm2
+            pm2 stop DEGEN
+            yarn install
+            yarn build
+            DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
+            DISCORD_BOT_PUBLIC_KEY=$DISCORD_BOT_PUBLIC_KEY \
+            DISCORD_BOT_APPLICATION_ID=$DISCORD_BOT_APPLICATION_ID \
+            DISCORD_OWNER_ID=$DISCORD_OWNER_ID \
+            MONGODB_USERNAME=$MONGODB_USERNAME \
+            MONGODB_PASS=$MONGODB_PASS \
+            MONGODB_CLUSTER=$MONGODB_CLUSTER \
+            NOTION_TOKEN=$NOTION_TOKEN \
+            pm2 start pm2.config.js --only DEGEN
+            pm2 save

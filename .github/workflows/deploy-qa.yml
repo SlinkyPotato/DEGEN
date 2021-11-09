@@ -5,14 +5,12 @@ on:
           - 'develop'
     pull_request:
         branches:
-          - 'develop'
           - 'release/**'
-          - 'DEGEN'
 jobs:
-    deploy:
+    deploy-qa:
         environment:
             name: preview
-            url: https://serendipity-mk1.herokuapp.com/
+            url: https://app.logdna.com/273e532689/logs/view?apps=serendipity-mk1
         runs-on: ubuntu-20.04
         steps:
             - uses: actions/checkout@v2
@@ -43,3 +41,8 @@ jobs:
                   HD_MONGODB_PASS: ${{secrets.QA_MONGODB_PASS}}
                   HD_MONGODB_CLUSTER: ${{secrets.QA_MONGODB_CLUSTER}}
                   HD_NOTION_TOKEN: ${{secrets.QA_NOTION_TOKEN}}
+                  HD_LOGDNA_TOKEN: ${{secrets.QA_LOGDNA_TOKEN}}
+                  HD_TWITTER_API_TOKEN: ${{secrets.QA_TWITTER_API_TOKEN}}
+                  HD_TWITTER_API_SECRET: ${{secrets.QA_TWITTER_API_SECRET}}
+                  HD_TWITTER_BEARER_TOKEN: ${{secrets.QA_TWITTER_API_BEARER_TOKEN}}
+                  HD_TWITTER_ACCESS_TOKEN_SECRET: ${{secrets.QA_TWITTER_API_ACCESS_TOKEN_SECRET}}

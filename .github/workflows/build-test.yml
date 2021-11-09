@@ -1,0 +1,24 @@
+name: Build and Test
+on:
+    push:
+      branches:
+        - '**'
+    pull_request:
+      branches:
+        - '**'
+jobs:
+    build-test:
+        runs-on: ubuntu-20.04
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: '16.10.0'
+            - name: Install dependencies
+              run: yarn install
+            - name: Lint Code
+              run: yarn lint
+            - name: Build and Compile Typescript
+              run: yarn build
+            - name: Run test cases
+              run: yarn test --watchAll=false

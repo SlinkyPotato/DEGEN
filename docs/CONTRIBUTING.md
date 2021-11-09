@@ -39,8 +39,8 @@ To get setup, please follow these guidelines:
    maintainers, copy your bot's token (found under the bot tab in the
    developer's portal) and replace the relevant values in your copied .env
    file, making sure to update the file name where it is required in `app.js`
-4. `yarn`
-5. Run your bot and test your connections (`yarn build` then `yarn start`).
+4. `yarn start` will run the prestart script to get everything installed and running.
+5. Run your bot and test your connections.
 6. Whenever you're ready for a pull request, open a pr with `dev` branch.
 
 ## Develop!

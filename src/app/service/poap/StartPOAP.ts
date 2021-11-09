@@ -288,6 +288,7 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 	let twitterSpaceResult: SpaceV2LookupResult;
 	try {
 		twitterSpaceResult = await twitterClientV2.v2.spacesByCreators(twitterUser.id_str);
+		console.log(twitterSpaceResult);
 	} catch (e) {
 		LogUtils.logError('failed trying to get twitter spaces', e);
 	}
@@ -296,8 +297,8 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 		await guildMember.send({ content: 'Please start twitter spaces before starting POAP event.' });
 	}
 	
-	const twitterSpaceId: string = twitterSpaceResult.data['id'];
-	Log.debug(`twitter spaced event active: ${twitterSpaceId}`);
+	const twitterSpaceId: string = twitterSpaceResult.data[0]['id'];
+	Log.debug(`twitter spaces event active: ${twitterSpaceId}`);
 	
 	const poapTwitterSettings: Collection<POAPTwitterSettings> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_SETTINGS);
 	const activeSettingsCursor: Cursor<POAPTwitterSettings> = await poapTwitterSettings.find({

@@ -1,4 +1,4 @@
-import { GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
+import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
 import { Collection, Collection as MongoCollection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../service/constants/constants';
 import { POAPParticipant } from '../types/poap/POAPParticipant';
@@ -8,6 +8,8 @@ import { POAPAdmin } from '../types/poap/POAPAdmin';
 import Log, { LogUtils } from './Log';
 import dayjs, { Dayjs } from 'dayjs';
 import DateUtils from './DateUtils';
+import { CommandContext } from 'slash-create';
+import MongoDbUtils from './MongoDbUtils';
 
 export type POAPFileParticipant = {
 	id: string,
@@ -78,7 +80,9 @@ const POAPUtils = {
 		Log.debug('finished setting endDate for present participants in db');
 	},
 
-	async sendOutPOAPLinks(guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], attachment: MessageAttachment, event?: string): Promise<FailedPOAPAttendee[]> {
+	async sendOutPOAPLinks(
+		guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], attachment: MessageAttachment, event?: string,
+	): Promise<FailedPOAPAttendee[]> {
 		let listOfPOAPLinks;
 		const failedPOAPsList: FailedPOAPAttendee[] = [];
 		const guildName = guildMember.guild.name;
@@ -121,50 +125,123 @@ const POAPUtils = {
 						});
 					});
 			} catch (e) {
-				LogUtils.logError('user might have been banned', e);
+				LogUtils.logError('user might have been banned or has DMs off', e);
 				failedPOAPsList.push({ discordUserId: listOfParticipants[i].id, discordUserTag: listOfParticipants[i].tag, poapLink: listOfPOAPLinks[i] });
 			}
 		}
-		Log.info(`Links sent to ${listOfParticipants.length} participants.`);
+		Log.info(`Links sent to ${listOfParticipants.length - failedPOAPsList.length} participants.`);
 		return failedPOAPsList;
 	},
+	
+	async sendOutFailedPOAPLinks(
+		guildMember: GuildMember, listOfFailedParticipants: FailedPOAPAttendee[], event?: string,
+	): Promise<FailedPOAPAttendee[]> {
+		const failedPOAPsList: FailedPOAPAttendee[] = [];
+		const guildName = guildMember.guild.name;
+		event = (event == null) ? 'event' : event;
+		for (let i = 0; i < listOfFailedParticipants.length; i++) {
+			try {
+				if (listOfFailedParticipants[i].poapLink == null || listOfFailedParticipants[i].poapLink == '') {
+					failedPOAPsList.push({
+						discordUserId: listOfFailedParticipants[i].discordUserId,
+						discordUserTag: listOfFailedParticipants[i].discordUserTag,
+						poapLink: 'n/a',
+					});
+					continue;
+				}
+				await guildMember.guild.members.fetch(listOfFailedParticipants[i].discordUserId)
+					.then(async (participantMember: GuildMember) => {
+						await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${listOfFailedParticipants[i].poapLink}` }).catch((e) => {
+							failedPOAPsList.push({
+								discordUserId: listOfFailedParticipants[i].discordUserId,
+								discordUserTag: listOfFailedParticipants[i].discordUserTag,
+								poapLink: listOfFailedParticipants[i].poapLink,
+							});
+							LogUtils.logError(`failed trying to send POAP to: ${listOfFailedParticipants[i].discordUserId}, userTag: ${listOfFailedParticipants[i].discordUserTag}, link: ${listOfFailedParticipants[i].poapLink}`, e);
+						});
+					}).catch(async (e) => {
+						LogUtils.logError(`failed trying to find: ${listOfFailedParticipants[i].discordUserId}, userTag: ${listOfFailedParticipants[i].discordUserTag}, to give link ${listOfFailedParticipants[i].poapLink}`, e);
+						const tryAgainMember: GuildMember = await guildMember.guild.members.fetch(listOfFailedParticipants[i].discordUserId);
+						Log.debug(`trying to send another message to user ${listOfFailedParticipants[i].discordUserTag}`);
+						await tryAgainMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${listOfFailedParticipants[i].poapLink}` }).catch((e2) => {
+							failedPOAPsList.push({ discordUserId: listOfFailedParticipants[i].discordUserId, discordUserTag: listOfFailedParticipants[i].discordUserTag, poapLink: listOfFailedParticipants[i].poapLink });
+							LogUtils.logError(`failed trying to send POAP to: ${listOfFailedParticipants[i].discordUserId}, userTag: ${listOfFailedParticipants[i].discordUserTag}, link: ${listOfFailedParticipants[i].poapLink}`, e2);
+						});
+					});
+			} catch (e) {
+				LogUtils.logError('user might have been banned or has DMs off', e);
+				failedPOAPsList.push({ discordUserId: listOfFailedParticipants[i].discordUserId, discordUserTag: listOfFailedParticipants[i].discordUserTag, poapLink: listOfFailedParticipants[i].poapLink });
+			}
+		}
+		Log.info(`Links sent to ${listOfFailedParticipants.length - failedPOAPsList.length} participants.`);
+		return failedPOAPsList;
+	},
+	
+	async setupFailedAttendeesDelivery(
+		guildMember: GuildMember, listOfFailedPOAPs: FailedPOAPAttendee[], event: string, code?: string, ctx?: CommandContext,
+	): Promise<any> {
+		const replyOptions: AwaitMessagesOptions = {
+			max: 1,
+			time: 900000,
+			errors: ['time'],
+		};
+		const dmChannel: DMChannel = await guildMember.createDM();
+		Log.debug(`${listOfFailedPOAPs.length} poaps failed to deliver`);
+		if (code == null) {
+			await guildMember.send({
+				content: 'Looks like some degens didn\'t make it... I can setup a claim for them, what should be the claim code?',
+			});
+			code = (await dmChannel.awaitMessages(replyOptions)).first().content;
+		}
+		
+		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
+		const unclaimedPOAPsList: any[] = listOfFailedPOAPs.map((failedAttendee: FailedPOAPAttendee) => {
+			return {
+				event: event,
+				discordUserId: failedAttendee.discordUserId,
+				discordUserTag: failedAttendee.discordUserTag,
+				discordServerId: guildMember.guild.id,
+				discordServerName: guildMember.guild.name,
+				claimCode: code,
+				poapLink: failedAttendee.poapLink,
+				expiresAt: (dayjs().add(1, 'month')).toISOString(),
+			};
+		});
+		Log.debug('attempting to store failed attendees into db');
+		await unclaimedCollection.insertMany(unclaimedPOAPsList);
+		Log.debug('stored poap claims for failed degens');
+		if (ctx) {
+			await ctx.send(`POAPs sent! Some didn't make it... The claim code is \`${code}\``);
+		}
+		await guildMember.send({ content: `POAP claiming setup! The code to claim it is \`${code}\`` });
+	},
 
-	async validateEvent(guildMember: GuildMember, event?: string): Promise<any> {
+	validateEvent(event?: string): void {
 		if (event == null) {
 			return;
 		}
 		const POAP_EVENT_REGEX = /^[\w\s\W]{1,250}$/;
 		if (!POAP_EVENT_REGEX.test(event)) {
-			await guildMember.send({
-				content: `<@${guildMember.user.id}>\n` +
-					'Please enter a valid event: \n' +
-					'- 250 characters maximum\n ' +
-					'- alphanumeric\n ' +
-					'- special characters: .!@#$%&,?',
-			});
-			throw new ValidationError('Please try another event.');
+			throw new ValidationError(
+				'Please enter a valid event: \n' +
+				'- 250 characters maximum\n ' +
+				'- alphanumeric\n ' +
+				'- special characters: .!@#$%&,?');
 		}
 	},
 	
-	async validateNumberToMint(guildMember: GuildMember, numberToMint: number): Promise<any> {
+	validateNumberToMint(numberToMint: number): void {
 		if (numberToMint >= 1000 || numberToMint <= 0) {
-			await guildMember.send({
-				content: `<@${guildMember.user.id}>\n` +
-					'A maximum of 1000 POAPs can be minted for a single event. Please let us know if you\'d like to see this increased. ',
-			});
-			throw new ValidationError('Please try another mint value.');
+			throw new ValidationError('A maximum of 1000 POAPs can be minted for a single event. Please let us know if you\'d like to see this increased. ');
 		}
 	},
 
-	async validateDuration(guildMember: GuildMember, duration?: number): Promise<any> {
+	validateDuration(duration?: number): void {
 		if (duration == null) {
 			return;
 		}
 		if (duration > constants.POAP_MAX_DURATION_MINUTES || duration < constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
-			await guildMember.send({
-				content: `<@${guildMember.user.id}>\n` +
-					`A minimum of ${constants.POAP_REQUIRED_PARTICIPATION_DURATION} minutes is required for an event to be active and no more than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`,
-			});
 			throw new ValidationError(`Please try a value greater than ${constants.POAP_REQUIRED_PARTICIPATION_DURATION} and less than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`);
 		}
 	},
@@ -191,6 +268,16 @@ const POAPUtils = {
 			}
 		}
 		throw new ValidationError('Only authorized users can use this command. Please reach out to an admin for configuration help.');
+	},
+	
+	validateClaimCode(code: string): void {
+		if (code == null) {
+			return;
+		}
+		const POAP_CODE_REGEX = /^[\w\s\W]{1,15}$/;
+		if (!POAP_CODE_REGEX.test(code)) {
+			throw new ValidationError('Please enter a claim code between 1 and 15 alphanumeric characters.');
+		}
 	},
 	
 	getDateString(date: Dayjs): string {

@@ -1,4 +1,3 @@
-import dbInstance from '../../utils/dbUtils';
 import { Db } from 'mongodb';
 import cloneDeep from 'lodash.clonedeep';
 import { ScoapEmbed, VoteRecord } from './ScoapClasses';
@@ -11,6 +10,7 @@ import scoapSquadNotion from '../constants/scoapSquadNotion';
 import { createReactionCollector, collectReactions } from './ScoapPoll';
 import { updateStatusSelectField } from './ScoapNotion';
 import Log from '../../utils/Log';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 
 // ScoapSquad state initialization
@@ -34,7 +34,7 @@ export const updateScoapEmbedAndVoteRecordDb = async (scoapEmbed: ScoapEmbed, vo
 	const filter = { id: scoapEmbed.getId() };
 	const options = { upsert: true };
 	const updateDoc = { $set: { scoapEmbed: clone, voteRecord: voteRecord } };
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const dbScoap = db.collection(constants.DB_COLLECTION_SCOAP_SQUAD);
 	await dbScoap.updateOne(filter, updateDoc, options);
 	ScoapUtils.logToFile(`Mongo updated, id: ${scoapEmbed.getId()}`);
@@ -68,7 +68,7 @@ const restoreReactionCollector = async (scoapEmbed: ScoapEmbed, voteRecord: Vote
 };
 
 export const restoreScoapEmbedAndVoteRecord = async (): Promise<boolean> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbScoap = db.collection(constants.DB_COLLECTION_SCOAP_SQUAD).find({});
 	const dataArray = await dbScoap.toArray();
 	if (dataArray.length > 0) {
@@ -110,7 +110,7 @@ export const restoreScoapEmbedAndVoteRecord = async (): Promise<boolean> => {
 };
 
 export const deleteScoapEmbedAndVoteRecord = async (scoapEmbedId: string): Promise<void> => {
-	const db: Db = await dbInstance.dbConnect('degen');
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	await db.collection('scoapSquad').deleteMany({ id: scoapEmbedId });
 	ScoapUtils.logToFile(`Document removed from Mongo, id: , ${scoapEmbedId}`);
 };

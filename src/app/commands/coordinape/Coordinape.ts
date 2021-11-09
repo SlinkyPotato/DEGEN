@@ -27,7 +27,7 @@ module.exports = class Coordinape extends SlashCommand {
 				},
 			],
 			throttling: {
-				usages: 1,
+				usages: 50,
 				duration: 1,
 			},
 			defaultPermission: false,

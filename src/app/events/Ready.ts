@@ -3,12 +3,12 @@ import FirstQuestRescueService from '../service/first-quest/FirstQuestRescueServ
 import { Client, Guild } from 'discord.js';
 import constants from '../service/constants/constants';
 import discordServerIds from '../service/constants/discordServerIds';
-import { connect } from '../utils/dbUtils';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import { restoreScoapEmbedAndVoteRecord } from '../service/scoap-squad/ScoapDatabase';
 import Log, { LogUtils } from '../utils/Log';
 import POAPService from '../service/poap/POAPService';
 import { fqInit } from '../utils/FirstQuestUtils';
+import MongoDbUtils from '../utils/MongoDbUtils';
 
 export default class implements DiscordEvent {
 	name = 'ready';
@@ -22,10 +22,10 @@ export default class implements DiscordEvent {
 			client.guilds.cache.forEach((guild: Guild) => {
 				Log.info(`DEGEN active for: ${guild.id}, ${guild.name}`);
 			});
-			await connect(constants.DB_NAME_DEGEN);
+			await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 
 			if (client.guilds.cache.some((guild) => guild.id == discordServerIds.banklessDAO || guild.id == discordServerIds.discordBotGarage)) {
-				await connect(constants.DB_NAME_BOUNTY_BOARD);
+				await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 				await GuestPassService(client).catch(Log.error);
 				await fqInit();
 				await FirstQuestRescueService();

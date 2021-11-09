@@ -1,9 +1,26 @@
 # Changelog
 
-## 1.8.4-SNAPSHOT
+## 1.9.0-RELEASE (2021-11-08)
+
+1. Add guildId to bounty
+2. Add twitter spaces integration (wip)
+   - refactor MongoDbUtils file
+   - add POAP schedule error messaging
+   - setup POAP claiming for failed delivery
+   - remove deaf users for poap events
+   - organize error message validations
+   - add workflow env keys
+3. Fix redelivery for failed participants
+   - add custom start messages
+   
+## 1.8.4-RELEASE (2021-11-03 - 2021-11-07)
 
 1. Introduce /coordinape form request command for BanklessDAO
 2. Update feedback request form to canny
+3. Add /timecard command
+4. Run build-test action on every pull request
+5. Allow multiple coordinape usages for command
+6. /coordinape form request command: Treat level3 and level 4 roles equal to level 1 role.
 
 ## 1.8.3-RELEASE (2021-10-26)
 

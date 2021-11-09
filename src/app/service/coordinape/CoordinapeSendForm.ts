@@ -12,7 +12,7 @@ export default async (member: GuildMember, ctx?: CommandContext): Promise<any> =
 	}
 
 	for (const role of member.roles.cache.values()) {
-		if (role.id === roleIds.level1) {
+		if ((role.id === roleIds.level1) || (role.id === roleIds.level3) || (role.id === roleIds.level4)) {
 			for (const role2 of member.roles.cache.values()) {
 				if (role2.id === roleIds.level2) {
 					await dmChannel.send({ content: 'Here is your form: <https://docs.google.com/forms/d/16qaDbz14C7d31pTZoOTRiDVShfzOimiwZlxUBit0Fmw/>' });

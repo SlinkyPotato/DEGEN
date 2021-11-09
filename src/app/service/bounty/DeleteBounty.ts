@@ -1,13 +1,13 @@
 import constants from '../constants/constants';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import ServiceUtils from '../../utils/ServiceUtils';
-import dbInstance from '../../utils/dbUtils';
 import BountyUtils from '../../utils/BountyUtils';
 import { GuildMember, Message } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import BountyMessageNotFound from '../../errors/BountyMessageNotFound';
 import roleIDs from '../constants/roleIds';
 import Log, { LogUtils } from '../../utils/Log';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -17,7 +17,7 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<any> 
 export const deleteBountyForValidId = async (guildMember: GuildMember,
 	bountyId: string, message?: Message,
 ): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
 	const dbBountyResult: BountyCollection = await dbCollection.findOne({
 		_id: new mongo.ObjectId(bountyId),

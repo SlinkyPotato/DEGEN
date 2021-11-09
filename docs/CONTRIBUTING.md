@@ -24,7 +24,7 @@ To get setup, please follow these guidelines:
 -   Manage Webhooks
 -   View Channels
 -   All of the permissions under "Text Permissions"
--   Only permissions under "Voice Permissions" are Connect & Use Voice Activity.
+-   No permissions under "Voice Permissions"
 
 10. Select and copy the generated URL under "Scopes." Make sure the value
     of permissions in the URL reads 536637602902.

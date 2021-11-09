@@ -26,8 +26,7 @@ To get setup, please follow these guidelines:
 -   All of the permissions under "Text Permissions"
 -   No permissions under "Voice Permissions"
 
-10. Select and copy the generated URL under "Scopes." Make sure the value
-    of permissions in the URL reads 536637602902.
+10. Select and copy the generated URL under "Scopes." Make sure the you have [these permissions](https://github.com/BanklessDAO/discord-bots/blob/DEGEN/docs/BOT_PERMISSIONS.md) selected.
 11. Send the URL via Discord DM to nonsense to have it added to the test
     Discord server
 

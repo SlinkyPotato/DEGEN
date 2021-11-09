@@ -199,12 +199,12 @@ const POAPUtils = {
 		const unclaimedPOAPsList: any[] = listOfFailedPOAPs.map((failedAttendee: FailedPOAPAttendee) => {
 			return {
 				event: event,
-				discordUserId: failedAttendee.discordUserId,
+				discordUserId: `${failedAttendee.discordUserId}`,
 				discordUserTag: failedAttendee.discordUserTag,
-				discordServerId: guildMember.guild.id,
+				discordServerId: `${guildMember.guild.id}`,
 				discordServerName: guildMember.guild.name,
-				claimCode: code,
-				poapLink: failedAttendee.poapLink,
+				claimCode: `${code}`,
+				poapLink: `${failedAttendee.poapLink}`,
 				expiresAt: (dayjs().add(1, 'month')).toISOString(),
 			};
 		});

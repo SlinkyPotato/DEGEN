@@ -7,9 +7,12 @@ import fqConstants from '../constants/firstQuest';
 import Log from '../../utils/Log';
 import channelIds from '../constants/channelIds';
 import roleIds from '../constants/roleIds';
+import { checkPOAPExpiration } from './FirstQuestPOAP';
 
 export default async (member: GuildMember, ctx?: CommandContext): Promise<any> => {
 	ctx?.send(`Hi, ${ctx.user.mention}! I sent you a DM with more information.`);
+
+	await checkPOAPExpiration();
 
 	const dmChannel = await member.user.createDM();
 
@@ -137,7 +140,7 @@ const collectUserInput = async (dmChannel: DMChannel, member: GuildMember, key: 
 						return;
 					} else if (reac.emoji.name === '➡️') {
 
-						const dbResponse = await updateDatabase(member.user.id, responseContent, key, origMessages);
+						const dbResponse = await updateDatabase(member, responseContent, key, origMessages);
 
 						await dmChannel.send({ content: dbResponse });
 
@@ -192,9 +195,17 @@ const updateDatabase = async (member, content, key, origMessages) => {
 
 	const fqProjectChannel = channels.get(channelIds.firstQuestProject) as TextBasedChannels;
 
-	await fqProjectChannel.send({ content: `<@&${ roleIds.firstQuestProject }> : First Quest message content was updated by user ${ member.user.username } with user id: ${ member.user.id } \n\n` +
-					`**original message:**\n\n${ logMeta.origContent }\n\n` +
-					`**new message:**\n\n${ logMeta.newContent }` });
+	// This has to be split up into separate messages to not exceed 2000 character limit of discord
+
+	await fqProjectChannel.send({ content: `<@&${ roleIds.firstQuestProject }> : First Quest message content was updated by user ${ member.user.username } with user id: ${ member.user.id } ` });
+
+	await fqProjectChannel.send({ content: '**Original message:**' });
+
+	await fqProjectChannel.send({ content: logMeta.origContent });
+
+	await fqProjectChannel.send({ content: '**New message:**' });
+
+	await fqProjectChannel.send({ content: logMeta.newContent });
 
 	return (update.result.ok && update.result.nModified) ? 'Message updated successfully' : 'Could not update message, please try again';
 };

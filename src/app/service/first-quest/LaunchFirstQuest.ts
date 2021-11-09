@@ -40,7 +40,6 @@ export const sendFqMessage = async (dmChan:TextBasedChannels | string, member: G
 					await dmChannel.send({ content: fqMessageContent[getFqMessage(fqConstants.FIRST_QUEST_ROLES.first_quest_complete).message_id].replace(/\\n/g, '\n') });
 
 					await getPOAPLink(member);
-
 				}
 			} catch {
 				// give some time for the role update to come through and try again
@@ -52,8 +51,7 @@ export const sendFqMessage = async (dmChan:TextBasedChannels | string, member: G
 				} else {
 					await dmChannel.send({ content: fqMessageContent[getFqMessage(fqConstants.FIRST_QUEST_ROLES.first_quest_complete).message_id].replace(/\\n/g, '\n') });
 
-
-
+					await getPOAPLink(member);
 				}
 			}
 			return;

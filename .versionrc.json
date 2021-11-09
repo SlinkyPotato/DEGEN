@@ -1,0 +1,15 @@
+{
+  "types": [
+    {"type": "build", "section": "Other"},
+    {"type": "ci", "section": "Other"},
+    {"type": "chore", "section": "Other"},
+    {"type": "docs", "section": "Other"},
+    {"type": "feat", "section": "Features"},
+    {"type": "fix", "section": "Bug Fixes"},
+    {"type": "perf", "section": "Other"},
+    {"type": "refactor", "section": "Other"},
+    {"type": "revert", "hidden": true},
+    {"type": "style", "section": "Other"},
+    {"type": "test", "section": "Tests"}
+  ]
+}

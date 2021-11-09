@@ -1,4 +1,4 @@
-# Contribution Guidelines
+# Getting Started
 
 To facilitate efficient development, it will be helpful to run your own bot
 on our test server. We have test versions of Notion and a MongoDB instance.

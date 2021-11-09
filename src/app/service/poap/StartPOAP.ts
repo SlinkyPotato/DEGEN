@@ -87,6 +87,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 		if (setDurationFlag) {
 			duration = await askForEventMinutes(guildMember, dmChannel);
 		} else {
+			Log.debug('max duration set for poap event');
 			duration = constants.POAP_MAX_DURATION_MINUTES;
 		}
 		Log.debug(`poap event duration: ${duration}, `, {

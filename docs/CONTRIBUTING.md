@@ -33,7 +33,7 @@ To get setup, please follow these guidelines:
 
 ## Clone the repo to local
 
-1. Create a new feature branch from the dev branch (`docs/<name>`, `feature/<name>`, `release/<name>`, `patch/<name>`).
+1. Create a new feature branch from the dev branch (`docs/<name>`, `feature/<name>`, `release/<name>`, `hotfix/<name>`).
 2. Copy the `.env.template` file and name it `.env`;
 3. Request the test Notion token and MongoDB URI from one of the repo
    maintainers, copy your bot's token (found under the bot tab in the

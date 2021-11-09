@@ -192,7 +192,7 @@ module.exports = class poap extends SlashCommand {
 
 	async run(ctx: CommandContext) {
 		LogUtils.logCommandStart(ctx);
-		if (ctx.user.bot || ctx.guildID == undefined) return 'Please try /poap within discord channel.';
+		if (ctx.user.bot) return;
 		
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		

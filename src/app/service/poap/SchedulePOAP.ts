@@ -9,11 +9,15 @@ import { EventsResponseType } from '../../api/types/poap-events/EventsResponseTy
 import ValidationError from '../../errors/ValidationError';
 import { CommandContext } from 'slash-create';
 import ServiceUtils from '../../utils/ServiceUtils';
-import { LogUtils } from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import DateUtils from '../../utils/DateUtils';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 
 const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numberToMint: number): Promise<any> => {
+	if (ctx.guildID == undefined) {
+		await ctx.send('Please try schedule within discord channel');
+		return;
+	}
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
 	await POAPUtils.validateUserAccess(guildMember, db);
@@ -200,6 +204,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	} else {
 		try {
 			const response: EventsResponseType | void = await EventsAPI.scheduleEvent(request, guildMember);
+			Log.debug('POAP minted!');
 			await guildMember.send({
 				embeds: [
 					{

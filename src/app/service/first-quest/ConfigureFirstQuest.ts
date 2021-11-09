@@ -1,18 +1,15 @@
 import { DMChannel, GuildMember, TextBasedChannels } from 'discord.js';
 import { CommandContext } from 'slash-create';
 import { Db, ObjectID } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
+import dbInstance from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';
 import fqConstants from '../constants/firstQuest';
 import Log from '../../utils/Log';
 import channelIds from '../constants/channelIds';
 import roleIds from '../constants/roleIds';
-import { checkPOAPExpiration } from './FirstQuestPOAP';
 
 export default async (member: GuildMember, ctx?: CommandContext): Promise<any> => {
 	ctx?.send(`Hi, ${ctx.user.mention}! I sent you a DM with more information.`);
-
-	await checkPOAPExpiration();
 
 	const dmChannel = await member.user.createDM();
 
@@ -160,7 +157,7 @@ const collectUserInput = async (dmChannel: DMChannel, member: GuildMember, key: 
 
 const updateDatabase = async (member, content, key, origMessages) => {
 
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await dbInstance.connect(constants.DB_NAME_DEGEN);
 
 	const timestamp = Date.now();
 
@@ -211,7 +208,7 @@ const updateDatabase = async (member, content, key, origMessages) => {
 };
 
 const fetchData = async () => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await dbInstance.connect(constants.DB_NAME_DEGEN);
 
 	const firstQuestContent = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_CONTENT).find({});
 

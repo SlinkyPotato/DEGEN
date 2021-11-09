@@ -2,7 +2,7 @@ import { DMChannel, GuildMember, TextBasedChannels } from 'discord.js';
 import constants from '../constants/constants';
 import fqConstants from '../constants/firstQuest';
 import Log from '../../utils/Log';
-import dbInstance from '../../utils/dbUtils';
+import dbInstance from '../../utils/MongoDbUtils';
 import { Db } from 'mongodb';
 import client from '../../app';
 import channelIds from '../constants/channelIds';
@@ -75,7 +75,7 @@ export const sendFqMessage = async (dmChan:TextBasedChannels | string, member: G
 };
 
 export const fqRescueCall = async (): Promise<void> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await dbInstance.connect(constants.DB_NAME_DEGEN);
 
 	const firstQuestTracker = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
 
@@ -113,7 +113,7 @@ export const fqRescueCall = async (): Promise<void> => {
 };
 
 const getMessageContentFromDb = async (): Promise<void> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await dbInstance.connect(constants.DB_NAME_DEGEN);
 
 	const firstQuestContent = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_CONTENT).find({});
 
@@ -132,7 +132,7 @@ const getDMChannel = async (member: GuildMember, dmChan: TextBasedChannels | str
 };
 
 export const firstQuestHandleUserRemove = async (member: GuildMember): Promise<void> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await dbInstance.connect(constants.DB_NAME_DEGEN);
 
 	const firstQuestTracker = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
 
@@ -158,7 +158,7 @@ export const switchRoles = async (member: GuildMember, fromRole: string, toRole:
 
 			const updateDoc = { $set: { role: role.id, doneRescueCall: false, timestamp: Date.now(), guild: guild.id } };
 
-			const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+			const db: Db = await dbInstance.connect(constants.DB_NAME_DEGEN);
 
 			const dbFirstQuestTracker = db.collection(constants.DB_COLLECTION_FIRST_QUEST_TRACKER);
 

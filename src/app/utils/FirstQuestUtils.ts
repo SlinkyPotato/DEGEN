@@ -1,12 +1,12 @@
 import { Db, ObjectID } from 'mongodb';
 import fqConstants from '../service/constants/firstQuest';
 import constants from '../service/constants/constants';
-import dbInstance from './dbUtils';
+import dbInstance from './MongoDbUtils';
 import Log from './Log';
 
 export const fqInit = async (): Promise<void> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
-	
+	const db: Db = await dbInstance.connect(constants.DB_NAME_DEGEN);
+
 	const doc = {
 		_id: ObjectID(fqConstants.FIRST_QUEST_DB_DOCUMENT_ID),
 		messages: fqConstants.FIRST_QUEST_INIT,

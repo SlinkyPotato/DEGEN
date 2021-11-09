@@ -13,7 +13,7 @@ import { CommandContext } from 'slash-create';
 import axios from 'axios';
 import Log, { LogUtils } from '../../utils/Log';
 import { Db } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
+import dbInstance from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';
 import ServiceUtils from '../../utils/ServiceUtils';
 import roleIds from '../constants/roleIds';
@@ -111,7 +111,7 @@ const getListOfPOAPLinks = async (guildMember: GuildMember, attachment: MessageA
 };
 
 const writePOAPLinksToDb = async (links: Array<string>, timestamp: number): Promise<void> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await dbInstance.connect(constants.DB_NAME_DEGEN);
 
 	const firstQuestPOAPs = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_POAPS);
 
@@ -123,7 +123,7 @@ const writePOAPLinksToDb = async (links: Array<string>, timestamp: number): Prom
 };
 
 const retirePOAPLinks = async (): Promise<void> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await dbInstance.connect(constants.DB_NAME_DEGEN);
 
 	const firstQuestPOAPs = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_POAPS);
 
@@ -137,7 +137,7 @@ const retirePOAPLinks = async (): Promise<void> => {
 };
 
 export const getPOAPLink = async (guildMember: GuildMember):Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await dbInstance.connect(constants.DB_NAME_DEGEN);
 
 	const firstQuestPOAPs = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_POAPS);
 
@@ -209,7 +209,7 @@ export const getPOAPLink = async (guildMember: GuildMember):Promise<any> => {
 };
 
 export const checkPOAPExpiration = async (): Promise<void> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await dbInstance.connect(constants.DB_NAME_DEGEN);
 
 	const firstQuestPOAPs = await db.collection(constants.DB_COLLECTION_FIRST_QUEST_POAPS);
 

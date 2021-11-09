@@ -230,7 +230,7 @@ export default class Bounty extends SlashCommand {
 		let scale = reward.split('.')[1]?.length;
 		scale = (scale != null) ? scale : 0;
 		return {
-			customer_id: guild,
+			customerId: guild,
 			title: ctxOptions.title,
 			reward: {
 				amount: reward,

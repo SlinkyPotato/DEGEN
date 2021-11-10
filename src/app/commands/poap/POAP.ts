@@ -198,7 +198,7 @@ module.exports = class poap extends SlashCommand {
 				break;
 			case 'end':
 				if (ctx.guildID == undefined) {
-					await ctx.send('Please try ending poap event within discord channel');
+					await ctx.send('I love your enthusiasm, but please return to a Discord channel to end the event.');
 					return;
 				}
 				command = EndPOAP(guildMember, ctx);

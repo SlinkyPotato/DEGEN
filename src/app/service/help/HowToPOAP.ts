@@ -38,7 +38,7 @@ export default (): MessageOptions => {
 				},
 				{
 					name: '-> Useful Links',
-					value: '[BanklessDAO Support Invite](https://discord.gg/85Kb6Qv6gd)\n' +
+					value: '[BanklessDAO Product Support Center invite](https://discord.gg/85Kb6Qv6gd)\n' +
 						'[Commands Wiki](https://www.notion.so/bankless/The-POAP-Distribution-Commands-and-Workflow-96cac11447b44d27885c160dc9af85fe)\n' +
 						'[Feature Request Feedback](https://degen.canny.io/feature-requests)\n' +
 						'[POAP Website](https://poap.xyz/)',

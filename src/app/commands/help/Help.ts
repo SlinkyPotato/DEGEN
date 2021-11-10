@@ -20,7 +20,7 @@ export default class Help extends SlashCommand {
 				},
 			],
 			throttling: {
-				usages: 2,
+				usages: 3,
 				duration: 1,
 			},
 			defaultPermission: true,

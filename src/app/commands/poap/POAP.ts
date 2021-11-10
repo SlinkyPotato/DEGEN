@@ -197,6 +197,10 @@ module.exports = class poap extends SlashCommand {
 				command = StartPOAP(ctx, guildMember, ctx.options.start['platform'], ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
+				if (ctx.guildID == undefined) {
+					await ctx.send('I love your enthusiasm, but please return to a Discord channel to end the event.');
+					return;
+				}
 				command = EndPOAP(guildMember, ctx);
 				break;
 			case 'distribute':

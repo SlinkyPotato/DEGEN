@@ -46,7 +46,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	Log.debug('poap start validated');
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		await startTwitterPOAPFlow(ctx, guildMember, db, event);
+		await startTwitterPOAPFlow(ctx, guildMember, db, event, duration);
 		return;
 	}
 	
@@ -82,27 +82,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 		throw new ValidationError(`\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`);
 	}
 	
-	const dmChannel: DMChannel = await guildMember.createDM();
-	
-	Log.debug(`asking ${guildMember.user.tag} for duration`);
-	if (duration == null) {
-		await guildMember.send({ content: 'Would you like to set the duration of the event? `(y/n)`' });
-		const setDurationFlag = (await ServiceUtils.getFirstUserReply(dmChannel)) == 'y';
-		Log.debug(`isManualEnd: ${setDurationFlag}`);
-		if (setDurationFlag) {
-			duration = await askForEventMinutes(guildMember, dmChannel);
-		} else {
-			Log.debug('max duration set for poap event');
-			duration = constants.POAP_MAX_DURATION_MINUTES;
-		}
-		Log.debug(`poap event duration: ${duration}, `, {
-			indexMeta: true,
-			meta: {
-				discordId: guildMember.guild.id,
-				discordUserId: guildMember.guild.id,
-			},
-		});
-	}
+	duration = await POAPUtils.askForDuration(guildMember, duration);
 	const currentDate: Dayjs = dayjs();
 	const currentDateISO: string = currentDate.toISOString();
 	const endDateISO: string = currentDate.add(duration, 'minute').toISOString();
@@ -144,6 +124,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 					{ name: 'Organizer', value: `${guildMember.user.tag} `, inline: true },
 					{ name: 'Discord Server', value: `${guildMember.guild.name} `, inline: true },
 					{ name: 'Location', value: `${channelChoice.name} `, inline: true },
+					{ name: 'Platform', value: `${platform}`, inline: true },
 					{ name: 'Duration', value: `${duration} minutes`, inline: true },
 				],
 			},
@@ -269,20 +250,7 @@ export const askUserForChannel = async (guildMember: GuildMember, dmMessage: Mes
 	}
 };
 
-const askForEventMinutes = async (guildMember: GuildMember, dmChannel: DMChannel): Promise<number> => {
-	try {
-		await guildMember.send({ content: `How long should the event stay active? \`(max: ${constants.POAP_MAX_DURATION_MINUTES} minutes)\`` });
-		const durationOfEventInMinutes: string = await ServiceUtils.getFirstUserReply(dmChannel);
-		const duration = Number(durationOfEventInMinutes);
-		POAPUtils.validateDuration(duration);
-		return duration;
-	} catch (e) {
-		LogUtils.logError('failed to process duration time', e);
-		throw new ValidationError('Please try another duration amount.');
-	}
-};
-
-const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMember, db: Db, event: string): Promise<any> => {
+const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration?: number): Promise<any> => {
 	Log.debug('starting twitter poap flow');
 	const { twitterUser, twitterClientV1 } = await VerifyTwitter(guildMember);
 	const twitterClientV2: TwitterApi = new TwitterApi(apiKeys.twitterBearerToken);
@@ -316,4 +284,53 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 		Log.debug('unable to start twitter event due to active event');
 		throw new ValidationError('Looks like you are already tracking your twitter space!');
 	}
+	duration = await POAPUtils.askForDuration(guildMember, duration);
+	
+	Log.debug('setting up active twitter event in db');
+	const currentDate: Dayjs = dayjs();
+	const endTimeISO: string = currentDate.add(duration, 'minute').toISOString();
+	const twitterSettingsResult: FindAndModifyWriteOpResultObject<POAPTwitterSettings> = await poapTwitterSettings.findOneAndReplace({
+		discordUserId: guildMember.id,
+		discordServerId: guildMember.guild.id,
+	}, {
+		$set: {
+			isActive: true,
+			event: event,
+			startTime: currentDate.toISOString(),
+			endTime: endTimeISO,
+			discordUserId: guildMember.id,
+			discordServerId: guildMember.guild.id,
+			twitterUserId: twitterUser.id_str,
+			twitterSpaceId: twitterSpaceId,
+		},
+	}, {
+		upsert: true,
+		returnDocument: 'after',
+	});
+	
+	if (twitterSettingsResult.ok != 1) {
+		Log.warn('failed to insert twitter settings active event in db for poap organizer');
+		throw new ValidationError('I\'m sorry something is not working, can you try again?');
+	}
+	
+	Log.debug(`twitter poap event stored in db and set to active for userID: ${guildMember.id}, discordServerId: ${guildMember.guild.id}`);
+	
+	POAPService.setupAutoEndForEvent(guildMember.client, twitterSettingsResult.value);
+	
+	await guildMember.send({
+		embeds: [
+			{
+				title: 'Twitter Event Started',
+				fields: [
+					{ name: 'Event', value: `${event}`, inline: true },
+					{ name: 'Organizer', value: `${guildMember.user.tag}`, inline: true },
+					{ name: 'Discord Server', value: `${guildMember.guild.name}`, inline: true },
+					{ name: 'Platform', value: 'Twitter', inline: true },
+					{ name: 'Duration', value: `${duration} minutes`, inline: true },
+					{ name: 'POAP Participation Claim Link', value: `${apiKeys.twitterClaimPage}/${twitterSpaceId}`, inline: false },
+				],
+			},
+		],
+	});
+	Log.debug('POAP Twitter spaces event tracking message sent');
 };

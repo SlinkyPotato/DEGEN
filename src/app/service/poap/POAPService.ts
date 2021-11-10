@@ -6,6 +6,7 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import dayjs from 'dayjs';
 import EndPOAP from './EndPOAP';
 import MongoDbUtils from '../../utils/MongoDbUtils';
+import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
 
 const POAPService = {
 	run: async (client: DiscordClient): Promise<void> => {
@@ -52,7 +53,8 @@ const POAPService = {
 		return;
 	},
 	
-	setupAutoEndForEvent: (client: DiscordClient, activeEvent: POAPSettings): void => {
+	setupAutoEndForEvent: (client: DiscordClient, activeEvent: POAPSettings | POAPTwitterSettings): void => {
+		Log.debug('setting up automatic end...');
 		const currentDate = dayjs();
 		const expirationTimestamp: number = dayjs(activeEvent.endTime).unix();
 		const expiresInMilli = Math.max(expirationTimestamp - currentDate.unix(), 0) * 1000;
@@ -60,12 +62,12 @@ const POAPService = {
 			const poapGuild: Guild = await client.guilds.fetch(activeEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(activeEvent.discordUserId);
 			try {
-				await EndPOAP(poapOrganizer).catch(e => LogUtils.logError('failed to autoend event', e));
+				await EndPOAP(poapOrganizer, constants.PLATFORM_TYPE_TWITTER).catch(e => LogUtils.logError('failed to automatically end event', e));
 			} catch (e) {
 				LogUtils.logError('failed end poap event', e);
 			}
 		}, expiresInMilli);
-		Log.debug(`auto end setup for ${activeEvent.voiceChannelName}`, {
+		Log.debug(`auto end setup for ${activeEvent.event}`, {
 			indexMeta: true,
 			meta: {
 				discordServerId: activeEvent.discordServerId,

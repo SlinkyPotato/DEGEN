@@ -2,7 +2,7 @@ import { Collection, ObjectId } from 'mongodb';
 
 export interface POAPTwitterSettings extends Collection {
 	_id: ObjectId,
-	eventTitle: string,
+	event: string,
 	isActive: boolean,
 	startTime: string,
 	endTime: string,

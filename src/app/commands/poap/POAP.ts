@@ -82,7 +82,7 @@ module.exports = class poap extends SlashCommand {
 						{
 							name: 'platform',
 							type: CommandOptionType.STRING,
-							description: 'Where will the poap event be hosted?',
+							description: 'The hosting location of the POAP event.',
 							required: true,
 							choices: [
 								{
@@ -113,6 +113,24 @@ module.exports = class poap extends SlashCommand {
 					name: 'end',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'End POAP event and receive a list of participants.',
+					options: [
+						{
+							name: 'platform',
+							type: CommandOptionType.STRING,
+							description: 'The hosting location of the POAP event.',
+							required: true,
+							choices: [
+								{
+									name: 'Discord',
+									value: constants.PLATFORM_TYPE_DISCORD,
+								},
+								{
+									name: 'Twitter Spaces',
+									value: constants.PLATFORM_TYPE_TWITTER,
+								},
+							],
+						},
+					]
 				},
 				{
 					name: 'distribute',
@@ -197,7 +215,7 @@ module.exports = class poap extends SlashCommand {
 				command = StartPOAP(ctx, guildMember, ctx.options.start['platform'], ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
-				command = EndPOAP(guildMember, ctx);
+				command = EndPOAP(guildMember, ctx.options.end['platform'], ctx);
 				break;
 			case 'distribute':
 				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['type'], ctx.options.distribute['event']);

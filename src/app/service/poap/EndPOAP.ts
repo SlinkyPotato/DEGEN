@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 
-export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
+export default async (guildMember: GuildMember, platform: string, ctx?: CommandContext): Promise<any> => {
 	if (ctx.guildID == undefined) {
 		await ctx.send('Please try ending poap event within discord channel');
 		return;

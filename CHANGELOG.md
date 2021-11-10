@@ -1,6 +1,7 @@
 # Changelog
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## 1.10.0-SNAPSHOT
 
 1. Add banned names to username spam filter.
@@ -17,6 +18,13 @@
    - FQ rescue call service
    - POAP claim link expiration reminder
 =======
+=======
+## 1.9.2-RELEASE (2021-11-10)
+
+1. Fix auto end for poap events
+   - update help docs with links
+
+>>>>>>> 7c7f98e (fix autoend for poap events)
 ## 1.9.1-RELEASE (2021-11-09)
 
 1. Allow poap claiming from DM

@@ -12,10 +12,6 @@ import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 
 export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
-	if (ctx.guildID == undefined) {
-		await ctx.send('Please try ending poap event within discord channel');
-		return;
-	}
 	Log.debug('attempting to ending poap event');
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	

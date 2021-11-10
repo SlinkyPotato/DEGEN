@@ -20,7 +20,6 @@ export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<a
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
 	await POAPUtils.validateUserAccess(guildMember, db);
-	POAPUtils.validateClaimCode(code);
 	
 	Log.debug('authorized to end poap event');
 	

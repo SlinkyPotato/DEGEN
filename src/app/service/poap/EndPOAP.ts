@@ -1,5 +1,5 @@
 import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
-import { Collection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
+import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
@@ -13,10 +13,6 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
 
 export default async (guildMember: GuildMember, platform: string, ctx?: CommandContext): Promise<any> => {
-	if (ctx.guildID == undefined) {
-		await ctx.send('Please try ending poap event within discord channel');
-		return;
-	}
 	Log.debug('attempting to ending poap event');
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	

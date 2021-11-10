@@ -55,7 +55,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, type: strin
 };
 
 export const askForParticipantsList = async (guildMember: GuildMember, type: string): Promise<POAPFileParticipant[] | FailedPOAPAttendee[]> => {
-	const message: Message = await guildMember.send({ content: 'Please upload delivery .csv file. POAPs will be distributed to these degens.' });
+	const message: Message = await guildMember.send({ content: 'Please upload delivery .csv file. POAPs will be distributed to these degens. Please make sure discordIds are included for each participant.' });
 	const dmChannel: DMChannel = await message.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,

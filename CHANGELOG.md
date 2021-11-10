@@ -4,6 +4,11 @@
 
 1. Tweet spaces event upon startup
 
+## 1.9.1-RELEASE (2021-11-09)
+
+1. Allow poap claiming from DM
+   - enable claim validation and extent to 30 characters
+
 ## 1.9.0-RELEASE (2021-11-08)
 
 1. Add guildId to bounty

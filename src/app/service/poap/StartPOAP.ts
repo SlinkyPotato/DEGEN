@@ -32,6 +32,10 @@ import apiKeys from '../constants/apiKeys';
 import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, platform: string, event: string, duration?: number): Promise<any> => {
+	if (ctx.guildID == undefined) {
+		await ctx.send('Please try starting poap event within discord channel');
+		return;
+	}
 	Log.debug('starting poap event...');
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 

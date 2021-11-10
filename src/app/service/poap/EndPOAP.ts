@@ -11,7 +11,11 @@ import dayjs from 'dayjs';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 
-export default async (guildMember: GuildMember, code?: string, ctx?: CommandContext): Promise<any> => {
+export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
+	if (ctx.guildID == undefined) {
+		await ctx.send('Please try ending poap event within discord channel');
+		return;
+	}
 	Log.debug('attempting to ending poap event');
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
@@ -132,7 +136,7 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 			Log.debug('all poap successfully delivered');
 			return 'POAP_SENT';
 		}
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, code, ctx);
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, ctx);
 	} else {
 		await guildMember.send({ content: 'You got it!' });
 		return 'POAP_END';

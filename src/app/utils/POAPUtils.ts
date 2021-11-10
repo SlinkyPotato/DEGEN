@@ -11,22 +11,23 @@ import DateUtils from './DateUtils';
 import { CommandContext } from 'slash-create';
 import MongoDbUtils from './MongoDbUtils';
 import ServiceUtils from './ServiceUtils';
+import { POAPTwitterParticipants } from '../types/poap/POAPTwitterParticipants';
 
-export type POAPFileParticipant = {
-	id: string,
-	tag: string,
-	duration: number
-};
-
-export type FailedPOAPAttendee = {
+export type POAPFileParticipantExt = {
 	discordUserId: string,
 	discordUserTag: string,
-	poapLink: string,
+	durationInMinutes?: string,
+	poapLink?: string
+}
+
+export type TwitterPOAPFileParticipant = {
+	twitterUserId: string,
+	checkInDateISO: string,
 }
 
 const POAPUtils = {
 	
-	async getListOfParticipants(db: Db, voiceChannel: GuildChannel): Promise<POAPFileParticipant[]> {
+	async getListOfParticipants(db: Db, voiceChannel: GuildChannel): Promise<POAPFileParticipantExt[]> {
 		const poapParticipants: MongoCollection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
 		const resultCursor: Cursor<POAPParticipant> = await poapParticipants.find({
 			voiceChannelId: voiceChannel.id,
@@ -56,6 +57,27 @@ const POAPUtils = {
 		return participants;
 	},
 	
+	async getListOfTwitterParticipants(db: Db, twitterSpaceId: string): Promise<TwitterPOAPFileParticipant[]> {
+		const poapParticipants: MongoCollection<POAPTwitterParticipants> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_PARTICIPANTS);
+		const result: Cursor<POAPTwitterParticipants> = await poapParticipants.find({
+			twitterSpaceId: twitterSpaceId,
+		});
+		if ((await result.count()) === 0) {
+			Log.debug(`no participants found for twitter space: ${twitterSpaceId}`);
+			return [];
+		}
+		Log.debug(`found participants for twitter space event: ${twitterSpaceId}`);
+		const participants = [];
+		await result.forEach((participant: POAPTwitterParticipants) => {
+			participants.push({
+				twitterId: participant.twitterUserId,
+				checkInDateISO: participant.checkInDateISO,
+			});
+		});
+		Log.debug(`prepared ${participants.length} participants`);
+		return participants;
+	},
+	
 	async setEndDateForPresentParticipants(poapParticipantsCollection: MongoCollection, poapParticipantsCursor: Cursor<POAPParticipant>): Promise<void> {
 		Log.debug('starting to set endDate for present participants in db');
 		const currentDateStr = dayjs().toISOString();
@@ -82,10 +104,10 @@ const POAPUtils = {
 	},
 
 	async sendOutPOAPLinks(
-		guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], attachment: MessageAttachment, event?: string,
-	): Promise<FailedPOAPAttendee[]> {
+		guildMember: GuildMember, listOfParticipants: POAPFileParticipantExt[], attachment: MessageAttachment, event?: string,
+	): Promise<POAPFileParticipantExt[]> {
 		let listOfPOAPLinks;
-		const failedPOAPsList: FailedPOAPAttendee[] = [];
+		const failedPOAPsList: POAPFileParticipantExt[] = [];
 		const guildName = guildMember.guild.name;
 		event = (event == null) ? 'event' : event;
 		try {
@@ -100,34 +122,34 @@ const POAPUtils = {
 			try {
 				if (listOfPOAPLinks[i] == null || listOfPOAPLinks[i] == '') {
 					failedPOAPsList.push({
-						discordUserId: listOfParticipants[i].id,
-						discordUserTag: listOfParticipants[i].tag,
+						discordUserId: listOfParticipants[i].discordUserId,
+						discordUserTag: listOfParticipants[i].discordUserTag,
 						poapLink: 'n/a',
 					});
 					continue;
 				}
-				await guildMember.guild.members.fetch(listOfParticipants[i].id)
+				await guildMember.guild.members.fetch(listOfParticipants[i].discordUserId)
 					.then(async (participantMember: GuildMember) => {
 						await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e) => {
 							failedPOAPsList.push({
-								discordUserId: listOfParticipants[i].id,
-								discordUserTag: listOfParticipants[i].tag,
+								discordUserId: listOfParticipants[i].discordUserId,
+								discordUserTag: listOfParticipants[i].discordUserTag,
 								poapLink: listOfPOAPLinks[i],
 							});
-							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`, e);
+							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].discordUserId}, userTag: ${listOfParticipants[i].discordUserTag}, link: ${listOfPOAPLinks[i]}`, e);
 						});
 					}).catch(async (e) => {
-						LogUtils.logError(`failed trying to find: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, to give link ${listOfPOAPLinks[i]}`, e);
-						const tryAgainMember: GuildMember = await guildMember.guild.members.fetch(listOfParticipants[i].id);
-						Log.debug(`trying to send another message to user ${listOfParticipants[i].tag}`);
+						LogUtils.logError(`failed trying to find: ${listOfParticipants[i].discordUserId}, userTag: ${listOfParticipants[i].discordUserTag}, to give link ${listOfPOAPLinks[i]}`, e);
+						const tryAgainMember: GuildMember = await guildMember.guild.members.fetch(listOfParticipants[i].discordUserId);
+						Log.debug(`trying to send another message to user ${listOfParticipants[i].discordUserTag}`);
 						await tryAgainMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${listOfPOAPLinks[i]}` }).catch((e2) => {
-							failedPOAPsList.push({ discordUserId: listOfParticipants[i].id, discordUserTag: listOfParticipants[i].tag, poapLink: listOfPOAPLinks[i] });
-							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].id}, userTag: ${listOfParticipants[i].tag}, link: ${listOfPOAPLinks[i]}`, e2);
+							failedPOAPsList.push({ discordUserId: listOfParticipants[i].discordUserId, discordUserTag: listOfParticipants[i].discordUserTag, poapLink: listOfPOAPLinks[i] });
+							LogUtils.logError(`failed trying to send POAP to: ${listOfParticipants[i].discordUserId}, userTag: ${listOfParticipants[i].discordUserTag}, link: ${listOfPOAPLinks[i]}`, e2);
 						});
 					});
 			} catch (e) {
 				LogUtils.logError('user might have been banned or has DMs off', e);
-				failedPOAPsList.push({ discordUserId: listOfParticipants[i].id, discordUserTag: listOfParticipants[i].tag, poapLink: listOfPOAPLinks[i] });
+				failedPOAPsList.push({ discordUserId: listOfParticipants[i].discordUserId, discordUserTag: listOfParticipants[i].discordUserTag, poapLink: listOfPOAPLinks[i] });
 			}
 		}
 		Log.info(`Links sent to ${listOfParticipants.length - failedPOAPsList.length} participants.`);
@@ -135,9 +157,9 @@ const POAPUtils = {
 	},
 	
 	async sendOutFailedPOAPLinks(
-		guildMember: GuildMember, listOfFailedParticipants: FailedPOAPAttendee[], event?: string,
-	): Promise<FailedPOAPAttendee[]> {
-		const failedPOAPsList: FailedPOAPAttendee[] = [];
+		guildMember: GuildMember, listOfFailedParticipants: POAPFileParticipantExt[], event?: string,
+	): Promise<POAPFileParticipantExt[]> {
+		const failedPOAPsList: POAPFileParticipantExt[] = [];
 		const guildName = guildMember.guild.name;
 		event = (event == null) ? 'event' : event;
 		for (let i = 0; i < listOfFailedParticipants.length; i++) {
@@ -179,7 +201,7 @@ const POAPUtils = {
 	},
 	
 	async setupFailedAttendeesDelivery(
-		guildMember: GuildMember, listOfFailedPOAPs: FailedPOAPAttendee[], event: string, ctx?: CommandContext,
+		guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipantExt[], event: string, ctx?: CommandContext,
 	): Promise<any> {
 		Log.debug(`${listOfFailedPOAPs.length} poaps failed to deliver`);
 		await guildMember.send({
@@ -187,7 +209,7 @@ const POAPUtils = {
 		});
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
-		const unclaimedPOAPsList: any[] = listOfFailedPOAPs.map((failedAttendee: FailedPOAPAttendee) => {
+		const unclaimedPOAPsList: any[] = listOfFailedPOAPs.map((failedAttendee: POAPFileParticipantExt) => {
 			return {
 				event: event,
 				discordUserId: `${failedAttendee.discordUserId}`,

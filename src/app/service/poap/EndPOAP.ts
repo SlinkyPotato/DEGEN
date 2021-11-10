@@ -4,7 +4,7 @@ import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
 import { POAPSettings } from '../../types/poap/POAPSettings';
-import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
+import POAPUtils, { POAPFileParticipantExt, TwitterPOAPFileParticipant } from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
@@ -61,7 +61,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		},
 	});
 	const channel: GuildChannel = await guildMember.guild.channels.fetch(poapSettingsDoc.voiceChannelId);
-	const listOfParticipants: POAPFileParticipant[] = await POAPUtils.getListOfParticipants(db, channel);
+	const listOfParticipants: POAPFileParticipantExt[] = await POAPUtils.getListOfParticipants(db, channel);
 	
 	if (listOfParticipants.length <= 0) {
 		Log.debug('no eligible attendees found during event');
@@ -72,7 +72,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		return;
 	}
 	
-	const bufferFile = getBufferFromParticipants(listOfParticipants, channel);
+	const bufferFile = getBufferFromParticipants(listOfParticipants);
 	const currentDate = (new Date()).toISOString();
 	const fileName = `${channel.guild.name}_${channel.name}_${listOfParticipants.length}_participants.csv`;
 	await guildMember.send({
@@ -110,7 +110,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
 		await guildMember.send({ content: 'Ok! Please upload the POAP links.txt file.' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
-		const listOfFailedPOAPs: FailedPOAPAttendee[] = await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile, poapSettingsDoc.event);
+		const listOfFailedPOAPs: POAPFileParticipantExt[] = await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapLinksFile, poapSettingsDoc.event);
 		const failedPOAPsBuffer: Buffer = getBufferForFailedParticipants(listOfFailedPOAPs);
 		await guildMember.send({
 			embeds: [
@@ -145,30 +145,44 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	}
 };
 
-// TODO: Consolidate to single method generateCSV from object
-const getBufferFromParticipants = (participants: POAPFileParticipant[], voiceChannel: GuildChannel): Buffer => {
+const getBufferFromParticipants = (participants: POAPFileParticipantExt[]): Buffer => {
 	if (participants.length === 0) {
-		Log.info(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
+		Log.debug('no participants found for parsing');
 		return Buffer.from('', 'utf-8');
 	}
 
 	let participantsStr = 'discordId,discordHandle,durationInMinutes\n';
-	participants.forEach((participant: {id: string, tag: string, duration: number}) => {
-		participantsStr += `${participant.id},${participant.tag},${participant.duration}` + '\n';
+	participants.forEach((participant: POAPFileParticipantExt) => {
+		participantsStr += `${participant.discordUserId},${participant.discordUserTag},${participant.durationInMinutes}\n`;
 	});
 
 	return Buffer.from(participantsStr, 'utf-8');
 };
 
-export const getBufferForFailedParticipants = (failedPOAPs: FailedPOAPAttendee[]): Buffer => {
+const getBufferFromParticipantsTwitter = (participants: TwitterPOAPFileParticipant[]): Buffer => {
+	if (participants.length === 0) {
+		Log.debug('no participants found for parsing');
+		return Buffer.from('', 'utf-8');
+	}
+	
+	let participantsStr = 'twitterUserId,checkInDateISO\n';
+	participants.forEach((participant: TwitterPOAPFileParticipant) => {
+		participantsStr += `${participant.twitterUserId},${participant.checkInDateISO}\n`;
+	});
+	
+	return Buffer.from(participantsStr, 'utf-8');
+};
+
+
+export const getBufferForFailedParticipants = (failedPOAPs: POAPFileParticipantExt[]): Buffer => {
 	if (failedPOAPs.length === 0) {
 		Log.info('All POAPs delivered successfully');
 		return Buffer.from('', 'utf-8');
 	}
 	
 	let failedPOAPStr = 'discordUserId,discordUserTag,poapLink\n';
-	failedPOAPs.forEach((failedPOAP: FailedPOAPAttendee) => {
-		failedPOAPStr += `${failedPOAP.discordUserId},${failedPOAP.discordUserTag},${failedPOAP.poapLink}` + '\n';
+	failedPOAPs.forEach((failedPOAP: POAPFileParticipantExt) => {
+		failedPOAPStr += `${failedPOAP.discordUserId},${failedPOAP.discordUserTag},${failedPOAP.poapLink}\n`;
 	});
 
 	return Buffer.from(failedPOAPStr, 'utf-8');
@@ -205,6 +219,18 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		throw new Error('failed to end twitter poap event in db');
 	}
 	Log.debug(`event ended for ${guildMember.user.tag} and set to inactive in db`);
+	const listOfParticipants: TwitterPOAPFileParticipant[] = await POAPUtils.getListOfTwitterParticipants(db, activeTwitterSettings.twitterSpaceId);
+	
+	if (listOfParticipants.length <= 0) {
+		Log.debug('no eligible attendees found during event');
+		await guildMember.send({ content: 'Event ended. No eligible attendees found during twitter event' });
+		if (ctx) {
+			await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
+		}
+		return;
+	}
+	
+	const bufferFile: Buffer = getBufferFromParticipantsTwitter(listOfParticipants);
 	
 	return;
 };

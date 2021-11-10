@@ -28,7 +28,7 @@ const POAPService = {
 		for (const expiredEvent of expiredEventsList) {
 			const poapGuild: Guild = await client.guilds.fetch(expiredEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(expiredEvent.discordUserId);
-			await EndPOAP(poapOrganizer);
+			await EndPOAP(poapOrganizer, constants.PLATFORM_TYPE_DISCORD);
 		}
 		Log.debug('expired events ended');
 		const poapSettingsActiveEventsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({

@@ -1,6 +1,6 @@
 import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageAttachment } from 'discord.js';
 import axios from 'axios';
-import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
+import POAPUtils, { POAPFileParticipantExt } from '../../utils/POAPUtils';
 import ValidationError from '../../errors/ValidationError';
 import { Db } from 'mongodb';
 import constants from '../constants/constants';
@@ -22,14 +22,14 @@ export default async (ctx: CommandContext, guildMember: GuildMember, type: strin
 	POAPUtils.validateEvent(event);
 	
 	await ServiceUtils.tryDMUser(guildMember, 'Hi, just need a moment to stretch before I run off sending POAPS...');
-	const participantsList: POAPFileParticipant[] | FailedPOAPAttendee[] = await askForParticipantsList(guildMember, type);
+	const participantsList: POAPFileParticipantExt[] = await askForParticipantsList(guildMember, type);
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
-	let failedPOAPsList: FailedPOAPAttendee[];
+	let failedPOAPsList: POAPFileParticipantExt[];
 	if (type == 'MANUAL_DELIVERY') {
 		const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
-		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList as POAPFileParticipant[], linksMessageAttachment, event);
+		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList as POAPFileParticipantExt[], linksMessageAttachment, event);
 	} else {
-		failedPOAPsList = await POAPUtils.sendOutFailedPOAPLinks(guildMember, participantsList as FailedPOAPAttendee[], event);
+		failedPOAPsList = await POAPUtils.sendOutFailedPOAPLinks(guildMember, participantsList as POAPFileParticipantExt[], event);
 	}
 	const failedPOAPsBuffer: Buffer = getBufferForFailedParticipants(failedPOAPsList);
 	await guildMember.send({
@@ -54,7 +54,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, type: strin
 	return;
 };
 
-export const askForParticipantsList = async (guildMember: GuildMember, type: string): Promise<POAPFileParticipant[] | FailedPOAPAttendee[]> => {
+export const askForParticipantsList = async (guildMember: GuildMember, type: string): Promise<POAPFileParticipantExt[]> => {
 	const message: Message = await guildMember.send({ content: 'Please upload delivery .csv file. POAPs will be distributed to these degens. Please make sure discordIds are included for each participant.' });
 	const dmChannel: DMChannel = await message.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {

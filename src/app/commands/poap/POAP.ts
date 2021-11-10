@@ -130,7 +130,7 @@ module.exports = class poap extends SlashCommand {
 								},
 							],
 						},
-					]
+					],
 				},
 				{
 					name: 'distribute',

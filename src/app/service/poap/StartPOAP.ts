@@ -251,8 +251,8 @@ export const askUserForChannel = async (guildMember: GuildMember, dmMessage: Mes
 };
 
 const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration?: number): Promise<any> => {
-	Log.debug('starting twitter poap flow');
-	const { twitterUser, twitterClientV1 } = await VerifyTwitter(guildMember);
+	Log.debug('starting twitter poap flow...');
+	const { twitterUser } = await VerifyTwitter(guildMember);
 	const twitterClientV2: TwitterApi = new TwitterApi(apiKeys.twitterBearerToken);
 	await ServiceUtils.tryDMUser(guildMember, 'Oh yea, time for a POAP event!...');
 	await ctx.send({ content: 'Something really special is starting...  :bird:' });
@@ -260,7 +260,6 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 	let twitterSpaceResult: SpaceV2LookupResult;
 	try {
 		twitterSpaceResult = await twitterClientV2.v2.spacesByCreators(twitterUser.id_str);
-		console.log(twitterSpaceResult);
 	} catch (e) {
 		LogUtils.logError('failed trying to get twitter spaces', e);
 	}
@@ -273,13 +272,12 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 	Log.debug(`twitter spaces event active: ${twitterSpaceId}`);
 	
 	const poapTwitterSettings: Collection<POAPTwitterSettings> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_SETTINGS);
-	const activeSettingsCursor: Cursor<POAPTwitterSettings> = await poapTwitterSettings.find({
+	const activeSettings: POAPTwitterSettings = await poapTwitterSettings.findOne({
 		discordUserId: guildMember.id,
 		discordServerId: guildMember.guild.id,
 		isActive: true,
 	});
 	
-	const activeSettings: POAPTwitterSettings = await activeSettingsCursor.next();
 	if (activeSettings != null) {
 		Log.debug('unable to start twitter event due to active event');
 		throw new ValidationError('Looks like you are already tracking your twitter space!');

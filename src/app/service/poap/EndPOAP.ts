@@ -1,5 +1,5 @@
 import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
-import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
+import { Collection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
@@ -7,9 +7,10 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import POAPUtils, { FailedPOAPAttendee, POAPFileParticipant } from '../../utils/POAPUtils';
 import { CommandContext } from 'slash-create';
 import Log from '../../utils/Log';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
+import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
 
 export default async (guildMember: GuildMember, platform: string, ctx?: CommandContext): Promise<any> => {
 	if (ctx.guildID == undefined) {
@@ -23,6 +24,11 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	
 	Log.debug('authorized to end poap event');
 	
+	if (platform == constants.PLATFORM_TYPE_TWITTER) {
+		await endTwitterPOAPFlow(guildMember, db, ctx);
+		return;
+	}
+	
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
 		discordUserId: guildMember.user.id,
@@ -35,8 +41,9 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		throw new ValidationError(`<@${guildMember.id}> Hmm it doesn't seem you are hosting an active event.`);
 	}
 	
+	Log.debug('active poap event found');
+	
 	await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one...');
-	Log.debug('poap event found');
 	const currentDateISO = dayjs().toISOString();
 	const updateSettingsResult: UpdateWriteOpResult = await poapSettingsDB.updateOne(poapSettingsDoc, {
 		$set: {
@@ -47,7 +54,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 
 	if (updateSettingsResult.modifiedCount !== 1) {
 		Log.warn('failed to end poap event');
-		throw new Error('failed to end event');
+		throw new Error('failed to end event in db');
 	}
 	Log.debug(`event ended for ${guildMember.user.tag} and updated in db`, {
 		indexMeta: true,
@@ -169,4 +176,39 @@ export const getBufferForFailedParticipants = (failedPOAPs: FailedPOAPAttendee[]
 	});
 
 	return Buffer.from(failedPOAPStr, 'utf-8');
+};
+
+const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandContext): Promise<any> => {
+	Log.debug('starting twitter poap end flow...');
+	
+	const poapTwitterSettings: Collection<POAPTwitterSettings> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_SETTINGS);
+	const activeTwitterSettings: POAPTwitterSettings = await poapTwitterSettings.findOne({
+		discordUserId: guildMember.id,
+		discordServerId: guildMember.guild.id,
+		isActive: true,
+	});
+	
+	if (activeTwitterSettings == null) {
+		Log.debug('POAP twitter event not found');
+		throw new ValidationError(`<@${guildMember.id}> Hmm it doesn't seem you are hosting an active twitter event.`);
+	}
+	
+	Log.debug('active twitter poap event found');
+	await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one...');
+	
+	const currentDate: Dayjs = dayjs();
+	const updateTwitterEventSettings: UpdateWriteOpResult = await poapTwitterSettings.updateOne(activeTwitterSettings, {
+		$set: {
+			isActive: false,
+			endTime: currentDate.toISOString(),
+		},
+	});
+	
+	if (updateTwitterEventSettings.modifiedCount !== 1) {
+		Log.warn('failed to end twitter poap event');
+		throw new Error('failed to end twitter poap event in db');
+	}
+	Log.debug(`event ended for ${guildMember.user.tag} and set to inactive in db`);
+	
+	return;
 };

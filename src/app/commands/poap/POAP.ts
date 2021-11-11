@@ -144,8 +144,8 @@ module.exports = class poap extends SlashCommand {
 							required: true,
 							choices: [
 								{
-									name: 'Manual Delivery',
-									value: 'MANUAL_DELIVERY',
+									name: 'Normal Delivery',
+									value: 'NORMAL_DELIVERY',
 								},
 								{
 									name: 'Redeliver Failed Participants',
@@ -240,13 +240,7 @@ module.exports = class poap extends SlashCommand {
 	}
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
-		command.then((result) => {
-			if (result === 'POAP_SENT') {
-				return ctx.send('POAPS sent! Expect delivery shortly.');
-			} else if (result === 'POAP_END') {
-				return ctx.send('POAP event ended. POAPs will be delivered at a later time.');
-			}
-		}).catch(e => {
+		command.catch(e => {
 			if (e instanceof ValidationError) {
 				return ctx.send(e.message);
 			} else if (e instanceof EarlyTermination) {

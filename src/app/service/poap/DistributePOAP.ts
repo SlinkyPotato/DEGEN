@@ -23,13 +23,16 @@ export default async (ctx: CommandContext, guildMember: GuildMember, type: strin
 	
 	await ServiceUtils.tryDMUser(guildMember, 'Hi, just need a moment to stretch before I run off sending POAPS...');
 	const participantsList: POAPFileParticipant[] = await askForParticipantsList(guildMember, type);
+	const numberOfParticipants: number = participantsList.length;
+	
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
 	let failedPOAPsList: POAPFileParticipant[];
-	if (type == 'MANUAL_DELIVERY') {
+	if (type == 'NORMAL_DELIVERY') {
 		const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
-		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList as POAPFileParticipant[], linksMessageAttachment, event);
+		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(guildMember, linksMessageAttachment);
+		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, event, listOfPOAPLinks);
 	} else {
-		failedPOAPsList = await POAPUtils.sendOutFailedPOAPLinks(guildMember, participantsList as POAPFileParticipant[], event);
+		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, event);
 	}
 	const failedPOAPsBuffer: Buffer = getBufferForFailedParticipants(failedPOAPsList);
 	await guildMember.send({
@@ -37,8 +40,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, type: strin
 			{
 				title: 'POAPs Distribution Results',
 				fields: [
-					{ name: 'Attempted to Send', value: `${participantsList.length}`, inline: true },
-					{ name: 'Successfully Sent', value: `${participantsList.length - failedPOAPsList.length}`, inline: true },
+					{ name: 'Attempted to Send', value: `${numberOfParticipants}`, inline: true },
+					{ name: 'Successfully Sent', value: `${numberOfParticipants - failedPOAPsList.length}`, inline: true },
 					{ name: 'Failed to Send', value: `${failedPOAPsList.length}`, inline: true },
 				],
 			},

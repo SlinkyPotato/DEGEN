@@ -21,7 +21,7 @@ export default class Bounty extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'bounty',
-			description: 'List, create, claimBounty, delete, and mark bounties complete',
+			description: 'List, create, claim, delete, and mark bounties complete',
 			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
 			options: [
 				{
@@ -185,10 +185,10 @@ export default class Bounty extends SlashCommand {
 				break;
 			case 'create':
 				params = this.buildBountyCreateNewParams(ctx.guildID, ctx.options.create);
-				command = CreateNewBounty(guildMember, params);
+				command = CreateNewBounty(guildMember, params, ctx.guildID);
 				break;
 			case 'publish':
-				command = PublishBounty(guildMember, ctx.options.publish['bounty-id']);
+				command = PublishBounty(guildMember, ctx.options.publish['bounty-id'], ctx.guildID);
 				break;
 			case 'complete':
 				command = CompleteBounty(guildMember, ctx.options.complete['bounty-id']);

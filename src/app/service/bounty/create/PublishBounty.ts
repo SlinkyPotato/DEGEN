@@ -6,22 +6,27 @@ import channelIDs from '../../constants/channelIds';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import envUrls from '../../constants/envUrls';
 import { BountyCollection } from '../../../types/bounty/BountyCollection';
+import { CustomerCollection } from '../../../types/bounty/CustomerCollection';
 import Log from '../../../utils/Log';
 import MongoDbUtils from '../../../utils/MongoDbUtils';
 
-export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
+export default async (guildMember: GuildMember, bountyId: string, guildID: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
-	return finalizeBounty(guildMember, bountyId);
+	return finalizeBounty(guildMember, bountyId, guildID);
 };
 
-export const finalizeBounty = async (guildMember: GuildMember, bountyId: string): Promise<any> => {
+export const finalizeBounty = async (guildMember: GuildMember, bountyId: string, guildID: string): Promise<any> => {
 	Log.info('starting to finalize bounty: ' + bountyId);
 
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
-	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
-	const dbBountyResult: BountyCollection = await dbCollection.findOne({
+	const dbCollectionBounties = db.collection(constants.DB_COLLECTION_BOUNTIES);
+	const dbCollectionCustomers = db.collection(constants.DB_COLLECTION_CUSTOMERS);
+	const dbBountyResult: BountyCollection = await dbCollectionBounties.findOne({
 		_id: new mongo.ObjectId(bountyId),
 		status: 'Draft',
+	});
+	const dbCustomerResult: CustomerCollection = await dbCollectionCustomers.findOne({
+		customerId: guildID
 	});
 
 	await BountyUtils.checkBountyExists(guildMember, dbBountyResult, bountyId);
@@ -32,13 +37,13 @@ export const finalizeBounty = async (guildMember: GuildMember, bountyId: string)
 	}
 	const messageOptions: MessageEmbedOptions = generateEmbedMessage(dbBountyResult, 'Open');
 
-	const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(channelIDs.bountyBoard) as TextChannel;
+	const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(dbCustomerResult.bountyChannel) as TextChannel;
 	const bountyMessage: Message = await bountyChannel.send({ embeds: [messageOptions] });
 	Log.info('bounty published to #bounty-board');
 	addPublishReactions(bountyMessage);
 
 	const currentDate = (new Date()).toISOString();
-	const writeResult: UpdateWriteOpResult = await dbCollection.updateOne(dbBountyResult, {
+	const writeResult: UpdateWriteOpResult = await dbCollectionBounties.updateOne(dbBountyResult, {
 		$set: {
 			status: 'Open',
 			discordMessageId: bountyMessage.id,

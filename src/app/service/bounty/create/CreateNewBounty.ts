@@ -12,7 +12,7 @@ import ValidationError from '../../../errors/ValidationError';
 import Log, { LogUtils } from '../../../utils/Log';
 import MongoDbUtils from '../../../utils/MongoDbUtils';
 
-export default async (guildMember: GuildMember, params: BountyCreateNew): Promise<any> => {
+export default async (guildMember: GuildMember, params: BountyCreateNew, guildID: string): Promise<any> => {
 	const title = params.title;
 	const reward = params.reward;
 
@@ -116,7 +116,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 	await message.react('📝');
 	await message.react('❌');
 
-	return handleBountyReaction(message, guildMember, listOfBountyIds);
+	return handleBountyReaction(message, guildMember, guildID, listOfBountyIds);
 };
 
 export const generateBountyRecord = (bountyParams: BountyCreateNew, guildMember: GuildMember): any => {
@@ -149,7 +149,7 @@ export const generateBountyRecord = (bountyParams: BountyCreateNew, guildMember:
 	};
 };
 
-const handleBountyReaction = (message: Message, guildMember: GuildMember, bountyIds: string[]): Promise<any> => {
+const handleBountyReaction = (message: Message, guildMember: GuildMember, guildID: string, bountyIds: string[]): Promise<any> => {
 	return message.awaitReactions({
 		max: 1,
 		time: (6000 * 60),
@@ -162,7 +162,7 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, bounty
 		if (reaction.emoji.name === '👍') {
 			Log.info('/bounty create new | :thumbsup: up given');
 			for (const bountyId of bountyIds) {
-				await finalizeBounty(guildMember, bountyId);
+				await finalizeBounty(guildMember, bountyId, guildID);
 			}
 			return;
 		} else if (reaction.emoji.name === '📝') {

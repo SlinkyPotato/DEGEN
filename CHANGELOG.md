@@ -6,14 +6,11 @@
    - CAPTCHA verification
    - first quest messages + role assignments
    - POAP distribution upon completion
-
 2. /first-quest config command introduced
    - update FQ message content in database via DMs
-
 3. /first-quest poap-refill command introduced
    - add option: add claim links to DB
    - replace option: add claim links + retire existing claim links
-
 4. background services
    - FQ rescue call service
    - POAP claim link expiration reminder

@@ -12,6 +12,8 @@ import { CommandContext } from 'slash-create';
 import MongoDbUtils from './MongoDbUtils';
 import ServiceUtils from './ServiceUtils';
 import { POAPTwitterParticipants } from '../types/poap/POAPTwitterParticipants';
+import { DirectMessageCreateV1Result } from 'twitter-api-v2';
+import { VerifiedTwitter } from '../service/account/VerifyTwitter';
 
 export type POAPFileParticipant = {
 	discordUserId: string,
@@ -168,8 +170,61 @@ const POAPUtils = {
 		return failedPOAPsList;
 	},
 	
-	async sendOutTwitterPoapLinks(): Promise<POAPFileParticipant[]> {
-		return;
+	async sendOutTwitterPoapLinks(
+		verifiedTwitter: VerifiedTwitter, listOfParticipants: TwitterPOAPFileParticipant[], event: string,
+		listOfPOAPLinks?: string[],
+	): Promise<TwitterPOAPFileParticipant[]> {
+		Log.debug('preparing to send out poap links for twitter spaces');
+		const failedPOAPList: TwitterPOAPFileParticipant[] = [];
+		
+		let i = 0;
+		const length = listOfParticipants.length;
+		const isListOfPoapLinksPresent: boolean = listOfPOAPLinks != null && listOfPOAPLinks.length >= 1;
+		while (i < length) {
+			const participant: TwitterPOAPFileParticipant = listOfParticipants.pop();
+			const poapLink = (isListOfPoapLinksPresent) ? listOfPOAPLinks.pop() : participant.poapLink;
+			if (poapLink == null || poapLink == '') {
+				failedPOAPList.push({
+					twitterUserId: participant.twitterUserId,
+					twitterSpaceId: participant.twitterSpaceId,
+					checkInDateISO: participant.checkInDateISO,
+					poapLink: 'n/a',
+				});
+				i++;
+				continue;
+			}
+			if (participant.twitterUserId.length < 15) {
+				throw new ValidationError('There appears to be a parsing error. Please check that the discordUserID is greater than 15 digits.');
+			}
+			try {
+				const result: void | DirectMessageCreateV1Result = await verifiedTwitter.twitterClientV1.v1.sendDm({
+					recipient_id: participant.twitterUserId,
+					text: `Thank you for participating in ${event}. Here is your test POAP: ${poapLink}. Now get otta here`,
+				}).catch((e) => {
+					failedPOAPList.push({
+						twitterUserId: participant.twitterUserId,
+						twitterSpaceId: participant.twitterSpaceId,
+						checkInDateISO: participant.checkInDateISO,
+						poapLink: poapLink,
+					});
+					LogUtils.logError(`failed trying to send POAP to twitterId: ${participant.twitterUserId}, twitterSpaceId: ${participant.twitterSpaceId}, link: ${poapLink}`, e);
+				});
+				if (result == null || result['event'].type != 'message_create') {
+					throw new Error();
+				}
+			} catch (e) {
+				LogUtils.logError(`user might have been banned or has DMs off, failed trying to send POAP to twitterId: ${participant.twitterUserId}, twitterSpaceId: ${participant.twitterSpaceId}, link: ${poapLink}`, e);
+				failedPOAPList.push({
+					twitterUserId: participant.twitterUserId,
+					twitterSpaceId: participant.twitterSpaceId,
+					checkInDateISO: participant.checkInDateISO,
+					poapLink: poapLink,
+				});
+			}
+			i++;
+		}
+		Log.info(`Links sent to ${length - failedPOAPList.length} participants.`);
+		return failedPOAPList;
 	},
 	
 	async setupFailedAttendeesDelivery(
@@ -194,7 +249,6 @@ const POAPUtils = {
 					discordServerName: guildMember.guild.name,
 					poapLink: `${failedAttendee.poapLink}`,
 					expiresAt: expirationISO,
-
 				};
 			});
 			Log.debug('attempting to store failed attendees into db');

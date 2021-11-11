@@ -7,6 +7,7 @@ export interface POAPTwitterSettings extends Collection {
 	startTime: string,
 	endTime: string,
 	discordUserId: string,
+	discordUserTag?: string,
 	discordServerId: string
 	twitterUserId: string,
 	twitterSpaceId: string,

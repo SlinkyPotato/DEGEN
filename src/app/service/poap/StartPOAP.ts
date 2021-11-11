@@ -255,7 +255,6 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 	const { twitterUser } = await VerifyTwitter(guildMember);
 	const twitterClientV2: TwitterApi = new TwitterApi(apiKeys.twitterBearerToken);
 	await ServiceUtils.tryDMUser(guildMember, 'Oh yea, time for a POAP event!...');
-	await ctx.send({ content: 'Something really special is starting...  :bird:' });
 
 	let twitterSpaceResult: SpaceV2LookupResult;
 	try {
@@ -264,12 +263,16 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 		LogUtils.logError('failed trying to get twitter spaces', e);
 	}
 
-	if (twitterSpaceResult.meta.result_count == 0 || twitterSpaceResult.data == null || twitterSpaceResult.data['state'] != 'live') {
-		await guildMember.send({ content: 'Please start twitter spaces before starting POAP event.' });
+	if (twitterSpaceResult.meta.result_count == 0 || twitterSpaceResult.data == null || twitterSpaceResult.data[0]['state'] != 'live') {
+		Log.warn('Twitter space result is not live');
+		await guildMember.send({ content: 'Uh-oh, please start twitter spaces before starting POAP tracking. If you have already started it, please wait a minute or two before trying again.' });
+		await ctx.send('Nothing to see here, carry on 😅... ');
+		return;
 	}
 	
 	const twitterSpaceId: string = twitterSpaceResult.data[0]['id'];
 	Log.debug(`twitter spaces event active: ${twitterSpaceId}`);
+	await ctx.send({ content: `Something really special is starting...:bird: https://twitter.com/i/spaces/${twitterSpaceId}` });
 	
 	const poapTwitterSettings: Collection<POAPTwitterSettings> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_SETTINGS);
 	const activeSettings: POAPTwitterSettings = await poapTwitterSettings.findOne({
@@ -291,16 +294,15 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 		discordUserId: guildMember.id,
 		discordServerId: guildMember.guild.id,
 	}, {
-		$set: {
-			isActive: true,
-			event: event,
-			startTime: currentDate.toISOString(),
-			endTime: endTimeISO,
-			discordUserId: guildMember.id,
-			discordServerId: guildMember.guild.id,
-			twitterUserId: twitterUser.id_str,
-			twitterSpaceId: twitterSpaceId,
-		},
+		isActive: true,
+		event: event,
+		startTime: currentDate.toISOString(),
+		endTime: endTimeISO,
+		discordUserId: guildMember.id,
+		discordUserTag: guildMember.user.tag,
+		discordServerId: guildMember.guild.id,
+		twitterUserId: twitterUser.id_str,
+		twitterSpaceId: twitterSpaceId,
 	}, {
 		upsert: true,
 		returnDocument: 'after',
@@ -329,6 +331,9 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 				],
 			},
 		],
+	});
+	await guildMember.send({
+		content: 'POAP tracking is setup! Please hand out the `POAP Participation Claim Link` above to your participants!',
 	});
 	Log.debug('POAP Twitter spaces event tracking message sent');
 };

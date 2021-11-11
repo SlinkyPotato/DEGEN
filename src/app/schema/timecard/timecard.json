@@ -24,7 +24,7 @@
           "description": "ISO8601 of when the meeting ended."
         },
         "duration": {
-          "bsonType": ["number", null],
+          "bsonType": ["number", "null"],
           "description": "Duration of the timecard session in minutes"
         },
         "discordUserId": {

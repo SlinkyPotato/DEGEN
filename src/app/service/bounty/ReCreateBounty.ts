@@ -1,13 +1,13 @@
 import { GuildMember, Message, MessageOptions, TextChannel } from 'discord.js';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import mongo, { Db } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import BountyUtils from '../../utils/BountyUtils';
 import channelIds from '../constants/channelIds';
 import envUrls from '../constants/envUrls';
 import ServiceUtils from '../../utils/ServiceUtils';
 import Log from '../../utils/Log';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 /**
  * This service will refresh the bounty in the Bounty board with the correct information
@@ -15,7 +15,7 @@ import Log from '../../utils/Log';
  * @param bountyId
  */
 export default async (guildMember: GuildMember, bountyId: string): Promise<Message> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
 
 	const bountyCollection: BountyCollection = await dbCollection.findOne({

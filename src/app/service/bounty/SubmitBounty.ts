@@ -1,11 +1,11 @@
 import { GuildMember, Message, MessageEmbed } from 'discord.js';
 import BountyUtils from '../../utils/BountyUtils';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import envUrls from '../constants/envUrls';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import Log from '../../utils/Log';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember, bountyId: string, urlOfWork?: string, notes?: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -23,7 +23,7 @@ export default async (guildMember: GuildMember, bountyId: string, urlOfWork?: st
 export const submitBountyForValidId = async (guildMember: GuildMember,
 	bountyId: string, urlOfWork?: string, notes?: string, message?: Message,
 ): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
 
 	const dbBountyResult: BountyCollection = await dbCollection.findOne({

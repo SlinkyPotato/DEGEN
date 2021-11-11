@@ -8,5 +8,5 @@ export interface Timecard extends Collection {
     duration: number,
 	discordUserId: string,
 	discordServerId: string,
-    isActive: boolean,
+	isActive: boolean,
 }

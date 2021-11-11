@@ -1,11 +1,11 @@
 import constants from '../constants/constants';
 import mongo, { Db, UpdateWriteOpResult } from 'mongodb';
 import BountyUtils from '../../utils/BountyUtils';
-import dbInstance from '../../utils/dbUtils';
 import { GuildMember, Message, MessageEmbed } from 'discord.js';
 import envUrls from '../constants/envUrls';
 import { BountyCollection } from '../../types/bounty/BountyCollection';
 import Log from '../../utils/Log';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
@@ -15,7 +15,7 @@ export default async (guildMember: GuildMember, bountyId: string): Promise<any> 
 export const claimBountyForValidId = async (guildMember: GuildMember,
 	bountyId: string, message?: Message,
 ): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
 	
 	const dbBountyResult: BountyCollection = await dbCollection.findOne({
@@ -70,7 +70,7 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 export const claimBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
 	Log.info(`attempting to claim bountyMessageId: ${bountyMessageId}`);
 	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
-	
+
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[3].value = 'In-Progress';
 	embedMessage.setColor('#d39e00');

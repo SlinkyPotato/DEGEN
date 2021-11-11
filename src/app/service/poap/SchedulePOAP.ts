@@ -1,7 +1,6 @@
 import { DMChannel, GuildMember, MessageAttachment } from 'discord.js';
 import POAPUtils from '../../utils/POAPUtils';
 import { Db } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import constants from '../constants/constants';
 import { EventsRequestType } from '../../api/types/poap-events/EventsRequestType';
 import axios, { AxiosResponse } from 'axios';
@@ -12,15 +11,18 @@ import { CommandContext } from 'slash-create';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { LogUtils } from '../../utils/Log';
 import DateUtils from '../../utils/DateUtils';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numberToMint: number): Promise<any> => {
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+	
 	await POAPUtils.validateUserAccess(guildMember, db);
-	await POAPUtils.validateNumberToMint(guildMember, numberToMint);
+	POAPUtils.validateNumberToMint(numberToMint);
 	
 	const request: EventsRequestType = {} as EventsRequestType;
 	request.requested_codes = numberToMint.toString();
-
+	
+	await ServiceUtils.tryDMUser(guildMember, 'Hi, I heard you want to mint a POAP for your stellar event...');
 	await guildMember.send({
 		embeds: [
 			{
@@ -197,7 +199,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 		await guildMember.send({ content: 'POAP event removed!' });
 	} else {
 		try {
-			const response: EventsResponseType | void = await EventsAPI.scheduleEvent(request);
+			const response: EventsResponseType | void = await EventsAPI.scheduleEvent(request, guildMember);
 			await guildMember.send({
 				embeds: [
 					{
@@ -226,7 +228,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 				],
 			});
 		} catch (e) {
-			await guildMember.send({ content: 'Sorry something broke, can you please try again in the discord server?' });
+			await guildMember.send({ content: 'I couldn\'t finish processing so here\'s a super secret backroom office url https://app.poap.xyz/admin' });
 		}
 	}
 };

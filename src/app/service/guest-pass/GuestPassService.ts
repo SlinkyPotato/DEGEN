@@ -3,9 +3,9 @@ import { Client } from '@notionhq/client';
 import { Client as DiscordClient } from 'discord.js';
 import { Page } from '@notionhq/client/build/src/api-types';
 import { Db } from 'mongodb';
-import dbInstance from '../../utils/dbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 import Log, { LogUtils } from '../../utils/Log';
+import MongoDbUtils from '../../utils/MongoDbUtils';
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -20,7 +20,7 @@ export default async (client: DiscordClient): Promise<void> => {
 	// Retrieve Guest Pass Role
 	const guestRole = ServiceUtils.getGuestRole(guild.roles);
 
-	const db: Db = await dbInstance.dbConnect(constants.DB_NAME_DEGEN);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const dbGuestUsers = db.collection(constants.DB_COLLECTION_GUEST_USERS);
 
 	// Query all guest pass users from db
@@ -64,7 +64,7 @@ export default async (client: DiscordClient): Promise<void> => {
 	// Begin reminder of active guest users
 	for (const activeUser of listOfActiveGuests) {
 		try {
-			Log.log('active userid: ' + activeUser._id);
+			Log.debug('active userid: ' + activeUser._id);
 
 			const expiresInMilli = Math.max(activeUser.expiresTimestamp - Date.now(), 0);
 
@@ -85,7 +85,7 @@ export default async (client: DiscordClient): Promise<void> => {
 				const guestDBQuery = {
 					_id: activeUser._id,
 				};
-				const timeoutDB: Db = await dbInstance.dbConnect(constants.DB_NAME_BOUNTY_BOARD);
+				const timeoutDB: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 				const timeoutDBGuestUsers = timeoutDB.collection(constants.DB_COLLECTION_GUEST_USERS);
 				const dbDeleteResult = await timeoutDBGuestUsers.findOneAndDelete(guestDBQuery);
 				if (dbDeleteResult == null) {

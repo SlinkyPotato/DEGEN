@@ -11,18 +11,29 @@ import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
 import ValidationError from '../../../errors/ValidationError';
 import Log, { LogUtils } from '../../../utils/Log';
 import MongoDbUtils from '../../../utils/MongoDbUtils';
+import discordServerIds from '../../../service/constants/discordServerIds';
 
 export default async (guildMember: GuildMember, params: BountyCreateNew, guildID: string): Promise<any> => {
 	const title = params.title;
 	const reward = params.reward;
 
+	const isBanklessDao = guildID === discordServerIds.banklessDAO;
+
 	if (!ServiceUtils.isAtLeastLevel1(guildMember)) {
-		//throw new ValidationError('Must be at a least level 1 to create new bounties.');
-		//no-op until post chippi release
+		if(isBanklessDao)
+			throw new ValidationError('Must be at a least level 1 to create new bounties.');
 	}
 	await BountyUtils.validateReward(guildMember, reward);
 	await BountyUtils.validateTitle(guildMember, title);
-	BountyUtils.validateNumberOfCopies(guildMember, params.copies);
+
+	if(isBanklessDao) {
+		BountyUtils.validateNumberOfCopies(guildMember, params.copies);
+	}
+	else {
+		if (params.copies > 1) {
+			throw new ValidationError('Currently, the max number of copies is `1`. To raise this limit, please reach out to your favorite Bounty Board representative!');
+		}
+	}
 
 	const workNeededMessage: Message = await guildMember.send({ content: `Hello <@${guildMember.id}>! Can you tell me a description of your bounty?` });
 	const dmChannel: DMChannel = await workNeededMessage.channel.fetch() as DMChannel;

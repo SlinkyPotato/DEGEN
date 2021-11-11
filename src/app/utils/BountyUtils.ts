@@ -80,10 +80,12 @@ const BountyUtils = {
 	},
 
 	validateNumberOfCopies(guildMember: GuildMember, copies: number): void {
-		ServiceUtils.validateLevel2AboveMembers(guildMember);
+		//ServiceUtils.validateLevel2AboveMembers(guildMember);
+		//Check removed until post-chippi launch
 
-		if (copies > 100) {
-			throw new ValidationError('Max number of copies is `100`.');
+		if (copies > 1) {
+			//Number of copies and existence of this param dependent on customer feedback post-chippi launch
+			throw new ValidationError('Max number of copies is `1`.');
 		}
 	},
 

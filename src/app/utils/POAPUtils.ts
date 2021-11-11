@@ -22,7 +22,9 @@ export type POAPFileParticipant = {
 
 export type TwitterPOAPFileParticipant = {
 	twitterUserId: string,
+	twitterSpaceId: string,
 	checkInDateISO: string,
+	poapLink?: string,
 }
 
 const POAPUtils = {
@@ -171,27 +173,52 @@ const POAPUtils = {
 	},
 	
 	async setupFailedAttendeesDelivery(
-		guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipant[], event: string, ctx?: CommandContext,
+		guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipant[] | TwitterPOAPFileParticipant[],
+		event: string, platform: string, ctx?: CommandContext,
 	): Promise<any> {
 		Log.debug(`${listOfFailedPOAPs.length} poaps failed to deliver`);
 		await guildMember.send({
 			content: 'Looks like some degens didn\'t make it... I can setup a claim for them, all they need to do is `/poap claim`',
 		});
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-		const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
-		const unclaimedPOAPsList: any[] = listOfFailedPOAPs.map((failedAttendee: POAPFileParticipant) => {
-			return {
-				event: event,
-				discordUserId: `${failedAttendee.discordUserId}`,
-				discordUserTag: failedAttendee.discordUserTag,
-				discordServerId: `${guildMember.guild.id}`,
-				discordServerName: guildMember.guild.name,
-				poapLink: `${failedAttendee.poapLink}`,
-				expiresAt: (dayjs().add(1, 'month')).toISOString(),
-			};
-		});
-		Log.debug('attempting to store failed attendees into db');
-		await unclaimedCollection.insertMany(unclaimedPOAPsList);
+		
+		if (platform == constants.PLATFORM_TYPE_DISCORD) {
+			const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
+			const unclaimedPOAPsList: any[] = (listOfFailedPOAPs as POAPFileParticipant[]).map((failedAttendee: POAPFileParticipant) => {
+				const expirationISO: string = (dayjs().add(1, 'month')).toISOString();
+				return {
+					event: event,
+					discordUserId: `${failedAttendee.discordUserId}`,
+					discordUserTag: failedAttendee.discordUserTag,
+					discordServerId: `${guildMember.guild.id}`,
+					discordServerName: guildMember.guild.name,
+					poapLink: `${failedAttendee.poapLink}`,
+					expiresAt: expirationISO,
+
+				};
+			});
+			Log.debug('attempting to store failed attendees into db');
+			await unclaimedCollection.insertMany(unclaimedPOAPsList);
+		} else if (platform == constants.PLATFORM_TYPE_TWITTER) {
+			const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_TWITTER_UNCLAIMED_PARTICIPANTS);
+			const unclaimedPOAPsList: any[] = (listOfFailedPOAPs as TwitterPOAPFileParticipant[]).map((failedAttendee: TwitterPOAPFileParticipant) => {
+				const expirationISO: string = (dayjs().add(1, 'month')).toISOString();
+				return {
+					event: event,
+					discordServerId: `${guildMember.guild.id}`,
+					discordServerName: guildMember.guild.name,
+					poapLink: `${failedAttendee.poapLink}`,
+					expiresAt: expirationISO,
+					twitterUserId: failedAttendee.twitterUserId,
+					twitterSpaceId: failedAttendee.twitterSpaceId,
+				};
+			});
+			Log.debug('attempting to store failed attendees into db');
+			await unclaimedCollection.insertMany(unclaimedPOAPsList);
+		} else {
+			Log.warn('missing platform type when trying to setup failed attendees');
+		}
+		
 		Log.debug('stored poap claims for failed degens');
 		if (ctx) {
 			await ctx.send('POAPs sent! Some didn\'t make it... they can claim it with `/poap claim`');

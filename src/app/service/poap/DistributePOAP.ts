@@ -52,7 +52,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, type: strin
 		Log.debug('all poap successfully delivered');
 		return;
 	}
-	await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, ctx);
+	await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_DISCORD, ctx);
 	Log.debug('poap distribution complete');
 	return;
 };

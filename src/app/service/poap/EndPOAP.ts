@@ -143,7 +143,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 			}
 			return;
 		}
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, ctx);
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, constants.PLATFORM_TYPE_DISCORD, ctx);
 	} else {
 		await guildMember.send({ content: 'Cool, POAPs can be delivered at a later time.' });
 		if (ctx) {
@@ -292,7 +292,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 			Log.debug('all poap successfully delivered');
 			return;
 		}
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, ctx);
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, activeTwitterSettings.event, constants.PLATFORM_TYPE_DISCORD, ctx);
 	}
 	return;
 };

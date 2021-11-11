@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.10.0-SNAPSHOT
+
+1. DM flow triggered by GuildMemberAdd event
+   - CAPTCHA verification
+   - first quest messages + role assignments
+   - POAP distribution upon completion
+
+2. /first-quest config command introduced
+   - update FQ message content in database via DMs
+
+3. /first-quest poap-refill command introduced
+   - add option: add claim links to DB
+   - replace option: add claim links + retire existing claim links
+
+4. background services
+   - FQ rescue call service
+   - POAP claim link expiration reminder
+   
 ## 1.9.0-RELEASE (2021-11-08)
 
 1. Add guildId to bounty

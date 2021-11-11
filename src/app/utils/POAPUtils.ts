@@ -13,7 +13,7 @@ import MongoDbUtils from './MongoDbUtils';
 import ServiceUtils from './ServiceUtils';
 import { POAPTwitterParticipants } from '../types/poap/POAPTwitterParticipants';
 
-export type POAPFileParticipantExt = {
+export type POAPFileParticipant = {
 	discordUserId: string,
 	discordUserTag: string,
 	durationInMinutes?: string,
@@ -27,7 +27,7 @@ export type TwitterPOAPFileParticipant = {
 
 const POAPUtils = {
 	
-	async getListOfParticipants(db: Db, voiceChannel: GuildChannel): Promise<POAPFileParticipantExt[]> {
+	async getListOfParticipants(db: Db, voiceChannel: GuildChannel): Promise<POAPFileParticipant[]> {
 		const poapParticipants: MongoCollection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
 		const resultCursor: Cursor<POAPParticipant> = await poapParticipants.find({
 			voiceChannelId: voiceChannel.id,
@@ -104,10 +104,10 @@ const POAPUtils = {
 	},
 
 	async sendOutPOAPLinks(
-		guildMember: GuildMember, listOfParticipants: POAPFileParticipantExt[], attachment: MessageAttachment, event?: string,
-	): Promise<POAPFileParticipantExt[]> {
+		guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], attachment: MessageAttachment, event?: string,
+	): Promise<POAPFileParticipant[]> {
 		let listOfPOAPLinks;
-		const failedPOAPsList: POAPFileParticipantExt[] = [];
+		const failedPOAPsList: POAPFileParticipant[] = [];
 		const guildName = guildMember.guild.name;
 		event = (event == null) ? 'event' : event;
 		try {
@@ -157,9 +157,9 @@ const POAPUtils = {
 	},
 	
 	async sendOutFailedPOAPLinks(
-		guildMember: GuildMember, listOfFailedParticipants: POAPFileParticipantExt[], event?: string,
-	): Promise<POAPFileParticipantExt[]> {
-		const failedPOAPsList: POAPFileParticipantExt[] = [];
+		guildMember: GuildMember, listOfFailedParticipants: POAPFileParticipant[], event?: string,
+	): Promise<POAPFileParticipant[]> {
+		const failedPOAPsList: POAPFileParticipant[] = [];
 		const guildName = guildMember.guild.name;
 		event = (event == null) ? 'event' : event;
 		for (let i = 0; i < listOfFailedParticipants.length; i++) {
@@ -201,7 +201,7 @@ const POAPUtils = {
 	},
 	
 	async setupFailedAttendeesDelivery(
-		guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipantExt[], event: string, ctx?: CommandContext,
+		guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipant[], event: string, ctx?: CommandContext,
 	): Promise<any> {
 		Log.debug(`${listOfFailedPOAPs.length} poaps failed to deliver`);
 		await guildMember.send({
@@ -209,7 +209,7 @@ const POAPUtils = {
 		});
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
-		const unclaimedPOAPsList: any[] = listOfFailedPOAPs.map((failedAttendee: POAPFileParticipantExt) => {
+		const unclaimedPOAPsList: any[] = listOfFailedPOAPs.map((failedAttendee: POAPFileParticipant) => {
 			return {
 				event: event,
 				discordUserId: `${failedAttendee.discordUserId}`,

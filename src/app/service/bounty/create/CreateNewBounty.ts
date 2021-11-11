@@ -17,7 +17,8 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 	const reward = params.reward;
 
 	if (!ServiceUtils.isAtLeastLevel1(guildMember)) {
-		throw new ValidationError('Must be at a least level 1 to create new bounties.');
+		//throw new ValidationError('Must be at a least level 1 to create new bounties.');
+		//no-op until post chippi release
 	}
 	await BountyUtils.validateReward(guildMember, reward);
 	await BountyUtils.validateTitle(guildMember, title);

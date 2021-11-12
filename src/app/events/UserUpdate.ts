@@ -1,7 +1,7 @@
 import { PartialUser, User } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import ServiceUtils from '../utils/ServiceUtils';
-import { LogUtils } from '../utils/Log';
+import Log, { LogUtils } from '../utils/Log';
 
 export default class implements DiscordEvent {
 	name = 'userUpdate';
@@ -9,6 +9,11 @@ export default class implements DiscordEvent {
 
 	async execute(oldUser: User | PartialUser, newUser: User | PartialUser): Promise<any> {
 		try {
+			if (!oldUser || !newUser) {
+				Log.log('Skipping userUpdate event because oldUser or newUser was undefined.');
+				return;
+			}
+
 			if (oldUser.partial) {
 				oldUser = await oldUser.fetch();
 			}

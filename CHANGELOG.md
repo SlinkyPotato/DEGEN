@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.3-RELEASE (2021-11-12)
+
+1. Add try/catch block to buffering
+   - display logdna error if missing token
+
 ## 1.9.2-RELEASE (2021-11-10)
 
 1. Fix auto end for poap events

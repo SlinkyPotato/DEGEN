@@ -177,7 +177,8 @@ const ServiceUtils = {
 
 		const username = ServiceUtils.sanitizeUsername(member.user.username);
 
-		if ((nickname && highRankingNames.includes(nickname)) || highRankingNames.includes(username)) {
+		if ((nickname && (highRankingNames.includes(nickname) || constants.BANNED_NAMES.includes(nickname))) 
+			|| highRankingNames.includes(username) || constants.BANNED_NAMES.includes(username)) {
 			const debugMessage = `Nickname: ${member.displayName}. Username: ${member.user.tag}.`;
 
 			// Fetch admin contacts

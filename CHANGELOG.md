@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.1-RELEASE
+1. Add banned names to username spam filter.
+
 ## 1.9.0-RELEASE (2021-11-08)
 
 1. Add guildId to bounty

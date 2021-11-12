@@ -55,4 +55,18 @@ export default Object.freeze({
 
 	PLATFORM_TYPE_DISCORD: 'DISCORD',
 	PLATFORM_TYPE_TWITTER: 'TWITTER',
+
+	BANNED_NAMES: [
+		'admin', 
+		'support', 
+		'bankless', 
+		'banklessdao', 
+		'banklessadmin', 
+		'banklesssupport', 
+		'metamask',
+		'metamasksupport',
+		'uniswap',
+		'uniswapsupport',
+		'daopunkssupport'
+	]
 });

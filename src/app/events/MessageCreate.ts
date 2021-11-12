@@ -23,7 +23,7 @@ export default class implements DiscordEvent {
 	async execute(message: Message): Promise<any> {
 		try {
 			if (message.author.bot) return;
-			// Check for mentions for AFK users
+			// Check mentions for AFK users
 			if (message.mentions.users.size > 0) {
 				await HandleAFK(message).catch((e) => {
 					LogUtils.logError('DEGEN failed to handle AFK', e);

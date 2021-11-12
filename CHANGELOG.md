@@ -15,6 +15,21 @@
 5. background services
    - FQ rescue call service
    - POAP claim link expiration reminder
+   
+## 1.9.3-RELEASE (2021-11-12)
+
+1. Add try/catch block to buffering
+   - display logdna error if missing token
+
+## 1.9.2-RELEASE (2021-11-10)
+
+1. Fix auto end for poap events
+   - update help docs with links
+
+## 1.9.1-RELEASE (2021-11-09)
+
+1. Allow poap claiming from DM
+   - enable claim validation and extent to 30 characters
 
 ## 1.9.0-RELEASE (2021-11-08)
 

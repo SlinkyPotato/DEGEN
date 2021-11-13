@@ -40,9 +40,9 @@ export default class AFK extends SlashCommand {
 		try {
 			const isAFK : boolean = await ToggleAFK(guildMember);
 			if (isAFK) {
-				return ctx.send(`${ctx.user.mention} has gone AFK.`);
+				return ctx.send(`${ctx.user.username} has gone AFK!`);
 			} else {
-				return ctx.send(`Welcome back ${ctx.user.mention}!`);
+				return ctx.send(`Welcome back ${ctx.user.username}!`);
 			}
 		} catch (e) {
 			this.handleCommandError(ctx, command);
@@ -51,7 +51,7 @@ export default class AFK extends SlashCommand {
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>): void {
 		command.then(() => {
-			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+			return ctx.send(`${ctx.user.username} Sent you a DM with information.`);
 		}).catch(e => {
 			if (e instanceof ValidationError) {
 				return ctx.send(e.message);

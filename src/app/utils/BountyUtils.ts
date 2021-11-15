@@ -63,19 +63,28 @@ const BountyUtils = {
 	},
 
 	async validateReward(guildMember: GuildMember, reward: BountyReward): Promise<void> {
-		const ALLOWED_CURRENCIES = ['BANK'];
+		const ALLOWED_CURRENCIES = ['BANK', 'ETH', 'BTC', 'USDC', 'USDT', 'TempCity'];
 		const allowedRegex = new RegExp(ALLOWED_CURRENCIES.join('|'), 'i');
 		const MAXIMUM_REWARD = 100000000.00;
 
-		if (isNaN(reward.amount) || reward.amount <= 0 || reward.amount > MAXIMUM_REWARD
-			|| !allowedRegex.test(reward.currencySymbol)) {
+		if (!allowedRegex.test(reward.currencySymbol)) {
+			await guildMember.send({
+				content: `<@${guildMember.user.id}>\n` +
+					'- Currently, the accepted currencies are:\n' +
+					`${ALLOWED_CURRENCIES.toString()}\n` +
+					'Please reach out to your favorite Bounty Board representative to expand this list!',
+			});
+			throw new ValidationError('Please try another reward token.');
+		}
+
+		if (isNaN(reward.amount) || reward.amount < 0 || reward.amount > MAXIMUM_REWARD) {
 			await guildMember.send({
 				content: `<@${guildMember.user.id}>\n` +
 					'Please enter a valid reward value: \n ' +
-					'- 100 million maximum currency\n ' +
-					'- accepted currencies: ETH, BANK',
+					'- 0 minimum, 100 million maximum \n ' +
+					'Please reach out to your favorite Bounty Board representative to expand this range!',
 			});
-			throw new ValidationError('Please try another reward.');
+			throw new ValidationError('Please try another reward amount.');
 		}
 	},
 

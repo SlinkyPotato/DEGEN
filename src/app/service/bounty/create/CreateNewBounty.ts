@@ -182,7 +182,7 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, guildI
 				// TODO: add support to edit multiple bounties in UI
 				await guildMember.send({ content: 'Sorry, edit not available for multiple bounties' });
 				for (const bountyId of bountyIds) {
-					await deleteBountyForValidId(guildMember, bountyId);
+					await deleteBountyForValidId(guildMember, bountyId, guildID);
 				}
 				return;
 			} else {
@@ -194,7 +194,7 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, guildI
 		} else {
 			Log.info('/bounty create new | delete given');
 			for (const bountyId of bountyIds) {
-				await deleteBountyForValidId(guildMember, bountyId);
+				await deleteBountyForValidId(guildMember, bountyId, guildID);
 			}
 			return;
 		}

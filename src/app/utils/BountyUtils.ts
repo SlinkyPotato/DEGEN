@@ -7,6 +7,9 @@ import envUrls from '../service/constants/envUrls';
 import BountyMessageNotFound from '../errors/BountyMessageNotFound';
 import ServiceUtils from './ServiceUtils';
 import Log, { LogUtils } from './Log';
+import { Db } from 'mongodb';
+import constants from '../service/constants/constants'
+import { CustomerCollection } from '../types/bounty/CustomerCollection';
 
 /**
  * Utilities file for bounty commands
@@ -157,9 +160,17 @@ const BountyUtils = {
 		Log.info(`found bounty ${bountyId} in db`);
 	},
 
-	async getBountyMessage(guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<Message> {
+	async getBountyMessage(db: Db, guildMember: GuildMember, 
+		bountyMessageId: string, guildID: string, message?: Message
+		): Promise<Message> {
+
+		const dbCollectionCustomers = db.collection(constants.DB_COLLECTION_CUSTOMERS);
 		if (message == null) {
-			const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(channelIds.bountyBoard) as TextChannel;
+			const dbCustomerResult: CustomerCollection = await dbCollectionCustomers.findOne({
+				customerId: guildID
+			});
+			const bountyChannel: TextChannel = await guildMember.guild.channels.fetch(dbCustomerResult.bountyChannel) as TextChannel;
+
 			return bountyChannel.messages.fetch(bountyMessageId).catch(e => {
 				LogUtils.logError('failed to get bounty', e);
 				throw new BountyMessageNotFound('could not find bounty in discord #bounty-board channel');

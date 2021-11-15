@@ -12,11 +12,11 @@ import ReCreateBounty from '../../service/bounty/ReCreateBounty';
 import Log, { LogUtils } from '../../utils/Log';
 
 export default async (reaction: MessageReaction, user: User): Promise<any> | null => {
-	if (reaction.message.channel.id !== channelIds.bountyBoard) {
-		return;
-	}
-	
+	// if (reaction.message.channel.id !== channelIds.bountyBoard) {
+	// 	return;
+	// }
 	let message: Message = await reaction.message.fetch();
+	Log.info(`Processing reaction to message ${message.id}`)
 	
 	if (message.embeds == null || message.embeds[0] == null || message.embeds[0].fields[4] == null) {
 		return;
@@ -38,19 +38,19 @@ export default async (reaction: MessageReaction, user: User): Promise<any> | nul
 
 	if (reaction.emoji.name === '🏴') {
 		Log.info(`${user.tag} attempting to claim a bounty ${bountyId} from the bounty board`);
-		return claimBountyForValidId(guildMember, bountyId, message).catch(e => LogUtils.logError('failed to claim bounty', e));
+		return claimBountyForValidId(guildMember, bountyId, message.guildId, message).catch(e => LogUtils.logError('failed to claim bounty', e));
 	} else if (reaction.emoji.name === '📝') {
 		return UpdateEditKeyBounty(guildMember, bountyId, message).catch(e => LogUtils.logError('failed to update bounty', e));
 	} else if (reaction.emoji.name === '❌') {
 		Log.info(`${user.tag} attempting to delete bounty ${bountyId}`);
-		return deleteBountyForValidId(guildMember, bountyId, message).catch(e => LogUtils.logError('failed to delete bounty', e));
+		return deleteBountyForValidId(guildMember, bountyId, message.guildId, message).catch(e => LogUtils.logError('failed to delete bounty', e));
 	} else if (reaction.emoji.name === '📮') {
 		Log.info(`${user.tag} attempting to submit bounty ${bountyId}`);
 		// TODO: have bot ask user for details
-		return submitBountyForValidId(guildMember, bountyId, null, null, message).catch(e => LogUtils.logError('failed to submit bounty', e));
+		return submitBountyForValidId(guildMember, bountyId, null, null, message.guildId, message).catch(e => LogUtils.logError('failed to submit bounty', e));
 	} else if (reaction.emoji.name === '✅') {
 		Log.info(`${user.tag} attempting to mark bounty ${bountyId} complete`);
-		return completeBountyForValidId(guildMember, bountyId, message).catch(e => LogUtils.logError('failed to complete bounty', e));
+		return completeBountyForValidId(guildMember, bountyId, message.guildId, message).catch(e => LogUtils.logError('failed to complete bounty', e));
 	} else if (reaction.emoji.name === '🆘') {
 		Log.info(`${user.tag} attempting to seek help for bounty ${bountyId}`);
 		return seekHelpValidBountyId(guildMember, bountyId).catch(e => LogUtils.logError('failed to seek help for bounty', e));

@@ -183,7 +183,7 @@ export default class Bounty extends SlashCommand {
 		try {
 			switch (ctx.subcommands[0]) {
 			case 'claim':
-				command = ClaimBounty(guildMember, ctx.options.claim['bounty-id']);
+				command = ClaimBounty(guildMember, ctx.options.claim['bounty-id'], ctx.guildID);
 				break;
 			case 'create':
 				params = this.buildBountyCreateNewParams(ctx.guildID, ctx.options.create);
@@ -193,16 +193,17 @@ export default class Bounty extends SlashCommand {
 				command = PublishBounty(guildMember, ctx.options.publish['bounty-id'], ctx.guildID);
 				break;
 			case 'complete':
-				command = CompleteBounty(guildMember, ctx.options.complete['bounty-id']);
+				command = CompleteBounty(guildMember, ctx.options.complete['bounty-id'], ctx.guildID);
 				break;
 			case 'delete':
-				command = DeleteBounty(guildMember, ctx.options.delete['bounty-id']);
+				command = DeleteBounty(guildMember, ctx.options.delete['bounty-id'], ctx.guildID);
 				break;
 			case 'list':
 				command = ListBounty(guildMember, ctx.options.list['list-type']);
 				break;
 			case 'submit':
-				command = SubmitBounty(guildMember, ctx.options.submit['bounty-id'], ctx.options.submit['url'], ctx.options.submit['notes']);
+				command = SubmitBounty(guildMember, ctx.options.submit['bounty-id'], 
+				ctx.guildID, ctx.options.submit['url'], ctx.options.submit['notes'],);
 				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);

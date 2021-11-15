@@ -6,14 +6,14 @@ import { BountyCollection } from '../../types/bounty/BountyCollection';
 import Log from '../../utils/Log';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 
-export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
+export default async (guildMember: GuildMember, bountyId: string, guildID: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
 	
-	return completeBountyForValidId(guildMember, bountyId);
+	return completeBountyForValidId(guildMember, bountyId, guildID);
 };
 
 export const completeBountyForValidId = async (guildMember: GuildMember,
-	bountyId: string, message?: Message,
+	bountyId: string, guildID: string, message?: Message,
 ): Promise<any> => {
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
@@ -59,13 +59,15 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
 	}
 	Log.info(`${bountyId} bounty reviewed by ${guildMember.user.tag}`);
-	await completeBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
+	await completeBountyMessage(db, guildMember, dbBountyResult.discordMessageId, guildID, message);
 	await guildMember.send({ content: `Bounty complete! Please remember to tip <@${dbBountyResult.claimedBy.discordId}>` });
 	return;
 };
 
-export const completeBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
-	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
+export const completeBountyMessage = async (db: Db, guildMember: GuildMember, 
+	bountyMessageId: string, guildID: string, message?: Message
+	): Promise<any> => {
+	message = await BountyUtils.getBountyMessage(db, guildMember, bountyMessageId, guildID, message);
 
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[3].value = 'Completed';

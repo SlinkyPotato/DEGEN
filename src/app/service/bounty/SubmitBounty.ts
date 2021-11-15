@@ -7,7 +7,7 @@ import { BountyCollection } from '../../types/bounty/BountyCollection';
 import Log from '../../utils/Log';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 
-export default async (guildMember: GuildMember, bountyId: string, urlOfWork?: string, notes?: string): Promise<any> => {
+export default async (guildMember: GuildMember, bountyId: string, guildID: string, urlOfWork?: string, notes?: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
 	
 	if (urlOfWork) {
@@ -21,7 +21,8 @@ export default async (guildMember: GuildMember, bountyId: string, urlOfWork?: st
 };
 
 export const submitBountyForValidId = async (guildMember: GuildMember,
-	bountyId: string, urlOfWork?: string, notes?: string, message?: Message,
+	bountyId: string, guildID: string,
+	urlOfWork?: string, notes?: string, message?: Message,
 ): Promise<any> => {
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
@@ -70,7 +71,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	}
 
 	Log.info(`${bountyId} bounty submitted by ${guildMember.user.tag}`);
-	await submitBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
+	await submitBountyMessage(db, guildMember, dbBountyResult.discordMessageId, guildID, message);
 	
 	const bountyUrl = envUrls.BOUNTY_BOARD_URL + dbBountyResult._id;
 	const createdByUser: GuildMember = await guildMember.guild.members.fetch(dbBountyResult.createdBy.discordId);
@@ -79,8 +80,10 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	return guildMember.send({ content: `Bounty in review! Expect a message from <@${dbBountyResult.createdBy.discordId}>` });
 };
 
-export const submitBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
-	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
+export const submitBountyMessage = async (db: Db, guildMember: GuildMember, 
+	bountyMessageId: string, guildID: string, message?: Message
+	): Promise<any> => {
+	message = await BountyUtils.getBountyMessage(db, guildMember, bountyMessageId, guildID, message);
 
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[3].value = 'In-Review';

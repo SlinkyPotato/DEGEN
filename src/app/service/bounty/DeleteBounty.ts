@@ -9,13 +9,13 @@ import roleIDs from '../constants/roleIds';
 import Log, { LogUtils } from '../../utils/Log';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 
-export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
+export default async (guildMember: GuildMember, bountyId: string, guildID: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
-	return deleteBountyForValidId(guildMember, bountyId);
+	return deleteBountyForValidId(guildMember, bountyId, guildID);
 };
 
 export const deleteBountyForValidId = async (guildMember: GuildMember,
-	bountyId: string, message?: Message,
+	bountyId: string, guildID: string, message?: Message,
 ): Promise<any> => {
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
@@ -66,12 +66,14 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 	}
 
 	Log.info(`${bountyId} bounty deleted by ${guildMember.user.tag}`);
-	await deleteBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
+	await deleteBountyMessage(db, guildMember, dbBountyResult.discordMessageId, guildID, message);
 	return guildMember.send({ content: `Bounty \`${bountyId}\` deleted, thanks.` });
 };
 
-export const deleteBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
-	return BountyUtils.getBountyMessage(guildMember, bountyMessageId, message)
+export const deleteBountyMessage = async (db: Db, guildMember: GuildMember,
+	bountyMessageId: string, guildID: string, message?: Message
+	): Promise<any> => {
+	return BountyUtils.getBountyMessage(db, guildMember, bountyMessageId, guildID, message)
 		.then(embedMessage => {
 			return embedMessage.delete();
 		})

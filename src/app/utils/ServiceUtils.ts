@@ -128,7 +128,10 @@ const ServiceUtils = {
 		if (guild == null || guild.id == null) {
 			return false;
 		}
-		return guild.id == discordServerIds.banklessDAO || guild.id == discordServerIds.discordBotGarage;
+		return guild.id == discordServerIds.banklessDAO || 
+		guild.id == discordServerIds.discordBotGarage || 
+		guild.id == discordServerIds.bountyBoardBotServer ||
+		guild.id == discordServerIds.cityDAO;
 	},
 
 	/**

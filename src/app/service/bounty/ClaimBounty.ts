@@ -7,13 +7,13 @@ import { BountyCollection } from '../../types/bounty/BountyCollection';
 import Log from '../../utils/Log';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 
-export default async (guildMember: GuildMember, bountyId: string): Promise<any> => {
+export default async (guildMember: GuildMember, bountyId: string, guildID: string): Promise<any> => {
 	await BountyUtils.validateBountyId(guildMember, bountyId);
-	return claimBountyForValidId(guildMember, bountyId);
+	return claimBountyForValidId(guildMember, bountyId, guildID);
 };
 
 export const claimBountyForValidId = async (guildMember: GuildMember,
-	bountyId: string, message?: Message,
+	bountyId: string, guildID: string, message?: Message, 
 ): Promise<any> => {
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
 	const dbCollection = db.collection(constants.DB_COLLECTION_BOUNTIES);
@@ -59,17 +59,19 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 	}
 
 	const createdByUser: GuildMember = await guildMember.guild.members.fetch(dbBountyResult.createdBy.discordId);
-	await createdByUser.send({ content: ` Bounty has been claimed ${envUrls.BOUNTY_BOARD_URL}${bountyId} Please reach out to <@${guildMember.user.id}> with any questions.` });
+	await createdByUser.send({ content: ` Your bounty has been claimed by <@${guildMember.user.id}>. Please reach out to them with any questions. ${envUrls.BOUNTY_BOARD_URL}${bountyId} ` });
 
 	Log.info(`${bountyId} bounty claimed by ${guildMember.user.tag}`);
-	await claimBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
+	await claimBountyMessage(db, guildMember, dbBountyResult.discordMessageId, guildID, message);
 	// await dbInstance.close();
 	return guildMember.send({ content: ` Bounty claimed! If you have any questions, please reach out to <@${createdByUser.id}>. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
 };
 
-export const claimBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {
+export const claimBountyMessage = async (db: Db, guildMember: GuildMember, 
+	bountyMessageId: string, guildID: string, message?: Message
+	): Promise<any> => {
 	Log.info(`attempting to claim bountyMessageId: ${bountyMessageId}`);
-	message = await BountyUtils.getBountyMessage(guildMember, bountyMessageId, message);
+	message = await BountyUtils.getBountyMessage(db, guildMember, bountyMessageId, guildID, message);
 
 	const embedMessage: MessageEmbed = message.embeds[0];
 	embedMessage.fields[3].value = 'In-Progress';

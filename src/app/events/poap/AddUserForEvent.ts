@@ -23,7 +23,7 @@ export default async (oldState: VoiceState, newState: VoiceState): Promise<any> 
 	const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
 	const activeChannelsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
 		isActive: true,
-		discordServerId: guild.id,
+		discordServerId: `${guild.id}`,
 	});
 	for await (const poapSetting of activeChannelsCursor) {
 		const currentDate: Dayjs = dayjs();
@@ -54,7 +54,7 @@ export const addUserToDb = async (
 		await updateUserForPOAP(member, db, channel, false, true).catch(e => LogUtils.logError('failed to capture user joined for poap', e));
 		return;
 	}
-	const hasJoined: boolean = (newState.channelId === channel.id) || !newState.deaf;
+	const hasJoined: boolean = (newState.channelId === channel.id);
 	await updateUserForPOAP(member, db, channel, hasJoined).catch(e => LogUtils.logError(`failed to capture user change for POAP hasJoined: ${hasJoined}`, e));
 	return;
 };
@@ -64,9 +64,9 @@ export const updateUserForPOAP = async (
 ): Promise<any> => {
 	const poapParticipantsDb: Collection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
 	const poapParticipant: POAPParticipant = await poapParticipantsDb.findOne({
-		discordServerId: channel.guild.id,
-		voiceChannelId: channel.id,
-		discordUserId: member.user.id,
+		discordServerId: `${channel.guild.id}`,
+		voiceChannelId: `${channel.id}`,
+		discordUserId: `${member.user.id}`,
 	});
 	
 	if (hasDeafened) {
@@ -84,8 +84,7 @@ export const updateUserForPOAP = async (
 		});
 		return;
 	}
-
-	if (poapParticipant !== null && poapParticipant.discordUserId === member.user.id) {
+	if (poapParticipant !== null && poapParticipant.discordUserId != null && poapParticipant.discordUserId === member.user.id) {
 		Log.debug(`${member.user.tag} | rejoined ${channel.name} in ${channel.guild.name}`);
 		await poapParticipantsDb.updateOne(poapParticipant, {
 			$unset: {
@@ -97,11 +96,11 @@ export const updateUserForPOAP = async (
 	
 	const currentDateStr = (new Date()).toISOString();
 	const result: InsertOneWriteOpResult<POAPParticipant> = await poapParticipantsDb.insertOne({
-		discordUserId: member.user.id,
-		discordUserTag: member.user.tag,
+		discordUserId: `${member.user.id}`,
+		discordUserTag: `${member.user.tag}`,
 		startTime: currentDateStr,
-		voiceChannelId: channel.id,
-		discordServerId: channel.guild.id,
+		voiceChannelId: `${channel.id}`,
+		discordServerId: `${channel.guild.id}`,
 	});
 	if (result == null || result.insertedCount !== 1) {
 		throw new MongoError('failed to insert poapParticipant');

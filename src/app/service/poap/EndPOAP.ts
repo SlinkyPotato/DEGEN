@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 
-export default async (guildMember: GuildMember, code?: string, ctx?: CommandContext): Promise<any> => {
+export default async (guildMember: GuildMember, ctx?: CommandContext): Promise<any> => {
 	Log.debug('attempting to ending poap event');
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
@@ -131,7 +131,7 @@ export default async (guildMember: GuildMember, code?: string, ctx?: CommandCont
 			Log.debug('all poap successfully delivered');
 			return 'POAP_SENT';
 		}
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, code, ctx);
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, ctx);
 	} else {
 		await guildMember.send({ content: 'You got it!' });
 		return 'POAP_END';
@@ -147,7 +147,11 @@ const getBufferFromParticipants = (participants: POAPFileParticipant[], voiceCha
 
 	let participantsStr = 'discordId,discordHandle,durationInMinutes\n';
 	participants.forEach((participant: {id: string, tag: string, duration: number}) => {
-		participantsStr += `${participant.id},${participant.tag},${participant.duration}` + '\n';
+		try {
+			participantsStr += `${participant.id},${participant.tag},${participant.duration}` + '\n';
+		} catch (e) {
+			Log.warn('failed to parse' + participant.id);
+		}
 	});
 
 	return Buffer.from(participantsStr, 'utf-8');
@@ -161,7 +165,11 @@ export const getBufferForFailedParticipants = (failedPOAPs: FailedPOAPAttendee[]
 	
 	let failedPOAPStr = 'discordUserId,discordUserTag,poapLink\n';
 	failedPOAPs.forEach((failedPOAP: FailedPOAPAttendee) => {
-		failedPOAPStr += `${failedPOAP.discordUserId},${failedPOAP.discordUserTag},${failedPOAP.poapLink}` + '\n';
+		try {
+			failedPOAPStr += `${failedPOAP.discordUserId},${failedPOAP.discordUserTag},${failedPOAP.poapLink}` + '\n';
+		} catch (e) {
+			Log.warn('failed to parse' + failedPOAP.discordUserId);
+		}
 	});
 
 	return Buffer.from(failedPOAPStr, 'utf-8');

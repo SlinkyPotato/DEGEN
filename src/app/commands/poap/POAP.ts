@@ -10,6 +10,7 @@ import SchedulePOAP from '../../service/poap/SchedulePOAP';
 import { LogUtils } from '../../utils/Log';
 import ClaimPOAP from '../../service/poap/ClaimPOAP';
 import constants from '../../service/constants/constants';
+import { GuildMember } from 'discord.js';
 
 module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -112,14 +113,6 @@ module.exports = class poap extends SlashCommand {
 					name: 'end',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'End POAP event and receive a list of participants.',
-					options: [
-						{
-							name: 'code',
-							type: CommandOptionType.STRING,
-							description: 'Claim code used for failed delivery participants.',
-							required: false,
-						},
-					],
 				},
 				{
 					name: 'distribute',
@@ -148,12 +141,6 @@ module.exports = class poap extends SlashCommand {
 							description: 'The event name for the distribution',
 							required: true,
 						},
-						{
-							name: 'code',
-							type: CommandOptionType.STRING,
-							description: 'Claim code used for failed delivery participants.',
-							required: false,
-						},
 					],
 				},
 				{
@@ -164,7 +151,7 @@ module.exports = class poap extends SlashCommand {
 						{
 							name: 'platform',
 							type: CommandOptionType.STRING,
-							description: 'Claim code given by the community organizer.',
+							description: 'Platform where users can claim from where they attended the event.',
 							required: true,
 							choices: [
 								{
@@ -172,12 +159,6 @@ module.exports = class poap extends SlashCommand {
 									value: 'DISCORD',
 								},
 							],
-						},
-						{
-							name: 'code',
-							type: CommandOptionType.STRING,
-							description: 'Claim code given by the community organizer.',
-							required: true,
 						},
 					],
 				},
@@ -192,9 +173,12 @@ module.exports = class poap extends SlashCommand {
 
 	async run(ctx: CommandContext) {
 		LogUtils.logCommandStart(ctx);
-		if (ctx.user.bot || ctx.guildID == undefined) return 'Please try /poap within discord channel.';
+		if (ctx.user.bot) return;
 		
-		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
+		let guildMember: GuildMember;
+		if (ctx.guildID != null) {
+			guildMember = (await ServiceUtils.getGuildAndMember(ctx)).guildMember;
+		}
 		
 		let command: Promise<any>;
 		let authorizedRoles: any[];
@@ -213,13 +197,17 @@ module.exports = class poap extends SlashCommand {
 				command = StartPOAP(ctx, guildMember, ctx.options.start['platform'], ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
-				command = EndPOAP(guildMember, ctx.options.end['code'], ctx);
+				if (ctx.guildID == undefined) {
+					await ctx.send('I love your enthusiasm, but please return to a Discord channel to end the event.');
+					return;
+				}
+				command = EndPOAP(guildMember, ctx);
 				break;
 			case 'distribute':
-				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['type'], ctx.options.distribute['event'], ctx.options.distribute['code']);
+				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['type'], ctx.options.distribute['event']);
 				break;
 			case 'claim':
-				command = ClaimPOAP(ctx, guildMember, ctx.options.claim.platform, ctx.options.claim['code']);
+				command = ClaimPOAP(ctx, ctx.options.claim.platform, guildMember);
 				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);

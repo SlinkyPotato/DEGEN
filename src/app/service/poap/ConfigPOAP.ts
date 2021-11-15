@@ -17,6 +17,10 @@ import Log, { LogUtils } from '../../utils/Log';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
+	if (ctx.guildID == undefined) {
+		await ctx.send('Please try configuration within discord channel');
+		return;
+	}
 	if (!(ServiceUtils.isDiscordAdmin(guildMember) || ServiceUtils.isDiscordServerManager(guildMember))) {
 		throw new ValidationError('Sorry, only discord admins and managers can configure poap settings.');
 	}

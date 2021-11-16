@@ -16,7 +16,6 @@ import ServiceUtils from '../utils/ServiceUtils';
 import { LogUtils } from '../utils/Log';
 import HandleAFK from './chat/HandleAFK';
 
-
 export default class implements DiscordEvent {
 	name = 'messageCreate';
 	once = false;
@@ -31,7 +30,7 @@ export default class implements DiscordEvent {
 				});
 			}
 			// DEGEN says hello
-			await MessageCreateOnDEGEN(message).catch((e) => {
+			await MessageCreateOnDEGEN(message).catch(e => {
 				LogUtils.logError('DEGEN failed to say hello', e);
 			});
 
@@ -46,7 +45,7 @@ export default class implements DiscordEvent {
 			}
 			if (message.channel.type === 'DM') {
 				// Run scoap squad DM flow
-				await messageSetScoapRoles(message).catch((e) => {
+				await messageSetScoapRoles(message).catch(e => {
 					LogUtils.logError('failed to run scoap-squad DM flow', e);
 				});
 

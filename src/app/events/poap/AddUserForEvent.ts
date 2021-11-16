@@ -54,7 +54,7 @@ export const addUserToDb = async (
 		await updateUserForPOAP(member, db, channel, false, true).catch(e => LogUtils.logError('failed to capture user joined for poap', e));
 		return;
 	}
-	const hasJoined: boolean = (newState.channelId === channel.id) || !newState.deaf;
+	const hasJoined: boolean = (newState.channelId === channel.id);
 	await updateUserForPOAP(member, db, channel, hasJoined).catch(e => LogUtils.logError(`failed to capture user change for POAP hasJoined: ${hasJoined}`, e));
 	return;
 };
@@ -84,8 +84,7 @@ export const updateUserForPOAP = async (
 		});
 		return;
 	}
-
-	if (poapParticipant !== null && poapParticipant.discordUserId === member.user.id) {
+	if (poapParticipant !== null && poapParticipant.discordUserId != null && poapParticipant.discordUserId === member.user.id) {
 		Log.debug(`${member.user.tag} | rejoined ${channel.name} in ${channel.guild.name}`);
 		await poapParticipantsDb.updateOne(poapParticipant, {
 			$unset: {

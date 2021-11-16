@@ -27,13 +27,15 @@ export default class AFK extends SlashCommand {
 		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
-<<<<<<< HEAD
 		const AFKRole = ServiceUtils.getAFKRole(guildMember.guild.roles);
 		if (!AFKRole) {
 			return ctx.send('AFK Role does not exist on this server');
 		}
+<<<<<<< HEAD
 =======
 >>>>>>> 515ad66 (Update src/app/commands/afk/AFK.ts)
+=======
+>>>>>>> 798237b (update with changes from develop branch)
 		let command: Promise<any>;
 		try {
 			const isAFK : boolean = await ToggleAFK(guildMember);

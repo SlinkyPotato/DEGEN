@@ -31,11 +31,6 @@ export default class AFK extends SlashCommand {
 		if (!AFKRole) {
 			return ctx.send('AFK Role does not exist on this server');
 		}
-<<<<<<< HEAD
-=======
->>>>>>> 515ad66 (Update src/app/commands/afk/AFK.ts)
-=======
->>>>>>> 798237b (update with changes from develop branch)
 		let command: Promise<any>;
 		try {
 			const isAFK : boolean = await ToggleAFK(guildMember);

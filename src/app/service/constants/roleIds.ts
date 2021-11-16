@@ -8,14 +8,6 @@ export default Object.freeze({
 	level2: process.env.DISCORD_ROLE_CONTRIBUTORS_LVL_2,
 	level1: process.env.DISCORD_ROLE_LEVEL_1,
 	developersGuild: process.env.DISCORD_ROLE_DEVELOPERS_GUILD,
-<<<<<<< HEAD
-<<<<<<< HEAD
 	firstQuestProject: process.env.DISCORD_ROLE_FIRST_QUEST_PROJECT,
-=======
 	AFK: process.env.DISCORD_ROLE_AFK,
->>>>>>> 0c0e9fd (make requested changed)
-=======
-	AFK: process.env.DISCORD_ROLE_AFK,
-	firstQuestProject: process.env.DISCORD_ROLE_FIRST_QUEST_PROJECT,
->>>>>>> 7f6bcd5 (fix merge issues)
 });

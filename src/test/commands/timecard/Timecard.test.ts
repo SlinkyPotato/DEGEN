@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 /*
->>>>>>> a5d95769a40e66fd9e9e03814004a5193c5855ae
 import Checkin from '../../../app/service/timecard/Checkin';
 import Checkout from '../../../app/service/timecard/Checkout';
 import Hours from '../../../app/service/timecard/Hours';

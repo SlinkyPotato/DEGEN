@@ -45,4 +45,10 @@ process.env.DISCORD_ROLE_LVL_4 = '80003';
 process.env.DISCORD_ROLE_LEVEL_3 = '80004';
 process.env.DISCORD_ROLE_CONTRIBUTORS_LVL_2 = '80005';
 process.env.DISCORD_ROLE_DEVELOPERS_GUILD = '80006';
+<<<<<<< HEAD
 process.env.LOGDNA_TOKEN = '1234567';
+=======
+process.env.LOGDNA_TOKEN = '1234567';
+process.env.DISCORD_ROLE_AFK = '905451590121586719';
+
+>>>>>>> 51dbba9 (working afk)

@@ -1,11 +1,15 @@
 import messageCreateOnBountyBoard from './bounty/MessageCreateOnBountyBoard';
 import messageSetScoapRoles from './scoap-squad/messageSetScoapRoles';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import messageLaunchFirstQuest from './first-quest/messageLaunchFirstQuest';
 import { Message } from 'discord.js';
 =======
 import { Message, User, GuildMember } from 'discord.js';
 >>>>>>> 39f2f06 (seems to be working)
+=======
+import { Message } from 'discord.js';
+>>>>>>> 51dbba9 (working afk)
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import MessageCreateOnDEGEN from './chat/MessageCreateOnDEGEN';
 import ServiceUtils from '../utils/ServiceUtils';

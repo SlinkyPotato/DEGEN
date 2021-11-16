@@ -1,6 +1,6 @@
 // Libs
 import { SlashCreator, GatewayServer, SlashCommand, CommandContext } from 'slash-create';
-import Discord, { Client, ClientOptions, Intents, WSEventType, Message } from 'discord.js';
+import Discord, { Client, ClientOptions, Intents, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
 import Log, { LogUtils } from './utils/Log';

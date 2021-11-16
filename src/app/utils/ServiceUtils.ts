@@ -57,9 +57,15 @@ const ServiceUtils = {
 		});
 	},
 
+<<<<<<< HEAD
 	getAFKRole(roles: RoleManager): Role {
 		return roles.cache.find((role) => {
 			return role.id === roleIDs.AFK;
+=======
+	getRole(roleManager: RoleManager, roleName: string): Role {
+		return roleManager.cache.find(role => {
+			return role.name === roleName;
+>>>>>>> 087762b (Update src/app/utils/ServiceUtils.ts)
 		});
 	},
 

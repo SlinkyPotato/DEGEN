@@ -3,7 +3,11 @@ import constants from '../constants/constants';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { GuildMember } from 'discord.js';
 import Log, { LogUtils } from '../../utils/Log';
+<<<<<<< HEAD
 import MongoDbUtils from '../../utils/MongoDbUtils';
+=======
+import { Role } from 'slash-create/lib/structures/role';
+>>>>>>> 39f2f06 (seems to be working)
 
 export const expiresInHours = Number(process.env.DAO_GUEST_PASS_EXPIRATION_DAYS) * 24;
 

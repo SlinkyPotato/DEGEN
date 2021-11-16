@@ -1,11 +1,17 @@
 import messageCreateOnBountyBoard from './bounty/MessageCreateOnBountyBoard';
 import messageSetScoapRoles from './scoap-squad/messageSetScoapRoles';
+<<<<<<< HEAD
 import messageLaunchFirstQuest from './first-quest/messageLaunchFirstQuest';
 import { Message } from 'discord.js';
+=======
+import { Message, User, GuildMember } from 'discord.js';
+>>>>>>> 39f2f06 (seems to be working)
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import MessageCreateOnDEGEN from './chat/MessageCreateOnDEGEN';
 import ServiceUtils from '../utils/ServiceUtils';
 import { LogUtils } from '../utils/Log';
+import HandleAFK from './chat/HandleAFK';
+
 
 export default class implements DiscordEvent {
 	name = 'messageCreate';
@@ -13,22 +19,30 @@ export default class implements DiscordEvent {
 
 	async execute(message: Message): Promise<any> {
 		try {
-			if(message.author.bot) return;
-
+			if (message.author.bot) return;
+			// Check for mentions for AFK users
+			if (message.mentions.users.size > 0) {
+				await HandleAFK(message).catch((e) => {
+					LogUtils.logError('DEGEN failed to handle AFK', e);
+				});
+			}
 			// DEGEN says hello
-			await MessageCreateOnDEGEN(message).catch(e => {
+			await MessageCreateOnDEGEN(message).catch((e) => {
 				LogUtils.logError('DEGEN failed to say hello', e);
 			});
-			
+
 			if (ServiceUtils.isBanklessDAO(message.guild)) {
 				// Run for webhook
-				await messageCreateOnBountyBoard(message).catch(e => {
-					LogUtils.logError('failed to create bounty message from webhook', e);
+				await messageCreateOnBountyBoard(message).catch((e) => {
+					LogUtils.logError(
+						'failed to create bounty message from webhook',
+						e,
+					);
 				});
 			}
 			if (message.channel.type === 'DM') {
 				// Run scoap squad DM flow
-				await messageSetScoapRoles(message).catch(e => {
+				await messageSetScoapRoles(message).catch((e) => {
 					LogUtils.logError('failed to run scoap-squad DM flow', e);
 				});
 

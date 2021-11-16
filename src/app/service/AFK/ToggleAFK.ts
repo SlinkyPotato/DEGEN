@@ -8,8 +8,8 @@ export default async (guildMember: GuildMember): Promise<any> => {
 	if (guildMember.user.id === null) {
 		throw new ValidationError(`No guildMember <@${guildMember.id}>.`);
 	}
-
 	try {
+		
 		return await toggleAFKRoll(guildMember);
 		
 	} catch (e) {
@@ -21,7 +21,6 @@ export default async (guildMember: GuildMember): Promise<any> => {
 
 export const toggleAFKRoll = async (guildMember: GuildMember): Promise<boolean> => {
 	const AFKRole = ServiceUtils.getAFKRole(guildMember.guild.roles);
-
 	const isAFK = ServiceUtils.hasRole(guildMember, roleIds.AFK);
 	if (!isAFK) {
 		await guildMember.roles.add(AFKRole);

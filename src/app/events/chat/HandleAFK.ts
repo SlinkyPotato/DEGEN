@@ -1,4 +1,4 @@
-import { GuildMember, Message, } from 'discord.js';
+import { GuildMember, Message } from 'discord.js';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { PublishAFKMessage } from '../../service/AFK/PublishAFKMessage';
 
@@ -8,11 +8,14 @@ const HandleAFK = async (message: Message): Promise<any> => {
 		return;
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	// get GuildMember from User, check for AFK role, send message if user has AFK role
 >>>>>>> 1a23c0b (Update src/app/events/chat/HandleAFK.ts)
+=======
+>>>>>>> 7f6bcd5 (fix merge issues)
 	message.mentions.users.forEach(async user => {
-		const guildMember: GuildMember = message.guild.members.cache.find(member => { 
+		const guildMember: GuildMember = message.guild.members.cache.find(member => {
 			return member.user.id === user.id;
 		});
 		if (ServiceUtils.hasRole(guildMember, AFKRole.id)) {
@@ -23,11 +26,13 @@ const HandleAFK = async (message: Message): Promise<any> => {
 			
 			await guildMember.send({ embeds :[prettyMessage] });
 		}
-<<<<<<< HEAD
 	});
+<<<<<<< HEAD
 =======
 	})
 >>>>>>> 1a23c0b (Update src/app/events/chat/HandleAFK.ts)
+=======
+>>>>>>> 7f6bcd5 (fix merge issues)
 };
 
 export default HandleAFK;

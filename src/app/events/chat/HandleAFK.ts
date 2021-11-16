@@ -7,6 +7,10 @@ const HandleAFK = async (message: Message): Promise<any> => {
 	if (!AFKRole) {
 		return;
 	}
+<<<<<<< HEAD
+=======
+	// get GuildMember from User, check for AFK role, send message if user has AFK role
+>>>>>>> 1a23c0b (Update src/app/events/chat/HandleAFK.ts)
 	message.mentions.users.forEach(async user => {
 		const guildMember: GuildMember = message.guild.members.cache.find(member => { 
 			return member.user.id === user.id;
@@ -19,7 +23,11 @@ const HandleAFK = async (message: Message): Promise<any> => {
 			
 			await guildMember.send({ embeds :[prettyMessage] });
 		}
+<<<<<<< HEAD
 	});
+=======
+	})
+>>>>>>> 1a23c0b (Update src/app/events/chat/HandleAFK.ts)
 };
 
 export default HandleAFK;

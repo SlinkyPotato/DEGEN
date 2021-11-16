@@ -26,17 +26,13 @@ export default class AFK extends SlashCommand {
 	async run(ctx: CommandContext): Promise<any> {
 		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;
-		const guildAndMember = await ServiceUtils.getGuildAndMember(ctx);
-		const { guildMember } = guildAndMember;
+		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
+		const AFKRole = ServiceUtils.getAFKRole(guildMember.guild.roles);
+		if (!AFKRole) {
+			return ctx.send('AFK Role does not exist on this server');
+		}
 		let command: Promise<any>;
 		try {
-			// Check if guild has afk role
-			// if they don't have AFK role, prompt them to create the role
-			// if they have afk role, proceed
-			const AFKRole = ServiceUtils.getRoleId(guildMember.guild.roles, 'AFK');
-			if (!AFKRole) {
-				return ctx.send('This server does not have the AFK role yet. Use </create-role afk> to create the AFK role.');
-			}
 			const isAFK : boolean = await ToggleAFK(guildMember);
 			if (isAFK) {
 				return ctx.send(`${ctx.user.mention} has gone AFK.`);

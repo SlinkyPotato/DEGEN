@@ -23,12 +23,6 @@ export default class implements DiscordEvent {
 	async execute(message: Message): Promise<any> {
 		try {
 			if (message.author.bot) return;
-			// Check mentions for AFK users
-			if (message.mentions.users.size > 0) {
-				await HandleAFK(message).catch((e) => {
-					LogUtils.logError('DEGEN failed to handle AFK', e);
-				});
-			}
 			// DEGEN says hello
 			await MessageCreateOnDEGEN(message).catch(e => {
 				LogUtils.logError('DEGEN failed to say hello', e);
@@ -52,6 +46,12 @@ export default class implements DiscordEvent {
 				// Run first-quest DM flow
 				await messageLaunchFirstQuest(message).catch(e => {
 					LogUtils.logError('failed to run first-quest DM flow', e);
+				});
+			}
+			// Check mentions for AFK users
+			if (message.mentions.users.size > 0) {
+				await HandleAFK(message).catch((e) => {
+					LogUtils.logError('DEGEN failed to handle AFK', e);
 				});
 			}
 		} catch (e) {

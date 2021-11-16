@@ -2,15 +2,16 @@ import { GuildMember } from 'discord.js';
 import ValidationError from '../../errors/ValidationError';
 import ServiceUtils from '../../utils/ServiceUtils';
 import Log from '../../utils/Log';
+import roleIds from '../constants/roleIds';
 
-export default async (guildMember: GuildMember): Promise<any> => {
+export default async (guildMember: GuildMember): Promise<boolean> => {
 	if (guildMember.user.id === null) {
 		throw new ValidationError(`No guildMember <@${guildMember.id}>.`);
 	}
 	try {
-		const AFKRole = ServiceUtils.getRoleId(guildMember.guild.roles, 'AFK');
 		// change role ID
-		const isAFK = ServiceUtils.hasRole(guildMember, AFKRole.id);
+		const AFKRole = ServiceUtils.getAFKRole(guildMember.guild.roles);
+		const isAFK = ServiceUtils.hasRole(guildMember, roleIds.AFK);
 		if (!isAFK) {
 			await guildMember.roles.add(AFKRole);
 			Log.info(`user ${guildMember.user.tag} given ${AFKRole.name} role`);

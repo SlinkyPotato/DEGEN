@@ -57,9 +57,9 @@ const ServiceUtils = {
 		});
 	},
 
-	getRoleId(roleManager: RoleManager, roleName: string): Role {
-		return roleManager.cache.find(role => {
-			return role.name === roleName;
+	getAFKRole(roles: RoleManager): Role {
+		return roles.cache.find((role) => {
+			return role.id === roleIDs.AFK;
 		});
 	},
 

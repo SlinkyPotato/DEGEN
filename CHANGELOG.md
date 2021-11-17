@@ -14,7 +14,8 @@
 5. background services
    - FQ rescue call service
    - POAP claim link expiration reminder
-6. Add /afk feature
+6. Fix node version heroku deployment
+7. Add /afk feature
    - bot auto responds that mentioned users are AFK
    - bot sends AFK users DM's with links to their messages
 

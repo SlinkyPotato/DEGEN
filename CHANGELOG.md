@@ -15,6 +15,7 @@
 5. background services
    - FQ rescue call service
    - POAP claim link expiration reminder
+6. Fix node version heroku deployment
    
 ## 1.9.3-RELEASE (2021-11-12)
 

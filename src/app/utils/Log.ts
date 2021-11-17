@@ -5,10 +5,17 @@ class Log {
 	static logger: Logger;
 	
 	constructor() {
-		Log.logger = logdna.createLogger(process.env.LOGDNA_TOKEN, {
-			app: process.env.LOGDNA_APP_NAME,
-			level: process.env.LOGDNA_DEFAULT_LEVEL,
-		});
+		try {
+			Log.logger = logdna.createLogger(process.env.LOGDNA_TOKEN, {
+				app: process.env.LOGDNA_APP_NAME,
+				level: process.env.LOGDNA_DEFAULT_LEVEL,
+			});
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.log('Please setup LogDNA token.');
+			// eslint-disable-next-line no-console
+			console.log(e);
+		}
 	}
 	
 	static info(statement: string | any, options?: Omit<LogOptions, 'level'>): void {

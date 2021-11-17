@@ -57,6 +57,18 @@ const ServiceUtils = {
 		});
 	},
 
+	getAFKRole(roles: RoleManager): Role {
+		return roles.cache.find((role) => {
+			return role.id === roleIDs.AFK;
+		});
+	},
+	
+	getRole(roleManager: RoleManager, roleName: string): Role {
+		return roleManager.cache.find(role => {
+			return role.name === roleName;
+		});
+	},
+
 	hasRole(guildMember: GuildMember, role: string): boolean {
 		return guildMember.roles.cache.some(r => r.id === role);
 	},
@@ -177,7 +189,8 @@ const ServiceUtils = {
 
 		const username = ServiceUtils.sanitizeUsername(member.user.username);
 
-		if ((nickname && highRankingNames.includes(nickname)) || highRankingNames.includes(username)) {
+		if ((nickname && (highRankingNames.includes(nickname) || constants.BANNED_NAMES.includes(nickname)))
+			|| highRankingNames.includes(username) || constants.BANNED_NAMES.includes(username)) {
 			const debugMessage = `Nickname: ${member.displayName}. Username: ${member.user.tag}.`;
 
 			// Fetch admin contacts

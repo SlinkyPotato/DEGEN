@@ -175,7 +175,11 @@ const getBufferFromParticipantsTwitter = (participants: TwitterPOAPFileParticipa
 	
 	let participantsStr = 'twitterUserId,checkInDateISO,poapLink\n';
 	participants.forEach((participant: TwitterPOAPFileParticipant) => {
-		participantsStr += `${participant.twitterUserId},${participant.checkInDateISO},${participant.poapLink}\n`;
+		try {
+			participantsStr += `${participant.twitterUserId},${participant.checkInDateISO},${participant.poapLink}\n`;
+		} catch (e) {
+			Log.warn('failed to parse');
+		}
 	});
 	
 	return Buffer.from(participantsStr, 'utf-8');
@@ -190,7 +194,11 @@ export const getBufferForFailedParticipants = (failedPOAPs: POAPFileParticipant[
 	
 	let failedPOAPStr = 'discordUserId,discordUserTag,poapLink\n';
 	failedPOAPs.forEach((failedPOAP: POAPFileParticipant) => {
-		failedPOAPStr += `${failedPOAP.discordUserId},${failedPOAP.discordUserTag},${failedPOAP.poapLink}\n`;
+		try {
+			failedPOAPStr += `${failedPOAP.discordUserId},${failedPOAP.discordUserTag},${failedPOAP.poapLink}` + '\n';
+		} catch (e) {
+			Log.warn('failed to parse' + failedPOAP.discordUserId);
+		}
 	});
 
 	return Buffer.from(failedPOAPStr, 'utf-8');

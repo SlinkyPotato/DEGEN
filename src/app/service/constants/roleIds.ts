@@ -9,4 +9,5 @@ export default Object.freeze({
 	level1: process.env.DISCORD_ROLE_LEVEL_1,
 	developersGuild: process.env.DISCORD_ROLE_DEVELOPERS_GUILD,
 	firstQuestProject: process.env.DISCORD_ROLE_FIRST_QUEST_PROJECT,
+	AFK: process.env.DISCORD_ROLE_AFK,
 });

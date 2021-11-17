@@ -57,6 +57,18 @@ const ServiceUtils = {
 		});
 	},
 
+	getAFKRole(roles: RoleManager): Role {
+		return roles.cache.find((role) => {
+			return role.id === roleIDs.AFK;
+		});
+	},
+	
+	getRole(roleManager: RoleManager, roleName: string): Role {
+		return roleManager.cache.find(role => {
+			return role.name === roleName;
+		});
+	},
+
 	hasRole(guildMember: GuildMember, role: string): boolean {
 		return guildMember.roles.cache.some(r => r.id === role);
 	},

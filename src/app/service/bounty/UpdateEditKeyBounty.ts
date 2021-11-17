@@ -29,6 +29,11 @@ export default async (guildMember: GuildMember, bountyId: string, message?: Mess
 	if (guildMember.user.id !== bounty.createdBy.discordId) {
 		Log.info(`${guildMember.user.tag} is attempting to edit a bounty they did not create`);
 		return guildMember.send({ content: ` Sorry you are not allowed to edit ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
+	} else {
+		Log.info(`${guildMember.user.tag} is editing bounty ${bountyId}`);
+		return guildMember.send({ content: ` 🚧 This feature is under construction 🚧 \n` +
+		` Thank you for your patience as we work to bring you the next and best Bounty Board features.` +
+		` In the meantime, please create a new bounty. The current bounty is a draft and will not be visible to other users.`});
 	}
 
 	const bountyResult: UpdateWriteOpResult = await dbCollection.updateOne(bounty, {

@@ -4,8 +4,8 @@
     "required": [
       "twitterId",
       "twitterSpaceId",
-      "startDate",
-      "isEligible"
+      "tweetId",
+      "dateOfTweet"
     ],
     "properties": {
       "twitterId": {
@@ -16,17 +16,13 @@
         "bsonType": "string",
         "description": "The twitter space ID of the event."
       },
-      "startDate": {
-        "bsonType": ["string", "null"],
-        "description": "ISO8601 of when the user entered the event."
-      },
-      "isEligible": {
+      "tweetId": {
         "bsonType": "string",
-        "description": "Flag that is true if the attendee is eligible for poap claim."
+        "description": "Tweet ID for POAP eligibility"
       },
-      "endDate": {
+      "dateOfTweet": {
         "bsonType": ["string", "null"],
-        "description": "ISO8601 of when the user left the event."
+        "description": "ISO8601 of when the tweet was sent"
       }
     }
   }

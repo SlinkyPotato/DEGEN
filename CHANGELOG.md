@@ -19,7 +19,12 @@
 7. Add /afk feature
    - bot auto responds that mentioned users are AFK
    - bot sends AFK users DM's with links to their messages
-8. Tweet spaces event upon startup
+8. Add Datadog tracer
+9. Tweet spaces event upon startup
+   - organize datadog
+   - complete /poap start platform:twitter
+   - complete /poap end
+   - misc enhancements
 
 ## 1.9.3-RELEASE (2021-11-12)
 

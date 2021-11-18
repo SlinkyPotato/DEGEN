@@ -134,6 +134,7 @@ export const generateBountyRecord = (bountyParams: BountyCreateNew, guildMember:
 	const currentDate = (new Date()).toISOString();
 	return {
 		customerId: bountyParams.customerId,
+		customer_id: bountyParams.customer_id,
 		season: new Int32(Number(process.env.DAO_CURRENT_SEASON)),
 		title: bountyParams.title,
 		description: bountyParams.summary,

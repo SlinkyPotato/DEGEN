@@ -234,6 +234,7 @@ export default class Bounty extends SlashCommand {
 		scale = (scale != null) ? scale : 0;
 		return {
 			customerId: guild,
+			customer_id: guild,
 			title: ctxOptions.title,
 			reward: {
 				amount: reward,

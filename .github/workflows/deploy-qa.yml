@@ -46,4 +46,4 @@ jobs:
                   HD_TWITTER_API_SECRET: ${{secrets.QA_TWITTER_API_SECRET}}
                   HD_TWITTER_BEARER_TOKEN: ${{secrets.QA_TWITTER_API_BEARER_TOKEN}}
                   HD_TWITTER_ACCESS_TOKEN_SECRET: ${{secrets.QA_TWITTER_API_ACCESS_TOKEN_SECRET}}
-                  HD_DD_API_KEY: ${{secrets.DD_API_KEY}}
+                  HD_DD_API_KEY: ${{secrets.QA_DD_API_KEY}}

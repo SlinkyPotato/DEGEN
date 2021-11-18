@@ -17,7 +17,7 @@ export default async (guildMember: GuildMember, bountyId: string, guildID: strin
 	if (notes) {
 		await BountyUtils.validateSummary(guildMember, notes);
 	}
-	return submitBountyForValidId(guildMember, bountyId, urlOfWork, notes);
+	return submitBountyForValidId(guildMember, bountyId, guildID, urlOfWork, notes);
 };
 
 export const submitBountyForValidId = async (guildMember: GuildMember,
@@ -83,6 +83,7 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 export const submitBountyMessage = async (db: Db, guildMember: GuildMember, 
 	bountyMessageId: string, guildID: string, message?: Message
 	): Promise<any> => {
+	Log.debug('fetching bounty message for submit')
 	message = await BountyUtils.getBountyMessage(db, guildMember, bountyMessageId, guildID, message);
 
 	const embedMessage: MessageEmbed = message.embeds[0];

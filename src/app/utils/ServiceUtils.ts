@@ -98,6 +98,10 @@ const ServiceUtils = {
 		]);
 	},
 
+	isAllowListedRole(guildMember: GuildMember, roles: string[]): boolean {
+		return ServiceUtils.hasSomeRole(guildMember, roles);
+	},
+
 	isAtLeastLevel2(guildMember: GuildMember): boolean {
 		return ServiceUtils.hasSomeRole(guildMember, [
 			roleIDs.level2,

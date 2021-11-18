@@ -5,5 +5,6 @@ export interface CustomerCollection extends Collection {
     customerId: string,
     customer_id?: string,
     bountyChannel: string,
-    name: string
+    name: string,
+    allowlistedRoles: string[]
 }

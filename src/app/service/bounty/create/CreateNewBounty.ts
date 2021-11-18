@@ -12,17 +12,36 @@ import ValidationError from '../../../errors/ValidationError';
 import Log, { LogUtils } from '../../../utils/Log';
 import MongoDbUtils from '../../../utils/MongoDbUtils';
 import discordServerIds from '../../../service/constants/discordServerIds';
+import { CustomerCollection } from '../../../types/bounty/CustomerCollection';
 
 export default async (guildMember: GuildMember, params: BountyCreateNew, guildID: string): Promise<any> => {
 	const title = params.title;
 	const reward = params.reward;
 
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
+	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
+	const dbCustomers = db.collection(constants.DB_COLLECTION_CUSTOMERS);
+
+	const dbCustomerResult: CustomerCollection = await dbCustomers.findOne({
+		customerId: guildID
+	});
+
 	const isBanklessDao = guildID === discordServerIds.banklessDAO;
 
-	if (!ServiceUtils.isAtLeastLevel1(guildMember)) {
-		if(isBanklessDao)
+	if(isBanklessDao) {
+		if (!ServiceUtils.isAtLeastLevel1(guildMember)) {
 			throw new ValidationError('Must be at a least level 1 to create new bounties.');
+		}
+	} else {
+		if (!ServiceUtils.isAllowListedRole(guildMember, dbCustomerResult.allowlistedRoles)) {
+			throw new ValidationError(`Thank you for giving bounty commands a try!\n` +
+									`It looks like you don't have permission to use this command.\n` +
+									`If you think this is an error, please reach out to a server admin for help.`);
+		}
 	}
+
+	
+
 	await BountyUtils.validateReward(guildMember, reward);
 	await BountyUtils.validateTitle(guildMember, title);
 
@@ -80,8 +99,6 @@ export default async (guildMember: GuildMember, params: BountyCreateNew, guildID
 	} while (convertedDueDateFromMessage.toString() === 'Invalid Date');
 	params.dueAt = convertedDueDateFromMessage ? convertedDueDateFromMessage : BountyUtils.getDateFromISOString(constants.BOUNTY_BOARD_END_OF_SEASON_DATE);
 
-	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
-	const dbBounty = db.collection(constants.DB_COLLECTION_BOUNTIES);
 
 	const listOfPrepBounties = [];
 	for (let i = 0; i < params.copies; i++) {

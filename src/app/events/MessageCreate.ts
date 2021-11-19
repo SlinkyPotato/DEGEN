@@ -1,5 +1,4 @@
 import messageCreateOnBountyBoard from './bounty/MessageCreateOnBountyBoard';
-import messageSetScoapRoles from './scoap-squad/messageSetScoapRoles';
 import { Message } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import MessageCreateOnBB from './chat/MessageCreateOnBB';
@@ -14,21 +13,15 @@ export default class implements DiscordEvent {
 		try {
 			if(message.author.bot) return;
 
-			// DEGEN says hello
+			// Bounty Bot says hello
 			await MessageCreateOnBB(message).catch(e => {
-				LogUtils.logError('DEGEN failed to say hello', e);
+				LogUtils.logError('BountyBot failed to say hello', e);
 			});
 			
 			if (ServiceUtils.isBanklessDAO(message.guild)) {
 				// Run for webhook
 				await messageCreateOnBountyBoard(message).catch(e => {
 					LogUtils.logError('failed to create bounty message from webhook', e);
-				});
-			}
-			if (message.channel.type === 'DM') {
-				// Run scoap squad DM flow
-				await messageSetScoapRoles(message).catch(e => {
-					LogUtils.logError('failed to run scoap-squad DM flow', e);
 				});
 			}
 		} catch (e) {

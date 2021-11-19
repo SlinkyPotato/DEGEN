@@ -25,7 +25,7 @@ export type POAPFileParticipant = {
 export type TwitterPOAPFileParticipant = {
 	twitterUserId: string,
 	twitterSpaceId: string,
-	checkInDateISO: string,
+	dateOfTweet: string,
 	poapLink?: string,
 }
 
@@ -74,8 +74,8 @@ const POAPUtils = {
 		const participants = [];
 		await result.forEach((participant: POAPTwitterParticipants) => {
 			participants.push({
-				twitterId: participant.twitterUserId,
-				checkInDateISO: participant.checkInDateISO,
+				twitterUserId: participant.twitterUserId,
+				dateOfTweet: participant.dateOfTweet,
 			});
 		});
 		Log.debug(`prepared ${participants.length} participants`);
@@ -187,7 +187,7 @@ const POAPUtils = {
 				failedPOAPList.push({
 					twitterUserId: participant.twitterUserId,
 					twitterSpaceId: participant.twitterSpaceId,
-					checkInDateISO: participant.checkInDateISO,
+					dateOfTweet: participant.dateOfTweet,
 					poapLink: 'n/a',
 				});
 				i++;
@@ -204,7 +204,7 @@ const POAPUtils = {
 					failedPOAPList.push({
 						twitterUserId: participant.twitterUserId,
 						twitterSpaceId: participant.twitterSpaceId,
-						checkInDateISO: participant.checkInDateISO,
+						dateOfTweet: participant.dateOfTweet,
 						poapLink: poapLink,
 					});
 					LogUtils.logError(`failed trying to send POAP to twitterId: ${participant.twitterUserId}, twitterSpaceId: ${participant.twitterSpaceId}, link: ${poapLink}`, e);
@@ -217,7 +217,7 @@ const POAPUtils = {
 				failedPOAPList.push({
 					twitterUserId: participant.twitterUserId,
 					twitterSpaceId: participant.twitterSpaceId,
-					checkInDateISO: participant.checkInDateISO,
+					dateOfTweet: participant.dateOfTweet,
 					poapLink: poapLink,
 				});
 			}

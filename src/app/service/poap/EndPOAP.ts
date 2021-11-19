@@ -173,15 +173,16 @@ const getBufferFromParticipantsTwitter = (participants: TwitterPOAPFileParticipa
 		return Buffer.from('', 'utf-8');
 	}
 	
-	let participantsStr = 'twitterUserId,checkInDateISO,poapLink\n';
+	let participantsStr = 'twitterUserId,dateOfTweet,poapLink\n';
+	Log.debug(`attempting to parse ${participants.length} participants`);
 	participants.forEach((participant: TwitterPOAPFileParticipant) => {
 		try {
-			participantsStr += `${participant.twitterUserId},${participant.checkInDateISO},${participant.poapLink}\n`;
+			participantsStr += `${participant.twitterUserId},${participant.dateOfTweet},${participant.poapLink}\n`;
 		} catch (e) {
 			Log.warn('failed to parse');
 		}
 	});
-	
+	Log.debug('finishing parsing twitter participants');
 	return Buffer.from(participantsStr, 'utf-8');
 };
 
@@ -243,7 +244,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		Log.debug('no eligible attendees found during event');
 		await guildMember.send({ content: 'Event ended. No eligible attendees found during twitter event' });
 		if (ctx) {
-			await ctx.send('*whisper* check your DMs');
+			await ctx.send('* *whisper* check your DMs *');
 		}
 		return;
 	}
@@ -263,7 +264,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		files: [{ name: `participants_${numberOfParticipants}.csv`, attachment: bufferFile }],
 	});
 	if (ctx) {
-		await ctx.send('*whisper* check your DMs');
+		await ctx.send('* *whisper* check your DMs *');
 	}
 	await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(y/n)`' });
 	const dmChannel: DMChannel = await guildMember.createDM();

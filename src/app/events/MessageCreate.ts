@@ -2,7 +2,7 @@ import messageCreateOnBountyBoard from './bounty/MessageCreateOnBountyBoard';
 import messageSetScoapRoles from './scoap-squad/messageSetScoapRoles';
 import { Message } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
-import MessageCreateOnDEGEN from './chat/MessageCreateOnDEGEN';
+import MessageCreateOnBB from './chat/MessageCreateOnBB';
 import ServiceUtils from '../utils/ServiceUtils';
 import { LogUtils } from '../utils/Log';
 
@@ -15,7 +15,7 @@ export default class implements DiscordEvent {
 			if(message.author.bot) return;
 
 			// DEGEN says hello
-			await MessageCreateOnDEGEN(message).catch(e => {
+			await MessageCreateOnBB(message).catch(e => {
 				LogUtils.logError('DEGEN failed to say hello', e);
 			});
 			

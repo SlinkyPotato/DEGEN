@@ -4,6 +4,10 @@
 
 1. Remove non-poap features
 
+## 1.9.4-RELEASE (2021-11-18)
+
+1. Add datadog tracer
+
 ## 1.9.3-RELEASE (2021-11-12)
 
 1. Add try/catch block to buffering

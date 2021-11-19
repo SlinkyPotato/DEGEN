@@ -60,7 +60,7 @@ const VerifyTwitter = async (guildMember: GuildMember): Promise<VerifiedTwitter>
 		});
 
 		Log.debug('testing validity of twitter account');
-		userCall = await userClient.v1.verifyCredentials();
+		userCall = await userClient.currentUser(true);
 	} catch (e) {
 		Log.warn('invalid twitter auth found in db, verifyCredentials failed. Now removing from db...');
 		await removeTwitterAccountLink(nextAuthAccount);
@@ -82,7 +82,7 @@ const VerifyTwitter = async (guildMember: GuildMember): Promise<VerifiedTwitter>
 				description: 'Twitter account linked 👍',
 				fields: [
 					{ name: 'Display Name', value: `${userCall.screen_name}` },
-					{ name: 'Description', value: `${userCall.description}` },
+					{ name: 'Description', value: `${ServiceUtils.prepEmbedField(userCall.description)}` },
 					{ name: 'URL', value: `https://twitter.com/${userCall.screen_name}` },
 				],
 			},

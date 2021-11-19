@@ -284,6 +284,9 @@ const ServiceUtils = {
 		}
 	},
 	
+	prepEmbedField: (field: string | null): string => {
+		return (field) ? field : '-';
+	},
 };
 
 export default ServiceUtils;

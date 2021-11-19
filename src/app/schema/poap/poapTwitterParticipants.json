@@ -4,7 +4,6 @@
     "required": [
       "twitterId",
       "twitterSpaceId",
-      "tweetId",
       "dateOfTweet"
     ],
     "properties": {
@@ -17,7 +16,7 @@
         "description": "The twitter space ID of the event."
       },
       "tweetId": {
-        "bsonType": "string",
+        "bsonType": ["string", "null"],
         "description": "Tweet ID for POAP eligibility"
       },
       "dateOfTweet": {

@@ -7,11 +7,10 @@ import constants from '../constants/constants';
 import { CommandContext } from 'slash-create';
 import Log, { LogUtils } from '../../utils/Log';
 import { Buffer } from 'buffer';
-import { getBufferForFailedParticipants } from './EndPOAP';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 
-export default async (ctx: CommandContext, guildMember: GuildMember, type: string, event: string): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember, event: string): Promise<any> => {
 	if (ctx.guildID == undefined) {
 		await ctx.send('Please try ending poap event within discord channel');
 		return;
@@ -34,7 +33,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, type: strin
 	} else {
 		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, event);
 	}
-	const failedPOAPsBuffer: Buffer = getBufferForFailedParticipants(failedPOAPsList);
+	const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(failedPOAPsList);
 	await guildMember.send({
 		embeds: [
 			{

@@ -138,22 +138,6 @@ module.exports = class poap extends SlashCommand {
 					description: 'Distribute links to participants.',
 					options: [
 						{
-							name: 'type',
-							type: CommandOptionType.STRING,
-							description: 'Type of distribution',
-							required: true,
-							choices: [
-								{
-									name: 'Normal Delivery',
-									value: 'NORMAL_DELIVERY',
-								},
-								{
-									name: 'Redeliver Failed Participants',
-									value: 'REDELIVER_FAILED_PARTICIPANTS',
-								},
-							],
-						},
-						{
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The event name for the distribution',
@@ -222,7 +206,7 @@ module.exports = class poap extends SlashCommand {
 				command = EndPOAP(guildMember, ctx.options.end['platform'], ctx);
 				break;
 			case 'distribute':
-				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['type'], ctx.options.distribute['event']);
+				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event']);
 				break;
 			case 'claim':
 				command = ClaimPOAP(ctx, ctx.options.claim.platform, guildMember);

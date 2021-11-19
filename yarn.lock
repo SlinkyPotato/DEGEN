@@ -1737,6 +1737,11 @@ cssstyle@^2.3.0:
   dependencies:
     cssom "~0.3.6"
 
+csv-stringify@^6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.0.3.tgz#9cc38520e2c76b3d8f0d92a6cbbdf7df62cf3dd9"
+  integrity sha512-VXo2+Rj3h2FcwZaqtnoDEkI6vlWCJZ8i9gYaN//h07hz+HzPQrzN5PEpuWMNdC1PI/tnbuh868CPlgFpi5fhYA==
+
 data-urls@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/data-urls/-/data-urls-2.0.0.tgz#156485a72963a970f5d5821aaf642bef2bf2db9b"

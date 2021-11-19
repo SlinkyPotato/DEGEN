@@ -25,6 +25,8 @@ import { Confusables } from './Confusables';
 import discordServerIds from '../service/constants/discordServerIds';
 import Log, { LogUtils } from './Log';
 import MongoDbUtils from '../utils/MongoDbUtils';
+import { Buffer } from 'buffer';
+import { stringify } from 'csv-stringify/sync';
 
 const nonStandardCharsRegex = /[^\w\s\p{P}\p{S}Ξ]/gu;
 const emojiRegex = /\p{So}/gu;
@@ -286,6 +288,23 @@ const ServiceUtils = {
 	
 	prepEmbedField: (field: string | null): string => {
 		return (field) ? field : '-';
+	},
+	
+	generateCSVStringBuffer: (listOfObjects: any[]): Buffer => {
+		Log.debug('starting the generate csv buffer...');
+		if (listOfObjects.length === 0) {
+			Log.debug('no participants found for parsing');
+			return Buffer.from('', 'utf-8');
+		}
+		const csvString = stringify(listOfObjects, {
+			header: true,
+		});
+		Log.debug('finishing parsing twitter participants');
+		return Buffer.from(csvString, 'utf-8');
+	},
+	
+	parseCSVFile: () => {
+		return;
 	},
 };
 

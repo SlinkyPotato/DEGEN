@@ -74,7 +74,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		return;
 	}
 	
-	const bufferFile = getBufferFromParticipants(listOfParticipants);
+	const bufferFile = ServiceUtils.generateCSVStringBuffer(listOfParticipants);
 	const currentDate: string = dayjs().toISOString();
 	const fileName = `participants_${numberOfParticipants}.csv`;
 	await guildMember.send({
@@ -114,7 +114,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(guildMember, poapLinksFile);
 		const listOfFailedPOAPs: POAPFileParticipant[] = await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapSettingsDoc.event, listOfPOAPLinks);
-		const failedPOAPsBuffer: Buffer = getBufferForFailedParticipants(listOfFailedPOAPs);
+		const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(listOfFailedPOAPs);
 		await guildMember.send({
 			embeds: [
 				{
@@ -151,58 +151,6 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 			await ctx.send('POAP event ended. POAPs will be delivered at a later time.');
 		}
 	}
-};
-
-const getBufferFromParticipants = (participants: POAPFileParticipant[]): Buffer => {
-	if (participants.length === 0) {
-		Log.debug('no participants found for parsing');
-		return Buffer.from('', 'utf-8');
-	}
-
-	let participantsStr = 'discordId,discordHandle,durationInMinutes\n';
-	participants.forEach((participant: POAPFileParticipant) => {
-		participantsStr += `${participant.discordUserId},${participant.discordUserTag},${participant.durationInMinutes}\n`;
-	});
-
-	return Buffer.from(participantsStr, 'utf-8');
-};
-
-const getBufferFromParticipantsTwitter = (participants: TwitterPOAPFileParticipant[]): Buffer => {
-	if (participants.length === 0) {
-		Log.debug('no participants found for parsing');
-		return Buffer.from('', 'utf-8');
-	}
-	
-	let participantsStr = 'twitterUserId,dateOfTweet,poapLink\n';
-	Log.debug(`attempting to parse ${participants.length} participants`);
-	participants.forEach((participant: TwitterPOAPFileParticipant) => {
-		try {
-			participantsStr += `${participant.twitterUserId},${participant.dateOfTweet},${participant.poapLink}\n`;
-		} catch (e) {
-			Log.warn('failed to parse');
-		}
-	});
-	Log.debug('finishing parsing twitter participants');
-	return Buffer.from(participantsStr, 'utf-8');
-};
-
-
-export const getBufferForFailedParticipants = (failedPOAPs: POAPFileParticipant[]): Buffer => {
-	if (failedPOAPs.length === 0) {
-		Log.info('All POAPs delivered successfully');
-		return Buffer.from('', 'utf-8');
-	}
-	
-	let failedPOAPStr = 'discordUserId,discordUserTag,poapLink\n';
-	failedPOAPs.forEach((failedPOAP: POAPFileParticipant) => {
-		try {
-			failedPOAPStr += `${failedPOAP.discordUserId},${failedPOAP.discordUserTag},${failedPOAP.poapLink}` + '\n';
-		} catch (e) {
-			Log.warn('failed to parse' + failedPOAP.discordUserId);
-		}
-	});
-
-	return Buffer.from(failedPOAPStr, 'utf-8');
 };
 
 const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandContext): Promise<any> => {
@@ -249,7 +197,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		return;
 	}
 	
-	const bufferFile: Buffer = getBufferFromParticipantsTwitter(listOfParticipants);
+	const bufferFile: Buffer = ServiceUtils.generateCSVStringBuffer(listOfParticipants);
 	await guildMember.send({
 		embeds: [
 			{
@@ -282,7 +230,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(guildMember, poapLinksFile);
 		const listOfFailedPOAPs: TwitterPOAPFileParticipant[] = await POAPUtils.sendOutTwitterPoapLinks(verifiedTwitter, listOfParticipants, activeTwitterSettings.event, listOfPOAPLinks);
 
-		const failedPOAPsBuffer: Buffer = getBufferFromParticipantsTwitter(listOfFailedPOAPs);
+		const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(listOfFailedPOAPs);
 		await guildMember.send({
 			embeds: [
 				{

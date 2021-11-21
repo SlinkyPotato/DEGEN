@@ -1,8 +1,6 @@
-import constants from '../../constants/constants';
 import BountyUtils from '../../../utils/BountyUtils';
 import { AwaitMessagesOptions, DMChannel, GuildMember, Message, MessageOptions, MessageReaction } from 'discord.js';
 import { finalizeBounty } from './PublishBounty';
-import { Db, Int32 } from 'mongodb';
 import { deleteBountyForValidId } from '../DeleteBounty';
 import { BountyCreateNew } from '../../../types/bounty/BountyCreateNew';
 import ServiceUtils from '../../../utils/ServiceUtils';
@@ -10,9 +8,11 @@ import envUrls from '../../constants/envUrls';
 import UpdateEditKeyBounty from '../UpdateEditKeyBounty';
 import ValidationError from '../../../errors/ValidationError';
 import Log, { LogUtils } from '../../../utils/Log';
-import MongoDbUtils from '../../../utils/MongoDbUtils';
 import discordServerIds from '../../../service/constants/discordServerIds';
 import { CustomerCollection } from '../../../types/bounty/CustomerCollection';
+import MongoDbUtils from '../../../utils/MongoDbUtils';
+import { Db, Int32 } from 'mongodb';
+import constants from '../../constants/constants';
 
 export default async (guildMember: GuildMember, params: BountyCreateNew, guildID: string): Promise<any> => {
 	const title = params.title;

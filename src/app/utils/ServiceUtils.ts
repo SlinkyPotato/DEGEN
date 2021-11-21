@@ -16,7 +16,7 @@ import client from '../app';
 import ValidationError from '../errors/ValidationError';
 import roleIDs from '../service/constants/roleIds';
 import discordServerIds from '../service/constants/discordServerIds';
-import { LogUtils } from './Log';
+import Log, { LogUtils } from './Log';
 
 const ServiceUtils = {
 	async getGuildAndMember(ctx: CommandContext): Promise<{ guild: Guild, guildMember: GuildMember }> {

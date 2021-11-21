@@ -47,6 +47,7 @@
         "mongodb": "^3.6.9",
         "p-queue": "^6.6.2",
         "slash-create": "^4.3.0",
+        "tsc": "^2.0.3",
         "twitter-api-v2": "^1.6.5",
         "uuid": "^8.3.2"
     },

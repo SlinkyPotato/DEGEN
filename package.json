@@ -14,7 +14,9 @@
         "start": "node --trace-warnings -r dotenv/config dist/app/app.js",
         "lint": "eslint ./src/app/**/*.ts --ext .ts",
         "format": "eslint ./src/app/**/*.ts --ext .ts --fix",
-        "watch": "tsc -p tsconfig.json -w"
+        "watch": "tsc -p tsconfig.json -w",
+        "tsc": "tsc",
+        "postinstall": "npm run tsc"
     },
     "repository": {
         "type": "git",

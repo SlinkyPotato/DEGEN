@@ -1,30 +1,17 @@
 # Changelog
 
-## 1.10.0-SNAPSHOT
+## 2.0.0-RELEASE (2021-11-23)
 
-1. Add banned names to username spam filter.
-2. DM flow triggered by GuildMemberAdd event
-   - CAPTCHA verification
-   - first quest messages + role assignments
-   - POAP distribution upon completion
-3. /first-quest config command introduced
-   - update FQ message content in database via DMs
-4. /first-quest poap-refill command introduced
-   - add option: add claim links to DB
-   - replace option: add claim links + retire existing claim links
-5. background services
-   - FQ rescue call service
-   - POAP claim link expiration reminder
-6. Fix node version heroku deployment
-7. Add /afk feature
-   - bot auto responds that mentioned users are AFK
-   - bot sends AFK users DM's with links to their messages
-8. Add Datadog tracer
-9. Tweet spaces event upon startup
+1. Remove non-poap features
+2. Tweet spaces event upon startup
    - organize datadog
    - complete /poap start platform:twitter
    - complete /poap end
    - misc enhancements
+
+## 1.9.4-RELEASE (2021-11-18)
+
+1. Add datadog tracer
 
 ## 1.9.3-RELEASE (2021-11-12)
 

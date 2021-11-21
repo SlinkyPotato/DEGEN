@@ -70,5 +70,4 @@ export default Object.freeze({
 		'uniswapsupport',
 		'daopunkssupport',
 	],
-	
 });

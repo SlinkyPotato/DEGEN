@@ -15,8 +15,7 @@
         "lint": "eslint ./src/app/**/*.ts --ext .ts",
         "format": "eslint ./src/app/**/*.ts --ext .ts --fix",
         "watch": "tsc -p tsconfig.json -w",
-        "tsc": "tsc",
-        "postinstall": "npm run tsc"
+        "postinstall": "npm run build"
     },
     "repository": {
         "type": "git",

@@ -180,7 +180,7 @@ const ServiceUtils = {
 		const csvString = stringify(listOfObjects, {
 			header: true,
 		});
-		Log.debug('finishing parsing twitter participants');
+		Log.debug('finishing parsing participants');
 		return Buffer.from(csvString, 'utf-8');
 	},
 	

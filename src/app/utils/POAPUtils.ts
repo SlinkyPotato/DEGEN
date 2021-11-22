@@ -108,7 +108,14 @@ const POAPUtils = {
 		Log.debug('downloading poap links file from discord server...');
 		try {
 			const response = await axios.get(attachment.url);
-			const listOfPOAPLinks: string[] = response.data.split('\n');
+			let listOfPOAPLinks: string[] = response.data.split('\n');
+			try {
+				while (listOfPOAPLinks[listOfPOAPLinks.length - 1] == '') {
+					listOfPOAPLinks.pop();
+				}
+			} catch (e) {
+				listOfPOAPLinks = [];
+			}
 			Log.debug(`DEGEN given ${listOfPOAPLinks.length} poap links`);
 			return listOfPOAPLinks;
 		} catch (e) {
@@ -132,6 +139,7 @@ const POAPUtils = {
 			const participant: POAPFileParticipant = listOfParticipants.pop();
 			const poapLink = (isListOfPoapLinksPresent) ? listOfPOAPLinks.pop() : participant.poapLink;
 			if (poapLink == null || poapLink == '') {
+				Log.warn('ran out of poap links...');
 				failedPOAPsList.push({
 					discordUserId: participant.discordUserId,
 					discordUserTag: participant.discordUserTag,

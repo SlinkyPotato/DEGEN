@@ -40,7 +40,12 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	
 	Log.debug('active poap event found');
 	
-	await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one...');
+	try {
+		await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one...').catch();
+	} catch (e) {
+		Log.warn('auto end activated');
+	}
+	
 	const currentDateISO = dayjs().toISOString();
 	const updateSettingsResult: UpdateWriteOpResult = await poapSettingsDB.updateOne(poapSettingsDoc, {
 		$set: {
@@ -74,6 +79,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		return;
 	}
 	
+	Log.debug(`found ${numberOfParticipants} participants in db`);
 	const bufferFile = ServiceUtils.generateCSVStringBuffer(listOfParticipants);
 	const currentDate: string = dayjs().toISOString();
 	const fileName = `participants_${numberOfParticipants}.csv`;

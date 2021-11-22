@@ -31,8 +31,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	}
 
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		// await distributeTwitterFlow();
-		await ctx.send('Coming soon...');
+		await distributeTwitterFlow();
 		return;
 	}
 
@@ -75,7 +74,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 };
 
 export const askForParticipantsList = async (guildMember: GuildMember): Promise<POAPFileParticipant[] | TwitterPOAPFileParticipant[]> => {
-	const message: Message = await guildMember.send({ content: 'Please upload .csv file with header discordUserId and either durationInMinutes or poapLink. POAPs will be distributed to these degens.' });
+	const message: Message = await guildMember.send({ content: 'Please upload participants .csv file with header containing discordUserId and either durationInMinutes or poapLink. POAPs will be distributed to these degens.' });
 	const dmChannel: DMChannel = await message.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -87,6 +86,12 @@ export const askForParticipantsList = async (guildMember: GuildMember): Promise<
 		const participantAttachment: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 		const fileResponse = await axios.get(participantAttachment.url);
 		participantsList = ServiceUtils.parseCSVFile(fileResponse.data);
+		
+		if ((participantsList as POAPFileParticipant[])[0].discordUserId == null) {
+			if ((participantsList as TwitterPOAPFileParticipant[])[0].twitterUserId == null) {
+				throw new Error('missing ID');
+			}
+		}
 	} catch (e) {
 		LogUtils.logError('failed to ask for participants list', e);
 		await guildMember.send({ content: 'Invalid attachment. Please try the command again.' });

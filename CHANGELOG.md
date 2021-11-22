@@ -10,6 +10,7 @@
    - misc enhancements
 3. Disable twitter spaces (wip)
 4. Enhance and stabilize poap events
+5. End Twitter event and distribute
 
 ## 1.9.4-RELEASE (2021-11-18)
 

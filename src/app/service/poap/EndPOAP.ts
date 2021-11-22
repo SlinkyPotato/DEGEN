@@ -22,8 +22,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	Log.debug('authorized to end poap event');
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		// await endTwitterPOAPFlow(guildMember, db, ctx);
-		await ctx.send('Coming soon...');
+		await endTwitterPOAPFlow(guildMember, db, ctx);
 		return;
 	}
 	
@@ -199,7 +198,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		Log.debug('no eligible attendees found during event');
 		await guildMember.send({ content: 'Event ended. No eligible attendees found during twitter event' });
 		if (ctx) {
-			await ctx.send('* *whisper* check your DMs *');
+			await ctx.send('I have a DM for you ser');
 		}
 		return;
 	}
@@ -219,7 +218,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		files: [{ name: `participants_${numberOfParticipants}.csv`, attachment: bufferFile }],
 	});
 	if (ctx) {
-		await ctx.send('* *whisper* check your DMs *');
+		await ctx.send('1 DM for you ser');
 	}
 	await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(y/n)`' });
 	const dmChannel: DMChannel = await guildMember.createDM();

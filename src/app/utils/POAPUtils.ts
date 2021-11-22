@@ -189,6 +189,7 @@ const POAPUtils = {
 			const participant: TwitterPOAPFileParticipant = listOfParticipants.pop();
 			const poapLink = (isListOfPoapLinksPresent) ? listOfPOAPLinks.pop() : participant.poapLink;
 			if (poapLink == null || poapLink == '') {
+				Log.warn('ran out of poap links...');
 				failedPOAPList.push({
 					twitterUserId: participant.twitterUserId,
 					twitterSpaceId: participant.twitterSpaceId,
@@ -202,9 +203,9 @@ const POAPUtils = {
 				throw new ValidationError('There appears to be a parsing error. Please check that the discordUserID is greater than 15 digits.');
 			}
 			try {
-				const result: void | DirectMessageCreateV1Result = await verifiedTwitter.twitterClientV1.v1.sendDm({
+				const result: void | DirectMessageCreateV1Result = await verifiedTwitter.twitterClientV1.v2.send({
 					recipient_id: participant.twitterUserId,
-					text: `Thank you for participating in ${event}. Here is your test POAP: ${poapLink}. Now get otta here`,
+					text: `Thank you for participating in ${event}. Here is your test POAP: ${poapLink}. Enjoy!`,
 				}).catch((e) => {
 					failedPOAPList.push({
 						twitterUserId: participant.twitterUserId,

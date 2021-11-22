@@ -26,7 +26,7 @@ jobs:
         uses: AkhileshNS/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.PROD_HEROKU_API_KEY}}
-          heroku_app_name: 'bankless-dao-degen-bot'
+          heroku_app_name: 'degen-poap'
           heroku_email: 'bankless@nonsensecodes.io'
           procfile: 'worker: yarn prod'
         env:

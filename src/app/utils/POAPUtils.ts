@@ -12,8 +12,8 @@ import { CommandContext } from 'slash-create';
 import MongoDbUtils from './MongoDbUtils';
 import ServiceUtils from './ServiceUtils';
 import { POAPTwitterParticipants } from '../types/poap/POAPTwitterParticipants';
-import { DirectMessageCreateV1Result } from 'twitter-api-v2';
-import { VerifiedTwitter } from '../service/account/VerifyTwitter';
+import TwitterApi, { DirectMessageCreateV1Result } from 'twitter-api-v2';
+import apiKeys from '../service/constants/apiKeys';
 
 export type POAPFileParticipant = {
 	discordUserId: string,
@@ -68,10 +68,11 @@ const POAPUtils = {
 			return [];
 		}
 		Log.debug(`found participants for twitter space event: ${twitterSpaceId}`);
-		const participants = [];
+		const participants: TwitterPOAPFileParticipant[] = [];
 		await result.forEach((participant: POAPTwitterParticipants) => {
 			participants.push({
 				twitterUserId: participant.twitterUserId,
+				twitterSpaceId: participant.twitterSpaceId,
 				dateOfTweet: participant.dateOfTweet,
 			});
 		});
@@ -153,7 +154,7 @@ const POAPUtils = {
 			}
 			try {
 				const participantMember = await guildMember.guild.members.fetch(participant.discordUserId);
-				await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${poapLink}` }).catch((e) => {
+				await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${poapLink}.` }).catch((e) => {
 					failedPOAPsList.push({
 						discordUserId: participant.discordUserId,
 						discordUserTag: participant.discordUserTag,
@@ -176,7 +177,7 @@ const POAPUtils = {
 	},
 	
 	async sendOutTwitterPoapLinks(
-		verifiedTwitter: VerifiedTwitter, listOfParticipants: TwitterPOAPFileParticipant[], event: string,
+		listOfParticipants: TwitterPOAPFileParticipant[], event: string,
 		listOfPOAPLinks?: string[],
 	): Promise<TwitterPOAPFileParticipant[]> {
 		Log.debug('preparing to send out poap links for twitter spaces');
@@ -185,10 +186,17 @@ const POAPUtils = {
 		let i = 0;
 		const length = listOfParticipants.length;
 		const isListOfPoapLinksPresent: boolean = listOfPOAPLinks != null && listOfPOAPLinks.length >= 1;
+		const twitterClient: TwitterApi = new TwitterApi({
+			appKey: apiKeys.twitterAppToken,
+			appSecret: apiKeys.twitterAppSecret,
+			accessToken: apiKeys.twitterAccessToken,
+			accessSecret: apiKeys.twitterSecretToken,
+		});
 		while (i < length) {
 			const participant: TwitterPOAPFileParticipant = listOfParticipants.pop();
 			const poapLink = (isListOfPoapLinksPresent) ? listOfPOAPLinks.pop() : participant.poapLink;
 			if (poapLink == null || poapLink == '') {
+				Log.warn('ran out of poap links...');
 				failedPOAPList.push({
 					twitterUserId: participant.twitterUserId,
 					twitterSpaceId: participant.twitterSpaceId,
@@ -202,17 +210,19 @@ const POAPUtils = {
 				throw new ValidationError('There appears to be a parsing error. Please check that the discordUserID is greater than 15 digits.');
 			}
 			try {
-				const result: void | DirectMessageCreateV1Result = await verifiedTwitter.twitterClientV1.v1.sendDm({
+				const result: void | DirectMessageCreateV1Result = await twitterClient.v1.sendDm({
 					recipient_id: participant.twitterUserId,
-					text: `Thank you for participating in ${event}. Here is your test POAP: ${poapLink}. Now get otta here`,
-				}).catch((e) => {
-					failedPOAPList.push({
-						twitterUserId: participant.twitterUserId,
-						twitterSpaceId: participant.twitterSpaceId,
-						dateOfTweet: participant.dateOfTweet,
-						poapLink: poapLink,
-					});
-					LogUtils.logError(`failed trying to send POAP to twitterId: ${participant.twitterUserId}, twitterSpaceId: ${participant.twitterSpaceId}, link: ${poapLink}`, e);
+					text: `gm - Thank you for participating in ${event}. Here is your POAP: ${poapLink}. Enjoy!`,
+					quick_reply: {
+						type: 'options',
+						options: [
+							{
+								label: 'gm',
+								description: 'Good Morning',
+								metadata: 'good_morning',
+							},
+						],
+					},
 				});
 				if (result == null || result['event'].type != 'message_create') {
 					throw new Error();
@@ -238,7 +248,7 @@ const POAPUtils = {
 	): Promise<any> {
 		Log.debug(`${listOfFailedPOAPs.length} poaps failed to deliver`);
 		await guildMember.send({
-			content: 'Looks like some degens didn\'t make it... I can setup a claim for them, all they need to do is `/poap claim`',
+			content: 'Looks like some degens didn\'t make it... Let me set up a claim for them, all they need to do is `/poap claim`',
 		});
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		

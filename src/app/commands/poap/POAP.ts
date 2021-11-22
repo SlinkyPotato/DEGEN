@@ -176,6 +176,10 @@ module.exports = class poap extends SlashCommand {
 									name: 'Discord',
 									value: constants.PLATFORM_TYPE_DISCORD,
 								},
+								{
+									name: 'Twitter Spaces',
+									value: constants.PLATFORM_TYPE_TWITTER,
+								},
 							],
 						},
 					],

@@ -15,7 +15,7 @@ export type VerifiedTwitter = {
 
 const VerifyTwitter = async (guildMember: GuildMember): Promise<VerifiedTwitter> => {
 	Log.debug('verifying twitter account link');
-	await ServiceUtils.tryDMUser(guildMember, 'Hello! Let me check your twitter info...');
+	await ServiceUtils.tryDMUser(guildMember, 'Let me check your twitter info...');
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
 	const accountsCollection: Collection<NextAuthAccountCollection> = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);

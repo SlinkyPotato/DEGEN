@@ -47,8 +47,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	Log.debug('poap start validated');
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		// await startTwitterPOAPFlow(ctx, guildMember, db, event, duration);
-		await ctx.send('Coming soon...');
+		await startTwitterPOAPFlow(ctx, guildMember, db, event, duration);
 		return;
 	}
 	

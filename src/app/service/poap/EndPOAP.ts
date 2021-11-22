@@ -11,7 +11,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
-import VerifyTwitter, { VerifiedTwitter } from '../account/VerifyTwitter';
 
 export default async (guildMember: GuildMember, platform: string, ctx?: CommandContext): Promise<any> => {
 	Log.debug('attempting to ending poap event');
@@ -22,8 +21,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	Log.debug('authorized to end poap event');
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		// await endTwitterPOAPFlow(guildMember, db, ctx);
-		await ctx.send('Coming soon...');
+		await endTwitterPOAPFlow(guildMember, db, ctx);
 		return;
 	}
 	
@@ -146,6 +144,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		});
 		if (listOfFailedPOAPs.length <= 0) {
 			Log.debug('all poap successfully delivered');
+			await guildMember.send({ content: 'All POAPs delivered!' });
 			if (ctx) {
 				await ctx.send('POAPS sent! Expect delivery shortly.');
 			}
@@ -199,7 +198,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		Log.debug('no eligible attendees found during event');
 		await guildMember.send({ content: 'Event ended. No eligible attendees found during twitter event' });
 		if (ctx) {
-			await ctx.send('* *whisper* check your DMs *');
+			await ctx.send('I have a DM for you ser');
 		}
 		return;
 	}
@@ -216,10 +215,10 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 				],
 			},
 		],
-		files: [{ name: `participants_${numberOfParticipants}.csv`, attachment: bufferFile }],
+		files: [{ name: `twitter_participants_${numberOfParticipants}.csv`, attachment: bufferFile }],
 	});
 	if (ctx) {
-		await ctx.send('* *whisper* check your DMs *');
+		await ctx.send('1 DM for you ser');
 	}
 	await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(y/n)`' });
 	const dmChannel: DMChannel = await guildMember.createDM();
@@ -230,12 +229,10 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 	};
 	const sendOutPOAPYN = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
-		const verifiedTwitter: VerifiedTwitter = await VerifyTwitter(guildMember);
-		
 		await guildMember.send({ content: 'Ok! Please upload the links.txt file.' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(guildMember, poapLinksFile);
-		const listOfFailedPOAPs: TwitterPOAPFileParticipant[] = await POAPUtils.sendOutTwitterPoapLinks(verifiedTwitter, listOfParticipants, activeTwitterSettings.event, listOfPOAPLinks);
+		const listOfFailedPOAPs: TwitterPOAPFileParticipant[] = await POAPUtils.sendOutTwitterPoapLinks(listOfParticipants, activeTwitterSettings.event, listOfPOAPLinks);
 
 		const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(listOfFailedPOAPs);
 		await guildMember.send({
@@ -258,9 +255,13 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		Log.info('POAPs Distributed');
 		if (listOfFailedPOAPs.length <= 0) {
 			Log.debug('all poap successfully delivered');
+			await guildMember.send({ content: 'All POAPs delivered!' });
+			if (ctx) {
+				await ctx.send('POAPS sent! Expect delivery shortly.');
+			}
 			return;
 		}
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, activeTwitterSettings.event, constants.PLATFORM_TYPE_DISCORD, ctx);
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, activeTwitterSettings.event, constants.PLATFORM_TYPE_TWITTER, ctx);
 	}
 	return;
 };

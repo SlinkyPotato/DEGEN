@@ -74,12 +74,18 @@ export const updateUserForPOAP = async (
 		await poapParticipantsDb.deleteOne(poapParticipant);
 		return;
 	}
-
+	const currentDate: Dayjs = dayjs();
 	if (!hasJoined) {
 		Log.debug(`${member.user.tag} | left ${channel.name} in ${channel.guild.name}`);
+		const startTimeDate: Dayjs = dayjs(poapParticipant.startTime);
+		let durationInMinutes: number = poapParticipant.durationInMinutes;
+		if ((currentDate.unix() - startTimeDate.unix() > 0)) {
+			durationInMinutes += ((currentDate.unix() - startTimeDate.unix()) / 60);
+		}
 		await poapParticipantsDb.updateOne(poapParticipant, {
 			$set: {
 				endTime: (new Date).toISOString(),
+				durationInMinutes: durationInMinutes,
 			},
 		});
 		return;
@@ -87,6 +93,9 @@ export const updateUserForPOAP = async (
 	if (poapParticipant !== null && poapParticipant.discordUserId != null && poapParticipant.discordUserId === member.user.id) {
 		Log.debug(`${member.user.tag} | rejoined ${channel.name} in ${channel.guild.name}`);
 		await poapParticipantsDb.updateOne(poapParticipant, {
+			$set: {
+				startTime: currentDate.toISOString(),
+			},
 			$unset: {
 				endTime: null,
 			},
@@ -101,6 +110,7 @@ export const updateUserForPOAP = async (
 		startTime: currentDateStr,
 		voiceChannelId: `${channel.id}`,
 		discordServerId: `${channel.guild.id}`,
+		durationInMinutes: 0,
 	});
 	if (result == null || result.insertedCount !== 1) {
 		throw new MongoError('failed to insert poapParticipant');

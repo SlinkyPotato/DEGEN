@@ -1,4 +1,4 @@
-import { Client as DiscordClient, Guild, GuildMember } from 'discord.js';
+import { Client as DiscordClient, Guild, GuildChannel, GuildMember } from 'discord.js';
 import Log, { LogUtils } from '../../utils/Log';
 import { Collection, Cursor, Db } from 'mongodb';
 import constants from '../constants/constants';
@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import EndPOAP from './EndPOAP';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
+import { storePresentMembers } from './StartPOAP';
 
 const POAPService = {
 	run: async (client: DiscordClient): Promise<void> => {
@@ -45,6 +46,13 @@ const POAPService = {
 		Log.debug(`found ${activeEventsList.length} active events`);
 
 		for (const activeEvent of activeEventsList) {
+			try {
+				const guild: Guild = await client.guilds.fetch(activeEvent.discordServerId);
+				const channelChoice: GuildChannel = await guild.channels.fetch(activeEvent.voiceChannelId);
+				await storePresentMembers(db, channelChoice).catch();
+			} catch (e) {
+				LogUtils.logError('failed trying to store present members for active poap event', e);
+			}
 			POAPService.setupAutoEndForEvent(client, activeEvent);
 		}
 		Log.debug('active events prepared to automatic end');

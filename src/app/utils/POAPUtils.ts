@@ -45,16 +45,13 @@ const POAPUtils = {
 		
 		await POAPUtils.setEndDateForPresentParticipants(poapParticipants, resultCursor);
 
-		const participants = [];
+		const participants: POAPFileParticipant[] = [];
 		await resultCursor.forEach((participant: POAPParticipant) => {
-			const endTime = new Date(participant.endTime).getTime();
-			let durationInMinutes: number = (endTime - (new Date(participant.startTime)).getTime());
-			durationInMinutes = (durationInMinutes <= 0) ? 0 : durationInMinutes / (1000 * 60);
-			if (durationInMinutes >= constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
+			if (participant.durationInMinutes >= constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
 				participants.push({
-					id: participant.discordUserId,
-					tag: participant.discordUserTag,
-					duration: durationInMinutes,
+					discordUserId: participant.discordUserId,
+					discordUserTag: participant.discordUserTag,
+					durationInMinutes: participant.durationInMinutes.toString(),
 				});
 			}
 		});

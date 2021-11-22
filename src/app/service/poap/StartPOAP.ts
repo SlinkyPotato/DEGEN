@@ -63,10 +63,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 		throw new ValidationError(`Please end the active event \`${activeSettings.voiceChannelName}\`.`);
 	}
 	
-	await ServiceUtils.tryDMUser(guildMember, 'Oh yea, time for a POAP event!...');
-	await guildMember.send({
-		content: 'For which voice channel should the POAP event occur?',
-	});
+	await ServiceUtils.tryDMUser(guildMember, 'Hello! For which voice channel should the POAP event occur?');
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
 	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) });
 	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
@@ -112,7 +109,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 		returnDocument: 'after',
 	});
 	
-	await storePresentMembers(guildMember.guild, db, channelChoice);
+	await storePresentMembers(db, channelChoice);
 	
 	POAPService.setupAutoEndForEvent(guildMember.client, activeEvent.value);
 	
@@ -171,7 +168,7 @@ export const clearPOAPParticipants = async (db: Db, guildChannel: GuildChannel):
 	});
 };
 
-export const storePresentMembers = async (guild: Guild, db: Db, channel: GuildChannel): Promise<any> => {
+export const storePresentMembers = async (db: Db, channel: GuildChannel): Promise<any> => {
 	try {
 		channel.members.forEach((member: GuildMember) => {
 			updateUserForPOAP(member, db, channel, true);

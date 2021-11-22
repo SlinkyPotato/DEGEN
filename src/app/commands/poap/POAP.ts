@@ -98,7 +98,7 @@ module.exports = class poap extends SlashCommand {
 						{
 							name: 'event',
 							type: CommandOptionType.STRING,
-							description: 'The event name for the discussion',
+							description: 'The name of the event that participants will see in their DMs.',
 							required: true,
 						},
 						{
@@ -140,8 +140,24 @@ module.exports = class poap extends SlashCommand {
 						{
 							name: 'event',
 							type: CommandOptionType.STRING,
-							description: 'The event name for the distribution',
+							description: 'The name of the event that participants will see in their DMs.',
 							required: true,
+						},
+						{
+							name: 'platform',
+							type: CommandOptionType.STRING,
+							description: 'Platform where users can claim from where they attended the event.',
+							required: true,
+							choices: [
+								{
+									name: 'Discord',
+									value: constants.PLATFORM_TYPE_DISCORD,
+								},
+								{
+									name: 'Twitter Spaces',
+									value: constants.PLATFORM_TYPE_TWITTER,
+								},
+							],
 						},
 					],
 				},
@@ -158,7 +174,7 @@ module.exports = class poap extends SlashCommand {
 							choices: [
 								{
 									name: 'Discord',
-									value: 'DISCORD',
+									value: constants.PLATFORM_TYPE_DISCORD,
 								},
 							],
 						},
@@ -206,7 +222,7 @@ module.exports = class poap extends SlashCommand {
 				command = EndPOAP(guildMember, ctx.options.end['platform'], ctx);
 				break;
 			case 'distribute':
-				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event']);
+				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], ctx.options.distribute['platform']);
 				break;
 			case 'claim':
 				command = ClaimPOAP(ctx, ctx.options.claim.platform, guildMember);

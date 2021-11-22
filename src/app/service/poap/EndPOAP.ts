@@ -22,7 +22,8 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	Log.debug('authorized to end poap event');
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		await endTwitterPOAPFlow(guildMember, db, ctx);
+		// await endTwitterPOAPFlow(guildMember, db, ctx);
+		await ctx.send('Coming soon...');
 		return;
 	}
 	

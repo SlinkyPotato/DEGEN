@@ -1,7 +1,7 @@
 import {
 	AwaitMessagesOptions,
 	Collection as DiscordCollection, DMChannel, EmbedField,
-	Guild, GuildChannel,
+	GuildChannel,
 	GuildMember, Message, MessageEmbedOptions,
 	StageChannel,
 	VoiceChannel,
@@ -47,7 +47,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	Log.debug('poap start validated');
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		await startTwitterPOAPFlow(ctx, guildMember, db, event, duration);
+		// await startTwitterPOAPFlow(ctx, guildMember, db, event, duration);
+		await ctx.send('Coming soon...');
 		return;
 	}
 	

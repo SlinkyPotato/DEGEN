@@ -31,7 +31,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	}
 
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		await distributeTwitterFlow();
+		// await distributeTwitterFlow();
+		await ctx.send('Coming soon...');
 		return;
 	}
 

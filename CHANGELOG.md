@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0-RELEASE (2021-11-23)
+## 2.0.0-RELEASE (2021-11-21)
 
 1. Remove non-poap features
 2. Tweet spaces event upon startup
@@ -8,6 +8,8 @@
    - complete /poap start platform:twitter
    - complete /poap end
    - misc enhancements
+3. Disable twitter spaces (wip)
+4. Enhance and stabilize poap events
 
 ## 1.9.4-RELEASE (2021-11-18)
 

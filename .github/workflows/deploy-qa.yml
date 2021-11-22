@@ -3,6 +3,7 @@ on:
     push:
         branches:
           - 'develop'
+          - 'hotfix/**'
     pull_request:
         branches:
           - 'release/**'

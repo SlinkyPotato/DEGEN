@@ -145,6 +145,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		});
 		if (listOfFailedPOAPs.length <= 0) {
 			Log.debug('all poap successfully delivered');
+			await guildMember.send({ content: 'All POAPs delivered!' });
 			if (ctx) {
 				await ctx.send('POAPS sent! Expect delivery shortly.');
 			}
@@ -215,7 +216,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 				],
 			},
 		],
-		files: [{ name: `participants_${numberOfParticipants}.csv`, attachment: bufferFile }],
+		files: [{ name: `twitter_participants_${numberOfParticipants}.csv`, attachment: bufferFile }],
 	});
 	if (ctx) {
 		await ctx.send('1 DM for you ser');
@@ -257,9 +258,13 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		Log.info('POAPs Distributed');
 		if (listOfFailedPOAPs.length <= 0) {
 			Log.debug('all poap successfully delivered');
+			await guildMember.send({ content: 'All POAPs delivered!' });
+			if (ctx) {
+				await ctx.send('POAPS sent! Expect delivery shortly.');
+			}
 			return;
 		}
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, activeTwitterSettings.event, constants.PLATFORM_TYPE_DISCORD, ctx);
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, activeTwitterSettings.event, constants.PLATFORM_TYPE_TWITTER, ctx);
 	}
 	return;
 };

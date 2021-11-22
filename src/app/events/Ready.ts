@@ -1,9 +1,6 @@
-import GuestPassService from '../service/guest-pass/GuestPassService';
 import { Client, Guild } from 'discord.js';
 import constants from '../service/constants/constants';
-import discordServerIds from '../service/constants/discordServerIds';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
-import { restoreScoapEmbedAndVoteRecord } from '../service/scoap-squad/ScoapDatabase';
 import Log, { LogUtils } from '../utils/Log';
 import POAPService from '../service/poap/POAPService';
 import MongoDbUtils from '../utils/MongoDbUtils';
@@ -21,13 +18,6 @@ export default class implements DiscordEvent {
 				Log.info(`DEGEN active for: ${guild.id}, ${guild.name}`);
 			});
 			await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-
-			if (client.guilds.cache.some((guild) => guild.id == discordServerIds.banklessDAO || guild.id == discordServerIds.discordBotGarage)) {
-				await MongoDbUtils.connect(constants.DB_NAME_BOUNTY_BOARD);
-				await GuestPassService(client).catch(Log.error);
-				await restoreScoapEmbedAndVoteRecord().catch(Log.error);
-			}
-			
 			await POAPService.run(client).catch(Log.error);
 			
 			Log.info('DEGEN is ready!');

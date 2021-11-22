@@ -1,5 +1,5 @@
 // Libs
-import "./tracer"
+import './utils/tracer';
 import { SlashCreator, GatewayServer, SlashCommand, CommandContext } from 'slash-create';
 import Discord, { Client, ClientOptions, Intents, WSEventType } from 'discord.js';
 import path from 'path';
@@ -65,7 +65,7 @@ function initializeClient(): Client {
 			Intents.FLAGS.DIRECT_MESSAGES,
 			Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
 		],
-		partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
+		partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER'],
 	};
 	return new Discord.Client(clientOptions);
 }

@@ -1,6 +1,20 @@
 # Changelog
 
+## 2.0.0-RELEASE (2021-11-22)
+
+1. Remove non-poap features
+2. Tweet spaces event upon startup
+   - organize datadog
+   - complete /poap start platform:twitter
+   - complete /poap end
+   - misc enhancements
+3. Disable twitter spaces (wip)
+4. Enabled twitter spaces (wip), enhance and stabilize poap events
+5. End Twitter event, distribute, and claim
+6. Disable twitter spaces
+
 ## 1.9.4-RELEASE (2021-11-18)
+
 1. Add datadog tracer
 
 ## 1.9.3-RELEASE (2021-11-12)

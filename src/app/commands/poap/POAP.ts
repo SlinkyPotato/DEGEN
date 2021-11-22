@@ -82,7 +82,7 @@ module.exports = class poap extends SlashCommand {
 						{
 							name: 'platform',
 							type: CommandOptionType.STRING,
-							description: 'Where will the poap event be hosted?',
+							description: 'The hosting location of the POAP event.',
 							required: true,
 							choices: [
 								{
@@ -98,7 +98,7 @@ module.exports = class poap extends SlashCommand {
 						{
 							name: 'event',
 							type: CommandOptionType.STRING,
-							description: 'The event name for the discussion',
+							description: 'The name of the event that participants will see in their DMs.',
 							required: true,
 						},
 						{
@@ -113,6 +113,24 @@ module.exports = class poap extends SlashCommand {
 					name: 'end',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'End POAP event and receive a list of participants.',
+					options: [
+						{
+							name: 'platform',
+							type: CommandOptionType.STRING,
+							description: 'The hosting location of the POAP event.',
+							required: true,
+							choices: [
+								{
+									name: 'Discord',
+									value: constants.PLATFORM_TYPE_DISCORD,
+								},
+								{
+									name: 'Twitter Spaces',
+									value: constants.PLATFORM_TYPE_TWITTER,
+								},
+							],
+						},
+					],
 				},
 				{
 					name: 'distribute',
@@ -120,25 +138,25 @@ module.exports = class poap extends SlashCommand {
 					description: 'Distribute links to participants.',
 					options: [
 						{
-							name: 'type',
+							name: 'platform',
 							type: CommandOptionType.STRING,
-							description: 'Type of distribution',
+							description: 'Platform where users can claim from where they attended the event.',
 							required: true,
 							choices: [
 								{
-									name: 'Manual Delivery',
-									value: 'MANUAL_DELIVERY',
+									name: 'Discord',
+									value: constants.PLATFORM_TYPE_DISCORD,
 								},
 								{
-									name: 'Redeliver Failed Participants',
-									value: 'REDELIVER_FAILED_PARTICIPANTS',
+									name: 'Twitter Spaces',
+									value: constants.PLATFORM_TYPE_TWITTER,
 								},
 							],
 						},
 						{
 							name: 'event',
 							type: CommandOptionType.STRING,
-							description: 'The event name for the distribution',
+							description: 'The name of the event that participants will see in their DMs.',
 							required: true,
 						},
 					],
@@ -156,7 +174,11 @@ module.exports = class poap extends SlashCommand {
 							choices: [
 								{
 									name: 'Discord',
-									value: 'DISCORD',
+									value: constants.PLATFORM_TYPE_DISCORD,
+								},
+								{
+									name: 'Twitter Spaces',
+									value: constants.PLATFORM_TYPE_TWITTER,
 								},
 							],
 						},
@@ -201,10 +223,10 @@ module.exports = class poap extends SlashCommand {
 					await ctx.send('I love your enthusiasm, but please return to a Discord channel to end the event.');
 					return;
 				}
-				command = EndPOAP(guildMember, ctx);
+				command = EndPOAP(guildMember, ctx.options.end['platform'], ctx);
 				break;
 			case 'distribute':
-				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['type'], ctx.options.distribute['event']);
+				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], ctx.options.distribute['platform']);
 				break;
 			case 'claim':
 				command = ClaimPOAP(ctx, ctx.options.claim.platform, guildMember);
@@ -222,13 +244,7 @@ module.exports = class poap extends SlashCommand {
 	}
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
-		command.then((result) => {
-			if (result === 'POAP_SENT') {
-				return ctx.send('POAPS sent! Expect delivery shortly.');
-			} else if (result === 'POAP_END') {
-				return ctx.send('POAP event ended. POAPs will be delivered at a later time.');
-			}
-		}).catch(e => {
+		command.catch(e => {
 			if (e instanceof ValidationError) {
 				return ctx.send(e.message);
 			} else if (e instanceof EarlyTermination) {

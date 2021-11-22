@@ -8,9 +8,14 @@ import Log from '../../utils/Log';
 import { TwitterApi, UserV1 } from 'twitter-api-v2';
 import ServiceUtils from '../../utils/ServiceUtils';
 
-const VerifyTwitter = async (guildMember: GuildMember): Promise<{ twitterUser: UserV1, twitterClientV1: TwitterApi }> => {
+export type VerifiedTwitter = {
+	twitterUser: UserV1,
+	twitterClientV1: TwitterApi
+};
+
+const VerifyTwitter = async (guildMember: GuildMember): Promise<VerifiedTwitter> => {
 	Log.debug('verifying twitter account link');
-	await ServiceUtils.tryDMUser(guildMember, 'Hello! Let me check your twitter info...');
+	await ServiceUtils.tryDMUser(guildMember, 'Let me check your twitter info...');
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
 	const accountsCollection: Collection<NextAuthAccountCollection> = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);
@@ -39,10 +44,10 @@ const VerifyTwitter = async (guildMember: GuildMember): Promise<{ twitterUser: U
 		return;
 	}
 	
-	Log.debug('twitter account found');
 	const twitterAccessToken = twitterCollection.accessToken;
 	const twitterAccessSecret = twitterCollection.accessSecret;
 	const twitterId = twitterCollection.providerAccountId;
+	Log.debug(`twitter account found, twitterId: ${twitterId}`);
 	
 	let userClient: TwitterApi;
 	let userCall: UserV1;
@@ -55,8 +60,9 @@ const VerifyTwitter = async (guildMember: GuildMember): Promise<{ twitterUser: U
 		});
 
 		Log.debug('testing validity of twitter account');
-		userCall = await userClient.v1.verifyCredentials();
+		userCall = await userClient.currentUser(true);
 	} catch (e) {
+		Log.warn('invalid twitter auth found in db, verifyCredentials failed. Now removing from db...');
 		await removeTwitterAccountLink(nextAuthAccount);
 		await sendTwitterAuthenticationMessage(guildMember);
 		return;
@@ -68,7 +74,7 @@ const VerifyTwitter = async (guildMember: GuildMember): Promise<{ twitterUser: U
 		return;
 	}
 	
-	Log.debug(`${guildMember.user.tag} has linked their twitter account, sending message`);
+	Log.debug(`${guildMember.user.tag} has linked their twitter account, twitterId: ${twitterId}, sending message`);
 	await guildMember.send({
 		embeds: [
 			{
@@ -76,7 +82,7 @@ const VerifyTwitter = async (guildMember: GuildMember): Promise<{ twitterUser: U
 				description: 'Twitter account linked 👍',
 				fields: [
 					{ name: 'Display Name', value: `${userCall.screen_name}` },
-					{ name: 'Description', value: `${userCall.description}` },
+					{ name: 'Description', value: `${ServiceUtils.prepEmbedField(userCall.description)}` },
 					{ name: 'URL', value: `https://twitter.com/${userCall.screen_name}` },
 				],
 			},

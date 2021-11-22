@@ -10,16 +10,20 @@ export default Object.freeze({
 	DB_COLLECTION_POAP_SETTINGS: 'poapSettings',
 	DB_COLLECTION_POAP_PARTICIPANTS: 'poapParticipants',
 	DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS: 'poapUnclaimedParticipants',
+	DB_COLLECTION_POAP_TWITTER_UNCLAIMED_PARTICIPANTS: 'poapTwitterUnclaimedParticipants',
 	DB_COLLECTION_POAP_TWITTER_SETTINGS: 'poapTwitterSettings',
 	DB_COLLECTION_POAP_TWITTER_PARTICIPANTS: 'poapTwitterParticipants',
 	
+	DB_COLLECTION_NEXT_AUTH_SESSIONS: 'sessions',
+	DB_COLLECTION_NEXT_AUTH_ACCOUNTS: 'accounts',
+
 	DB_COLLECTION_SCOAP_SQUAD: 'scoapSquad',
 	DB_COLLECTION_POAP_ADMINS: 'poapAdmins',
 	DB_COLLECTION_ALLOWLIST: 'allowList',
 
-	DB_COLLECTION_NEXT_AUTH_SESSIONS: 'sessions',
-	DB_COLLECTION_NEXT_AUTH_ACCOUNTS: 'accounts',
-
+	DB_COLLECTION_FIRST_QUEST_CONTENT: 'firstQuestContent',
+	DB_COLLECTION_FIRST_QUEST_TRACKER: 'firstQuestTracker',
+	DB_COLLECTION_FIRST_QUEST_POAPS: 'firstQuestPOAPs',
 	MONGODB_URI_PARTIAL: `${process.env.MONGODB_PREFIX}://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASS}@${process.env.MONGODB_CLUSTER}/`,
 	MONGODB_OPTIONS: '?retryWrites=true&w=majority',
 	
@@ -52,4 +56,18 @@ export default Object.freeze({
 	
 	PLATFORM_TYPE_DISCORD: 'DISCORD',
 	PLATFORM_TYPE_TWITTER: 'TWITTER',
+
+	BANNED_NAMES: [
+		'admin',
+		'support',
+		'bankless',
+		'banklessdao',
+		'banklessadmin',
+		'banklesssupport',
+		'metamask',
+		'metamasksupport',
+		'uniswap',
+		'uniswapsupport',
+		'daopunkssupport',
+	],
 });

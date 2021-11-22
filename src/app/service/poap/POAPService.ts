@@ -1,4 +1,4 @@
-import { Client as DiscordClient, Guild, GuildMember } from 'discord.js';
+import { Client as DiscordClient, Guild, GuildChannel, GuildMember } from 'discord.js';
 import Log, { LogUtils } from '../../utils/Log';
 import { Collection, Cursor, Db } from 'mongodb';
 import constants from '../constants/constants';
@@ -6,6 +6,8 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import dayjs from 'dayjs';
 import EndPOAP from './EndPOAP';
 import MongoDbUtils from '../../utils/MongoDbUtils';
+import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
+import { storePresentMembers } from './StartPOAP';
 
 const POAPService = {
 	run: async (client: DiscordClient): Promise<void> => {
@@ -27,7 +29,7 @@ const POAPService = {
 		for (const expiredEvent of expiredEventsList) {
 			const poapGuild: Guild = await client.guilds.fetch(expiredEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(expiredEvent.discordUserId);
-			await EndPOAP(poapOrganizer);
+			await EndPOAP(poapOrganizer, constants.PLATFORM_TYPE_DISCORD);
 		}
 		Log.debug('expired events ended');
 		const poapSettingsActiveEventsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
@@ -44,6 +46,13 @@ const POAPService = {
 		Log.debug(`found ${activeEventsList.length} active events`);
 
 		for (const activeEvent of activeEventsList) {
+			try {
+				const guild: Guild = await client.guilds.fetch(activeEvent.discordServerId);
+				const channelChoice: GuildChannel = await guild.channels.fetch(activeEvent.voiceChannelId);
+				await storePresentMembers(db, channelChoice).catch();
+			} catch (e) {
+				LogUtils.logError('failed trying to store present members for active poap event', e);
+			}
 			POAPService.setupAutoEndForEvent(client, activeEvent);
 		}
 		Log.debug('active events prepared to automatic end');
@@ -52,7 +61,8 @@ const POAPService = {
 		return;
 	},
 	
-	setupAutoEndForEvent: (client: DiscordClient, activeEvent: POAPSettings): void => {
+	setupAutoEndForEvent: (client: DiscordClient, activeEvent: POAPSettings | POAPTwitterSettings): void => {
+		Log.debug('setting up automatic end...');
 		const currentDate = dayjs();
 		const expirationTimestamp: number = dayjs(activeEvent.endTime).unix();
 		const expiresInMilli = Math.max(expirationTimestamp - currentDate.unix(), 0) * 1000;
@@ -60,12 +70,12 @@ const POAPService = {
 			const poapGuild: Guild = await client.guilds.fetch(activeEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(activeEvent.discordUserId);
 			try {
-				await EndPOAP(poapOrganizer).catch(e => LogUtils.logError('failed to autoend event', e));
+				await EndPOAP(poapOrganizer, constants.PLATFORM_TYPE_TWITTER).catch(e => LogUtils.logError('failed to automatically end event', e));
 			} catch (e) {
 				LogUtils.logError('failed end poap event', e);
 			}
 		}, expiresInMilli);
-		Log.debug(`auto end setup for ${activeEvent.voiceChannelName}`, {
+		Log.debug(`auto end setup for ${activeEvent.event}`, {
 			indexMeta: true,
 			meta: {
 				discordServerId: activeEvent.discordServerId,

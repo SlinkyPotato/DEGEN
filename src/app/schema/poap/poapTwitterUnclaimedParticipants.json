@@ -1,0 +1,39 @@
+{
+	"$jsonSchema": {
+		"bsonType": "object",
+		"required": [
+			"event",
+			"discordServerId",
+			"twitterUserId",
+			"twitterSpaceId",
+			"poapLink",
+			"expiresAt"
+		],
+		"properties": {
+			"event": {
+				"bsonType": ["string", "null"],
+				"description": "The event for the discussion which can be any alpha numeric character."
+			},
+			"discordServerId": {
+				"bsonType": "string",
+				"description": "Identifier for the discord guild."
+			},
+			"twitterUserId": {
+				"bsonType": "string",
+				"description": "Twitter ID of the participant."
+			},
+			"twitterSpaceId": {
+				"bsonType": "string",
+				"description": "ID of the twitter spaces event."
+			},
+			"poapLink": {
+				"bsonType": "string",
+				"description": "POAP URL to redeem."
+			},
+			"expiresAt": {
+				"bsonType": "string",
+				"description": "ISO date string of when the poap link expires"
+			}
+		}
+	}
+}

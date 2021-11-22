@@ -37,7 +37,7 @@ const EventsAPI = {
 			data : formData,
 		};
 		try {
-			Log.debug('sending poap formData request', {
+			Log.info('sending poap formData request', {
 				indexMeta: true,
 				meta: {
 					requestType: 'poap',
@@ -68,7 +68,7 @@ const EventsAPI = {
 			return response.data;
 		} catch (e) {
 			LogUtils.logError('failed to send poap event to POAP BackOffice', e);
-			Log.debug('poap response', {
+			Log.warn('poap response', {
 				indexMeta: true,
 				meta: {
 					error: e.toJSON,

@@ -19,7 +19,10 @@ import client from '../app';
 import ValidationError from '../errors/ValidationError';
 import roleIDs from '../service/constants/roleIds';
 import discordServerIds from '../service/constants/discordServerIds';
-import { LogUtils } from './Log';
+import Log, { LogUtils } from './Log';
+import { stringify } from 'csv-stringify/sync';
+import { parse } from 'csv-parse/sync';
+import { POAPFileParticipant, TwitterPOAPFileParticipant } from './POAPUtils';
 
 const ServiceUtils = {
 	async getGuildAndMember(ctx: CommandContext): Promise<{ guild: Guild, guildMember: GuildMember }> {
@@ -164,6 +167,32 @@ const ServiceUtils = {
 		}
 	},
 	
+	prepEmbedField: (field: string | null): string => {
+		return (field) ? field : '-';
+	},
+	
+	generateCSVStringBuffer: (listOfObjects: any[]): Buffer => {
+		Log.debug('starting the generate csv buffer...');
+		if (listOfObjects.length === 0) {
+			Log.debug('no participants found for parsing');
+			return Buffer.from('', 'utf-8');
+		}
+		const csvString = stringify(listOfObjects, {
+			header: true,
+		});
+		Log.debug('finishing parsing participants');
+		return Buffer.from(csvString, 'utf-8');
+	},
+	
+	parseCSVFile: (csvFile: string): POAPFileParticipant[] | TwitterPOAPFileParticipant[] => {
+		Log.debug('starting to parse csv file...');
+		const records: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = parse(csvFile, {
+			columns: true,
+			skip_empty_lines: true,
+		});
+		Log.debug('done parsing csv file');
+		return records;
+	},
 };
 
 export default ServiceUtils;

@@ -1,11 +1,11 @@
 import { Collection } from 'mongodb';
 
-export interface POAPUnclaimedParticipants extends Collection {
+export interface POAPTwitterUnclaimedParticipants extends Collection {
 	event: string,
-	discordUserId: string,
-	discordUserTag: string,
 	discordServerId: string,
 	discordServerName: string,
+	twitterUserId: string,
+	twitterSpaceId: string,
 	poapLink: string,
 	expiresAt: string,
 }

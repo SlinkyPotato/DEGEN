@@ -6,7 +6,8 @@
       "discordUserId",
       "startTime",
       "voiceChannelId",
-      "discordServerId"
+      "discordServerId",
+      "durationInMinutes"
     ],
     "properties": {
       "event": {
@@ -36,6 +37,10 @@
       "discordServerId": {
         "bsonType": "string",
         "description": "Identifier for the discord guild"
+      },
+      "durationInMinutes": {
+        "bsonType": ["number", "null"],
+        "description": "The number of minutes the participants has remained on call."
       }
     }
   }

@@ -70,7 +70,7 @@ const POAPService = {
 			const poapGuild: Guild = await client.guilds.fetch(activeEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(activeEvent.discordUserId);
 			try {
-				await EndPOAP(poapOrganizer, constants.PLATFORM_TYPE_TWITTER).catch(e => LogUtils.logError('failed to automatically end event', e));
+				await EndPOAP(poapOrganizer, constants.PLATFORM_TYPE_DISCORD).catch(e => LogUtils.logError('failed to automatically end event', e));
 			} catch (e) {
 				LogUtils.logError('failed end poap event', e);
 			}

@@ -12,14 +12,15 @@ import VerifyTwitter, { VerifiedTwitter } from '../account/VerifyTwitter';
 
 const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: GuildMember): Promise<any> => {
 	Log.debug(`starting claim for ${ctx.user.username}, with ID: ${ctx.user.id}`);
-
+	
+	if (platform == constants.PLATFORM_TYPE_TWITTER) {
+		// await claimPOAPForTwitter(ctx, guildMember);
+		await ctx.send('Coming soon...');
+		return;
+	}
+	
 	if (guildMember != null) {
 		await ServiceUtils.tryDMUser(guildMember, 'So you want a POAP? *sigh*...');
-	}
-
-	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		await claimPOAPForTwitter(ctx, guildMember);
-		return;
 	}
 	
 	Log.debug('Discord platform chosen');

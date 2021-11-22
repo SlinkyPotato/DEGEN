@@ -31,7 +31,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	}
 
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		await distributeTwitterFlow(ctx, guildMember, participantsList as TwitterPOAPFileParticipant[], event);
+		// await distributeTwitterFlow(ctx, guildMember, participantsList as TwitterPOAPFileParticipant[], event);
+		await ctx.send('Coming soon...');
 		return;
 	}
 

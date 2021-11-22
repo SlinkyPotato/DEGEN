@@ -90,9 +90,16 @@ const POAPUtils = {
 			}
 			let result: UpdateWriteOpResult;
 			try {
+				const currentDate: Dayjs = dayjs();
+				const startTimeDate: Dayjs = dayjs(participant.startTime);
+				let durationInMinutes: number = participant.durationInMinutes;
+				if ((currentDate.unix() - startTimeDate.unix() > 0)) {
+					durationInMinutes += ((currentDate.unix() - startTimeDate.unix()) / 60);
+				}
 				result = await poapParticipantsCollection.updateOne(participant, {
 					$set: {
 						endTime: currentDateStr,
+						durationInMinutes: durationInMinutes,
 					},
 				});
 			} catch (e) {

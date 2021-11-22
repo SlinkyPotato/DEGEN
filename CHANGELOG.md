@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1-RELEASE (2021-11-22)
+
+1. Store duration for end of poap event
+
 ## 2.0.0-RELEASE (2021-11-22)
 
 1. Remove non-poap features

@@ -12,8 +12,7 @@ import { CommandContext } from 'slash-create';
 import MongoDbUtils from './MongoDbUtils';
 import ServiceUtils from './ServiceUtils';
 import { POAPTwitterParticipants } from '../types/poap/POAPTwitterParticipants';
-import TwitterApi, { DirectMessageCreateV1Result, EDirectMessageEventTypeV1 } from 'twitter-api-v2';
-import { VerifiedTwitter } from '../service/account/VerifyTwitter';
+import TwitterApi, { DirectMessageCreateV1Result } from 'twitter-api-v2';
 import apiKeys from '../service/constants/apiKeys';
 
 export type POAPFileParticipant = {

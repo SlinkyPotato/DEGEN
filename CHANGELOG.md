@@ -9,7 +9,7 @@
    - complete /poap end
    - misc enhancements
 3. Disable twitter spaces (wip)
-4. Enhance and stabilize poap events
+4. Enabled twitter spaces (wip), enhance and stabilize poap events
 5. End Twitter event, distribute, and claim
 6. Disable twitter spaces
 

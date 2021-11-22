@@ -178,7 +178,7 @@ const POAPUtils = {
 	},
 	
 	async sendOutTwitterPoapLinks(
-		verifiedTwitter: VerifiedTwitter, listOfParticipants: TwitterPOAPFileParticipant[], event: string,
+		listOfParticipants: TwitterPOAPFileParticipant[], event: string,
 		listOfPOAPLinks?: string[],
 	): Promise<TwitterPOAPFileParticipant[]> {
 		Log.debug('preparing to send out poap links for twitter spaces');
@@ -213,7 +213,7 @@ const POAPUtils = {
 			try {
 				const result: void | DirectMessageCreateV1Result = await twitterClient.v1.sendDm({
 					recipient_id: participant.twitterUserId,
-					text: `gm - Thank you for participating in ${event}. Here is your test POAP: ${poapLink}. Enjoy!`,
+					text: `gm - Thank you for participating in ${event}. Here is your POAP: ${poapLink}. Enjoy!`,
 					quick_reply: {
 						type: 'options',
 						options: [

@@ -11,7 +11,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
-import VerifyTwitter, { VerifiedTwitter } from '../account/VerifyTwitter';
 
 export default async (guildMember: GuildMember, platform: string, ctx?: CommandContext): Promise<any> => {
 	Log.debug('attempting to ending poap event');
@@ -230,12 +229,10 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 	};
 	const sendOutPOAPYN = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
-		const verifiedTwitter: VerifiedTwitter = await VerifyTwitter(guildMember);
-		
 		await guildMember.send({ content: 'Ok! Please upload the links.txt file.' });
 		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(guildMember, poapLinksFile);
-		const listOfFailedPOAPs: TwitterPOAPFileParticipant[] = await POAPUtils.sendOutTwitterPoapLinks(verifiedTwitter, listOfParticipants, activeTwitterSettings.event, listOfPOAPLinks);
+		const listOfFailedPOAPs: TwitterPOAPFileParticipant[] = await POAPUtils.sendOutTwitterPoapLinks(listOfParticipants, activeTwitterSettings.event, listOfPOAPLinks);
 
 		const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(listOfFailedPOAPs);
 		await guildMember.send({

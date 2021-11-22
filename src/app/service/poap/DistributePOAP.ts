@@ -31,7 +31,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	}
 
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		await distributeTwitterFlow();
+		await distributeTwitterFlow(ctx, guildMember, participantsList as TwitterPOAPFileParticipant[], event);
 		return;
 	}
 
@@ -50,31 +50,15 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	} else {
 		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, event);
 	}
-	const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(failedPOAPsList);
-	await guildMember.send({
-		embeds: [
-			{
-				title: 'POAPs Distribution Results',
-				fields: [
-					{ name: 'Attempted to Send', value: `${numberOfParticipants}`, inline: true },
-					{ name: 'Successfully Sent', value: `${numberOfParticipants - failedPOAPsList.length}`, inline: true },
-					{ name: 'Failed to Send', value: `${failedPOAPsList.length}`, inline: true },
-				],
-			},
-		],
-		files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
-	});
-	if (failedPOAPsList.length <= 0) {
-		Log.debug('all poap successfully delivered');
-		return;
+	if (!(await handleDistributionResults(guildMember, numberOfParticipants, failedPOAPsList))) {
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_TWITTER, ctx);
 	}
 	await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_DISCORD, ctx);
 	Log.debug('poap distribution complete');
-	return;
 };
 
 export const askForParticipantsList = async (guildMember: GuildMember): Promise<POAPFileParticipant[] | TwitterPOAPFileParticipant[]> => {
-	const message: Message = await guildMember.send({ content: 'Please upload participants .csv file with header containing discordUserId and either durationInMinutes or poapLink. POAPs will be distributed to these degens.' });
+	const message: Message = await guildMember.send({ content: 'Please upload participants.csv file with header containing discordUserId and either durationInMinutes or poapLink. POAPs will be distributed to these degens.' });
 	const dmChannel: DMChannel = await message.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -111,6 +95,47 @@ export const askForLinksMessageAttachment = async (guildMember: GuildMember): Pr
 	return (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 };
 
-const distributeTwitterFlow = async () => {
-	return null;
+const distributeTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, participantsList: TwitterPOAPFileParticipant[], event: string) => {
+	Log.debug('distributing POAP for Twitter');
+	const numberOfParticipants: number = participantsList.length;
+	if (!participantsList[0].twitterUserId) {
+		await guildMember.send({ content: 'parsing failed, please try a csv file with headers twitterUserId' });
+		throw Error('failed to parse');
+	}
+
+	let failedPOAPsList: TwitterPOAPFileParticipant[];
+	if (!participantsList[0].poapLink) {
+		const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
+		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(guildMember, linksMessageAttachment);
+		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event, listOfPOAPLinks);
+	} else {
+		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event);
+	}
+	if (!(await handleDistributionResults(guildMember, numberOfParticipants, failedPOAPsList))) {
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_TWITTER, ctx);
+	}
+	Log.debug('poap distribution finished');
+};
+
+const handleDistributionResults = async (guildMember: GuildMember, numberOfParticipants: number, failedPOAPsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[]): Promise<boolean> => {
+	const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(failedPOAPsList);
+	await guildMember.send({
+		embeds: [
+			{
+				title: 'POAPs Distribution Results',
+				fields: [
+					{ name: 'Attempted to Send', value: `${numberOfParticipants}`, inline: true },
+					{ name: 'Successfully Sent', value: `${numberOfParticipants - failedPOAPsList.length}`, inline: true },
+					{ name: 'Failed to Send', value: `${failedPOAPsList.length}`, inline: true },
+				],
+			},
+		],
+		files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
+	});
+	if (failedPOAPsList.length <= 0) {
+		Log.debug('all poap successfully delivered');
+		await guildMember.send({ content: 'All POAPs delivered!' });
+		return true;
+	}
+	return false;
 };

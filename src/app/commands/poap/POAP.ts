@@ -138,12 +138,6 @@ module.exports = class poap extends SlashCommand {
 					description: 'Distribute links to participants.',
 					options: [
 						{
-							name: 'event',
-							type: CommandOptionType.STRING,
-							description: 'The name of the event that participants will see in their DMs.',
-							required: true,
-						},
-						{
 							name: 'platform',
 							type: CommandOptionType.STRING,
 							description: 'Platform where users can claim from where they attended the event.',
@@ -158,6 +152,12 @@ module.exports = class poap extends SlashCommand {
 									value: constants.PLATFORM_TYPE_TWITTER,
 								},
 							],
+						},
+						{
+							name: 'event',
+							type: CommandOptionType.STRING,
+							description: 'The name of the event that participants will see in their DMs.',
+							required: true,
 						},
 					],
 				},

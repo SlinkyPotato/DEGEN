@@ -12,7 +12,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, event: string, platform: string): Promise<any> => {
 	if (ctx.guildID == undefined) {
-		await ctx.send('Please try ending poap event within discord channel');
+		await ctx.send('Please try poap distribution within discord channel');
 		return;
 	}
 	Log.debug('starting poap distribution...');
@@ -21,6 +21,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	POAPUtils.validateEvent(event);
 	
 	await ServiceUtils.tryDMUser(guildMember, 'Hi, just need a moment to stretch before I run off sending POAPS...');
+	await ctx.send('Sent you a DM!');
 	let participantsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = await askForParticipantsList(guildMember);
 	const numberOfParticipants: number = participantsList.length;
 	
@@ -37,7 +38,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	participantsList = participantsList as POAPFileParticipant[];
 	
 	if (!participantsList[0].discordUserId) {
-		await guildMember.send({ content: 'parsing failed, please try a csv file with headers discordUserId,discordUserTag,durationInMinutes' });
+		await guildMember.send({ content: 'parsing failed, please try a csv file with headers discordUserId' });
 		throw Error('failed to parse');
 	}
 
@@ -73,7 +74,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 };
 
 export const askForParticipantsList = async (guildMember: GuildMember): Promise<POAPFileParticipant[] | TwitterPOAPFileParticipant[]> => {
-	const message: Message = await guildMember.send({ content: 'Please upload .csv file with header discordUserId,discordUserTag and either durationInMinutes or poapLink. POAPs will be distributed to these degens.' });
+	const message: Message = await guildMember.send({ content: 'Please upload .csv file with header discordUserId and either durationInMinutes or poapLink. POAPs will be distributed to these degens.' });
 	const dmChannel: DMChannel = await message.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,

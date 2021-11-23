@@ -92,7 +92,8 @@ written notice of the same.
 immediately upon written notice (including, but not limited to, Discord,  
 Telegram or other similar messaging platform) to the other Party in the  
 event that the other Party undergoes a liquidation.  
-5.4. License Termination Rights. In addition to the termination rights set  forth above, BanklessDAO may revoke the License granted to the User, in  
+5.4. License Termination Rights. In addition to the termination rights set  
+forth above, BanklessDAO may revoke the License granted to the User, in  
 whole or in part, immediately upon written notice (including, but not  
 limited to, Discord, Telegram or other similar messaging platform) to the  
 User if the User fails or threatens to fail to comply with any of the use  

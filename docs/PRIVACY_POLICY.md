@@ -30,7 +30,8 @@ person, which, either directly or indirectly, in combination with other
 information available or likely to be available to a body corporate, is  
 capable of identifying such a person.  
 
-1.4. Without prejudice to the generality of the above, information collected by us from you may include (but is not limited to) the following:
+1.4. Without prejudice to the generality of the above, information collected  
+by us from you may include (but is not limited to) the following:  
  
 a) 	Public keys;
 b) 	Discord handle;
@@ -40,8 +41,8 @@ c)  Twitter handle.
 
 You understand that BanklessDAO use your Personal information for:  
 a) 	for the purpose of providing you Services,  
-b) 	in a non-personally identifiable form for research, statistical analysis  
-and business intelligence purposes,  
+b) 	in a non-personally identifiable form for research, statistical  
+analysis and business intelligence purposes,  
 c) 	for the purpose of contacting you to complete any transaction if you  
 do not complete a transaction after having provided us with your contact  
 information in the course of completing such steps that are designed for  

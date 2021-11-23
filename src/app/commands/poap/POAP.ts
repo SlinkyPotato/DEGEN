@@ -223,7 +223,7 @@ module.exports = class poap extends SlashCommand {
 					await ctx.send('I love your enthusiasm, but please return to a Discord channel to end the event.');
 					return;
 				}
-				command = EndPOAP(guildMember, ctx.options.end['platform'], ctx);
+				command = EndPOAP(guildMember, ctx.options.end['platform'], false, ctx);
 				break;
 			case 'distribute':
 				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], ctx.options.distribute['platform']);

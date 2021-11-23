@@ -161,7 +161,7 @@ const POAPUtils = {
 			}
 			try {
 				const participantMember = await guildMember.guild.members.fetch(participant.discordUserId);
-				await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${poapLink}.` }).catch((e) => {
+				await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${poapLink}` }).catch((e) => {
 					failedPOAPsList.push({
 						discordUserId: participant.discordUserId,
 						discordUserTag: participant.discordUserTag,
@@ -219,7 +219,7 @@ const POAPUtils = {
 			try {
 				const result: void | DirectMessageCreateV1Result = await twitterClient.v1.sendDm({
 					recipient_id: participant.twitterUserId,
-					text: `gm - Thank you for participating in ${event}. Here is your POAP: ${poapLink}. Enjoy!`,
+					text: `gm - Thank you for participating in ${event}. Here is your POAP: ${poapLink} Enjoy!`,
 					quick_reply: {
 						type: 'options',
 						options: [

@@ -3,6 +3,9 @@
 ## 2.1.0-SNAPSHOT (2021-11-22)
 
 1. Add Privacy Policy and Terms & Conditions to /docs
+2. Prepare twitter spaces command
+   - end poap events cleanly on startup or restart of instance
+   - remove period from poap link
 
 ## 2.0.2-RELEASE
 

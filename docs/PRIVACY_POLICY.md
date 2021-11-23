@@ -58,7 +58,9 @@ technical, operational and physical security control measures that are
 commensurate with respect to the information being collected and the nature  
 of BanklessDAO’s business.  
 
-3.2.   BanklessDAO makes all User information accessible to its members, agents or partners and third parties only on a need-to-know basis, and binds its members to strict confidentiality obligations.  
+3.2.   BanklessDAO makes all User information accessible to its members,  
+agents or partners and third parties only on a need-to-know basis, and binds  
+its members to strict confidentiality obligations.  
 
 3.3.   Notwithstanding the above, BanklessDAO shall not be responsible for  
 any breach of security or events that are beyond the reasonable control of  

@@ -36,7 +36,8 @@ assigned to such terms within the Agreement.
 the meaning a reasonable person of ordinary intelligence and understanding  
 ascertains to such a term in ordinary circumstances.  
  
-## 2.      License Grant.
+## 2.      License Grant.  
+
 2.1 Subject to these Terms, BanklessDAO hereby grants to the User a  
 non-­exclusive, non-transferable, non-­sublicensable (and revocable) license  
 to use DEGEN.  

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3-SNAPSHOT (2021-11-22)
+
+1. Add Privacy Policy and Terms & Conditions to /docs
+
 ## 2.0.2-RELEASE
 
 1. Fix auto-end for poap events

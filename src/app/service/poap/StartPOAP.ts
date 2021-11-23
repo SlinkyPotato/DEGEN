@@ -26,7 +26,7 @@ import Log, { LogUtils } from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
 import POAPService from './POAPService';
 import MongoDbUtils from '../../utils/MongoDbUtils';
-import VerifyTwitter from '../account/VerifyTwitter';
+import VerifyTwitter, { VerifiedTwitter } from '../account/VerifyTwitter';
 import { SpaceV2LookupResult, TwitterApi } from 'twitter-api-v2';
 import apiKeys from '../constants/apiKeys';
 import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
@@ -250,13 +250,18 @@ export const askUserForChannel = async (guildMember: GuildMember, dmMessage: Mes
 
 const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration?: number): Promise<any> => {
 	Log.debug('starting twitter poap flow...');
-	const { twitterUser } = await VerifyTwitter(guildMember);
+	
+	await ctx.send('Sent you a DM!');
+	const verifiedTwitter: VerifiedTwitter = await VerifyTwitter(guildMember);
+	if (verifiedTwitter == null) {
+		return;
+	}
 	const twitterClientV2: TwitterApi = new TwitterApi(apiKeys.twitterBearerToken);
 	await ServiceUtils.tryDMUser(guildMember, 'Oh yea, time for a POAP event!...');
 
 	let twitterSpaceResult: SpaceV2LookupResult;
 	try {
-		twitterSpaceResult = await twitterClientV2.v2.spacesByCreators(twitterUser.id_str);
+		twitterSpaceResult = await twitterClientV2.v2.spacesByCreators(verifiedTwitter.twitterUser.id_str);
 	} catch (e) {
 		LogUtils.logError('failed trying to get twitter spaces', e);
 	}
@@ -300,7 +305,7 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 		discordUserId: guildMember.id,
 		discordUserTag: guildMember.user.tag,
 		discordServerId: guildMember.guild.id,
-		twitterUserId: twitterUser.id_str,
+		twitterUserId: verifiedTwitter.twitterUser.id_str,
 		twitterSpaceId: twitterSpaceId,
 	}, {
 		upsert: true,
@@ -337,10 +342,10 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 	const poapTwitterParticipants: Collection<POAPTwitterParticipants> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_PARTICIPANTS);
 	const result: FindAndModifyWriteOpResultObject<any> = await poapTwitterParticipants.findOneAndReplace({
 		twitterSpaceId: twitterSpaceId,
-		twitterUserId: twitterUser.id_str,
+		twitterUserId: verifiedTwitter.twitterUser.id_str,
 	}, {
 		twitterSpaceId: twitterSpaceId,
-		twitterUserId: twitterUser.id_str,
+		twitterUserId: verifiedTwitter.twitterUser.id_str,
 		dateOfTweet: currentDate.toISOString(),
 	}, {
 		upsert: true,

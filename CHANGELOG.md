@@ -7,7 +7,7 @@
    - end poap events cleanly on startup or restart of instance
    - remove period from poap link
 
-## 2.0.2-RELEASE
+## 2.0.2-RELEASE (2021-11-22)
 
 1. Fix auto-end for poap events
 

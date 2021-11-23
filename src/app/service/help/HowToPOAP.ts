@@ -25,6 +25,11 @@ export default (): MessageOptions => {
 					inline: false,
 				},
 				{
+					name: '-> /poap claim',
+					value: 'Claim your missing POAP for an event that you attended but did not receive. Must have been in the discussion for 10 minutes and must have not been deafened.',
+					inline: false,
+				},
+				{
 					name: '-> /poap start',
 					value: 'Start tracking attendees as they enter and exit the specified voice channel. ' +
 						'Once the event is started it must be stopped by the same user or configured user/role.',

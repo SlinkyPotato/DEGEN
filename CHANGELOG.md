@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2-RELEASE
+
+1. Fix auto-end for poap events
+
 ## 2.0.1-RELEASE (2021-11-22)
 
 1. Store duration for end of poap event

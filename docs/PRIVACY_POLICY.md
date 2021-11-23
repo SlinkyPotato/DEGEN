@@ -104,7 +104,10 @@ of the Services is subject to this Privacy Policy and the Terms of Use.
 
 ## 6.      Erasure of Data  
 
-In cases established under applicable law, you can exercise the right to erasure by addressing a request to the below mentioned contact. In case of legitimate request, all data referring to your person will be erased from our storage system.
+In cases established under applicable law, you can exercise the right to  
+erasure by addressing a request to the below mentioned contact. In case of  
+legitimate request, all data referring to your person will be erased from  
+our storage system.  
  
  
 ## 7.     Address for Privacy Questions

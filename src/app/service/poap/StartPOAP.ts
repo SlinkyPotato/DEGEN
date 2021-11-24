@@ -286,7 +286,7 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 	
 	if (activeSettings != null) {
 		Log.debug('unable to start twitter event due to active event');
-		await guildMember.send('Looks like you have already started you POAP twitter space!');
+		await guildMember.send('Looks like you have already started your POAP twitter space!');
 		throw new ValidationError('Ha ha.. just kidding...');
 	}
 	duration = await POAPUtils.askForDuration(guildMember, duration);
@@ -354,5 +354,5 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 	if (result.ok != 1) {
 		await guildMember.send('One more thing, there was a problem setting counting you as a participants.. You just might miss the POAP, sorry.');
 	}
-	Log.debug('POAP Twitter spaces event event start message sent');
+	Log.debug('POAP Twitter spaces event start message sent');
 };

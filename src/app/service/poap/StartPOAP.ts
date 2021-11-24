@@ -352,7 +352,7 @@ const startTwitterPOAPFlow = async (ctx: CommandContext, guildMember: GuildMembe
 	});
 	
 	if (result.ok != 1) {
-		await guildMember.send('One more thing, there was a problem setting counting you as a participants.. You just might miss the POAP, sorry.');
+		await guildMember.send('One more thing, there\'s a problem. Could be you. Could be me. Please Reach out the the event coordinator for your badge.');
 	}
 	Log.debug('POAP Twitter spaces event start message sent');
 };

@@ -111,9 +111,9 @@ const removeTwitterAccountLink = async (nextAuthAccount: NextAuthAccountCollecti
 	return;
 };
 
-const sendTwitterAuthenticationMessage = (guildMember: GuildMember): Promise<Message> => {
+const sendTwitterAuthenticationMessage = async (guildMember: GuildMember): Promise<void> => {
 	Log.info(`${guildMember.user.tag} is not twitter authorized, sending request to link`);
-	return guildMember.send({
+	await guildMember.send({
 		embeds: [
 			{
 				title: 'Twitter Authentication',

@@ -1,11 +1,14 @@
 # Changelog
 
-## 2.1.0-SNAPSHOT (2021-11-22)
+## 2.1.0-RELEASE (2021-11-23)
 
 1. Add Privacy Policy and Terms & Conditions to /docs
 2. Add help for /poap claim
+3. Prepare twitter spaces command
+   - end poap events cleanly on startup or restart of instance
+   - remove period from poap link
 
-## 2.0.2-RELEASE
+## 2.0.2-RELEASE (2021-11-22)
 
 1. Fix auto-end for poap events
 

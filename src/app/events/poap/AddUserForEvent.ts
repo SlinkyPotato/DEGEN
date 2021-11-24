@@ -35,7 +35,7 @@ export default async (oldState: VoiceState, newState: VoiceState): Promise<any> 
 			} else {
 				Log.debug(`current date is after or equal to event end date, currentDate: ${currentDate}, endDate: ${endDate}`);
 				const poapOrganizerGuildMember: GuildMember = await guild.members.fetch(poapSetting.discordUserId);
-				await EndPOAP(poapOrganizerGuildMember, constants.PLATFORM_TYPE_DISCORD);
+				await EndPOAP(poapOrganizerGuildMember, constants.PLATFORM_TYPE_DISCORD, true);
 			}
 		} catch (e) {
 			LogUtils.logError(`failed to add ${member.user.tag} to db`, e);

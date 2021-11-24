@@ -14,13 +14,12 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 	Log.debug(`starting claim for ${ctx.user.username}, with ID: ${ctx.user.id}`);
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		// await claimPOAPForTwitter(ctx, guildMember);
-		await ctx.send('Coming soon...');
+		await claimPOAPForTwitter(ctx, guildMember);
 		return;
 	}
 	
 	if (guildMember != null) {
-		await ServiceUtils.tryDMUser(guildMember, 'So you want a POAP? *sigh*...');
+		await ServiceUtils.tryDMUser(guildMember, 'Let me see if I can find your POAPs...');
 	}
 	
 	Log.debug('Discord platform chosen');

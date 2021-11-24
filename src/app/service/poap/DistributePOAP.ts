@@ -22,7 +22,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	
 	await ServiceUtils.tryDMUser(guildMember, 'Hi, just need a moment to stretch before I run off sending POAPS...');
 	await ctx.send('Sent you a DM!');
-	let participantsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = await askForParticipantsList(guildMember);
+	let participantsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = await askForParticipantsList(guildMember, platform);
 	const numberOfParticipants: number = participantsList.length;
 	
 	if (numberOfParticipants <= 0) {
@@ -57,8 +57,14 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	Log.debug('poap distribution complete');
 };
 
-export const askForParticipantsList = async (guildMember: GuildMember): Promise<POAPFileParticipant[] | TwitterPOAPFileParticipant[]> => {
-	const message: Message = await guildMember.send({ content: 'Please upload participants.csv file with header containing discordUserId and either durationInMinutes or poapLink. POAPs will be distributed to these degens.' });
+export const askForParticipantsList = async (guildMember: GuildMember, platform: string): Promise<POAPFileParticipant[] | TwitterPOAPFileParticipant[]> => {
+	let csvPrompt: string;
+	if (platform == constants.PLATFORM_TYPE_DISCORD) {
+		csvPrompt = 'Please upload participants.csv file with header containing discordUserId. POAPs will be distributed to these degens.';
+	} else if (platform == constants.PLATFORM_TYPE_TWITTER) {
+		csvPrompt = 'Please upload participants.csv file with header containing twitterUserId. POAPs will be distributed to these degens.';
+	}
+	const message: Message = await guildMember.send({ content: csvPrompt });
 	const dmChannel: DMChannel = await message.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,

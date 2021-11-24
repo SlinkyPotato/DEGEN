@@ -161,7 +161,7 @@ const POAPUtils = {
 			}
 			try {
 				const participantMember = await guildMember.guild.members.fetch(participant.discordUserId);
-				await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${poapLink}.` }).catch((e) => {
+				await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${poapLink}` }).catch((e) => {
 					failedPOAPsList.push({
 						discordUserId: participant.discordUserId,
 						discordUserTag: participant.discordUserTag,
@@ -213,13 +213,10 @@ const POAPUtils = {
 				i++;
 				continue;
 			}
-			if (participant.twitterUserId.length < 15) {
-				throw new ValidationError('There appears to be a parsing error. Please check that the discordUserID is greater than 15 digits.');
-			}
 			try {
 				const result: void | DirectMessageCreateV1Result = await twitterClient.v1.sendDm({
 					recipient_id: participant.twitterUserId,
-					text: `gm - Thank you for participating in ${event}. Here is your POAP: ${poapLink}. Enjoy!`,
+					text: `Thank you for participating in ${event}. Here is your POAP: ${poapLink} Enjoy! (gm)`,
 					quick_reply: {
 						type: 'options',
 						options: [

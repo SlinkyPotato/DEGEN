@@ -12,8 +12,8 @@ import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
 
-export default async (guildMember: GuildMember, platform: string, ctx?: CommandContext): Promise<any> => {
-	Log.debug('attempting to ending poap event');
+export default async (guildMember: GuildMember, platform: string, skipChat: boolean, ctx?: CommandContext): Promise<any> => {
+	Log.debug('attempting to end poap event');
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
 	await POAPUtils.validateUserAccess(guildMember, db);
@@ -21,12 +21,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	Log.debug('authorized to end poap event');
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		// await endTwitterPOAPFlow(guildMember, db, ctx);
-		if (ctx) {
-			await ctx.send('Coming soon...');
-		} else {
-			await guildMember.send({ content: 'Coming soon...' });
-		}
+		await endTwitterPOAPFlow(guildMember, db, skipChat, ctx);
 		return;
 	}
 	
@@ -111,6 +106,11 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` });
 	}
 
+	if (skipChat) {
+		await deliveryLaterMessage(guildMember, ctx);
+		return;
+	}
+	
 	await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(y/n)`' });
 	const dmChannel: DMChannel = await guildMember.createDM();
 	const replyOptions: AwaitMessagesOptions = {
@@ -157,14 +157,11 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		}
 		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, constants.PLATFORM_TYPE_DISCORD, ctx);
 	} else {
-		await guildMember.send({ content: 'Cool, POAPs can be delivered at a later time.' });
-		if (ctx) {
-			await ctx.send('POAP event ended. POAPs will be delivered at a later time.');
-		}
+		await deliveryLaterMessage(guildMember, ctx);
 	}
 };
 
-const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandContext): Promise<any> => {
+const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, skipChat: boolean, ctx?: CommandContext): Promise<any> => {
 	Log.debug('starting twitter poap end flow...');
 	
 	const poapTwitterSettings: Collection<POAPTwitterSettings> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_SETTINGS);
@@ -225,7 +222,13 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 	if (ctx) {
 		await ctx.send('1 DM for you ser');
 	}
-	await guildMember.send({ content: 'Would you like me to send out POAP links to participants? `(y/n)`' });
+	
+	if (skipChat) {
+		await deliveryLaterMessage(guildMember, ctx);
+		return;
+	}
+	
+	await guildMember.send({ content: 'Would you like me to send out POAP links to twitter participants? `(y/n)`' });
 	const dmChannel: DMChannel = await guildMember.createDM();
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -267,6 +270,14 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 			return;
 		}
 		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, activeTwitterSettings.event, constants.PLATFORM_TYPE_TWITTER, ctx);
+	} else {
+		await deliveryLaterMessage(guildMember, ctx);
 	}
-	return;
+};
+
+const deliveryLaterMessage = async (guildMember: GuildMember, ctx?: CommandContext) => {
+	await guildMember.send({ content: 'Cool, POAPs can be delivered at a later time.' });
+	if (ctx) {
+		await ctx.send('POAP event ended. POAPs will be delivered at a later time.');
+	}
 };

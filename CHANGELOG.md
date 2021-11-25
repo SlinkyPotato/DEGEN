@@ -2,8 +2,9 @@
 
 ## 2.2.0-SNAPSHOT
 
-1. Send hidden claim messages
+1. Send hidden claim messages for POAPs
 2. Fix distribution of failed attendees
+3. Display support error message on failure
 
 ## 2.1.0-RELEASE (2021-11-23)
 

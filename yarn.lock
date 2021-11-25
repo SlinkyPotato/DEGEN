@@ -1861,7 +1861,7 @@ discord.js-captcha@^2.2.2:
     discord.js "^13.2.0"
     lodash "^4.17.21"
 
-discord.js@^13.1.0, discord.js@^13.2.0:
+discord.js@^13.2.0, discord.js@^13.3.1:
   version "13.3.1"
   resolved "https://registry.yarnpkg.com/discord.js/-/discord.js-13.3.1.tgz#94fe05bc3ec0a3e4761e4f312a2a418c29721ab6"
   integrity sha512-zn4G8tL5+tMV00+0aSsVYNYcIfMSdT2g0nudKny+Ikd+XKv7m6bqI7n3Vji0GIRqXDr5ArPaw+iYFM2I1Iw3vg==
@@ -4058,7 +4058,7 @@ sisteransi@^1.0.5:
   resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-1.0.5.tgz#134d681297756437cc05ca01370d3a7a571075ed"
   integrity sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==
 
-slash-create@^4.3.0:
+slash-create@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/slash-create/-/slash-create-4.3.1.tgz#a487cfc0c196f2a601082f557488a264bbddae4f"
   integrity sha512-zsRYCucQbHE2zFlZrdzQRKvLBY0+q8sOcG1GrXU1ggMYO0XNf5g2ELJ34HdkeTSXTe9pRUtae1aW9POqdXAKwA==

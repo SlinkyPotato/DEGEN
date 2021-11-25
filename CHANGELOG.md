@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0-SNAPSHOT
+
+1. Send hidden claim messages
+
 ## 2.1.0-RELEASE (2021-11-23)
 
 1. Add Privacy Policy and Terms & Conditions to /docs

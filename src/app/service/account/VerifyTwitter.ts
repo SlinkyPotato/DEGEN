@@ -1,4 +1,4 @@
-import { GuildMember, Message } from 'discord.js';
+import { GuildMember } from 'discord.js';
 import apiKeys from '../constants/apiKeys';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';

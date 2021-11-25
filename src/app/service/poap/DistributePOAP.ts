@@ -26,7 +26,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	const numberOfParticipants: number = participantsList.length;
 	
 	if (numberOfParticipants <= 0) {
-		await ctx.send('Hmm there doesn\'t seem to be any participants');
+		await ctx.send('Hmm there don\'t seem to be any participants');
 		return;
 	}
 
@@ -35,7 +35,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 		return;
 	}
 
-	Log.debug('starting discord distrubtiong flow');
+	Log.debug('starting discord distribution flow');
 	participantsList = participantsList as POAPFileParticipant[];
 	
 	if (!participantsList[0].discordUserId) {

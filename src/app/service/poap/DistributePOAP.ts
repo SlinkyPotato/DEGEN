@@ -35,6 +35,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 		return;
 	}
 
+	Log.debug('starting discord distrubtiong flow');
 	participantsList = participantsList as POAPFileParticipant[];
 	
 	if (!participantsList[0].discordUserId) {
@@ -50,10 +51,10 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	} else {
 		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, event);
 	}
-	if (!(await handleDistributionResults(guildMember, numberOfParticipants, failedPOAPsList))) {
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_TWITTER, ctx);
+	const didDistributeAll = await handleDistributionResults(guildMember, numberOfParticipants, failedPOAPsList);
+	if (!didDistributeAll) {
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_DISCORD, ctx);
 	}
-	await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_DISCORD, ctx);
 	Log.debug('poap distribution complete');
 };
 

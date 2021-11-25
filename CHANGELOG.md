@@ -3,6 +3,7 @@
 ## 2.2.0-SNAPSHOT
 
 1. Send hidden claim messages
+2. Fix distribution of failed attendees
 
 ## 2.1.0-RELEASE (2021-11-23)
 

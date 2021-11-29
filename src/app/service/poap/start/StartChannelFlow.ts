@@ -25,7 +25,7 @@ const StartChannelFlow = async (
 	Log.debug('starting channel flow for poap start');
 	const voiceChannels: Collection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
 	
-	await ctx.sendFollowUp({ content: '⚠ Please make sure this is a private channel. I can help you setup the poap event but anyone who has access to this channel can see all of the POAP links! ⚠' });
+	await ctx.sendFollowUp({ content: '⚠ Please make sure this is a private channel ⚠ I can help you setup the poap event but anyone who has access to this channel can see all of the POAP links!' });
 	const embedsVoiceChannels = generateVoiceChannelEmbedMessage(voiceChannels) as MessageEmbedOptionsSlash[];
 	const message = await ctx.sendFollowUp({ embeds: embedsVoiceChannels });
 	

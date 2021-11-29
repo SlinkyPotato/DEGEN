@@ -60,6 +60,8 @@ const StartChannelFlow = async (
 			},
 		],
 	});
+	
+	await ctx.sendFollowUp(({ content: 'Everything is set, catch you later!' }));
 };
 
 export default StartChannelFlow;

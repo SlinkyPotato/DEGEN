@@ -19,8 +19,6 @@ import {
 	Cursor,
 	Db,
 	FindAndModifyWriteOpResultObject,
-	InsertOneWriteOpResult,
-	MongoError,
 } from 'mongodb';
 import constants from '../../constants/constants';
 import { POAPSettings } from '../../../types/poap/POAPSettings';
@@ -110,27 +108,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 			},
 		],
 	});
-};
-
-export const setupPoapSetting = async (
-	guildMember: GuildMember, poapSettingsDB: Collection, guildChannel: GuildChannel, startDateISO: string,
-	endDateISO: string, event?: string,
-): Promise<POAPSettings> => {
-	const poapSetting = {
-		event: event,
-		isActive: true,
-		startTime: startDateISO,
-		endTime: endDateISO,
-		discordUserId: guildMember.user.id.toString(),
-		voiceChannelId: guildChannel.id.toString(),
-		voiceChannelName: guildChannel.name.toString(),
-		discordServerId: guildChannel.guild.id.toString(),
-	};
-	const result: InsertOneWriteOpResult<POAPSettings> = await poapSettingsDB.insertOne(poapSetting);
-	if (result == null || result.insertedCount !== 1) {
-		throw new MongoError('failed to insert poapSettings');
-	}
-	return result.ops.pop();
+	await guildMember.send({ content: 'Everything is set, catch you later!' });
 };
 
 export const clearPOAPParticipants = async (db: Db, guildChannel: GuildChannel): Promise<void> => {
@@ -245,7 +223,6 @@ export const setActiveEventInDb = async (guildMember: GuildMember, db: Db, chann
 	const endDateISO: string = currentDate.add(duration, 'minute').toISOString();
 	
 	Log.debug('looking to find and update poap settings in db');
-	console.log(`discordServerId: ${channelChoice.guild.id}, voiceChannelId: ${channelChoice.id}`);
 	const activeEventResult: FindAndModifyWriteOpResultObject<POAPSettings> = await poapSettingsDB.findOneAndReplace({
 		discordServerId: channelChoice.guild.id,
 		voiceChannelId: channelChoice.id,
@@ -267,7 +244,8 @@ export const setActiveEventInDb = async (guildMember: GuildMember, db: Db, chann
 		Log.warn('failed to set poap setting as active for poap organizer');
 		throw new ValidationError('I\'m sorry something is not working, can you try again?');
 	}
+	
 	Log.debug(`found and updated poap settings for ${guildMember.user.tag}`);
-	// await storePresentMembers(db, channelChoice);
-	// POAPService.setupAutoEndForEvent(guildMember.client, activeEventResult.value, constants.PLATFORM_TYPE_DISCORD);
+	await storePresentMembers(db, channelChoice);
+	POAPService.setupAutoEndForEvent(guildMember.client, activeEventResult.value, constants.PLATFORM_TYPE_DISCORD);
 };

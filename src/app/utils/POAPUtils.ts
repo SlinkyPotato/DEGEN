@@ -1,4 +1,4 @@
-import { GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
+import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment, TextChannel } from 'discord.js';
 import { Collection, Collection as MongoCollection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../service/constants/constants';
 import { POAPParticipant } from '../types/poap/POAPParticipant';
@@ -111,7 +111,30 @@ const POAPUtils = {
 		Log.debug('finished setting endDate for present participants in db');
 	},
 	
-	async getListOfPoapLinks(guildMember: GuildMember, attachment: MessageAttachment): Promise<string[]> {
+	async askForPOAPLinks(guildMember: GuildMember, isDmOn: boolean, numberOfParticipants: number, ctx?: CommandContext): Promise<MessageAttachment> {
+		Log.debug('asking poap organizer for poap links attachment');
+		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have ${numberOfParticipants} links where each link is on a new line.`;
+		const replyOptions: AwaitMessagesOptions = {
+			max: 1,
+			time: 900000,
+			errors: ['time'],
+			filter: m => m.author.id == guildMember.user.id,
+		};
+		let poapLinksFile: MessageAttachment;
+		if (isDmOn) {
+			await guildMember.send({ content: uploadLinksMsg });
+			const dmChannel: DMChannel = await guildMember.createDM();
+			poapLinksFile = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
+		} else if (ctx) {
+			await ctx.sendFollowUp(uploadLinksMsg);
+			const guildChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
+			poapLinksFile = (await guildChannel.awaitMessages(replyOptions)).first().attachments.first();
+		}
+		Log.debug('obtained poap links attachment in discord');
+		return poapLinksFile;
+	},
+	
+	async getListOfPoapLinks(attachment: MessageAttachment): Promise<string[]> {
 		Log.debug('downloading poap links file from discord server...');
 		try {
 			const response = await axios.get(attachment.url);
@@ -127,8 +150,7 @@ const POAPUtils = {
 			return listOfPOAPLinks;
 		} catch (e) {
 			LogUtils.logError('failed to process links.txt file', e);
-			await guildMember.send({ content: 'Could not process the links.txt file. Please make sure the file that is uploaded has every URL on a new line.' });
-			return;
+			throw new ValidationError('Could not process the links.txt file. Please make sure the file that is uploaded has every URL on a new line.');
 		}
 	},
 
@@ -142,6 +164,11 @@ const POAPUtils = {
 		let i = 0;
 		const length = listOfParticipants.length;
 		const isListOfPoapLinksPresent: boolean = listOfPOAPLinks != null && listOfPOAPLinks.length >= 1;
+		
+		if (listOfPOAPLinks.length < listOfParticipants.length) {
+			throw new ValidationError('There is not enough POAP links for all the participants!');
+		}
+		
 		while (i < length) {
 			const participant: POAPFileParticipant = listOfParticipants.pop();
 			const poapLink = (isListOfPoapLinksPresent) ? listOfPOAPLinks.pop() : participant.poapLink;

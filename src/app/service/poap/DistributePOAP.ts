@@ -46,7 +46,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	let failedPOAPsList: POAPFileParticipant[];
 	if (!participantsList[0].poapLink) {
 		const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
-		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(guildMember, linksMessageAttachment);
+		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(linksMessageAttachment);
 		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, event, listOfPOAPLinks);
 	} else {
 		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, event);
@@ -113,7 +113,7 @@ const distributeTwitterFlow = async (ctx: CommandContext, guildMember: GuildMemb
 	let failedPOAPsList: TwitterPOAPFileParticipant[];
 	if (!participantsList[0].poapLink) {
 		const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
-		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(guildMember, linksMessageAttachment);
+		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(linksMessageAttachment);
 		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event, listOfPOAPLinks);
 	} else {
 		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event);

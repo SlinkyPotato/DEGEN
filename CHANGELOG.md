@@ -5,6 +5,7 @@
 1. Send hidden claim messages for POAPs
 2. Fix distribution of failed attendees
 3. Display support error message on failure
+4. Channel-only flow for POAP starting
 
 ## 2.1.0-RELEASE (2021-11-23)
 

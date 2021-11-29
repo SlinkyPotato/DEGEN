@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import EndPOAP from './EndPOAP';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
-import { storePresentMembers } from './StartPOAP';
+import { storePresentMembers } from './start/StartPOAP';
 
 const POAPService = {
 	runAutoEndSetup: async (client: DiscordClient, platform: string): Promise<void> => {

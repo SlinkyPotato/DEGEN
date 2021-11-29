@@ -1,6 +1,6 @@
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 import ServiceUtils from '../../utils/ServiceUtils';
-import StartPOAP from '../../service/poap/StartPOAP';
+import StartPOAP from '../../service/poap/start/StartPOAP';
 import ValidationError from '../../errors/ValidationError';
 import EarlyTermination from '../../errors/EarlyTermination';
 import EndPOAP from '../../service/poap/EndPOAP';

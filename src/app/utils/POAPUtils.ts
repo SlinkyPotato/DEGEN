@@ -1,4 +1,4 @@
-import { DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
+import { GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
 import { Collection, Collection as MongoCollection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../service/constants/constants';
 import { POAPParticipant } from '../types/poap/POAPParticipant';
@@ -10,7 +10,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import DateUtils from './DateUtils';
 import { CommandContext } from 'slash-create';
 import MongoDbUtils from './MongoDbUtils';
-import ServiceUtils from './ServiceUtils';
 import { POAPTwitterParticipants } from '../types/poap/POAPTwitterParticipants';
 import TwitterApi, { DirectMessageCreateV1Result } from 'twitter-api-v2';
 import apiKeys from '../service/constants/apiKeys';
@@ -319,9 +318,9 @@ const POAPUtils = {
 		}
 	},
 
-	validateDuration(duration?: number): void {
+	validateDuration(duration?: number): number {
 		if (duration == null) {
-			return;
+			return constants.POAP_MAX_DURATION_MINUTES;
 		}
 		if (duration > constants.POAP_MAX_DURATION_MINUTES || duration < constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
 			throw new ValidationError(`Please try a value greater than ${constants.POAP_REQUIRED_PARTICIPATION_DURATION} and less than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`);
@@ -381,38 +380,6 @@ const POAPUtils = {
 		return startDateObj.year().toString();
 	},
 	
-	async askForDuration(guildMember: GuildMember, duration?: number): Promise<number> {
-		const dmChannel: DMChannel = await guildMember.createDM();
-		if (duration == null) {
-			Log.debug(`asking ${guildMember.user.tag} for duration`);
-			await guildMember.send({ content: 'Would you like to set the duration of the event? `(y/n)`' });
-			const setDurationFlag = (await ServiceUtils.getFirstUserReply(dmChannel)) == 'y';
-			Log.debug(`isAutoEnd: ${setDurationFlag}`);
-			if (setDurationFlag) {
-				try {
-					await guildMember.send({ content: `How long should the event stay active? \`(max: ${constants.POAP_MAX_DURATION_MINUTES} minutes)\`` });
-					const durationOfEventInMinutes: string = await ServiceUtils.getFirstUserReply(dmChannel);
-					duration = Number(durationOfEventInMinutes);
-					POAPUtils.validateDuration(duration);
-				} catch (e) {
-					LogUtils.logError('failed to process duration time', e);
-					throw new ValidationError('Please try another duration amount as a number. i.e 15');
-				}
-			} else {
-				Log.debug('max duration set for poap event');
-				duration = constants.POAP_MAX_DURATION_MINUTES;
-			}
-			Log.debug(`poap event duration: ${duration}, `, {
-				indexMeta: true,
-				meta: {
-					discordId: guildMember.guild.id,
-					discordUserId: guildMember.guild.id,
-				},
-			});
-		}
-		Log.debug(`duration set for ${duration} minutes`);
-		return duration;
-	},
 };
 
 export default POAPUtils;

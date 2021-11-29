@@ -274,14 +274,17 @@ const POAPUtils = {
 	
 	async setupFailedAttendeesDelivery(
 		guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipant[] | TwitterPOAPFileParticipant[],
-		event: string, platform: string, ctx?: CommandContext,
+		event: string, platform: string, isDmOn: boolean, ctx?: CommandContext,
 	): Promise<any> {
 		Log.debug(`${listOfFailedPOAPs.length} poaps failed to deliver`);
-		await guildMember.send({
-			content: 'Looks like some degens didn\'t make it... Let me set up a claim for them, all they need to do is `/poap claim`',
-		});
-		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		const failedDeliveryMsg = 'Some degens didn\'t make it... They can claim their POAP with the slash command `/poap claim`';
+		if (isDmOn) {
+			await guildMember.send({ content: failedDeliveryMsg });
+		} else if (ctx) {
+			await ctx.sendFollowUp(failedDeliveryMsg);
+		}
 		
+		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		if (platform == constants.PLATFORM_TYPE_DISCORD) {
 			const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
 			const unclaimedPOAPsList: any[] = (listOfFailedPOAPs as POAPFileParticipant[]).map((failedAttendee: POAPFileParticipant) => {
@@ -317,12 +320,7 @@ const POAPUtils = {
 		} else {
 			Log.warn('missing platform type when trying to setup failed attendees');
 		}
-		
 		Log.debug('stored poap claims for failed degens');
-		if (ctx) {
-			await ctx.send('POAPs sent! Some didn\'t make it... they can claim it with `/poap claim`');
-		}
-		await guildMember.send({ content: 'POAP claiming setup!' });
 	},
 
 	validateEvent(event?: string): void {

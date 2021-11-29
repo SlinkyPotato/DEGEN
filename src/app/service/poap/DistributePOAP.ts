@@ -53,7 +53,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	}
 	const didDistributeAll = await handleDistributionResults(guildMember, numberOfParticipants, failedPOAPsList);
 	if (!didDistributeAll) {
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_DISCORD, ctx);
+		// await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_DISCORD, ctx);
 	}
 	Log.debug('poap distribution complete');
 };
@@ -119,7 +119,7 @@ const distributeTwitterFlow = async (ctx: CommandContext, guildMember: GuildMemb
 		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event);
 	}
 	if (!(await handleDistributionResults(guildMember, numberOfParticipants, failedPOAPsList))) {
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_TWITTER, ctx);
+		// await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_TWITTER, ctx);
 	}
 	Log.debug('poap distribution finished');
 };

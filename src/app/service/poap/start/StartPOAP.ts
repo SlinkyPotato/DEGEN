@@ -63,7 +63,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	const activeSettings: POAPSettings = await activeSettingsCursor.next();
 	if (activeSettings != null) {
 		Log.debug('unable to start due to active event');
-		throw new ValidationError(`Please end the active event \`${activeSettings.voiceChannelName}\`.`);
+		throw new ValidationError(`Please end \`${activeSettings.voiceChannelName}\` event before starting a new event.`);
 	}
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! For which voice channel should the POAP event occur?');

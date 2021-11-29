@@ -1,4 +1,4 @@
-import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
+import { GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
 import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
@@ -155,7 +155,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		}
 		return;
 	}
-	await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, constants.PLATFORM_TYPE_DISCORD, ctx);
+	await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, constants.PLATFORM_TYPE_DISCORD, isDmOn, ctx);
 };
 
 const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandContext): Promise<any> => {
@@ -174,7 +174,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 	}
 	
 	Log.debug('active twitter poap event found');
-	await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one...');
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one');
 	
 	const currentDate: Dayjs = dayjs();
 	const updateTwitterEventSettings: UpdateWriteOpResult = await poapTwitterSettings.updateOne(activeTwitterSettings, {
@@ -195,15 +195,17 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 	
 	if (numberOfParticipants <= 0) {
 		Log.debug('no eligible attendees found during event');
-		await guildMember.send({ content: 'Event ended. No eligible attendees found during twitter event' });
-		if (ctx) {
-			await ctx.send('I have a DM for you ser');
+		const endMsg = 'Event ended. No eligible attendees found during twitter event';
+		if (isDmOn) {
+			await guildMember.send({ content: endMsg });
+		} else if (ctx) {
+			await ctx.sendFollowUp(endMsg);
 		}
 		return;
 	}
 	
 	const bufferFile: Buffer = ServiceUtils.generateCSVStringBuffer(listOfParticipants);
-	await guildMember.send({
+	const embedTwitterEnd = {
 		embeds: [
 			{
 				title: 'Twitter Event Ended',
@@ -215,54 +217,50 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 			},
 		],
 		files: [{ name: `twitter_participants_${numberOfParticipants}.csv`, attachment: bufferFile }],
-	});
-	if (ctx) {
-		await ctx.send('1 DM for you ser');
+	};
+	if (isDmOn) {
+		await guildMember.send(embedTwitterEnd);
+	} else if (ctx) {
+		await ctx.sendFollowUp(embedTwitterEnd);
 	}
 	
-	await guildMember.send({ content: 'Would you like me to send out POAP links to twitter participants? `(y/n)`' });
-	const dmChannel: DMChannel = await guildMember.createDM();
-	const replyOptions: AwaitMessagesOptions = {
-		max: 1,
-		time: 900000,
-		errors: ['time'],
+	const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, isDmOn, numberOfParticipants, ctx);
+	const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
+	const listOfFailedPOAPs: TwitterPOAPFileParticipant[] = await POAPUtils.sendOutTwitterPoapLinks(listOfParticipants, activeTwitterSettings.event, listOfPOAPLinks);
+	const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(listOfFailedPOAPs);
+	const distributionEmbedMsg = {
+		embeds: [
+			{
+				title: 'POAPs Distribution Results',
+				fields: [
+					{ name: 'Attempted to Send', value: `${numberOfParticipants}`, inline: true },
+					{
+						name: 'Successfully Sent... wgmi',
+						value: `${numberOfParticipants - listOfFailedPOAPs.length}`,
+						inline: true,
+					},
+					{ name: 'Failed to Send... ngmi', value: `${listOfFailedPOAPs.length}`, inline: true },
+				],
+			},
+		],
+		files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
 	};
-	const sendOutPOAPYN = (await dmChannel.awaitMessages(replyOptions)).first().content;
-	if (sendOutPOAPYN === 'y' || sendOutPOAPYN === 'Y' || sendOutPOAPYN === 'yes' || sendOutPOAPYN === 'YES') {
-		await guildMember.send({ content: 'Ok! Please upload the links.txt file.' });
-		const poapLinksFile: MessageAttachment = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
-		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
-		const listOfFailedPOAPs: TwitterPOAPFileParticipant[] = await POAPUtils.sendOutTwitterPoapLinks(listOfParticipants, activeTwitterSettings.event, listOfPOAPLinks);
-
-		const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(listOfFailedPOAPs);
-		await guildMember.send({
-			embeds: [
-				{
-					title: 'POAPs Distribution Results',
-					fields: [
-						{ name: 'Attempted to Send', value: `${numberOfParticipants}`, inline: true },
-						{
-							name: 'Successfully Sent... wgmi',
-							value: `${numberOfParticipants - listOfFailedPOAPs.length}`,
-							inline: true,
-						},
-						{ name: 'Failed to Send... ngmi', value: `${listOfFailedPOAPs.length}`, inline: true },
-					],
-				},
-			],
-			files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
-		});
-		Log.info('POAPs Distributed');
-		if (listOfFailedPOAPs.length <= 0) {
-			Log.debug('all poap successfully delivered');
-			await guildMember.send({ content: 'All POAPs delivered!' });
-			if (ctx) {
-				await ctx.send('POAPS sent! Expect delivery shortly.');
-			}
-			return;
-		}
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, activeTwitterSettings.event, constants.PLATFORM_TYPE_TWITTER, ctx);
-	} else {
-		await deliveryLaterMessage(guildMember, ctx);
+	if (isDmOn) {
+		await guildMember.send(distributionEmbedMsg);
+	} else if (ctx) {
+		await ctx.sendFollowUp(distributionEmbedMsg);
 	}
+	
+	Log.info('POAPs Distributed');
+	if (listOfFailedPOAPs.length <= 0) {
+		Log.debug('all poap successfully delivered');
+		const deliveryMsg = 'All POAPs delivered!';
+		if (isDmOn) {
+			await guildMember.send({ content: deliveryMsg });
+		} else if (ctx) {
+			await ctx.sendFollowUp(deliveryMsg);
+		}
+		return;
+	}
+	await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, activeTwitterSettings.event, constants.PLATFORM_TYPE_TWITTER, isDmOn, ctx);
 };

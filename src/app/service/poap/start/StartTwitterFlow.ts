@@ -17,7 +17,7 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 	Log.debug('starting twitter poap flow...');
 	
 	await ctx.send('Sent you a DM!');
-	const verifiedTwitter: VerifiedTwitter = await VerifyTwitter(guildMember);
+	const verifiedTwitter: VerifiedTwitter = await VerifyTwitter(ctx, guildMember);
 	if (verifiedTwitter == null) {
 		return;
 	}

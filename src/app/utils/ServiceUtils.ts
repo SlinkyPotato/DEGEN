@@ -130,7 +130,7 @@ const ServiceUtils = {
 		return records;
 	},
 	
-	sendOutErrorMessage: async (ctx: CommandContext): Promise<any> => {
+	sendOutErrorMessage: async (ctx: CommandContext, msg?: string): Promise<any> => {
 		const row: ComponentActionRow = {
 			type: ComponentType.ACTION_ROW,
 			components: [{
@@ -141,7 +141,7 @@ const ServiceUtils = {
 			}],
 		};
 		await ctx.sendFollowUp({
-			content: 'Something is not working. Please reach out to us and a support member will happily assist!',
+			content: msg ? msg : 'Something is not working. Please reach out to us and a support member will happily assist!',
 			ephemeral: true,
 			components: [row],
 		});

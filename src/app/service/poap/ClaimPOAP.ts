@@ -65,7 +65,7 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 const claimPOAPForTwitter = async (ctx: CommandContext, guildMember: GuildMember) => {
 	Log.debug('claiming POAP for Twitter');
 
-	const verifiedTwitter: VerifiedTwitter = await VerifyTwitter(guildMember);
+	const verifiedTwitter: VerifiedTwitter = await VerifyTwitter(ctx, guildMember);
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const unclaimedParticipantsCollection: Collection<POAPTwitterUnclaimedParticipants> = await db.collection(constants.DB_COLLECTION_POAP_TWITTER_UNCLAIMED_PARTICIPANTS);

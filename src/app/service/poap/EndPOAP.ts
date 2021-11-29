@@ -21,6 +21,8 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	Log.debug('authorized to end poap event');
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
+		await ServiceUtils.sendOutErrorMessage(ctx, 'Twitter is temporarily turned off. Please reach out to support with any questions');
+		return;
 		await endTwitterPOAPFlow(guildMember, db, ctx);
 		return;
 	}

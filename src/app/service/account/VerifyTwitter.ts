@@ -7,15 +7,21 @@ import { NextAuthAccountCollection } from '../../types/nextauth/NextAuthAccountC
 import Log from '../../utils/Log';
 import { TwitterApi, UserV1 } from 'twitter-api-v2';
 import ServiceUtils from '../../utils/ServiceUtils';
+import { CommandContext } from 'slash-create';
 
 export type VerifiedTwitter = {
 	twitterUser: UserV1,
 	twitterClientV1: TwitterApi
 };
 
-const VerifyTwitter = async (guildMember: GuildMember): Promise<VerifiedTwitter> => {
+const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Promise<VerifiedTwitter> => {
 	Log.debug('verifying twitter account link');
-	await ServiceUtils.tryDMUser(guildMember, 'Let me check your twitter info...');
+	
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hi! Let me check your twitter info');
+	if (!isDmOn) {
+		await ServiceUtils.sendOutErrorMessage(ctx, 'POAP minting is temporarily turned off. Please reach out to support with any questions');
+		return;
+	}
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
 	const accountsCollection: Collection<NextAuthAccountCollection> = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);

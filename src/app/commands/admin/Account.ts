@@ -44,7 +44,7 @@ export default class Account extends SlashCommand {
 		if (ctx.user.bot) return;
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		try {
-			await VerifyTwitter(guildMember);
+			await VerifyTwitter(ctx, guildMember);
 			await ctx.send({ content: 'Please check your DMs.', ephemeral: true });
 		} catch (e) {
 			LogUtils.logError('failed to verify user', e, guildMember.guild.id);

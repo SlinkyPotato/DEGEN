@@ -67,7 +67,6 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	}
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! For which voice channel should the POAP event occur?');
-	
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
 	
 	if (!isDmOn) {

@@ -24,6 +24,13 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 	if (!(ServiceUtils.isDiscordAdmin(guildMember) || ServiceUtils.isDiscordServerManager(guildMember))) {
 		throw new ValidationError('Sorry, only discord admins and managers can configure poap settings.');
 	}
+	
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello, I can help you configure POAP commands!');
+	if (!isDmOn) {
+		await ServiceUtils.sendOutErrorMessage(ctx, 'Configuration is temporarily turned off. Please reach out to support with any questions');
+		return;
+	}
+	
 	const authorizedRoles: Role[] = await retrieveRoles(guildMember, roles);
 	const authorizedUsers: GuildMember[] = await retrieveUsers(guildMember, users);
 

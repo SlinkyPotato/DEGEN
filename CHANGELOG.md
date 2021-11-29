@@ -6,6 +6,7 @@
 2. Fix distribution of failed attendees
 3. Display support error message on failure
 4. Channel-only flow for POAP starting
+5. Disable poap config, poap distribute, account verify
 
 ## 2.1.0-RELEASE (2021-11-23)
 

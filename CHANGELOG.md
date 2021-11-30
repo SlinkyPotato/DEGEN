@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.0-SNAPSHOT
+## 2.2.0-RELEASE (2021-11-30)
 
 1. Send hidden claim messages for POAPs
 2. Fix distribution of failed attendees

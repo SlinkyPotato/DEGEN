@@ -13,7 +13,6 @@ import {
 	VoiceChannel,
 } from 'discord.js';
 import client from '../app';
-import ValidationError from '../errors/ValidationError';
 import Log, { LogUtils } from './Log';
 import { stringify } from 'csv-stringify/sync';
 import { parse } from 'csv-parse/sync';
@@ -94,12 +93,13 @@ const ServiceUtils = {
 		})).first().content;
 	},
 	
-	async tryDMUser(guildMember: GuildMember, message: string): Promise<any> {
+	async tryDMUser(guildMember: GuildMember, message: string): Promise<boolean> {
 		try {
 			await guildMember.send({ content: message });
+			return true;
 		} catch (e) {
 			LogUtils.logError('DM is turned off', e);
-			throw new ValidationError('Please turn on direct messages.');
+			return false;
 		}
 	},
 	
@@ -130,7 +130,7 @@ const ServiceUtils = {
 		return records;
 	},
 	
-	sendOutErrorMessage: async (ctx: CommandContext): Promise<any> => {
+	sendOutErrorMessage: async (ctx: CommandContext, msg?: string): Promise<any> => {
 		const row: ComponentActionRow = {
 			type: ComponentType.ACTION_ROW,
 			components: [{
@@ -140,8 +140,8 @@ const ServiceUtils = {
 				url: 'https://discord.gg/NRj43H83nJ',
 			}],
 		};
-		await ctx.send({
-			content: 'Something is not working. Please reach out to us and a support member will happily assist!',
+		await ctx.sendFollowUp({
+			content: msg ? msg : 'Something is not working. Please reach out to us and a support member will happily assist!',
 			ephemeral: true,
 			components: [row],
 		});

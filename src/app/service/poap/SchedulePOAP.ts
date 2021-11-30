@@ -18,6 +18,12 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 		await ctx.send('Please try schedule within discord channel');
 		return;
 	}
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Minting POAPs is always super exciting!');
+	if (!isDmOn) {
+		await ServiceUtils.sendOutErrorMessage(ctx, 'POAP minting is temporarily turned off. Please reach out to support with any questions');
+		return;
+	}
+	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
 	await POAPUtils.validateUserAccess(guildMember, db);

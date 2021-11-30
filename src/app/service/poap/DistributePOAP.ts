@@ -20,7 +20,12 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	await POAPUtils.validateUserAccess(guildMember, db);
 	POAPUtils.validateEvent(event);
 	
-	await ServiceUtils.tryDMUser(guildMember, 'Hi, just need a moment to stretch before I run off sending POAPS...');
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I can help you distribute POAPS!');
+	if (!isDmOn) {
+		await ServiceUtils.sendOutErrorMessage(ctx, 'Distribution is temporarily turned off. Please reach out to support with any questions');
+		return;
+	}
+	
 	await ctx.send('Sent you a DM!');
 	let participantsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = await askForParticipantsList(guildMember, platform);
 	const numberOfParticipants: number = participantsList.length;
@@ -46,14 +51,14 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	let failedPOAPsList: POAPFileParticipant[];
 	if (!participantsList[0].poapLink) {
 		const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
-		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(guildMember, linksMessageAttachment);
+		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(linksMessageAttachment);
 		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, event, listOfPOAPLinks);
 	} else {
 		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, event);
 	}
 	const didDistributeAll = await handleDistributionResults(guildMember, numberOfParticipants, failedPOAPsList);
 	if (!didDistributeAll) {
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_DISCORD, ctx);
+		// await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_DISCORD, ctx);
 	}
 	Log.debug('poap distribution complete');
 };
@@ -113,13 +118,13 @@ const distributeTwitterFlow = async (ctx: CommandContext, guildMember: GuildMemb
 	let failedPOAPsList: TwitterPOAPFileParticipant[];
 	if (!participantsList[0].poapLink) {
 		const linksMessageAttachment: MessageAttachment = await askForLinksMessageAttachment(guildMember);
-		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(guildMember, linksMessageAttachment);
+		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(linksMessageAttachment);
 		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event, listOfPOAPLinks);
 	} else {
 		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event);
 	}
 	if (!(await handleDistributionResults(guildMember, numberOfParticipants, failedPOAPsList))) {
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_TWITTER, ctx);
+		// await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_TWITTER, ctx);
 	}
 	Log.debug('poap distribution finished');
 };

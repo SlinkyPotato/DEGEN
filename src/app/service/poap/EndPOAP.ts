@@ -44,7 +44,9 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one');
 	
 	if (!isDmOn && ctx) {
-		await ctx.sendFollowUp({ content: 'That was a great event!' });
+		await ctx.sendFollowUp({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠' });
+	} else if (ctx) {
+		await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
 	}
 	
 	const currentDateISO = dayjs().toISOString();

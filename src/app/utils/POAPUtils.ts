@@ -113,7 +113,7 @@ const POAPUtils = {
 	
 	async askForPOAPLinks(guildMember: GuildMember, isDmOn: boolean, numberOfParticipants: number, ctx?: CommandContext): Promise<MessageAttachment> {
 		Log.debug('asking poap organizer for poap links attachment');
-		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have ${numberOfParticipants} links where each link is on a new line.`;
+		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have a least ${numberOfParticipants} link(s). Each link should be on a new line.`;
 		const replyOptions: AwaitMessagesOptions = {
 			max: 1,
 			time: 900000,

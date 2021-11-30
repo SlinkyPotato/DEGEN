@@ -1,4 +1,4 @@
-import { DMChannel, GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
+import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment, TextChannel } from 'discord.js';
 import { Collection, Collection as MongoCollection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../service/constants/constants';
 import { POAPParticipant } from '../types/poap/POAPParticipant';
@@ -10,7 +10,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import DateUtils from './DateUtils';
 import { CommandContext } from 'slash-create';
 import MongoDbUtils from './MongoDbUtils';
-import ServiceUtils from './ServiceUtils';
 import { POAPTwitterParticipants } from '../types/poap/POAPTwitterParticipants';
 import TwitterApi, { DirectMessageCreateV1Result } from 'twitter-api-v2';
 import apiKeys from '../service/constants/apiKeys';
@@ -112,7 +111,30 @@ const POAPUtils = {
 		Log.debug('finished setting endDate for present participants in db');
 	},
 	
-	async getListOfPoapLinks(guildMember: GuildMember, attachment: MessageAttachment): Promise<string[]> {
+	async askForPOAPLinks(guildMember: GuildMember, isDmOn: boolean, numberOfParticipants: number, ctx?: CommandContext): Promise<MessageAttachment> {
+		Log.debug('asking poap organizer for poap links attachment');
+		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have a least ${numberOfParticipants} link(s). Each link should be on a new line.`;
+		const replyOptions: AwaitMessagesOptions = {
+			max: 1,
+			time: 900000,
+			errors: ['time'],
+			filter: m => m.author.id == guildMember.user.id,
+		};
+		let poapLinksFile: MessageAttachment;
+		if (isDmOn) {
+			await guildMember.send({ content: uploadLinksMsg });
+			const dmChannel: DMChannel = await guildMember.createDM();
+			poapLinksFile = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
+		} else if (ctx) {
+			await ctx.sendFollowUp(uploadLinksMsg);
+			const guildChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
+			poapLinksFile = (await guildChannel.awaitMessages(replyOptions)).first().attachments.first();
+		}
+		Log.debug('obtained poap links attachment in discord');
+		return poapLinksFile;
+	},
+	
+	async getListOfPoapLinks(attachment: MessageAttachment): Promise<string[]> {
 		Log.debug('downloading poap links file from discord server...');
 		try {
 			const response = await axios.get(attachment.url);
@@ -128,8 +150,7 @@ const POAPUtils = {
 			return listOfPOAPLinks;
 		} catch (e) {
 			LogUtils.logError('failed to process links.txt file', e);
-			await guildMember.send({ content: 'Could not process the links.txt file. Please make sure the file that is uploaded has every URL on a new line.' });
-			return;
+			throw new ValidationError('Could not process the links.txt file. Please make sure the file that is uploaded has every URL on a new line.');
 		}
 	},
 
@@ -143,6 +164,11 @@ const POAPUtils = {
 		let i = 0;
 		const length = listOfParticipants.length;
 		const isListOfPoapLinksPresent: boolean = listOfPOAPLinks != null && listOfPOAPLinks.length >= 1;
+		
+		if (listOfPOAPLinks.length < listOfParticipants.length) {
+			throw new ValidationError('There is not enough POAP links for all the participants!');
+		}
+		
 		while (i < length) {
 			const participant: POAPFileParticipant = listOfParticipants.pop();
 			const poapLink = (isListOfPoapLinksPresent) ? listOfPOAPLinks.pop() : participant.poapLink;
@@ -248,14 +274,17 @@ const POAPUtils = {
 	
 	async setupFailedAttendeesDelivery(
 		guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipant[] | TwitterPOAPFileParticipant[],
-		event: string, platform: string, ctx?: CommandContext,
+		event: string, platform: string, isDmOn: boolean, ctx?: CommandContext,
 	): Promise<any> {
 		Log.debug(`${listOfFailedPOAPs.length} poaps failed to deliver`);
-		await guildMember.send({
-			content: 'Looks like some degens didn\'t make it... Let me set up a claim for them, all they need to do is `/poap claim`',
-		});
-		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		const failedDeliveryMsg = 'Some degens didn\'t make it... They can claim their POAP with the slash command `/poap claim`';
+		if (isDmOn) {
+			await guildMember.send({ content: failedDeliveryMsg });
+		} else if (ctx) {
+			await ctx.sendFollowUp(failedDeliveryMsg);
+		}
 		
+		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		if (platform == constants.PLATFORM_TYPE_DISCORD) {
 			const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
 			const unclaimedPOAPsList: any[] = (listOfFailedPOAPs as POAPFileParticipant[]).map((failedAttendee: POAPFileParticipant) => {
@@ -291,12 +320,7 @@ const POAPUtils = {
 		} else {
 			Log.warn('missing platform type when trying to setup failed attendees');
 		}
-		
 		Log.debug('stored poap claims for failed degens');
-		if (ctx) {
-			await ctx.send('POAPs sent! Some didn\'t make it... they can claim it with `/poap claim`');
-		}
-		await guildMember.send({ content: 'POAP claiming setup!' });
 	},
 
 	validateEvent(event?: string): void {
@@ -319,13 +343,14 @@ const POAPUtils = {
 		}
 	},
 
-	validateDuration(duration?: number): void {
+	validateDuration(duration?: number): number {
 		if (duration == null) {
-			return;
+			return constants.POAP_MAX_DURATION_MINUTES;
 		}
 		if (duration > constants.POAP_MAX_DURATION_MINUTES || duration < constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
 			throw new ValidationError(`Please try a value greater than ${constants.POAP_REQUIRED_PARTICIPATION_DURATION} and less than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`);
 		}
+		return duration;
 	},
 	
 	async validateUserAccess(guildMember: GuildMember, db: Db): Promise<any> {
@@ -381,38 +406,6 @@ const POAPUtils = {
 		return startDateObj.year().toString();
 	},
 	
-	async askForDuration(guildMember: GuildMember, duration?: number): Promise<number> {
-		const dmChannel: DMChannel = await guildMember.createDM();
-		if (duration == null) {
-			Log.debug(`asking ${guildMember.user.tag} for duration`);
-			await guildMember.send({ content: 'Would you like to set the duration of the event? `(y/n)`' });
-			const setDurationFlag = (await ServiceUtils.getFirstUserReply(dmChannel)) == 'y';
-			Log.debug(`isAutoEnd: ${setDurationFlag}`);
-			if (setDurationFlag) {
-				try {
-					await guildMember.send({ content: `How long should the event stay active? \`(max: ${constants.POAP_MAX_DURATION_MINUTES} minutes)\`` });
-					const durationOfEventInMinutes: string = await ServiceUtils.getFirstUserReply(dmChannel);
-					duration = Number(durationOfEventInMinutes);
-					POAPUtils.validateDuration(duration);
-				} catch (e) {
-					LogUtils.logError('failed to process duration time', e);
-					throw new ValidationError('Please try another duration amount as a number. i.e 15');
-				}
-			} else {
-				Log.debug('max duration set for poap event');
-				duration = constants.POAP_MAX_DURATION_MINUTES;
-			}
-			Log.debug(`poap event duration: ${duration}, `, {
-				indexMeta: true,
-				meta: {
-					discordId: guildMember.guild.id,
-					discordUserId: guildMember.guild.id,
-				},
-			});
-		}
-		Log.debug(`duration set for ${duration} minutes`);
-		return duration;
-	},
 };
 
 export default POAPUtils;

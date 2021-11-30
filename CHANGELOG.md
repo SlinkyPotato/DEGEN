@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.0-RELEASE (2021-11-30)
+
+1. Send hidden claim messages for POAPs
+2. Fix distribution of failed attendees
+3. Display support error message on failure
+4. Channel-only flow for POAP starting
+5. Disable poap config, poap distribute, account verify
+
 ## 2.1.0-RELEASE (2021-11-23)
 
 1. Add Privacy Policy and Terms & Conditions to /docs

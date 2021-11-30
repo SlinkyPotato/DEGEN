@@ -1,6 +1,6 @@
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
 import ServiceUtils from '../../utils/ServiceUtils';
-import StartPOAP from '../../service/poap/StartPOAP';
+import StartPOAP from '../../service/poap/start/StartPOAP';
 import ValidationError from '../../errors/ValidationError';
 import EarlyTermination from '../../errors/EarlyTermination';
 import EndPOAP from '../../service/poap/EndPOAP';
@@ -223,7 +223,7 @@ module.exports = class poap extends SlashCommand {
 					await ctx.send('I love your enthusiasm, but please return to a Discord channel to end the event.');
 					return;
 				}
-				command = EndPOAP(guildMember, ctx.options.end['platform'], false, ctx);
+				command = EndPOAP(guildMember, ctx.options.end['platform'], ctx);
 				break;
 			case 'distribute':
 				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], ctx.options.distribute['platform']);
@@ -246,12 +246,12 @@ module.exports = class poap extends SlashCommand {
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
 		command.catch(e => {
 			if (e instanceof ValidationError) {
-				return ctx.send(e.message);
+				return ctx.send({ content: `${e.message}`, ephemeral: true });
 			} else if (e instanceof EarlyTermination) {
-				return ctx.send(e.message);
+				return ctx.send({ content: `${e.message}`, ephemeral: true });
 			} else {
 				LogUtils.logError('failed to handle poap command', e);
-				return ctx.send('Nothing to see here..');
+				return ServiceUtils.sendOutErrorMessage(ctx);
 			}
 		});
 	}

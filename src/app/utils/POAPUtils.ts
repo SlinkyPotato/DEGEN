@@ -350,6 +350,7 @@ const POAPUtils = {
 		if (duration > constants.POAP_MAX_DURATION_MINUTES || duration < constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
 			throw new ValidationError(`Please try a value greater than ${constants.POAP_REQUIRED_PARTICIPATION_DURATION} and less than ${constants.POAP_MAX_DURATION_MINUTES} minutes.`);
 		}
+		return duration;
 	},
 	
 	async validateUserAccess(guildMember: GuildMember, db: Db): Promise<any> {

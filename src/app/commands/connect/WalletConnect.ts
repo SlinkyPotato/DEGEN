@@ -23,7 +23,7 @@ export default class NotionFAQs extends SlashCommand {
 		try {
 			const guild = await client.guilds.fetch(ctx.guildID);
 			const guildMember = await guild.members.fetch(ctx.user.id);
-			const publicReplyStr = 'Follow this link to verify your address: http://localhost:3000';
+			const publicReplyStr = 'Follow this link to verify your address: http://localhost:4200/connect';
 			const dmReplyStr = `${ctx.user.mention} Sent you a DM with information on how to connect your wallet.`;
 			ctx.send(dmReplyStr);
 			return guildMember.send(publicReplyStr);

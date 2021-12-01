@@ -1,5 +1,4 @@
 // Libs
-import './utils/tracer';
 import { SlashCreator, GatewayServer, SlashCommand, CommandContext } from 'slash-create';
 import Discord, { Client, ClientOptions, Intents, WSEventType } from 'discord.js';
 import path from 'path';

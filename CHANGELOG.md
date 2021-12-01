@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.3.0-RELEASE
+1. Remove datadog tracer
+
 ## 2.2.0-RELEASE (2021-11-30)
 
 1. Send hidden claim messages for POAPs

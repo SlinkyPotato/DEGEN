@@ -77,7 +77,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) as MessageEmbedOptions[] });
 	await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
 	const channel: DMChannel = await message.channel.fetch() as DMChannel;
-	const channelChoice: GuildChannel = await askUserForChannel(guildMember, channel, voiceChannels);
+	const channelChoice: GuildChannel = await askUserForChannel(guildMember, channel, voiceChannels, true, ctx);
 
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
 		discordServerId: channelChoice.guild.id,
@@ -177,7 +177,11 @@ export const generateVoiceChannelEmbedMessage = (
 };
 
 export const askUserForChannel = async (
-	guildMember: GuildMember, channel: TextChannel | DMChannel, voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>,
+	guildMember: GuildMember,
+	channel: TextChannel | DMChannel,
+	voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>,
+	isDmOn: boolean,
+	ctx?: CommandContext,
 ): Promise<GuildChannel> => {
 	Log.debug('asking poap organizer for channel');
 	const replyOptions: AwaitMessagesOptions = {
@@ -189,14 +193,27 @@ export const askUserForChannel = async (
 	let channelNumber: number;
 	let channelChoice: string;
 	do {
-		channelChoice = (await channel.awaitMessages(replyOptions)).first().content;
+		try {
+			channelChoice = (await channel.awaitMessages(replyOptions)).first().content;
+		} catch (e) {
+			LogUtils.logError('failed to capture channel', e);
+			throw new ValidationError('Please enable view channel and send messages permission for this channel.');
+		}
 		if (channelChoice === 'no') {
-			await guildMember.send({ content: '👍' });
+			if (isDmOn) {
+				await guildMember.send({ content: '👍' });
+			}
 			throw new EarlyTermination('Command terminated early.');
 		}
 		channelNumber = Number(channelChoice);
 		if (isNaN(channelNumber) || channelNumber <= 0 || channelNumber > voiceChannels.size) {
-			await guildMember.send({ content: 'Please enter a valid channel number or `no` to exit.' });
+			Log.warn('sent invalid channel number');
+			const enterValidNumberMsg = 'Please enter a valid channel number or `no` to exit.';
+			if (isDmOn) {
+				await guildMember.send({ content: enterValidNumberMsg }).catch(Log.error);
+			} else if (ctx) {
+				await ctx.sendFollowUp(enterValidNumberMsg).catch(Log.error);
+			}
 		} else {
 			break;
 		}

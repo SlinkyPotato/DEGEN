@@ -1,6 +1,6 @@
 {
     "name": "degen",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
     "main": "app.js",
     "private": true,
@@ -40,7 +40,6 @@
         "csv-parse": "^5.0.3",
         "csv-stringify": "^6.0.3",
         "dayjs": "^1.10.7",
-        "dd-trace": "^1.5.1",
         "discord.js": "^13.3.1",
         "discord.js-captcha": "^2.2.2",
         "dotenv": "^10.0.0",

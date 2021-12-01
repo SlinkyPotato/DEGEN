@@ -4,7 +4,7 @@ import { Db } from 'mongodb';
 import constants from '../constants/constants';
 import { EventsRequestType } from '../../api/types/poap-events/EventsRequestType';
 import axios, { AxiosResponse } from 'axios';
-import EventsAPI from '../../api/EventsAPI';
+import EventsAPI from '../../api/poap/EventsAPI';
 import { EventsResponseType } from '../../api/types/poap-events/EventsResponseType';
 import ValidationError from '../../errors/ValidationError';
 import { CommandContext } from 'slash-create';
@@ -209,7 +209,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 		await guildMember.send({ content: 'POAP event removed!' });
 	} else {
 		try {
-			const response: EventsResponseType | void = await EventsAPI.scheduleEvent(request, guildMember);
+			const response: EventsResponseType | void = await EventsAPI.scheduleEvent(request);
 			Log.debug('POAP minted!');
 			await guildMember.send({
 				embeds: [

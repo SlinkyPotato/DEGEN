@@ -1,12 +1,17 @@
-import { EventsRequestType } from './types/poap-events/EventsRequestType';
-import { EventsResponseType } from './types/poap-events/EventsResponseType';
+import { EventsRequestType } from '../types/poap-events/EventsRequestType';
+import { EventsResponseType } from '../types/poap-events/EventsResponseType';
 import FormData from 'form-data';
 import axios, { AxiosRequestConfig } from 'axios';
-import Log, { LogUtils } from '../utils/Log';
-import { GuildMember } from 'discord.js';
+import Log, { LogUtils } from '../../utils/Log';
+import ValidationError from '../../errors/ValidationError';
+import PoapAPI, { AuthToken } from './PoapAPI';
 
 const EventsAPI = {
-	scheduleEvent: async (request: EventsRequestType, guildMember?: GuildMember): Promise<EventsResponseType> => {
+	URL: 'https://api.poap.xyz/events',
+	
+	scheduleEvent: async (request: EventsRequestType): Promise<EventsResponseType> => {
+		const authToken: AuthToken = await PoapAPI.generateToken();
+		
 		const formData: FormData = new FormData();
 		formData.append('name', request.name);
 		formData.append('description', request.description);
@@ -30,9 +35,10 @@ const EventsAPI = {
 		});
 		const config: AxiosRequestConfig = {
 			method: 'post',
-			url: 'https://api.poap.xyz/events',
+			url: EventsAPI.URL,
 			headers: {
 				...formData.getHeaders(),
+				'Authorization': `Bearer ${authToken.accessToken}`,
 			},
 			data : formData,
 		};
@@ -58,7 +64,7 @@ const EventsAPI = {
 					imagePath: `${request.image.config.url}`,
 				},
 			});
-			const response = await axios.post('https://api.poap.xyz/events', formData, config);
+			const response = await axios.post(EventsAPI.URL, formData, config);
 			Log.info('poap schedule response', {
 				indexMeta: true,
 				meta: {
@@ -78,11 +84,9 @@ const EventsAPI = {
 				},
 			});
 			if (e.response.status == '400') {
-				await guildMember.send({
-					content: `Hmmm 🤔, this is what I found: ${e.response.data.message}`,
-				});
+				throw new ValidationError(`${e.response.data.message}`);
 			}
-			throw new Error();
+			throw new Error('poap event request failed');
 		}
 	},
 };

@@ -244,11 +244,13 @@ module.exports = class poap extends SlashCommand {
 	}
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
-		command.catch(e => {
+		command.catch(async e => {
 			if (e instanceof ValidationError) {
-				return ctx.send({ content: `${e.message}`, ephemeral: true });
+				await ctx.sendFollowUp({ content: `${e.message}`, ephemeral: true });
+				return;
 			} else if (e instanceof EarlyTermination) {
-				return ctx.send({ content: `${e.message}`, ephemeral: true });
+				await ctx.sendFollowUp({ content: `${e.message}`, ephemeral: true });
+				return;
 			} else {
 				LogUtils.logError('failed to handle poap command', e);
 				return ServiceUtils.sendOutErrorMessage(ctx);

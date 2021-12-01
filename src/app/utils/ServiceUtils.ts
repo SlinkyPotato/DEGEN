@@ -2,13 +2,14 @@
  * Utilities for service layer
  */
 import {
+	AwaitMessagesOptions,
 	Collection,
 	DMChannel,
 	Guild,
-	GuildMember,
+	GuildMember, Message, MessageOptions,
 	Permissions,
 	Snowflake,
-	StageChannel,
+	StageChannel, TextChannel,
 	User,
 	VoiceChannel,
 } from 'discord.js';
@@ -17,7 +18,7 @@ import Log, { LogUtils } from './Log';
 import { stringify } from 'csv-stringify/sync';
 import { parse } from 'csv-parse/sync';
 import { POAPFileParticipant, TwitterPOAPFileParticipant } from './POAPUtils';
-import { ButtonStyle, CommandContext, ComponentType } from 'slash-create';
+import { ButtonStyle, CommandContext, ComponentType, Message as MessageSlash, MessageOptions as MessageOptionsSlash } from 'slash-create';
 import { ComponentActionRow } from 'slash-create/lib/constants';
 
 const ServiceUtils = {
@@ -81,16 +82,18 @@ const ServiceUtils = {
 
 	/**
 	 * Returns the first message in DM channel from the user
+	 * @param guildMember guild user that initiated the command
 	 * @param dmChannel direct message channel
 	 * @param waitInMilli number of milliseconds the bot should wait for a reply
 	 */
-	async getFirstUserReply(dmChannel: DMChannel, waitInMilli?: number): Promise<any> {
+	async getFirstUserReply(guildMember: GuildMember, dmChannel: DMChannel | TextChannel, waitInMilli?: number): Promise<any> {
 		waitInMilli = (waitInMilli == null) ? 600000 : waitInMilli;
 		return (await dmChannel.awaitMessages({
 			max: 1,
 			time: waitInMilli,
 			errors: ['time'],
-		})).first().content;
+			filter: m => m.author.id == guildMember.user.id,
+		} as AwaitMessagesOptions)).first().content;
 	},
 	
 	async tryDMUser(guildMember: GuildMember, message: string): Promise<boolean> {
@@ -146,6 +149,15 @@ const ServiceUtils = {
 			components: [row],
 		});
 	},
+	
+	sendContextMessage: async (isDmOn: boolean, guildMember: GuildMember, ctx: CommandContext, msg: MessageOptions | MessageOptionsSlash): Promise<Message | MessageSlash> => {
+		if (isDmOn) {
+			return await guildMember.send(msg as MessageOptions);
+		} else {
+			return await ctx.sendFollowUp(msg as MessageOptionsSlash);
+		}
+	},
+
 };
 
 export default ServiceUtils;

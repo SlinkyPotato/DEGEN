@@ -1,7 +1,9 @@
 # Changelog
 
-## 2.3.0-RELEASE
-1. Remove datadog tracer
+## 2.3.0-SNAPSHOT
+
+1. Enable poap scheduling (POAP API integration)
+2. Remove Datadog
 
 ## 2.2.0-RELEASE (2021-11-30)
 

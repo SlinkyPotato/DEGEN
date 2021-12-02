@@ -1,10 +1,10 @@
-import { DMChannel, GuildMember, MessageAttachment } from 'discord.js';
+import { DMChannel, GuildMember, MessageAttachment, TextChannel } from 'discord.js';
 import POAPUtils from '../../utils/POAPUtils';
 import { Db } from 'mongodb';
 import constants from '../constants/constants';
 import { EventsRequestType } from '../../api/types/poap-events/EventsRequestType';
 import axios, { AxiosResponse } from 'axios';
-import EventsAPI from '../../api/EventsAPI';
+import EventsAPI from '../../api/poap/EventsAPI';
 import { EventsResponseType } from '../../api/types/poap-events/EventsResponseType';
 import ValidationError from '../../errors/ValidationError';
 import { CommandContext } from 'slash-create';
@@ -19,10 +19,6 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 		return;
 	}
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Minting POAPs is always super exciting!');
-	if (!isDmOn) {
-		await ServiceUtils.sendOutErrorMessage(ctx, 'POAP minting is temporarily turned off. Please reach out to support with any questions');
-		return;
-	}
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
@@ -32,8 +28,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	const request: EventsRequestType = {} as EventsRequestType;
 	request.requested_codes = numberToMint.toString();
 	
-	await ServiceUtils.tryDMUser(guildMember, 'Hi, I heard you want to mint a POAP for your stellar event...');
-	await guildMember.send({
+	const msg1 = {
 		embeds: [
 			{
 				title: 'POAP Scheduling',
@@ -44,95 +39,110 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 				description: 'What is the name of the POAP event?',
 			},
 		],
-	});
-	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`);
+	};
 	
-	const dmChannel: DMChannel = await guildMember.createDM();
-	request.name = await ServiceUtils.getFirstUserReply(dmChannel);
+	if (isDmOn) {
+		await guildMember.send(msg1);
+		await ctx.sendFollowUp('I just sent you a DM!');
+	} else if (ctx) {
+		await ctx.sendFollowUp(msg1);
+	}
+	
+	const contextChannel: DMChannel | TextChannel = isDmOn ? await guildMember.createDM() : await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
+	request.name = await ServiceUtils.getFirstUserReply(guildMember, contextChannel);
 
-	await guildMember.send({
+	const msg2 = {
 		embeds: [
 			{
 				title: 'Description',
 				description: 'What is this POAP event about? Tell me all of the amazingness about this event that your participants will see!',
 			},
 		],
-	});
-	request.description = await ServiceUtils.getFirstUserReply(dmChannel);
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg2);
+	
+	request.description = await ServiceUtils.getFirstUserReply(guildMember, contextChannel);
 
-	await guildMember.send({
+	const msg3 = {
 		embeds: [
 			{
 				title: 'Virtual Event',
 				description: 'Is this a virtual event? (y/n)',
 			},
 		],
-	});
-	request.virtual_event = await ServiceUtils.getFirstUserReply(dmChannel) === 'y';
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg3);
+	request.virtual_event = await ServiceUtils.getFirstUserReply(guildMember, contextChannel) === 'y';
 
-	await guildMember.send({
+	const msg4 = {
 		embeds: [
 			{
 				title: 'City (optional)',
 				description: 'In what city does the event take place? (!skip)',
 			},
 		],
-	});
-	const city = await ServiceUtils.getFirstUserReply(dmChannel);
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg4);
+	const city = await ServiceUtils.getFirstUserReply(guildMember, contextChannel);
 	request.city = (city != '!skip') ? city : '-';
 
-	await guildMember.send({
+	const msg5 = {
 		embeds: [
 			{
 				title: 'Country (optional)',
 				description: 'In what country does the event take place? (!skip)',
 			},
 		],
-	});
-	const country = await ServiceUtils.getFirstUserReply(dmChannel);
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg5);
+	const country = await ServiceUtils.getFirstUserReply(guildMember, contextChannel);
 	request.country = (country != '!skip') ? country : '-';
 
-	await guildMember.send({
+	const msg6 = {
 		embeds: [
 			{
 				title: 'Event Start',
 				description: 'When does the event start UTC? (yyyy-mm-dd)',
 			},
 		],
-	});
-	const startDate = (await ServiceUtils.getFirstUserReply(dmChannel));
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg6);
+	const startDate = (await ServiceUtils.getFirstUserReply(guildMember, contextChannel));
 	const startDateObj = DateUtils.getDate(startDate);
 	request.start_date = POAPUtils.getDateString(startDateObj);
 	request.year = POAPUtils.getEventYear(startDateObj);
 
-	await guildMember.send({
+	const msg7 = {
 		embeds: [
 			{
 				title: 'Event End',
 				description: 'When does the event end UTC? (yyyy-mm-dd)',
 			},
 		],
-	});
-	const endDate = await ServiceUtils.getFirstUserReply(dmChannel);
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg7);
+	const endDate = await ServiceUtils.getFirstUserReply(guildMember, contextChannel);
 	const endDateObj = DateUtils.getDate(endDate);
 	request.end_date = POAPUtils.getDateString(endDateObj);
 	
 	request.expiry_date = POAPUtils.getExpiryDate(endDate);
-	await guildMember.send({
+	
+	const msg8 = {
 		embeds: [
 			{
 				title: 'Event URL (optional)',
 				description: 'What is the website url? (!skip)',
 			},
 		],
-	});
-	const websiteUrl = await ServiceUtils.getFirstUserReply(dmChannel);
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg8);
+	const websiteUrl = await ServiceUtils.getFirstUserReply(guildMember, contextChannel);
 	request.event_url = (websiteUrl != '!skip') ? websiteUrl : '-';
 	
 	// hardcode standard template
 	request.event_template_id = '0';
 
-	await guildMember.send({
+	const msg9 = {
 		embeds: [
 			{
 				title: 'One Time Edit Code',
@@ -140,10 +150,11 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 					'POAP event and allows you to mint more POAPs for additional participants (ex. 123456).',
 			},
 		],
-	});
-	request.secret_code = await ServiceUtils.getFirstUserReply(dmChannel);
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg9);
+	request.secret_code = await ServiceUtils.getFirstUserReply(guildMember, contextChannel);
 
-	await guildMember.send({
+	const msg10 = {
 		embeds: [
 			{
 				title: 'POAP Image PNG',
@@ -151,10 +162,11 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 					'and size less than 200 KB.',
 			},
 		],
-	});
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg10);
 	let imageResponse: AxiosResponse;
 	try {
-		const poapImage: MessageAttachment = (await dmChannel.awaitMessages({
+		const poapImage: MessageAttachment = (await contextChannel.awaitMessages({
 			max: 1,
 			time: 900000,
 			errors: ['time'],
@@ -166,21 +178,24 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 		request.image = imageResponse;
 	} catch (e) {
 		LogUtils.logError('failed to get png image from user', e);
-		await dmChannel.send({ content: 'Sorry, image was not processed. ' });
+		if (isDmOn) {
+			await guildMember.send('Image failed to process, please try the command again.');
+		}
 		throw new ValidationError('Please try another PNG image.');
 	}
 
-	await guildMember.send({
+	const msg11 = {
 		embeds: [
 			{
 				title: 'Email Address',
 				description: 'What email address should I send the POAP links.txt file?',
 			},
 		],
-	});
-	request.email = await ServiceUtils.getFirstUserReply(dmChannel);
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg11);
+	request.email = await ServiceUtils.getFirstUserReply(guildMember, contextChannel);
 
-	await guildMember.send({
+	const msg12 = {
 		embeds: [
 			{
 				title: 'POAP Event',
@@ -203,15 +218,17 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 				description: 'Please confirm if the above the information looks good! (y/n)',
 			},
 		],
-	});
-	const approval = await ServiceUtils.getFirstUserReply(dmChannel) == 'y';
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg12);
+	const approval = await ServiceUtils.getFirstUserReply(guildMember, contextChannel) == 'y';
 	if (!approval) {
-		await guildMember.send({ content: 'POAP event removed!' });
+		const msg13 = { content: 'POAP event removed!' };
+		await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg13);
 	} else {
 		try {
-			const response: EventsResponseType | void = await EventsAPI.scheduleEvent(request, guildMember);
+			const response: EventsResponseType | void = await EventsAPI.scheduleEvent(request);
 			Log.debug('POAP minted!');
-			await guildMember.send({
+			const msg13 = {
 				embeds: [
 					{
 						title: 'POAP Event Created',
@@ -237,9 +254,10 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 						],
 					},
 				],
-			});
+			};
+			await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg13);
 		} catch (e) {
-			await guildMember.send({ content: 'I couldn\'t finish processing so here\'s a super secret backroom office url https://app.poap.xyz/admin' });
+			throw new ValidationError('There was a problem processing the request. Please try again or consider using the POAP backroom office https://app.poap.xyz/admin');
 		}
 	}
 };

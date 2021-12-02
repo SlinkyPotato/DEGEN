@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.0-SNAPSHOT
+
+1. Enable poap scheduling (POAP API integration)
+2. Remove Datadog
+
 ## 2.2.0-RELEASE (2021-11-30)
 
 1. Send hidden claim messages for POAPs

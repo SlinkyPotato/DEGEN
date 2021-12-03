@@ -1,4 +1,4 @@
-import { CommandContext, MessageOptions as MessageOptionsSlash, EmbedField as EmbedFieldSlash, MessageEmbedOptions as MessageEmbedOptionsSlash } from 'slash-create';
+import { CommandContext, MessageOptions as MessageOptionsSlash, EmbedField as EmbedFieldSlash } from 'slash-create';
 import { GuildMember, Role, EmbedField, MessageOptions } from 'discord.js';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import ValidationError from '../../../errors/ValidationError';
@@ -10,7 +10,7 @@ import Log from '../../../utils/Log';
 
 const StatusPOAP = async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	if (ctx.guildID == undefined) {
-		await ctx.send({content: 'Please try configuration within discord channel', ephemeral: true});
+		await ctx.send({ content: 'Please try configuration within discord channel', ephemeral: true });
 		return;
 	}
 	
@@ -22,7 +22,7 @@ const StatusPOAP = async (ctx: CommandContext, guildMember: GuildMember): Promis
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'I can show you the list of authorized roles and users for POAP commands!');
 	
 	if (isDmOn) {
-		await ctx.sendFollowUp({content: 'I just send you a DM!', ephemeral: true});
+		await ctx.sendFollowUp({ content: 'I just send you a DM!', ephemeral: true });
 	} else {
 		await ctx.sendFollowUp('⚠ **Please make sure this is a private channel.** I can show you the list of authorized roles and users for POAP commands!');
 	}

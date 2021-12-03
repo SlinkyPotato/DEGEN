@@ -9,13 +9,18 @@ export default (): MessageOptions => {
 				'Users can then use the `/poap schedule` command to mint PNG images into POAPs.',
 			fields: [
 				{
-					name: '-> /poap config',
+					name: '-> /poap config modify',
 					value: 'Authorize users and roles who can use the following poap commands. A malicious user and role can also be removed.',
 					inline: false,
 				},
 				{
-					name: '-> /poap schedule',
-					value: 'Schedule a POAP event, upload the PNG image to be minted, and get the links.txt file over email.',
+					name: '-> /poap config status',
+					value: 'Display the currently authorized users and roles that can use the POAP commands.',
+					inline: false,
+				},
+				{
+					name: '-> /poap mint',
+					value: 'Mint a POAP for anevent, upload the PNG image to be minted, and get the links.txt file over email.',
 					inline: false,
 				},
 				{

@@ -76,9 +76,9 @@ module.exports = class poap extends SlashCommand {
 					],
 				},
 				{
-					name: 'schedule',
+					name: 'mint',
 					type: CommandOptionType.SUB_COMMAND,
-					description: 'Schedule a POAP event, upload the PNG image to be minted, and get the links.txt file over email.',
+					description: 'Mint a POAP for an event, upload the PNG image to be minted, and get the links.txt file over email.',
 					options: [
 						{
 							name: 'mint-copies',

@@ -7,6 +7,9 @@
 3. Enable poap config via channel flow
 4. Add poap config status command to display list of authorized users and roles
 5. Rename `/poap schedule` -> `/poap mint`
+6. Enable POAP distribution
+   - reduce poap claim deleted to 5 minutes
+   - display poap claimed message
 
 ## 2.2.0-RELEASE (2021-11-30)
 

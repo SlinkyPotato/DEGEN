@@ -41,6 +41,8 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 		} as EmbedField);
 	}).toArray();
 	
+	await ctx.send({ content: `POAP claimed using \`/poap claim platform: ${platform}\`. Thank you!` });
+	
 	await ctx.send({
 		embeds: [{
 			title: 'POAP link',
@@ -57,7 +59,7 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 		unclaimedParticipantsCollection.deleteMany({
 			discordUserId: ctx.user.id,
 		});
-	}, 600000);
+	}, 300000);
 	
 	Log.debug('POAP claimed');
 };

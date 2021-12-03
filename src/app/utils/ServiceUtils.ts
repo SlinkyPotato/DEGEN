@@ -150,7 +150,12 @@ const ServiceUtils = {
 		});
 	},
 	
-	sendContextMessage: async (isDmOn: boolean, guildMember: GuildMember, ctx: CommandContext, msg: MessageOptions | MessageOptionsSlash): Promise<Message | MessageSlash> => {
+	sendContextMessage: async (
+		isDmOn: boolean,
+		guildMember: GuildMember,
+		ctx: CommandContext,
+		msg: MessageOptions | MessageOptionsSlash,
+	): Promise<Message | MessageSlash> => {
 		if (isDmOn) {
 			return await guildMember.send(msg as MessageOptions);
 		} else {

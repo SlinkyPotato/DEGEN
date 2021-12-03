@@ -1,5 +1,13 @@
-import { GuildMember, Message, MessageEmbedOptions, MessageReaction, Role } from 'discord.js';
-import ValidationError from '../../errors/ValidationError';
+import {
+	GuildMember,
+	Message,
+	MessageEmbedOptions,
+	MessageOptions,
+	MessageReaction,
+	Role,
+	TextChannel,
+} from 'discord.js';
+import ValidationError from '../../../errors/ValidationError';
 import { Collection } from '@discordjs/collection';
 import {
 	BulkWriteError,
@@ -9,12 +17,14 @@ import {
 } from 'mongodb';
 import { Snowflake } from 'discord-api-types';
 import { Db } from 'mongodb';
-import constants from '../constants/constants';
-import { POAPAdmin } from '../../types/poap/POAPAdmin';
-import ServiceUtils from '../../utils/ServiceUtils';
-import { CommandContext, Message as MessageSlash } from 'slash-create';
-import Log, { LogUtils } from '../../utils/Log';
-import MongoDbUtils from '../../utils/MongoDbUtils';
+import constants from '../../constants/constants';
+import { POAPAdmin } from '../../../types/poap/POAPAdmin';
+import ServiceUtils from '../../../utils/ServiceUtils';
+import { CommandContext, Message as MessageSlash, MessageEmbedOptions as MessageEmbedOptionsSlash } from 'slash-create';
+import Log, { LogUtils } from '../../../utils/Log';
+import MongoDbUtils from '../../../utils/MongoDbUtils';
+import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
+import dayjs from 'dayjs';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
 	if (ctx.guildID == undefined) {
@@ -28,7 +38,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'I can help you configure authorized users for the POAP commands!');
 	if (isDmOn) {
-		await guildMember.send({ content: 'I just send you a DM!' });
+		await ctx.sendFollowUp({ content: 'I just send you a DM!', ephemeral: true });
 	} else {
 		await ctx.sendFollowUp('⚠ **Please make sure this is a private channel.** I can help you configure authorized users for the POAP commands!');
 	}
@@ -39,7 +49,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 	if (authorizedRoles.length == 0 && authorizedUsers.length == 0) {
 		throw new ValidationError('Please try again with at least 1 discord user or role.');
 	}
-	const intro = {
+	const intro: MessageEmbedOptions | MessageEmbedOptionsSlash = {
 		title: 'POAP Configuration',
 		description: 'Welcome to POAP configuration.\n\n' +
 			'This is used as a first-time setup of POAP commands. I can help assign or remove authorized users and ' +
@@ -77,7 +87,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 
 export const askForGrantOrRemoval = async (
 	ctx: CommandContext, guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[],
-	isDmOn: boolean, intro?: MessageEmbedOptions,
+	isDmOn: boolean, intro?: MessageEmbedOptions | MessageEmbedOptionsSlash,
 ): Promise<boolean> => {
 	const fields = [];
 	for (const role of authorizedRoles) {
@@ -94,28 +104,37 @@ export const askForGrantOrRemoval = async (
 			inline: true,
 		});
 	}
-	const whichRolesAreAllowedQuestion = {
+	let whichRolesAreAllowedQuestion: MessageEmbedOptions | MessageEmbedOptionsSlash = {
 		title: 'Give or remove access?',
 		description: 'Should the given list of users and roles be given access or should they get removed?',
 		fields: fields,
-		timestamp: new Date().getTime(),
 		footer: {
 			text: '👍 - approve | ❌ - remove | 📝 - edit | Please reply within 60 minutes',
 		},
 	};
 	
-	const msg1 = { embeds: [intro, whichRolesAreAllowedQuestion] };
+	let msg1: MessageOptions | MessageOptionsSlash;
+	if (isDmOn) {
+		whichRolesAreAllowedQuestion = whichRolesAreAllowedQuestion as MessageEmbedOptions;
+		whichRolesAreAllowedQuestion.timestamp = new Date().getTime();
+		msg1 = { embeds: [intro, whichRolesAreAllowedQuestion] } as MessageOptions;
+	} else {
+		whichRolesAreAllowedQuestion = whichRolesAreAllowedQuestion as MessageEmbedOptionsSlash;
+		whichRolesAreAllowedQuestion.timestamp = dayjs().toDate();
+		msg1 = { embeds: [intro, whichRolesAreAllowedQuestion] } as MessageOptionsSlash;
+	}
+	
 	let message: Message | MessageSlash = await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg1);
 	
 	if (isDmOn) {
 		message = message as Message;
 	} else {
-		message = message as Message;
+		const textChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
+		message = await textChannel.messages.fetch(message.id) as Message;
 	}
 	
 	await message.react('👍');
 	await message.react('❌');
-	await message.react('📝');
 	
 	const collected: Collection<Snowflake | string, MessageReaction> = await message.awaitReactions({
 		max: 1,
@@ -132,10 +151,6 @@ export const askForGrantOrRemoval = async (
 	} else if (reaction.emoji.name === '❌') {
 		Log.info('/poap config remove');
 		return false;
-	} else if (reaction.emoji.name === '📝') {
-		Log.info('/poap config edit');
-		await guildMember.send({ content: 'Configuration setup ended.' });
-		throw new ValidationError('Please re-initiate poap configuration.');
 	}
 	throw new ValidationError('Please approve or deny access.');
 };

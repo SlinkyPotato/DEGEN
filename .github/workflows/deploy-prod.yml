@@ -47,4 +47,3 @@ jobs:
           HD_POAP_AUDIENCE: ${{secrets.PROD_POAP_AUDIENCE}}
           HD_POAP_CLIENT_ID: ${{secrets.PROD_POAP_CLIENT_ID}}
           HD_POAP_CLIENT_SECRET: ${{secrets.PROD_POAP_CLIENT_SECRET}}
-          

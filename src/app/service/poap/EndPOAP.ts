@@ -1,11 +1,11 @@
-import { GuildChannel, GuildMember, MessageAttachment } from 'discord.js';
+import { GuildChannel, GuildMember, MessageAttachment, MessageOptions } from 'discord.js';
 import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../constants/constants';
 import ValidationError from '../../errors/ValidationError';
 import { Buffer } from 'buffer';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import POAPUtils, { POAPFileParticipant, TwitterPOAPFileParticipant } from '../../utils/POAPUtils';
-import { CommandContext } from 'slash-create';
+import { CommandContext, MessageOptions as MessageOptionsSlash } from 'slash-create';
 import Log from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
 import MongoDbUtils from '../../utils/MongoDbUtils';
@@ -90,7 +90,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	const currentDate: string = dayjs().toISOString();
 	const fileName = `participants_${numberOfParticipants}.csv`;
 	
-	const embedOptions = {
+	let embedOptions: MessageOptionsSlash | MessageOptions = {
 		embeds: [
 			{
 				title: 'Event Ended',
@@ -103,12 +103,15 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 				],
 			},
 		],
-		files: [{ name: fileName, attachment: bufferFile }],
 	};
 	
 	if (isDmOn) {
+		embedOptions = embedOptions as MessageOptions;
+		embedOptions.files = [{ name: fileName, attachment: bufferFile }];
 		await guildMember.send(embedOptions);
 	} else if (ctx) {
+		embedOptions = embedOptions as MessageOptionsSlash;
+		embedOptions.file = [{ name: fileName, file: bufferFile }];
 		await ctx.send(embedOptions);
 	}
 
@@ -120,7 +123,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
 	const listOfFailedPOAPs: POAPFileParticipant[] = await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapSettingsDoc.event, listOfPOAPLinks);
 	const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(listOfFailedPOAPs);
-	const distributionEmbedMsg = {
+	let distributionEmbedMsg: MessageOptionsSlash | MessageOptions = {
 		embeds: [
 			{
 				title: 'POAPs Distribution Results',
@@ -131,12 +134,15 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 				],
 			},
 		],
-		files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
 	};
 	
 	if (isDmOn) {
+		distributionEmbedMsg = distributionEmbedMsg as MessageOptions;
+		distributionEmbedMsg.files = [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }];
 		await guildMember.send(distributionEmbedMsg);
 	} else if (ctx) {
+		distributionEmbedMsg = distributionEmbedMsg as MessageOptionsSlash;
+		distributionEmbedMsg.file = [{ name: 'failed_to_send_poaps.csv', file: failedPOAPsBuffer }];
 		await ctx.send(distributionEmbedMsg);
 	}
 	

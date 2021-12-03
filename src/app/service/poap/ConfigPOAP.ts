@@ -3,7 +3,7 @@ import ValidationError from '../../errors/ValidationError';
 import { Collection } from '@discordjs/collection';
 import {
 	BulkWriteError,
-	Collection as MongoCollection,
+	Collection as MongoCollection, CollectionInsertManyOptions,
 	InsertWriteOpResult,
 	MongoError,
 } from 'mongodb';
@@ -12,23 +12,25 @@ import { Db } from 'mongodb';
 import constants from '../constants/constants';
 import { POAPAdmin } from '../../types/poap/POAPAdmin';
 import ServiceUtils from '../../utils/ServiceUtils';
-import { CommandContext } from 'slash-create';
+import { CommandContext, Message as MessageSlash } from 'slash-create';
 import Log, { LogUtils } from '../../utils/Log';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
 	if (ctx.guildID == undefined) {
-		await ctx.send('Please try configuration within discord channel');
+		await ctx.send({ content: 'Please try configuration within discord channel', ephemeral: true });
 		return;
 	}
+	
 	if (!(ServiceUtils.isDiscordAdmin(guildMember) || ServiceUtils.isDiscordServerManager(guildMember))) {
 		throw new ValidationError('Sorry, only discord admins and managers can configure poap settings.');
 	}
 	
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello, I can help you configure POAP commands!');
-	if (!isDmOn) {
-		await ServiceUtils.sendOutErrorMessage(ctx, 'Configuration is temporarily turned off. Please reach out to support with any questions');
-		return;
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'I can help you configure authorized users for the POAP commands!');
+	if (isDmOn) {
+		await guildMember.send({ content: 'I just send you a DM!' });
+	} else {
+		await ctx.sendFollowUp('⚠ **Please make sure this is a private channel.** I can help you configure authorized users for the POAP commands!');
 	}
 	
 	const authorizedRoles: Role[] = await retrieveRoles(guildMember, roles);
@@ -37,7 +39,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 	if (authorizedRoles.length == 0 && authorizedUsers.length == 0) {
 		throw new ValidationError('Please try again with at least 1 discord user or role.');
 	}
-	const intro: MessageEmbedOptions = {
+	const intro = {
 		title: 'POAP Configuration',
 		description: 'Welcome to POAP configuration.\n\n' +
 			'This is used as a first-time setup of POAP commands. I can help assign or remove authorized users and ' +
@@ -48,10 +50,10 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 			text: '@Bankless DAO 🏴',
 		},
 	};
-	await ServiceUtils.tryDMUser(guildMember, 'Hi - let me check my nuts and screws for you...');
-	const isApproval: boolean = await askForGrantOrRemoval(ctx, guildMember, authorizedRoles, authorizedUsers, intro);
+
+	const isApproval: boolean = await askForGrantOrRemoval(ctx, guildMember, authorizedRoles, authorizedUsers, isDmOn, intro);
 	const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-	let confirmationMsg: MessageEmbedOptions;
+	let confirmationMsg;
 	if (isApproval) {
 		await storePOAPAdmins(guildMember, dbInstance, authorizedUsers, authorizedRoles);
 		confirmationMsg = {
@@ -66,12 +68,16 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 		};
 	}
 	
-	await guildMember.send({ embeds: [confirmationMsg] });
+	const endConfigMsg = {
+		embeds: [confirmationMsg],
+	};
+	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, endConfigMsg);
 	return;
 };
 
 export const askForGrantOrRemoval = async (
-	ctx: CommandContext, guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[], intro?: MessageEmbedOptions,
+	ctx: CommandContext, guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[],
+	isDmOn: boolean, intro?: MessageEmbedOptions,
 ): Promise<boolean> => {
 	const fields = [];
 	for (const role of authorizedRoles) {
@@ -88,7 +94,7 @@ export const askForGrantOrRemoval = async (
 			inline: true,
 		});
 	}
-	const whichRolesAreAllowedQuestion: MessageEmbedOptions = {
+	const whichRolesAreAllowedQuestion = {
 		title: 'Give or remove access?',
 		description: 'Should the given list of users and roles be given access or should they get removed?',
 		fields: fields,
@@ -98,8 +104,15 @@ export const askForGrantOrRemoval = async (
 		},
 	};
 	
-	const message: Message = await guildMember.send({ embeds: [intro, whichRolesAreAllowedQuestion] });
-	await ctx.send(`Hey ${ctx.user.mention}, I just sent you a DM!`).catch(e => LogUtils.logError('failed to send dm to user', e));
+	const msg1 = { embeds: [intro, whichRolesAreAllowedQuestion] };
+	let message: Message | MessageSlash = await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg1);
+	
+	if (isDmOn) {
+		message = message as Message;
+	} else {
+		message = message as Message;
+	}
+	
 	await message.react('👍');
 	await message.react('❌');
 	await message.react('📝');
@@ -158,7 +171,7 @@ export const retrieveUsers = async (guildMember: GuildMember, authorizedUsers: s
 export const storePOAPAdmins = async (
 	guildMember: GuildMember, dbInstance: Db, authorizedUsers: GuildMember[], authorizedRoles: Role[],
 ): Promise<any> => {
-	const poapAdminDb: MongoCollection = dbInstance.collection(constants.DB_COLLECTION_POAP_ADMINS);
+	const poapAdminDb: MongoCollection<POAPAdmin> = dbInstance.collection(constants.DB_COLLECTION_POAP_ADMINS);
 	
 	const poapAdminsList = [];
 	for (const member of authorizedUsers) {
@@ -168,7 +181,7 @@ export const storePOAPAdmins = async (
 			discordObjectName: member.user.tag,
 			discordServerId: guildMember.guild.id,
 			discordServerName: guildMember.guild.name,
-		});
+		} as POAPAdmin);
 	}
 	for (const role of authorizedRoles) {
 		poapAdminsList.push({
@@ -177,14 +190,14 @@ export const storePOAPAdmins = async (
 			discordObjectName: role.name,
 			discordServerId: guildMember.guild.id,
 			discordServerName: guildMember.guild.name,
-		});
+		} as POAPAdmin);
 	}
 	
 	let result: InsertWriteOpResult<POAPAdmin>;
 	try {
 		result = await poapAdminDb.insertMany(poapAdminsList, {
 			ordered: false,
-		});
+		} as CollectionInsertManyOptions);
 	} catch (e) {
 		if (e instanceof BulkWriteError && e.code === 11000) {
 			LogUtils.logError('dup key found, proceeding', e);

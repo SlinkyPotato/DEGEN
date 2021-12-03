@@ -4,6 +4,7 @@
 
 1. Enable poap scheduling (POAP API integration)
 2. Remove Datadog
+3. Enable poap config via channel flow
 
 ## 2.2.0-RELEASE (2021-11-30)
 

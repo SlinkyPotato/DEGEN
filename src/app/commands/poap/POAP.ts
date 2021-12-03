@@ -17,7 +17,7 @@ module.exports = class poap extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'poap',
-			description: 'Receive a list of all attendees in the specified voice channel and optionally send out POAP links',
+			description: 'Receive a list of all attendees in the specified voice channel and optionally send out POAP links.',
 			options: [
 				{
 					name: 'config',
@@ -26,7 +26,7 @@ module.exports = class poap extends SlashCommand {
 					options: [
 						{
 							name: 'status',
-							description: 'test',
+							description: 'Display the list of authorized users and roles that can use the POAP commands.',
 							type: CommandOptionType.SUB_COMMAND,
 							options: [],
 						},

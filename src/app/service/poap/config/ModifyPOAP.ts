@@ -60,7 +60,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles?: str
 			text: '@Bankless DAO 🏴',
 		},
 	};
-
+	Log.debug(`${guildMember.user.tag} is authorized to use poap modify`);
+	
 	const isApproval: boolean = await askForGrantOrRemoval(ctx, guildMember, authorizedRoles, authorizedUsers, isDmOn, intro);
 	const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	let confirmationMsg;
@@ -216,9 +217,10 @@ export const storePOAPAdmins = async (
 	} catch (e) {
 		if (e instanceof BulkWriteError && e.code === 11000) {
 			LogUtils.logError('dup key found, proceeding', e);
+		} else {
+			LogUtils.logError('failed to store poap admins from db', e);
+			return;
 		}
-		LogUtils.logError('failed to store poap admins from db', e);
-		return;
 	}
 	
 	if (result == null) {

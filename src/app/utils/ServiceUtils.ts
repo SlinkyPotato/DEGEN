@@ -5,11 +5,16 @@ import {
 	AwaitMessagesOptions,
 	Collection,
 	DMChannel,
+	EmbedField,
 	Guild,
-	GuildMember, Message, MessageOptions,
+	GuildMember,
+	Message,
+	MessageEmbedOptions,
+	MessageOptions,
 	Permissions,
 	Snowflake,
-	StageChannel, TextChannel,
+	StageChannel,
+	TextChannel,
 	User,
 	VoiceChannel,
 } from 'discord.js';
@@ -17,8 +22,16 @@ import client from '../app';
 import Log, { LogUtils } from './Log';
 import { stringify } from 'csv-stringify/sync';
 import { parse } from 'csv-parse/sync';
-import { POAPFileParticipant, TwitterPOAPFileParticipant } from './POAPUtils';
-import { ButtonStyle, CommandContext, ComponentType, Message as MessageSlash, MessageOptions as MessageOptionsSlash } from 'slash-create';
+import { POAPFileParticipant,
+	TwitterPOAPFileParticipant } from './POAPUtils';
+import { ButtonStyle,
+	CommandContext,
+	ComponentType,
+	Message as MessageSlash,
+	MessageOptions as MessageOptionsSlash,
+	EmbedField as EmbedFieldSlash,
+	MessageEmbedOptions as MessageEmbedOptionsSlash,
+} from 'slash-create';
 import { ComponentActionRow } from 'slash-create/lib/constants';
 
 const ServiceUtils = {
@@ -162,7 +175,36 @@ const ServiceUtils = {
 			return await ctx.sendFollowUp(msg as MessageOptionsSlash);
 		}
 	},
-
+	
+	generateEmbedFieldsMessage: (
+		isDmOn: boolean,
+		embedFieldsList: EmbedField[] | EmbedFieldSlash[],
+		title: string,
+		description: string,
+	): MessageOptionsSlash | MessageOptions => {
+		Log.debug(`starting to process  ${embedFieldsList.length} embedFields`);
+		let i, j;
+		const chunk = 25;
+		let slicedArray: EmbedField[] | EmbedFieldSlash[];
+		const embedsList: MessageEmbedOptions[] | MessageEmbedOptionsSlash[] = [];
+		for (i = 0, j = embedFieldsList.length; i < j; i += chunk) {
+			slicedArray = embedFieldsList.slice(i, i + chunk);
+			embedsList.push({
+				title: title,
+				description: description,
+				fields: slicedArray,
+			});
+		}
+		Log.debug(`finished processing ${embedFieldsList.length} embed fields`);
+		if (isDmOn) {
+			return {
+				embeds: embedsList as MessageEmbedOptions[],
+			} as MessageOptions;
+		}
+		return {
+			embeds: embedsList as MessageEmbedOptionsSlash[],
+		} as MessageOptionsSlash;
+	},
 };
 
 export default ServiceUtils;

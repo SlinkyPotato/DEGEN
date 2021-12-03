@@ -4,13 +4,16 @@
 
 1. Enable poap scheduling (POAP API integration)
 2. Remove Datadog
-3. Enable poap config via channel flow
+3. Enable POAP config via channel flow
 4. Add poap config status command to display list of authorized users and roles
 5. Rename `/poap schedule` -> `/poap mint`
 6. Enable POAP distribution
    - reduce poap claim deleted to 5 minutes
    - display poap claimed message
    - fix poap duration for auto end events
+7. Clear expired POAPs on startup
+   - surround error log in try/catch block
+   
 
 ## 2.2.0-RELEASE (2021-11-30)
 

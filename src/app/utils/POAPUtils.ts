@@ -111,7 +111,7 @@ const POAPUtils = {
 		Log.debug('finished setting endDate for present participants in db');
 	},
 	
-	async askForPOAPLinks(guildMember: GuildMember, isDmOn: boolean, numberOfParticipants: number, ctx?: CommandContext): Promise<MessageAttachment> {
+	async askForPOAPLinks(guildMember: GuildMember, isDmOn: boolean, numberOfParticipants: number, ctx?: CommandContext, adminChannel?: TextChannel): Promise<MessageAttachment> {
 		Log.debug('asking poap organizer for poap links attachment');
 		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have a least ${numberOfParticipants} link(s). Each link should be on a new line.`;
 		const replyOptions: AwaitMessagesOptions = {
@@ -129,6 +129,9 @@ const POAPUtils = {
 			await ctx.sendFollowUp(uploadLinksMsg);
 			const guildChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
 			poapLinksFile = (await guildChannel.awaitMessages(replyOptions)).first().attachments.first();
+		} else {
+			await adminChannel.send(uploadLinksMsg);
+			poapLinksFile = (await adminChannel.awaitMessages(replyOptions)).first().attachments.first();
 		}
 		Log.debug('obtained poap links attachment in discord');
 		return poapLinksFile;

@@ -10,4 +10,5 @@ export interface POAPSettings extends Collection {
 	voiceChannelId: string,
 	voiceChannelName: string,
 	discordServerId: string,
+	channelExecutionId: string,
 }

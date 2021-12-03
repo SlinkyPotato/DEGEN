@@ -10,6 +10,7 @@
 6. Enable POAP distribution
    - reduce poap claim deleted to 5 minutes
    - display poap claimed message
+   - fix poap duration for auto end events
 
 ## 2.2.0-RELEASE (2021-11-30)
 

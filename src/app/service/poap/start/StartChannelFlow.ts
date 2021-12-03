@@ -44,7 +44,7 @@ const StartChannelFlow = async (
 		return;
 	}
 	
-	await setActiveEventInDb(guildMember, db, channelChoice, event, duration);
+	await setActiveEventInDb(guildMember, db, channelChoice, event, duration, ctx.channelID);
 	
 	await ctx.sendFollowUp({
 		embeds: [

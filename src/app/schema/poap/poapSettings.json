@@ -7,6 +7,7 @@
       "voiceChannelId",
       "voiceChannelName",
       "discordServerId",
+      "channelExecutionId",
       "startTime",
       "endTime"
     ],
@@ -46,6 +47,10 @@
       "minAttendance": {
         "bsonType": ["string", "null"],
         "description": "Minimum attendance time required in minutes."
+      },
+      "channelExecutionId": {
+        "bsonType": ["string", "null"],
+        "description": "ChannelId of where the poap start command was executed"
       }
     }
   }

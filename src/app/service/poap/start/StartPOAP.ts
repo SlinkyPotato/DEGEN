@@ -34,6 +34,7 @@ import POAPService from '../POAPService';
 import MongoDbUtils from '../../../utils/MongoDbUtils';
 import StartTwitterFlow from './StartTwitterFlow';
 import StartChannelFlow from './StartChannelFlow';
+import channelIds from '../../constants/channelIds';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, platform: string, event: string, duration?: number): Promise<any> => {
 	if (ctx.guildID == undefined) {
@@ -90,7 +91,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 		throw new ValidationError(`\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`);
 	}
 	
-	await setActiveEventInDb(guildMember, db, channelChoice, event, duration);
+	await setActiveEventInDb(guildMember, db, channelChoice, event, duration, channelIds.DM);
 	
 	await guildMember.send({
 		embeds: [
@@ -230,7 +231,7 @@ export const askUserForChannel = async (
 	Log.warn(`could not find voice channel for ${guildMember.user.tag}`);
 };
 
-export const setActiveEventInDb = async (guildMember: GuildMember, db: Db, channelChoice: GuildChannel, event: string, duration: number): Promise<void> => {
+export const setActiveEventInDb = async (guildMember: GuildMember, db: Db, channelChoice: GuildChannel, event: string, duration: number, channelExecutionId: string): Promise<void> => {
 	Log.debug('starting update of poap settings process... ');
 	await clearPOAPParticipants(db, channelChoice);
 	const poapSettingsDB: Collection<POAPSettings> = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
@@ -251,6 +252,7 @@ export const setActiveEventInDb = async (guildMember: GuildMember, db: Db, chann
 		voiceChannelId: channelChoice.id,
 		voiceChannelName: channelChoice.name,
 		discordServerId: channelChoice.guild.id,
+		channelExecutionId: channelExecutionId,
 	}, {
 		upsert: true,
 		returnDocument: 'after',

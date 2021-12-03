@@ -43,7 +43,7 @@ const POAPService = {
 		for (const expiredEvent of expiredEventsList) {
 			const poapGuild: Guild = await client.guilds.fetch(expiredEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(expiredEvent.discordUserId);
-			await EndPOAP(poapOrganizer, platform);
+			EndPOAP(poapOrganizer, platform).catch(Log.error);
 		}
 		Log.debug(`all expired events ended for ${platform}`);
 		const poapSettingsActiveEventsCursor: Cursor<POAPSettings | POAPTwitterSettings> = await poapSettingsDB.find({
@@ -83,7 +83,7 @@ const POAPService = {
 			const poapGuild: Guild = await client.guilds.fetch(activeEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(activeEvent.discordUserId);
 			try {
-				await EndPOAP(poapOrganizer, platform).catch(e => LogUtils.logError('failed to automatically end event', e));
+				EndPOAP(poapOrganizer, platform).catch(e => LogUtils.logError('failed to automatically end event', e));
 			} catch (e) {
 				LogUtils.logError('failed end poap event', e);
 			}

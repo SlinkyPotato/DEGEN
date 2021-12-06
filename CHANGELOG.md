@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.3.0-SNAPSHOT
+## 2.3.0-RELEASE (2021-12-07)
 
 1. Enable poap scheduling (POAP API integration)
 2. Remove Datadog

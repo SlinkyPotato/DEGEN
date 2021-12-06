@@ -12,7 +12,7 @@ Licensor:             BanklessDAO | DEGEN Workgroup
 Licensed Work:        DEGEN
                       The Licensed Work is (c) 2021 BanklessDAO | DEGEN Workgroup
 
-Change Date:          The earlier of 2023-10-31
+Change Date:          The earliest of 2023-12-07
 
 Change License:       GNU General Public License v3.0 or later
 

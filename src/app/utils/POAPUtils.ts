@@ -122,7 +122,7 @@ const POAPUtils = {
 		};
 		let poapLinksFile: MessageAttachment;
 		if (isDmOn) {
-			await guildMember.send({ content: uploadLinksMsg }).catch(Log.error);
+			await guildMember.send({ content: uploadLinksMsg });
 			const dmChannel: DMChannel = await guildMember.createDM();
 			poapLinksFile = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
 		} else if (ctx) {
@@ -282,7 +282,7 @@ const POAPUtils = {
 		Log.debug(`${listOfFailedPOAPs.length} poaps failed to deliver`);
 		const failedDeliveryMsg = 'Some degens didn\'t make it... They can claim their POAP with the slash command `/poap claim`';
 		if (isDmOn) {
-			await guildMember.send({ content: failedDeliveryMsg }).catch(Log.error);
+			await guildMember.send({ content: failedDeliveryMsg });
 		} else if (ctx) {
 			await ctx.sendFollowUp(failedDeliveryMsg);
 		}

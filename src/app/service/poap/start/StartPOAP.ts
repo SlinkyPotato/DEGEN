@@ -107,8 +107,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 				],
 			},
 		],
-	}).catch(Log.error);
-	await guildMember.send({ content: 'Everything is set, catch you later!' }).catch(Log.error);
+	});
+	await guildMember.send({ content: 'Everything is set, catch you later!' });
 };
 
 export const clearPOAPParticipants = async (db: Db, guildChannel: GuildChannel): Promise<void> => {
@@ -202,7 +202,7 @@ export const askUserForChannel = async (
 		}
 		if (channelChoice === 'no') {
 			if (isDmOn) {
-				await guildMember.send({ content: '👍' }).catch(Log.error);
+				await guildMember.send({ content: '👍' });
 			}
 			throw new EarlyTermination('Command terminated early.');
 		}

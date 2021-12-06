@@ -22,6 +22,11 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I can help you distribute POAPS!');
 	
+	if (isDmOn) {
+		await ctx.sendFollowUp({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠' });
+		
+	}
+	
 	await ctx.send('Sent you a DM!');
 	let participantsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = await askForParticipantsList(guildMember, platform);
 	const numberOfParticipants: number = participantsList.length;

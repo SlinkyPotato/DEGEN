@@ -42,10 +42,10 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	};
 	
 	if (isDmOn) {
-		await guildMember.send(msg1).catch(Log.error);
-		await ctx.sendFollowUp('I just sent you a DM!').catch(Log.error).catch(Log.error);
+		await guildMember.send(msg1);
+		await ctx.sendFollowUp('I just sent you a DM!');
 	} else if (ctx) {
-		await ctx.sendFollowUp(msg1).catch(Log.error);
+		await ctx.sendFollowUp(msg1);
 	}
 	
 	const contextChannel: DMChannel | TextChannel = isDmOn ? await guildMember.createDM() : await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
@@ -179,7 +179,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	} catch (e) {
 		LogUtils.logError('failed to get png image from user', e);
 		if (isDmOn) {
-			await guildMember.send('Image failed to process, please try the command again.').catch(Log.error);
+			await guildMember.send('Image failed to process, please try the command again.');
 		}
 		throw new ValidationError('Please try another PNG image.');
 	}

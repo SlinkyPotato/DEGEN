@@ -112,7 +112,7 @@ const ServiceUtils = {
 	async tryDMUser(guildMember: GuildMember, message: string): Promise<boolean> {
 		try {
 			await guildMember.send({ content: message });
-			Log.debug(`DM is turned off for ${guildMember.user.tag}`)
+			Log.debug(`DM is turned off for ${guildMember.user.tag}`);
 			return true;
 		} catch (e) {
 			LogUtils.logError(`DM is turned off for ${guildMember.user.tag}`, e);

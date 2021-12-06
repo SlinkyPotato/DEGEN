@@ -111,7 +111,7 @@ const ServiceUtils = {
 	
 	async tryDMUser(guildMember: GuildMember, message: string): Promise<boolean> {
 		try {
-			await guildMember.send({ content: message });
+			await guildMember.send({ content: message }).catch(Log.error);
 			return true;
 		} catch (e) {
 			LogUtils.logError('DM is turned off', e);

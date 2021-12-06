@@ -87,7 +87,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
 		Log.info('unable to start due to active event');
-		await guildMember.send({ content: 'Event is already active.' });
+		await guildMember.send({ content: 'Event is already active.' }).catch(Log.error);
 		throw new ValidationError(`\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`);
 	}
 	
@@ -107,8 +107,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 				],
 			},
 		],
-	});
-	await guildMember.send({ content: 'Everything is set, catch you later!' });
+	}).catch(Log.error);
+	await guildMember.send({ content: 'Everything is set, catch you later!' }).catch(Log.error);
 };
 
 export const clearPOAPParticipants = async (db: Db, guildChannel: GuildChannel): Promise<void> => {
@@ -202,7 +202,7 @@ export const askUserForChannel = async (
 		}
 		if (channelChoice === 'no') {
 			if (isDmOn) {
-				await guildMember.send({ content: '👍' });
+				await guildMember.send({ content: '👍' }).catch(Log.error);
 			}
 			throw new EarlyTermination('Command terminated early.');
 		}

@@ -21,17 +21,13 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	POAPUtils.validateEvent(event);
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I can help you distribute POAPS!');
-	if (!isDmOn) {
-		await ServiceUtils.sendOutErrorMessage(ctx, 'Distribution is temporarily turned off. Please reach out to support with any questions');
-		return;
-	}
 	
 	await ctx.send('Sent you a DM!');
 	let participantsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = await askForParticipantsList(guildMember, platform);
 	const numberOfParticipants: number = participantsList.length;
 	
 	if (numberOfParticipants <= 0) {
-		await ctx.send('Hmm there don\'t seem to be any participants');
+		await ctx.send('Hmm there doesn\'t seem to be any participants.');
 		return;
 	}
 
@@ -44,7 +40,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	participantsList = participantsList as POAPFileParticipant[];
 	
 	if (!participantsList[0].discordUserId) {
-		await guildMember.send({ content: 'parsing failed, please try a csv file with headers discordUserId' });
+		await guildMember.send({ content: 'parsing failed, please try a csv file with headers discordUserId' }).catch(Log.error);
 		throw Error('failed to parse');
 	}
 
@@ -90,7 +86,7 @@ export const askForParticipantsList = async (guildMember: GuildMember, platform:
 		}
 	} catch (e) {
 		LogUtils.logError('failed to ask for participants list', e);
-		await guildMember.send({ content: 'Invalid attachment. Please try the command again.' });
+		await guildMember.send({ content: 'Invalid attachment. Please try the command again.' }).catch(Log.error);
 		throw new ValidationError('Please try again.');
 	}
 	return participantsList;
@@ -111,7 +107,7 @@ const distributeTwitterFlow = async (ctx: CommandContext, guildMember: GuildMemb
 	Log.debug('distributing POAP for Twitter');
 	const numberOfParticipants: number = participantsList.length;
 	if (!participantsList[0].twitterUserId) {
-		await guildMember.send({ content: 'parsing failed, please try a csv file with headers twitterUserId' });
+		await guildMember.send({ content: 'parsing failed, please try a csv file with headers twitterUserId' }).catch(Log.error);
 		throw Error('failed to parse');
 	}
 
@@ -143,10 +139,10 @@ const handleDistributionResults = async (guildMember: GuildMember, numberOfParti
 			},
 		],
 		files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
-	});
+	}).catch(Log.error);
 	if (failedPOAPsList.length <= 0) {
 		Log.debug('all poap successfully delivered');
-		await guildMember.send({ content: 'All POAPs delivered!' });
+		await guildMember.send({ content: 'All POAPs delivered!' }).catch(Log.error);
 		return true;
 	}
 	return false;

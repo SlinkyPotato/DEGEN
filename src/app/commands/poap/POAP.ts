@@ -1,4 +1,9 @@
-import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
+import {
+	CommandContext,
+	CommandOptionType,
+	SlashCommand,
+	SlashCreator,
+} from 'slash-create';
 import ServiceUtils from '../../utils/ServiceUtils';
 import StartPOAP from '../../service/poap/start/StartPOAP';
 import ValidationError from '../../errors/ValidationError';
@@ -6,7 +11,7 @@ import EarlyTermination from '../../errors/EarlyTermination';
 import EndPOAP from '../../service/poap/EndPOAP';
 import DistributePOAP from '../../service/poap/DistributePOAP';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
-import { LogUtils } from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import ClaimPOAP from '../../service/poap/ClaimPOAP';
 import constants from '../../service/constants/constants';
 import { GuildMember } from 'discord.js';
@@ -235,7 +240,8 @@ module.exports = class poap extends SlashCommand {
 				command = SchedulePOAP(ctx, guildMember, ctx.options.schedule['mint-copies']);
 				break;
 			case 'start':
-				platform = ctx.options.start['platform'] != null || ctx.options.start['platform'] != '' ? ctx.options.start['platform'] : constants.PLATFORM_TYPE_DISCORD;
+				platform = ctx.options.start['platform'] != null && ctx.options.start['platform'] != '' ? ctx.options.start['platform'] : constants.PLATFORM_TYPE_DISCORD;
+				Log.debug(`platform: ${platform}`);
 				command = StartPOAP(ctx, guildMember, platform, ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
@@ -243,15 +249,18 @@ module.exports = class poap extends SlashCommand {
 					await ctx.send('I love your enthusiasm, but please return to a Discord channel to end the event.');
 					return;
 				}
-				platform = ctx.options.end['platform'] != null || ctx.options.end['platform'] != '' ? ctx.options.end['platform'] : constants.PLATFORM_TYPE_DISCORD;
+				platform = ctx.options.end['platform'] != null && ctx.options.end['platform'] != '' ? ctx.options.end['platform'] : constants.PLATFORM_TYPE_DISCORD;
+				Log.debug(`platform: ${platform}`);
 				command = EndPOAP(guildMember, platform, ctx);
 				break;
 			case 'distribute':
-				platform = ctx.options.distribute['platform'] != null || ctx.options.distribute['platform'] != '' ? ctx.options.distribute['platform'] : constants.PLATFORM_TYPE_DISCORD;
+				platform = ctx.options.distribute['platform'] != null && ctx.options.distribute['platform'] != '' ? ctx.options.distribute['platform'] : constants.PLATFORM_TYPE_DISCORD;
+				Log.debug(`platform: ${platform}`);
 				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], platform);
 				break;
 			case 'claim':
-				platform = ctx.options.claim.platform != null || ctx.options.claim.platform != '' ? ctx.options.claim.platform : constants.PLATFORM_TYPE_DISCORD;
+				platform = ctx.options.claim.platform != null && ctx.options.claim.platform != '' ? ctx.options.claim.platform : constants.PLATFORM_TYPE_DISCORD;
+				Log.debug(`platform: ${platform}`);
 				command = ClaimPOAP(ctx, platform, guildMember);
 				break;
 			default:

@@ -114,15 +114,19 @@ export const LogUtils = {
 	},
 	
 	logError(message: string, error: Error, guildId?: string): void {
-		Log.error(message, {
-			indexMeta: true,
-			meta: {
-				name: error.name,
-				message: error.message,
-				stack: error.stack,
-				guildId: guildId,
-			},
-		});
+		try {
+			Log.error(message, {
+				indexMeta: true,
+				meta: {
+					name: error.name,
+					message: error.message,
+					stack: error.stack,
+					guildId: guildId,
+				},
+			});
+		} catch (e) {
+			Log.error(message, e);
+		}
 	},
 };
 

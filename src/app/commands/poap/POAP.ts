@@ -1,4 +1,9 @@
-import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
+import {
+	CommandContext,
+	CommandOptionType,
+	SlashCommand,
+	SlashCreator,
+} from 'slash-create';
 import ServiceUtils from '../../utils/ServiceUtils';
 import StartPOAP from '../../service/poap/start/StartPOAP';
 import ValidationError from '../../errors/ValidationError';
@@ -6,7 +11,7 @@ import EarlyTermination from '../../errors/EarlyTermination';
 import EndPOAP from '../../service/poap/EndPOAP';
 import DistributePOAP from '../../service/poap/DistributePOAP';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
-import { LogUtils } from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import ClaimPOAP from '../../service/poap/ClaimPOAP';
 import constants from '../../service/constants/constants';
 import { GuildMember } from 'discord.js';
@@ -94,22 +99,6 @@ module.exports = class poap extends SlashCommand {
 					description: 'Begin POAP event and start tracking participants.',
 					options: [
 						{
-							name: 'platform',
-							type: CommandOptionType.STRING,
-							description: 'The hosting location of the POAP event.',
-							required: true,
-							choices: [
-								{
-									name: 'Discord',
-									value: constants.PLATFORM_TYPE_DISCORD,
-								},
-								{
-									name: 'Twitter Spaces',
-									value: constants.PLATFORM_TYPE_TWITTER,
-								},
-							],
-						},
-						{
 							name: 'event',
 							type: CommandOptionType.STRING,
 							description: 'The name of the event that participants will see in their DMs.',
@@ -120,6 +109,22 @@ module.exports = class poap extends SlashCommand {
 							type: CommandOptionType.STRING,
 							description: 'Number of minutes the event will remain active.',
 							required: false,
+						},
+						{
+							name: 'platform',
+							type: CommandOptionType.STRING,
+							description: 'The hosting location of the POAP event.',
+							required: false,
+							choices: [
+								{
+									name: 'Discord',
+									value: constants.PLATFORM_TYPE_DISCORD,
+								},
+								{
+									name: 'Twitter Spaces',
+									value: constants.PLATFORM_TYPE_TWITTER,
+								},
+							],
 						},
 					],
 				},
@@ -132,7 +137,7 @@ module.exports = class poap extends SlashCommand {
 							name: 'platform',
 							type: CommandOptionType.STRING,
 							description: 'The hosting location of the POAP event.',
-							required: true,
+							required: false,
 							choices: [
 								{
 									name: 'Discord',
@@ -152,10 +157,16 @@ module.exports = class poap extends SlashCommand {
 					description: 'Distribute links to participants.',
 					options: [
 						{
+							name: 'event',
+							type: CommandOptionType.STRING,
+							description: 'The name of the event that participants will see in their DMs.',
+							required: true,
+						},
+						{
 							name: 'platform',
 							type: CommandOptionType.STRING,
 							description: 'Platform where users can claim from where they attended the event.',
-							required: true,
+							required: false,
 							choices: [
 								{
 									name: 'Discord',
@@ -166,12 +177,6 @@ module.exports = class poap extends SlashCommand {
 									value: constants.PLATFORM_TYPE_TWITTER,
 								},
 							],
-						},
-						{
-							name: 'event',
-							type: CommandOptionType.STRING,
-							description: 'The name of the event that participants will see in their DMs.',
-							required: true,
 						},
 					],
 				},
@@ -184,7 +189,7 @@ module.exports = class poap extends SlashCommand {
 							name: 'platform',
 							type: CommandOptionType.STRING,
 							description: 'Platform where users can claim from where they attended the event.',
-							required: true,
+							required: false,
 							choices: [
 								{
 									name: 'Discord',
@@ -219,6 +224,7 @@ module.exports = class poap extends SlashCommand {
 		let command: Promise<any>;
 		let authorizedRoles: any[];
 		let authorizedUsers: any[];
+		let platform: string;
 		try {
 			switch (ctx.subcommands[0]) {
 			case 'config':
@@ -234,20 +240,28 @@ module.exports = class poap extends SlashCommand {
 				command = SchedulePOAP(ctx, guildMember, ctx.options.schedule['mint-copies']);
 				break;
 			case 'start':
-				command = StartPOAP(ctx, guildMember, ctx.options.start['platform'], ctx.options.start.event, ctx.options.start['duration-minutes']);
+				platform = ctx.options.start['platform'] != null && ctx.options.start['platform'] != '' ? ctx.options.start['platform'] : constants.PLATFORM_TYPE_DISCORD;
+				Log.debug(`platform: ${platform}`);
+				command = StartPOAP(ctx, guildMember, platform, ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
 				if (ctx.guildID == undefined) {
 					await ctx.send('I love your enthusiasm, but please return to a Discord channel to end the event.');
 					return;
 				}
-				command = EndPOAP(guildMember, ctx.options.end['platform'], ctx);
+				platform = ctx.options.end['platform'] != null && ctx.options.end['platform'] != '' ? ctx.options.end['platform'] : constants.PLATFORM_TYPE_DISCORD;
+				Log.debug(`platform: ${platform}`);
+				command = EndPOAP(guildMember, platform, ctx);
 				break;
 			case 'distribute':
-				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], ctx.options.distribute['platform']);
+				platform = ctx.options.distribute['platform'] != null && ctx.options.distribute['platform'] != '' ? ctx.options.distribute['platform'] : constants.PLATFORM_TYPE_DISCORD;
+				Log.debug(`platform: ${platform}`);
+				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], platform);
 				break;
 			case 'claim':
-				command = ClaimPOAP(ctx, ctx.options.claim.platform, guildMember);
+				platform = ctx.options.claim.platform != null && ctx.options.claim.platform != '' ? ctx.options.claim.platform : constants.PLATFORM_TYPE_DISCORD;
+				Log.debug(`platform: ${platform}`);
+				command = ClaimPOAP(ctx, platform, guildMember);
 				break;
 			default:
 				return ctx.send(`${ctx.user.mention} Please try again.`);

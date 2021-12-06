@@ -61,11 +61,11 @@ const StatusPOAP = async (ctx: CommandContext, guildMember: GuildMember): Promis
 	const authorizedRolesMsg: MessageOptionsSlash | MessageOptions = ServiceUtils.generateEmbedFieldsMessage(isDmOn, authorizedRoles, roleTitle, roleDescription);
 	
 	if (isDmOn) {
-		await guildMember.send(authorizedUsersMsg as MessageOptions);
-		await guildMember.send(authorizedRolesMsg as MessageOptions);
+		await guildMember.send(authorizedUsersMsg as MessageOptions).catch(Log.error);
+		await guildMember.send(authorizedRolesMsg as MessageOptions).catch(Log.error);
 	} else {
-		await ctx.sendFollowUp(authorizedUsersMsg as MessageOptionsSlash);
-		await ctx.sendFollowUp(authorizedRolesMsg as MessageOptionsSlash);
+		await ctx.sendFollowUp(authorizedUsersMsg as MessageOptionsSlash).catch(Log.error);
+		await ctx.sendFollowUp(authorizedRolesMsg as MessageOptionsSlash).catch(Log.error);
 	}
 	Log.debug('list of authorized users and roles sent');
 };

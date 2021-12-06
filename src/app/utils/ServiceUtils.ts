@@ -112,9 +112,10 @@ const ServiceUtils = {
 	async tryDMUser(guildMember: GuildMember, message: string): Promise<boolean> {
 		try {
 			await guildMember.send({ content: message });
+			Log.debug(`DM is turned off for ${guildMember.user.tag}`);
 			return true;
 		} catch (e) {
-			LogUtils.logError('DM is turned off', e);
+			LogUtils.logError(`DM is turned off for ${guildMember.user.tag}`, e);
 			return false;
 		}
 	},
@@ -132,7 +133,7 @@ const ServiceUtils = {
 		const csvString = stringify(listOfObjects, {
 			header: true,
 		});
-		Log.debug('finishing parsing participants');
+		Log.debug('finishing csv buffer');
 		return Buffer.from(csvString, 'utf-8');
 	},
 	

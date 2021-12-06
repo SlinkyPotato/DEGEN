@@ -20,7 +20,7 @@ export default (): MessageOptions => {
 				},
 				{
 					name: '-> /poap mint',
-					value: 'Mint a POAP for anevent, upload the PNG image to be minted, and get the links.txt file over email.',
+					value: 'Mint a POAP for an event, upload the PNG image to be minted, and get the links.txt file over email.',
 					inline: false,
 				},
 				{

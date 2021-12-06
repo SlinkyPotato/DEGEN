@@ -8,6 +8,8 @@ import EndPOAP from './EndPOAP';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
 import { storePresentMembers } from './start/StartPOAP';
+import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
+import { POAPTwitterUnclaimedParticipants } from '../../types/poap/POAPTwitterUnclaimedParticipants';
 
 const POAPService = {
 	runAutoEndSetup: async (client: DiscordClient, platform: string): Promise<void> => {
@@ -43,7 +45,7 @@ const POAPService = {
 		for (const expiredEvent of expiredEventsList) {
 			const poapGuild: Guild = await client.guilds.fetch(expiredEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(expiredEvent.discordUserId);
-			await EndPOAP(poapOrganizer, platform);
+			EndPOAP(poapOrganizer, platform).catch(Log.error);
 		}
 		Log.debug(`all expired events ended for ${platform}`);
 		const poapSettingsActiveEventsCursor: Cursor<POAPSettings | POAPTwitterSettings> = await poapSettingsDB.find({
@@ -83,7 +85,7 @@ const POAPService = {
 			const poapGuild: Guild = await client.guilds.fetch(activeEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(activeEvent.discordUserId);
 			try {
-				await EndPOAP(poapOrganizer, platform).catch(e => LogUtils.logError('failed to automatically end event', e));
+				EndPOAP(poapOrganizer, platform).catch(e => LogUtils.logError('failed to automatically end event', e));
 			} catch (e) {
 				LogUtils.logError('failed end poap event', e);
 			}
@@ -96,6 +98,29 @@ const POAPService = {
 				event: activeEvent.event,
 			},
 		});
+	},
+	
+	clearExpiredPOAPs: async (): Promise<void> => {
+		try {
+			const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+			const unclaimedPOAPsCollection: Collection<POAPUnclaimedParticipants> = await db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
+			await unclaimedPOAPsCollection.deleteMany({
+				expiresAt: {
+					$lte: dayjs().toISOString(),
+				},
+			}).catch(Log.error);
+			
+			const twitterUnclaimedPOAPsCollection: Collection<POAPTwitterUnclaimedParticipants> = await db.collection(constants.DB_COLLECTION_POAP_TWITTER_UNCLAIMED_PARTICIPANTS);
+			await twitterUnclaimedPOAPsCollection.deleteMany({
+				expiresAt: {
+					$lte: dayjs().toISOString(),
+				},
+			}).catch(Log.error);
+			
+			Log.debug('deleted all expired poaps');
+		} catch (e) {
+			Log.error('failed to delete expired poaps', e);
+		}
 	},
 };
 

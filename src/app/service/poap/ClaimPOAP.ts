@@ -7,6 +7,7 @@ import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedPartici
 import Log from '../../utils/Log';
 import { POAPTwitterUnclaimedParticipants } from '../../types/poap/POAPTwitterUnclaimedParticipants';
 import VerifyTwitter, { VerifiedTwitter } from '../account/VerifyTwitter';
+import dayjs from 'dayjs';
 
 const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: GuildMember): Promise<any> => {
 	Log.debug(`starting claim for ${ctx.user.username}, with ID: ${ctx.user.id}`);
@@ -32,6 +33,7 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 		await ctx.send('Sorry bud, I couldn\'t find anything...', { ephemeral: true });
 		return;
 	}
+	
 	Log.debug('POAP found');
 	const fieldsList: EmbedField[] = await unclaimedParticipants.map((doc: POAPUnclaimedParticipants) => {
 		return ({
@@ -40,6 +42,8 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 			inline: false,
 		} as EmbedField);
 	}).toArray();
+	
+	await ctx.send({ content: `POAP claimed using \`/poap claim platform: ${platform}\`. Thank you!` });
 	
 	await ctx.send({
 		embeds: [{
@@ -52,12 +56,22 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 	
 	Log.debug('message sent to user!');
 	
+	unclaimedParticipantsCollection.updateMany({
+		discordUserId: ctx.user.id,
+	}, {
+		$set: {
+			expiresAt: dayjs().toISOString(),
+		},
+	}).catch(Log.error);
+	
+	Log.debug('updated expiration for POAPs in DB');
+	
 	setTimeout(() => {
 		Log.debug('deleted poaps from claim');
 		unclaimedParticipantsCollection.deleteMany({
 			discordUserId: ctx.user.id,
 		});
-	}, 600000);
+	}, 300000);
 	
 	Log.debug('POAP claimed');
 };

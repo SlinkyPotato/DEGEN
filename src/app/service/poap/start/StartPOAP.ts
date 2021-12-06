@@ -87,7 +87,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
 		Log.info('unable to start due to active event');
-		await guildMember.send({ content: 'Event is already active.' }).catch(Log.error);
+		await guildMember.send({ content: 'Event is already active.' });
 		throw new ValidationError(`\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`);
 	}
 	

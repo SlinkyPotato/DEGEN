@@ -58,7 +58,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		await ctx.sendFollowUp({ content: 'Please check your DMs!', ephemeral: true });
 	} else {
 		if (poapSettingsDoc.channelExecutionId == null || poapSettingsDoc.channelExecutionId == '') {
-			Log.debug(`ChannelExecutionId missing for ${guildMember.user.tag}, ${guildMember.user.id}, skipping poap end for expired event`);
+			Log.debug(`channelExecutionId missing for ${guildMember.user.tag}, ${guildMember.user.id}, skipping poap end for expired event`);
 			return;
 		}
 		channelExecution = await guildMember.guild.channels.fetch(poapSettingsDoc.channelExecutionId) as TextChannel;
@@ -94,9 +94,9 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		Log.debug('no eligible attendees found during event');
 		const eventEndMsg = `POAP event ended. No participants found for \`${channel.name}\` in \`${channel.guild.name}\`.`;
 		if (isDmOn) {
-			await guildMember.send({ content: eventEndMsg }).catch(Log.error);
+			await guildMember.send({ content: eventEndMsg });
 		} else if (ctx) {
-			await ctx.sendFollowUp(eventEndMsg).catch(Log.error);
+			await ctx.sendFollowUp(eventEndMsg);
 		}
 		return;
 	}
@@ -124,7 +124,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	if (isDmOn) {
 		embedOptions = embedOptions as MessageOptions;
 		embedOptions.files = [{ name: fileName, attachment: bufferFile }];
-		await guildMember.send(embedOptions).catch(Log.error);
+		await guildMember.send(embedOptions);
 	} else if (ctx) {
 		embedOptions = embedOptions as MessageOptionsSlash;
 		embedOptions.file = [{ name: fileName, file: bufferFile }];
@@ -189,7 +189,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		Log.debug('no eligible attendees found during event');
 		const endMsg = 'Event ended. No eligible attendees found during twitter event';
 		if (isDmOn) {
-			await guildMember.send({ content: endMsg }).catch(Log.error);
+			await guildMember.send({ content: endMsg });
 		} else if (ctx) {
 			await ctx.sendFollowUp(endMsg);
 		}
@@ -211,7 +211,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		files: [{ name: `twitter_participants_${numberOfParticipants}.csv`, attachment: bufferFile }],
 	};
 	if (isDmOn) {
-		await guildMember.send(embedTwitterEnd).catch(Log.error);
+		await guildMember.send(embedTwitterEnd);
 	} else if (ctx) {
 		await ctx.sendFollowUp(embedTwitterEnd);
 	}
@@ -238,7 +238,7 @@ const endTwitterPOAPFlow = async (guildMember: GuildMember, db: Db, ctx?: Comman
 		files: [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }],
 	};
 	if (isDmOn) {
-		await guildMember.send(distributionEmbedMsg).catch(Log.error).catch(Log.error);
+		await guildMember.send(distributionEmbedMsg);
 	} else if (ctx) {
 		await ctx.sendFollowUp(distributionEmbedMsg);
 	}

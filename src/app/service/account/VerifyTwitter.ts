@@ -93,7 +93,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Pro
 				],
 			},
 		],
-	}).catch(Log.error);
+	});
 	Log.debug('done verifying twitter account');
 	return {
 		twitterUser: userCall,
@@ -129,7 +129,7 @@ const sendTwitterAuthenticationMessage = async (guildMember: GuildMember): Promi
 				],
 			},
 		],
-	}).catch(Log.error);
+	});
 };
 
 export default VerifyTwitter;

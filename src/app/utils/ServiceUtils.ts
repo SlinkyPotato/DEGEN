@@ -2,13 +2,19 @@
  * Utilities for service layer
  */
 import {
+	AwaitMessagesOptions,
 	Collection,
 	DMChannel,
+	EmbedField,
 	Guild,
 	GuildMember,
+	Message,
+	MessageEmbedOptions,
+	MessageOptions,
 	Permissions,
 	Snowflake,
 	StageChannel,
+	TextChannel,
 	User,
 	VoiceChannel,
 } from 'discord.js';
@@ -16,8 +22,16 @@ import client from '../app';
 import Log, { LogUtils } from './Log';
 import { stringify } from 'csv-stringify/sync';
 import { parse } from 'csv-parse/sync';
-import { POAPFileParticipant, TwitterPOAPFileParticipant } from './POAPUtils';
-import { ButtonStyle, CommandContext, ComponentType } from 'slash-create';
+import { POAPFileParticipant,
+	TwitterPOAPFileParticipant } from './POAPUtils';
+import { ButtonStyle,
+	CommandContext,
+	ComponentType,
+	Message as MessageSlash,
+	MessageOptions as MessageOptionsSlash,
+	EmbedField as EmbedFieldSlash,
+	MessageEmbedOptions as MessageEmbedOptionsSlash,
+} from 'slash-create';
 import { ComponentActionRow } from 'slash-create/lib/constants';
 
 const ServiceUtils = {
@@ -81,24 +95,27 @@ const ServiceUtils = {
 
 	/**
 	 * Returns the first message in DM channel from the user
+	 * @param guildMember guild user that initiated the command
 	 * @param dmChannel direct message channel
 	 * @param waitInMilli number of milliseconds the bot should wait for a reply
 	 */
-	async getFirstUserReply(dmChannel: DMChannel, waitInMilli?: number): Promise<any> {
+	async getFirstUserReply(guildMember: GuildMember, dmChannel: DMChannel | TextChannel, waitInMilli?: number): Promise<any> {
 		waitInMilli = (waitInMilli == null) ? 600000 : waitInMilli;
 		return (await dmChannel.awaitMessages({
 			max: 1,
 			time: waitInMilli,
 			errors: ['time'],
-		})).first().content;
+			filter: m => m.author.id == guildMember.user.id,
+		} as AwaitMessagesOptions)).first().content;
 	},
 	
 	async tryDMUser(guildMember: GuildMember, message: string): Promise<boolean> {
 		try {
 			await guildMember.send({ content: message });
+			Log.debug(`DM is turned off for ${guildMember.user.tag}`);
 			return true;
 		} catch (e) {
-			LogUtils.logError('DM is turned off', e);
+			LogUtils.logError(`DM is turned off for ${guildMember.user.tag}`, e);
 			return false;
 		}
 	},
@@ -116,7 +133,7 @@ const ServiceUtils = {
 		const csvString = stringify(listOfObjects, {
 			header: true,
 		});
-		Log.debug('finishing parsing participants');
+		Log.debug('finishing csv buffer');
 		return Buffer.from(csvString, 'utf-8');
 	},
 	
@@ -145,6 +162,49 @@ const ServiceUtils = {
 			ephemeral: true,
 			components: [row],
 		});
+	},
+	
+	sendContextMessage: async (
+		isDmOn: boolean,
+		guildMember: GuildMember,
+		ctx: CommandContext,
+		msg: MessageOptions | MessageOptionsSlash,
+	): Promise<Message | MessageSlash> => {
+		if (isDmOn) {
+			return await guildMember.send(msg as MessageOptions);
+		} else {
+			return await ctx.sendFollowUp(msg as MessageOptionsSlash);
+		}
+	},
+	
+	generateEmbedFieldsMessage: (
+		isDmOn: boolean,
+		embedFieldsList: EmbedField[] | EmbedFieldSlash[],
+		title: string,
+		description: string,
+	): MessageOptionsSlash | MessageOptions => {
+		Log.debug(`starting to process  ${embedFieldsList.length} embedFields`);
+		let i, j;
+		const chunk = 25;
+		let slicedArray: EmbedField[] | EmbedFieldSlash[];
+		const embedsList: MessageEmbedOptions[] | MessageEmbedOptionsSlash[] = [];
+		for (i = 0, j = embedFieldsList.length; i < j; i += chunk) {
+			slicedArray = embedFieldsList.slice(i, i + chunk);
+			embedsList.push({
+				title: title,
+				description: description,
+				fields: slicedArray,
+			});
+		}
+		Log.debug(`finished processing ${embedFieldsList.length} embed fields`);
+		if (isDmOn) {
+			return {
+				embeds: embedsList as MessageEmbedOptions[],
+			} as MessageOptions;
+		}
+		return {
+			embeds: embedsList as MessageEmbedOptionsSlash[],
+		} as MessageOptionsSlash;
 	},
 };
 

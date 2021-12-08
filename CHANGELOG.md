@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.3.0-RELEASE (2021-12-07)
+
+1. Enable poap scheduling (POAP API integration)
+2. Remove Datadog
+3. Enable poap config via channel flow
+4. Add poap config status command to display list of authorized users and roles
+5. Rename `/poap schedule` -> `/poap mint`
+6. Enable POAP distribution
+   - reduce poap claim deleted to 5 minutes
+   - display poap claimed message
+   - fix poap duration for auto end events
+7. Clear expired POAPs on startup
+   - surround error log in try/catch block
+8. Add a security check for the poap urls that are passed
+   - default platform to discord
+   
+
 ## 2.2.0-RELEASE (2021-11-30)
 
 1. Send hidden claim messages for POAPs

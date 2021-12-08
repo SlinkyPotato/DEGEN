@@ -34,6 +34,7 @@ import POAPService from '../POAPService';
 import MongoDbUtils from '../../../utils/MongoDbUtils';
 import StartTwitterFlow from './StartTwitterFlow';
 import StartChannelFlow from './StartChannelFlow';
+import channelIds from '../../constants/channelIds';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, platform: string, event: string, duration?: number): Promise<any> => {
 	if (ctx.guildID == undefined) {
@@ -77,7 +78,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) as MessageEmbedOptions[] });
 	await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
 	const channel: DMChannel = await message.channel.fetch() as DMChannel;
-	const channelChoice: GuildChannel = await askUserForChannel(guildMember, channel, voiceChannels);
+	const channelChoice: GuildChannel = await askUserForChannel(guildMember, channel, voiceChannels, true, ctx);
 
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
 		discordServerId: channelChoice.guild.id,
@@ -90,7 +91,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 		throw new ValidationError(`\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`);
 	}
 	
-	await setActiveEventInDb(guildMember, db, channelChoice, event, duration);
+	await setActiveEventInDb(guildMember, db, channelChoice, event, duration, channelIds.DM);
 	
 	await guildMember.send({
 		embeds: [
@@ -177,7 +178,11 @@ export const generateVoiceChannelEmbedMessage = (
 };
 
 export const askUserForChannel = async (
-	guildMember: GuildMember, channel: TextChannel | DMChannel, voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>,
+	guildMember: GuildMember,
+	channel: TextChannel | DMChannel,
+	voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>,
+	isDmOn: boolean,
+	ctx?: CommandContext,
 ): Promise<GuildChannel> => {
 	Log.debug('asking poap organizer for channel');
 	const replyOptions: AwaitMessagesOptions = {
@@ -189,14 +194,27 @@ export const askUserForChannel = async (
 	let channelNumber: number;
 	let channelChoice: string;
 	do {
-		channelChoice = (await channel.awaitMessages(replyOptions)).first().content;
+		try {
+			channelChoice = (await channel.awaitMessages(replyOptions)).first().content;
+		} catch (e) {
+			LogUtils.logError('failed to capture channel', e);
+			throw new ValidationError('Please enable view channel and send messages permission for this channel.');
+		}
 		if (channelChoice === 'no') {
-			await guildMember.send({ content: '👍' });
+			if (isDmOn) {
+				await guildMember.send({ content: '👍' });
+			}
 			throw new EarlyTermination('Command terminated early.');
 		}
 		channelNumber = Number(channelChoice);
 		if (isNaN(channelNumber) || channelNumber <= 0 || channelNumber > voiceChannels.size) {
-			await guildMember.send({ content: 'Please enter a valid channel number or `no` to exit.' });
+			Log.warn('sent invalid channel number');
+			const enterValidNumberMsg = 'Please enter a valid channel number or `no` to exit.';
+			if (isDmOn) {
+				await guildMember.send({ content: enterValidNumberMsg }).catch(Log.error);
+			} else if (ctx) {
+				await ctx.sendFollowUp(enterValidNumberMsg).catch(Log.error);
+			}
 		} else {
 			break;
 		}
@@ -213,7 +231,7 @@ export const askUserForChannel = async (
 	Log.warn(`could not find voice channel for ${guildMember.user.tag}`);
 };
 
-export const setActiveEventInDb = async (guildMember: GuildMember, db: Db, channelChoice: GuildChannel, event: string, duration: number): Promise<void> => {
+export const setActiveEventInDb = async (guildMember: GuildMember, db: Db, channelChoice: GuildChannel, event: string, duration: number, channelExecutionId: string): Promise<void> => {
 	Log.debug('starting update of poap settings process... ');
 	await clearPOAPParticipants(db, channelChoice);
 	const poapSettingsDB: Collection<POAPSettings> = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
@@ -234,6 +252,7 @@ export const setActiveEventInDb = async (guildMember: GuildMember, db: Db, chann
 		voiceChannelId: channelChoice.id,
 		voiceChannelName: channelChoice.name,
 		discordServerId: channelChoice.guild.id,
+		channelExecutionId: channelExecutionId,
 	}, {
 		upsert: true,
 		returnDocument: 'after',

@@ -20,6 +20,8 @@ export default class implements DiscordEvent {
 			await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 			await POAPService.runAutoEndSetup(client, constants.PLATFORM_TYPE_DISCORD).catch(Log.error);
 			await POAPService.runAutoEndSetup(client, constants.PLATFORM_TYPE_TWITTER).catch(Log.error);
+			await POAPService.clearExpiredPOAPs().catch(Log.error);
+			
 			Log.info('DEGEN is ready!');
 		} catch (e) {
 			LogUtils.logError('Error processing event ready', e);

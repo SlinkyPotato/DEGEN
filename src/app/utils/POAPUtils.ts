@@ -1,4 +1,12 @@
-import { AwaitMessagesOptions, DMChannel, GuildChannel, GuildMember, MessageAttachment, TextChannel } from 'discord.js';
+import {
+	AwaitMessagesOptions,
+	DMChannel,
+	GuildChannel,
+	GuildMember,
+	MessageAttachment,
+	MessageOptions,
+	TextChannel,
+} from 'discord.js';
 import { Collection, Collection as MongoCollection, Cursor, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../service/constants/constants';
 import { POAPParticipant } from '../types/poap/POAPParticipant';
@@ -13,6 +21,9 @@ import MongoDbUtils from './MongoDbUtils';
 import { POAPTwitterParticipants } from '../types/poap/POAPTwitterParticipants';
 import TwitterApi, { DirectMessageCreateV1Result } from 'twitter-api-v2';
 import apiKeys from '../service/constants/apiKeys';
+import { Buffer } from 'buffer';
+import ServiceUtils from './ServiceUtils';
+import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
 
 export type POAPFileParticipant = {
 	discordUserId: string,
@@ -111,7 +122,7 @@ const POAPUtils = {
 		Log.debug('finished setting endDate for present participants in db');
 	},
 	
-	async askForPOAPLinks(guildMember: GuildMember, isDmOn: boolean, numberOfParticipants: number, ctx?: CommandContext): Promise<MessageAttachment> {
+	async askForPOAPLinks(guildMember: GuildMember, isDmOn: boolean, numberOfParticipants: number, ctx?: CommandContext, adminChannel?: TextChannel): Promise<MessageAttachment> {
 		Log.debug('asking poap organizer for poap links attachment');
 		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have a least ${numberOfParticipants} link(s). Each link should be on a new line.`;
 		const replyOptions: AwaitMessagesOptions = {
@@ -129,8 +140,11 @@ const POAPUtils = {
 			await ctx.sendFollowUp(uploadLinksMsg);
 			const guildChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
 			poapLinksFile = (await guildChannel.awaitMessages(replyOptions)).first().attachments.first();
+		} else {
+			await adminChannel.send(uploadLinksMsg);
+			poapLinksFile = (await adminChannel.awaitMessages(replyOptions)).first().attachments.first();
 		}
-		Log.debug('obtained poap links attachment in discord');
+		Log.debug(`obtained poap links attachment in discord: ${poapLinksFile.url}`);
 		return poapLinksFile;
 	},
 	
@@ -165,9 +179,11 @@ const POAPUtils = {
 		const length = listOfParticipants.length;
 		const isListOfPoapLinksPresent: boolean = listOfPOAPLinks != null && listOfPOAPLinks.length >= 1;
 		
-		if (listOfPOAPLinks.length < listOfParticipants.length) {
+		if (isListOfPoapLinksPresent && listOfPOAPLinks.length < listOfParticipants.length) {
 			throw new ValidationError('There is not enough POAP links for all the participants!');
 		}
+		
+		const poapHostRegex = /^http[s]?:\/\/poap\.xyz\/.*$/gis;
 		
 		while (i < length) {
 			const participant: POAPFileParticipant = listOfParticipants.pop();
@@ -186,6 +202,23 @@ const POAPUtils = {
 				throw new ValidationError('There appears to be a parsing error. Please check that the discordUserID is greater than 16 digits.');
 			}
 			try {
+				if (!poapLink.match(poapHostRegex)) {
+					Log.warn('invalid POAP link provided', {
+						indexMeta: true,
+						meta: {
+							participantId: guildMember.user.id,
+							participantTag: guildMember.user.tag,
+							discordServerId: guildMember.guild.id,
+							event: event,
+						},
+					});
+					failedPOAPsList.push({
+						discordUserId: participant.discordUserId,
+						discordUserTag: participant.discordUserTag,
+						poapLink: 'Invalid POAP link',
+					});
+					continue;
+				}
 				const participantMember = await guildMember.guild.members.fetch(participant.discordUserId);
 				await participantMember.send({ content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${poapLink}` }).catch((e) => {
 					failedPOAPsList.push({
@@ -321,6 +354,56 @@ const POAPUtils = {
 			Log.warn('missing platform type when trying to setup failed attendees');
 		}
 		Log.debug('stored poap claims for failed degens');
+	},
+	
+	async handleDistributionResults(
+		ctx: CommandContext, isDmOn: boolean, guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipant[],
+		numberOfParticipants: number, channelExecution?: TextChannel,
+	): Promise<void> {
+		const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(listOfFailedPOAPs);
+		let distributionEmbedMsg: MessageOptionsSlash | MessageOptions = {
+			embeds: [
+				{
+					title: 'POAPs Distribution Results',
+					fields: [
+						{ name: 'Attempted to Send', value: `${numberOfParticipants}`, inline: true },
+						{ name: 'Successfully Sent... wgmi', value: `${numberOfParticipants - listOfFailedPOAPs.length}`, inline: true },
+						{ name: 'Failed to Send... ngmi', value: `${listOfFailedPOAPs.length}`, inline: true },
+					],
+				},
+			],
+		};
+		
+		if (isDmOn) {
+			distributionEmbedMsg = distributionEmbedMsg as MessageOptions;
+			distributionEmbedMsg.files = [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }];
+			await guildMember.send(distributionEmbedMsg).catch(Log.error);
+		} else if (ctx) {
+			distributionEmbedMsg = distributionEmbedMsg as MessageOptionsSlash;
+			distributionEmbedMsg.file = [{ name: 'failed_to_send_poaps.csv', file: failedPOAPsBuffer }];
+			await ctx.sendFollowUp(distributionEmbedMsg);
+		} else {
+			distributionEmbedMsg = distributionEmbedMsg as MessageOptions;
+			await channelExecution.send(distributionEmbedMsg);
+		}
+		
+		Log.info('POAPs Distributed', {
+			indexMeta: true,
+			meta: {
+				guildId: guildMember.guild.id,
+				guildName: guildMember.guild.name,
+				totalParticipants: numberOfParticipants,
+			},
+		});
+		if (listOfFailedPOAPs.length <= 0) {
+			Log.debug('all poap successfully delivered');
+			const deliveryMsg = 'All POAPs delivered!';
+			if (isDmOn) {
+				await guildMember.send({ content: deliveryMsg }).catch(Log.error);
+			} else if (ctx) {
+				await ctx.sendFollowUp(deliveryMsg);
+			}
+		}
 	},
 
 	validateEvent(event?: string): void {

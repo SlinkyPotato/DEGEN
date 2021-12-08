@@ -19,7 +19,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Pro
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hi! Let me check your twitter info');
 	if (!isDmOn) {
-		await ServiceUtils.sendOutErrorMessage(ctx, 'POAP minting is temporarily turned off. Please reach out to support with any questions');
+		await ServiceUtils.sendOutErrorMessage(ctx, 'Account verification is temporarily turned off. Please reach out to support with any questions.');
 		return;
 	}
 	

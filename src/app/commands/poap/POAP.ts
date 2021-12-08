@@ -236,8 +236,8 @@ module.exports = class poap extends SlashCommand {
 					command = ModifyPOAP(ctx, guildMember, authorizedRoles, authorizedUsers);
 				}
 				break;
-			case 'schedule':
-				command = SchedulePOAP(ctx, guildMember, ctx.options.schedule['mint-copies']);
+			case 'mint':
+				command = SchedulePOAP(ctx, guildMember, ctx.options.mint['mint-copies']);
 				break;
 			case 'start':
 				platform = ctx.options.start['platform'] != null && ctx.options.start['platform'] != '' ? ctx.options.start['platform'] : constants.PLATFORM_TYPE_DISCORD;

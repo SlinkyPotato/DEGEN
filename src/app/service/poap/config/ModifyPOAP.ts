@@ -11,7 +11,8 @@ import ValidationError from '../../../errors/ValidationError';
 import { Collection } from '@discordjs/collection';
 import {
 	BulkWriteError,
-	Collection as MongoCollection, CollectionInsertManyOptions,
+	Collection as MongoCollection,
+	CollectionInsertManyOptions,
 	InsertWriteOpResult,
 	MongoError,
 } from 'mongodb';

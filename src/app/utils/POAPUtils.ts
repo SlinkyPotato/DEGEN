@@ -403,6 +403,13 @@ const POAPUtils = {
 			} else if (ctx) {
 				await ctx.sendFollowUp(deliveryMsg);
 			}
+		} else {
+			const deliveryMsg = 'Some degens didn\'t make it. They can claim their poap with `/poap claim`';
+			if (isDmOn) {
+				await guildMember.send({ content: deliveryMsg }).catch(Log.error);
+			} else if (ctx) {
+				await ctx.sendFollowUp(deliveryMsg);
+			}
 		}
 	},
 

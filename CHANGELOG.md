@@ -15,7 +15,7 @@
    - surround error log in try/catch block
 8. Add a security check for the poap urls that are passed
    - default platform to discord
-   
+9. Fix poap mint name variable
 
 ## 2.2.0-RELEASE (2021-11-30)
 

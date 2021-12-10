@@ -44,7 +44,7 @@ export default class Account extends SlashCommand {
 		if (ctx.user.bot) return;
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
 		try {
-			await VerifyTwitter(ctx, guildMember);
+			await VerifyTwitter(ctx, guildMember).catch(e => { throw e; });
 		} catch (e) {
 			LogUtils.logError('failed to verify user', e, guildMember.guild.id);
 			await ServiceUtils.sendOutErrorMessage(ctx);

@@ -8,7 +8,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import StartPOAP from '../../service/poap/start/StartPOAP';
 import ValidationError from '../../errors/ValidationError';
 import EarlyTermination from '../../errors/EarlyTermination';
-import EndPOAP from '../../service/poap/EndPOAP';
+import EndPOAP from '../../service/poap/end/EndPOAP';
 import DistributePOAP from '../../service/poap/DistributePOAP';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
 import Log, { LogUtils } from '../../utils/Log';
@@ -105,7 +105,7 @@ module.exports = class poap extends SlashCommand {
 							required: true,
 						},
 						{
-							name: 'duration-minutes',
+							name: 'duration',
 							type: CommandOptionType.STRING,
 							description: 'Number of minutes the event will remain active.',
 							required: false,
@@ -278,10 +278,10 @@ module.exports = class poap extends SlashCommand {
 	handleCommandError(ctx: CommandContext, command: Promise<any>) {
 		command.catch(async e => {
 			if (e instanceof ValidationError) {
-				await ctx.sendFollowUp({ content: `${e.message}`, ephemeral: true });
+				await ctx.send({ content: `${e.message}`, ephemeral: true });
 				return;
 			} else if (e instanceof EarlyTermination) {
-				await ctx.sendFollowUp({ content: `${e.message}`, ephemeral: true });
+				await ctx.send({ content: `${e.message}`, ephemeral: true });
 				return;
 			} else {
 				LogUtils.logError('failed to handle poap command', e);

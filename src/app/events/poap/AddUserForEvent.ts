@@ -5,7 +5,7 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import { POAPParticipant } from '../../types/poap/POAPParticipant';
 import Log, { LogUtils } from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
-import EndPOAP from '../../service/poap/EndPOAP';
+import EndPOAP from '../../service/poap/end/EndPOAP';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (oldState: VoiceState, newState: VoiceState): Promise<any> => {

@@ -19,12 +19,6 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 		await ctx.send('Please try poap distribution within discord channel');
 		return;
 	}
-	if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		if (ctx) {
-			await ServiceUtils.sendOutErrorMessage(ctx, 'Twitter is temporarily turned off. Please reach out to support with any questions');
-		}
-		return;
-	}
 	
 	Log.debug('starting poap distribution for discord...');
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
@@ -39,7 +33,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 		await ctx.sendFollowUp({ content: 'Please check your DMs!', ephemeral: true });
 	}
 	
-	const participantsList: POAPFileParticipant[] = await askForParticipantsList(guildMember, platform, isDmOn, ctx) as POAPFileParticipant[];
+	let participantsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = await askForParticipantsList(guildMember, platform, isDmOn, ctx);
 	const numberOfParticipants: number = participantsList.length;
 	
 	if (numberOfParticipants <= 0) {
@@ -47,12 +41,19 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 		return;
 	}
 	
+	if (platform == constants.PLATFORM_TYPE_TWITTER) {
+		await distributeTwitterFlow(ctx, guildMember, participantsList as TwitterPOAPFileParticipant[], event, isDmOn);
+		return;
+	}
+	
+	participantsList = participantsList as POAPFileParticipant[];
+	
 	if (!participantsList[0].discordUserId) {
 		const msg = 'parsing failed, please try a csv file with headers discordUserId';
 		if (isDmOn) {
 			await guildMember.send({ content: msg }).catch(Log.error);
 		} else {
-			await ctx.sendFollowUp({ content: msg });
+			await ctx.send({ content: msg });
 		}
 		throw Error('failed to parse');
 	}
@@ -118,25 +119,31 @@ export const askForParticipantsList = async (guildMember: GuildMember, platform:
 	return participantsList;
 };
 
-// TODO: enable for twitter flow
-// const distributeTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, participantsList: TwitterPOAPFileParticipant[], event: string) => {
-// 	Log.debug('distributing POAP for Twitter');
-// 	const numberOfParticipants: number = participantsList.length;
-// 	if (!participantsList[0].twitterUserId) {
-// 		await guildMember.send({ content: 'parsing failed, please try a csv file with headers twitterUserId' }).catch(Log.error);
-// 		throw Error('failed to parse');
-// 	}
-//
-// 	let failedPOAPsList: TwitterPOAPFileParticipant[];
-// 	if (!participantsList[0].poapLink) {
-// 		const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, false, numberOfParticipants, ctx);
-// 		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
-// 		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event, listOfPOAPLinks);
-// 	} else {
-// 		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event);
-// 	}
-// 	if (!(await handleDistributionResults(guildMember, numberOfParticipants, failedPOAPsList))) {
-// 		// await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_TWITTER, ctx);
-// 	}
-// 	Log.debug('poap distribution finished');
-// };
+const distributeTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, participantsList: TwitterPOAPFileParticipant[], event: string, isDmOn: boolean) => {
+	Log.debug('distributing POAP for Twitter');
+	const numberOfParticipants: number = participantsList.length;
+	if (!participantsList[0].twitterUserId) {
+		const msg = 'parsing failed, please try a csv file with headers twitterUserId';
+		if (isDmOn) {
+			await guildMember.send({ content: msg }).catch(Log.error);
+		} else {
+			await ctx.send({ content: msg, ephemeral: true });
+		}
+		throw Error('failed to parse');
+	}
+
+	let failedPOAPsList: TwitterPOAPFileParticipant[];
+	if (!participantsList[0].poapLink) {
+		const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, false, numberOfParticipants, ctx);
+		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
+		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event, listOfPOAPLinks);
+	} else {
+		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event);
+	}
+	await POAPUtils.handleDistributionResults(ctx, isDmOn, guildMember, failedPOAPsList, numberOfParticipants);
+	
+	if (failedPOAPsList.length > 0) {
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_TWITTER, isDmOn, ctx);
+	}
+	Log.debug('poap distribution complete');
+};

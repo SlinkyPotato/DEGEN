@@ -357,7 +357,7 @@ const POAPUtils = {
 	},
 	
 	async handleDistributionResults(
-		ctx: CommandContext, isDmOn: boolean, guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipant[],
+		ctx: CommandContext, isDmOn: boolean, guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipant[] | TwitterPOAPFileParticipant[],
 		numberOfParticipants: number, channelExecution?: TextChannel,
 	): Promise<void> {
 		const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(listOfFailedPOAPs);

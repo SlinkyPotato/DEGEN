@@ -26,7 +26,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Pro
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hi! Let me check your twitter info');
 	
 	if (isDmOn) {
-		await ctx.sendFollowUp({ content: 'DM sent!' });
+		await ctx.send({ content: 'DM sent!', ephemeral: true });
 	}
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);

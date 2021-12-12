@@ -4,7 +4,7 @@ import { Collection, Cursor, Db } from 'mongodb';
 import constants from '../constants/constants';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 import dayjs from 'dayjs';
-import EndPOAP from './EndPOAP';
+import EndPOAP from './end/EndPOAP';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
 import { storePresentMembers } from './start/StartPOAP';

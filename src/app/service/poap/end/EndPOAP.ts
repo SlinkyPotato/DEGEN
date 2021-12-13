@@ -31,7 +31,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	}
 	
 	const poapSettingsDB: Collection<POAPSettings> = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
-	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
+	const poapSettingsDoc: POAPSettings | null = await poapSettingsDB.findOne({
 		discordUserId: guildMember.user.id,
 		discordServerId: guildMember.guild.id,
 		isActive: true,
@@ -45,7 +45,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	Log.debug('active poap event found');
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one');
-	let channelExecution: TextChannel;
+	let channelExecution: TextChannel | null = null;
 	
 	if (!isDmOn && ctx) {
 		await ctx.sendFollowUp({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠' });
@@ -81,7 +81,13 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 			event: poapSettingsDoc.event,
 		},
 	});
-	const channel: GuildChannel = await guildMember.guild.channels.fetch(poapSettingsDoc.voiceChannelId);
+	const channel: GuildChannel | null = await guildMember.guild.channels.fetch(poapSettingsDoc.voiceChannelId);
+	
+	if (channel == null) {
+		Log.warn('channel not found');
+		return;
+	}
+	
 	const listOfParticipants: POAPFileParticipant[] = await POAPUtils.getListOfParticipants(db, channel);
 	const numberOfParticipants: number = listOfParticipants.length;
 	
@@ -124,7 +130,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		embedOptions = embedOptions as MessageOptionsSlash;
 		embedOptions.file = [{ name: fileName, file: bufferFile }];
 		await ctx.send(embedOptions);
-	} else {
+	} else if (channelExecution != null) {
 		embedOptions = embedOptions as MessageOptions;
 		embedOptions.files = [{ name: fileName, attachment: bufferFile }];
 		await channelExecution.send(embedOptions);
@@ -137,7 +143,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, isDmOn, numberOfParticipants, ctx, channelExecution);
 	const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
 	const listOfFailedPOAPs: POAPFileParticipant[] = await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapSettingsDoc.event, listOfPOAPLinks);
-	await POAPUtils.handleDistributionResults(ctx, isDmOn, guildMember, listOfFailedPOAPs, numberOfParticipants, channelExecution);
+	await POAPUtils.handleDistributionResults(isDmOn, guildMember, listOfFailedPOAPs, numberOfParticipants, channelExecution, ctx);
 	
 	if (listOfFailedPOAPs.length > 0) {
 		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, constants.PLATFORM_TYPE_DISCORD, isDmOn, ctx);

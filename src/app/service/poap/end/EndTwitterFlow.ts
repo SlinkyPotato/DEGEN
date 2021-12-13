@@ -23,7 +23,7 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 	Log.debug('starting twitter poap end flow...');
 	
 	const poapTwitterSettings: Collection<POAPTwitterSettings> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_SETTINGS);
-	const activeTwitterSettings: POAPTwitterSettings = await poapTwitterSettings.findOne({
+	const activeTwitterSettings: POAPTwitterSettings | null = await poapTwitterSettings.findOne({
 		discordUserId: guildMember.id,
 		discordServerId: guildMember.guild.id,
 		isActive: true,

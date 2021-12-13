@@ -1,6 +1,7 @@
 import {
 	DMChannel,
 	GuildMember,
+	Message,
 	MessageAttachment,
 	TextChannel,
 } from 'discord.js';
@@ -68,7 +69,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 		Log.debug('poapLink field found, will attempt to send out POAPs');
 		failedPOAPsList = await POAPUtils.sendOutPOAPLinks(guildMember, participantsList, event);
 	}
-	await POAPUtils.handleDistributionResults(ctx, isDmOn, guildMember, failedPOAPsList, numberOfParticipants);
+	await POAPUtils.handleDistributionResults(isDmOn, guildMember, failedPOAPsList, numberOfParticipants, null, ctx);
 	if (failedPOAPsList.length > 0) {
 		await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_DISCORD, isDmOn, ctx);
 	}
@@ -77,7 +78,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 
 export const askForParticipantsList = async (guildMember: GuildMember, platform: string, isDmOn: boolean, ctx: CommandContext): Promise<POAPFileParticipant[] | TwitterPOAPFileParticipant[]> => {
 	Log.debug('preparing to ask for participants list csv file');
-	let csvPrompt: string;
+	let csvPrompt = '';
 	if (platform == constants.PLATFORM_TYPE_DISCORD) {
 		csvPrompt = 'Please upload participants.csv file with header containing discordUserId. POAPs will be distributed to these degens.';
 	} else if (platform == constants.PLATFORM_TYPE_TWITTER) {
@@ -98,11 +99,20 @@ export const askForParticipantsList = async (guildMember: GuildMember, platform:
 	
 	let participantsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = [];
 	try {
-		const participantAttachment: MessageAttachment = (await contextChannel.awaitMessages({
+		const message: Message | undefined = (await contextChannel.awaitMessages({
 			max: 1,
 			time: 180000,
 			errors: ['time'],
-		})).first().attachments.first();
+		})).first();
+		if (message == null) {
+			throw new ValidationError('Invalid message');
+		}
+		const participantAttachment: MessageAttachment | undefined = message.attachments.first();
+		
+		if (participantAttachment == null) {
+			throw new ValidationError('Invalid attachment');
+		}
+		
 		Log.debug(`found participants file: ${participantAttachment.url}`);
 		const fileResponse = await axios.get(participantAttachment.url);
 		participantsList = ServiceUtils.parseCSVFile(fileResponse.data);
@@ -140,7 +150,7 @@ const distributeTwitterFlow = async (ctx: CommandContext, guildMember: GuildMemb
 	} else {
 		failedPOAPsList = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event);
 	}
-	await POAPUtils.handleDistributionResults(ctx, isDmOn, guildMember, failedPOAPsList, numberOfParticipants);
+	await POAPUtils.handleDistributionResults(isDmOn, guildMember, failedPOAPsList, numberOfParticipants, null, ctx);
 	
 	if (failedPOAPsList.length > 0) {
 		await POAPUtils.setupFailedAttendeesDelivery(guildMember, failedPOAPsList, event, constants.PLATFORM_TYPE_TWITTER, isDmOn, ctx);

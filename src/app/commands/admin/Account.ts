@@ -43,7 +43,13 @@ export default class Account extends SlashCommand {
 	async run(ctx: CommandContext): Promise<any> {
 		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;
-		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
+		
+		if (ctx.guildID == null) {
+			await ctx.send({ content: 'Please try this command within a discord server.' });
+			return;
+		}
+		
+		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx.guildID, ctx.user.id);
 		try {
 			await VerifyTwitter(ctx, guildMember).catch(e => { throw e; });
 		} catch (e) {

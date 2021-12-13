@@ -3,6 +3,7 @@ import {
 	DMChannel,
 	GuildChannel,
 	GuildMember,
+	Message,
 	MessageAttachment,
 	MessageOptions,
 	TextChannel,
@@ -24,6 +25,7 @@ import apiKeys from '../service/constants/apiKeys';
 import { Buffer } from 'buffer';
 import ServiceUtils from './ServiceUtils';
 import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
+import { TwitterApiTokens } from 'twitter-api-v2/dist/types';
 
 export type POAPFileParticipant = {
 	discordUserId: string,
@@ -112,17 +114,20 @@ const POAPUtils = {
 						durationInMinutes: durationInMinutes,
 					},
 				});
+				if (result == null) {
+					throw new Error('Mongodb operation failed');
+				}
 			} catch (e) {
 				LogUtils.logError('failed to update poap participants with endTime', e);
-			}
-			if (result == null) {
-				throw new Error('Mongodb operation failed');
 			}
 		}
 		Log.debug('finished setting endDate for present participants in db');
 	},
 	
-	async askForPOAPLinks(guildMember: GuildMember, isDmOn: boolean, numberOfParticipants: number, ctx?: CommandContext, adminChannel?: TextChannel): Promise<MessageAttachment> {
+	async askForPOAPLinks(
+		guildMember: GuildMember, isDmOn: boolean, numberOfParticipants: number, ctx?: CommandContext,
+		adminChannel?: TextChannel | null,
+	): Promise<MessageAttachment> {
 		Log.debug('asking poap organizer for poap links attachment');
 		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have a least ${numberOfParticipants} link(s). Each link should be on a new line.`;
 		const replyOptions: AwaitMessagesOptions = {
@@ -131,19 +136,31 @@ const POAPUtils = {
 			errors: ['time'],
 			filter: m => m.author.id == guildMember.user.id,
 		};
-		let poapLinksFile: MessageAttachment;
+		
+		let message: Message | undefined;
 		if (isDmOn) {
 			await guildMember.send({ content: uploadLinksMsg });
 			const dmChannel: DMChannel = await guildMember.createDM();
-			poapLinksFile = (await dmChannel.awaitMessages(replyOptions)).first().attachments.first();
+			message = (await dmChannel.awaitMessages(replyOptions)).first();
 		} else if (ctx) {
 			await ctx.sendFollowUp(uploadLinksMsg);
 			const guildChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
-			poapLinksFile = (await guildChannel.awaitMessages(replyOptions)).first().attachments.first();
-		} else {
+			message = (await guildChannel.awaitMessages(replyOptions)).first();
+		} else if (adminChannel != null) {
 			await adminChannel.send(uploadLinksMsg);
-			poapLinksFile = (await adminChannel.awaitMessages(replyOptions)).first().attachments.first();
+			message = (await adminChannel.awaitMessages(replyOptions)).first();
 		}
+		
+		if (message == null) {
+			throw new ValidationError('invalid poap file');
+		}
+		
+		const poapLinksFile: MessageAttachment | undefined = message.attachments.first();
+		
+		if (poapLinksFile == null) {
+			throw new ValidationError('please try again');
+		}
+		
 		Log.debug(`obtained poap links attachment in discord: ${poapLinksFile.url}`);
 		return poapLinksFile;
 	},
@@ -177,17 +194,27 @@ const POAPUtils = {
 		
 		let i = 0;
 		const length = listOfParticipants.length;
-		const isListOfPoapLinksPresent: boolean = listOfPOAPLinks != null && listOfPOAPLinks.length >= 1;
 		
-		if (isListOfPoapLinksPresent && listOfPOAPLinks.length < listOfParticipants.length) {
+		if (listOfPOAPLinks != null && listOfPOAPLinks.length < listOfParticipants.length) {
 			throw new ValidationError('There is not enough POAP links for all the participants!');
 		}
 		
 		const poapHostRegex = /^http[s]?:\/\/poap\.xyz\/.*$/gis;
 		
 		while (i < length) {
-			const participant: POAPFileParticipant = listOfParticipants.pop();
-			const poapLink = (isListOfPoapLinksPresent) ? listOfPOAPLinks.pop() : participant.poapLink;
+			const participant: POAPFileParticipant | undefined = listOfParticipants.pop();
+			if (participant == null) {
+				++i;
+				continue;
+			}
+			
+			let poapLink: string | undefined = '';
+			if (listOfPOAPLinks) {
+				poapLink = listOfPOAPLinks.pop();
+			} else {
+				poapLink = participant.poapLink;
+			}
+			
 			if (poapLink == null || poapLink == '') {
 				Log.warn('ran out of poap links...');
 				failedPOAPsList.push({
@@ -251,16 +278,31 @@ const POAPUtils = {
 		
 		let i = 0;
 		const length = listOfParticipants.length;
-		const isListOfPoapLinksPresent: boolean = listOfPOAPLinks != null && listOfPOAPLinks.length >= 1;
+		
+		if (listOfPOAPLinks != null && listOfPOAPLinks.length < listOfParticipants.length) {
+			throw new ValidationError('There is not enough POAP links for all the participants!');
+		}
+		
 		const twitterClient: TwitterApi = new TwitterApi({
 			appKey: apiKeys.twitterAppToken,
 			appSecret: apiKeys.twitterAppSecret,
 			accessToken: apiKeys.twitterAccessToken,
 			accessSecret: apiKeys.twitterSecretToken,
-		});
+		} as TwitterApiTokens);
 		while (i < length) {
-			const participant: TwitterPOAPFileParticipant = listOfParticipants.pop();
-			const poapLink = (isListOfPoapLinksPresent) ? listOfPOAPLinks.pop() : participant.poapLink;
+			const participant: TwitterPOAPFileParticipant | undefined = listOfParticipants.pop();
+			if (participant == null) {
+				i++;
+				continue;
+			}
+			
+			let poapLink: string | undefined = '';
+			if (listOfPOAPLinks) {
+				poapLink = listOfPOAPLinks.pop();
+			} else {
+				poapLink = participant.poapLink;
+			}
+			
 			if (poapLink == null || poapLink == '') {
 				Log.warn('ran out of poap links...');
 				failedPOAPList.push({
@@ -357,8 +399,8 @@ const POAPUtils = {
 	},
 	
 	async handleDistributionResults(
-		ctx: CommandContext, isDmOn: boolean, guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipant[] | TwitterPOAPFileParticipant[],
-		numberOfParticipants: number, channelExecution?: TextChannel,
+		isDmOn: boolean, guildMember: GuildMember, listOfFailedPOAPs: POAPFileParticipant[] | TwitterPOAPFileParticipant[],
+		numberOfParticipants: number, channelExecution?: TextChannel | null, ctx?: CommandContext,
 	): Promise<void> {
 		const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(listOfFailedPOAPs);
 		let distributionEmbedMsg: MessageOptionsSlash | MessageOptions = {
@@ -382,7 +424,7 @@ const POAPUtils = {
 			distributionEmbedMsg = distributionEmbedMsg as MessageOptionsSlash;
 			distributionEmbedMsg.file = [{ name: 'failed_to_send_poaps.csv', file: failedPOAPsBuffer }];
 			await ctx.sendFollowUp(distributionEmbedMsg);
-		} else {
+		} else if (channelExecution) {
 			distributionEmbedMsg = distributionEmbedMsg as MessageOptions;
 			await channelExecution.send(distributionEmbedMsg);
 		}

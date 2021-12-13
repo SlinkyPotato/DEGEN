@@ -14,13 +14,14 @@ import {
 	CommandContext,
 	MessageEmbedOptions as MessageEmbedSlash,
 } from 'slash-create';
+import { TwitterApiTokens } from 'twitter-api-v2/dist/types/client.types';
 
 export type VerifiedTwitter = {
 	twitterUser: UserV1,
 	twitterClientV1: TwitterApi
 };
 
-const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Promise<VerifiedTwitter> => {
+const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Promise<VerifiedTwitter | undefined> => {
 	Log.debug('starting to verify twitter account link');
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hi! Let me check your twitter info');
@@ -33,7 +34,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Pro
 	const accountsCollection: Collection<NextAuthAccountCollection> = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);
 	
 	Log.debug('looking for discord auth account');
-	const nextAuthAccount: NextAuthAccountCollection = await accountsCollection.findOne({
+	const nextAuthAccount: NextAuthAccountCollection | null = await accountsCollection.findOne({
 		providerId: 'discord',
 		providerAccountId: guildMember.user.id.toString(),
 	});
@@ -69,7 +70,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Pro
 			appSecret: apiKeys.twitterAppSecret,
 			accessToken: twitterAccessToken,
 			accessSecret: twitterAccessSecret,
-		});
+		} as TwitterApiTokens);
 
 		Log.debug('testing validity of twitter account');
 		userCall = await userClient.currentUser(true);
@@ -135,9 +136,9 @@ const sendTwitterAuthenticationMessage = async (guildMember: GuildMember, ctx: C
 		],
 	};
 	if (isDmOn) {
-		await guildMember.send({ embeds: [ embedsMsg as MessageEmbedOptions ] });
+		await guildMember.send({ embeds: [ embedsMsg as MessageEmbedOptions ] }).catch(Log.error);
 	} else {
-		await ctx.send({ embeds: [embedsMsg as MessageEmbedSlash], ephemeral: true });
+		await ctx.send({ embeds: [embedsMsg as MessageEmbedSlash], ephemeral: true }).catch(Log.error);
 	}
 };
 

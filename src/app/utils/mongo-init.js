@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * Script to create local databases
  */

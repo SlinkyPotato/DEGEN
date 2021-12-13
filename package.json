@@ -54,6 +54,7 @@
     },
     "devDependencies": {
         "@shelf/jest-mongodb": "^2.1.0",
+        "@types/bson": "^4.2.0",
         "@types/jest": "^27.0.1",
         "@types/mongodb": "^3.6.20",
         "@typescript-eslint/eslint-plugin": "^4.26.0",

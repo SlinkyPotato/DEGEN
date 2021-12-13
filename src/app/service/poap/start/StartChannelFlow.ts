@@ -18,6 +18,7 @@ import {
 } from 'mongodb';
 import { Collection } from '@discordjs/collection';
 import { MessageEmbedOptions as MessageEmbedOptionsSlash } from 'slash-create/lib/structures/message';
+import ValidationError from '../../../errors/ValidationError';
 const StartChannelFlow = async (
 	ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration: number,
 	poapSettingsDB: CollectionMongo<POAPSettings>,
@@ -31,9 +32,12 @@ const StartChannelFlow = async (
 	
 	const channel: TextChannel = await guildMember.guild.channels.fetch(message.channelID) as TextChannel;
 	
-	const channelChoice: GuildChannel = await askUserForChannel(guildMember, channel, voiceChannels, false, ctx);
+	const channelChoice: GuildChannel | undefined = await askUserForChannel(guildMember, channel, voiceChannels, false, ctx);
+	if (!channelChoice) {
+		throw new ValidationError('Missing channel');
+	}
 	
-	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
+	const poapSettingsDoc: POAPSettings | null = await poapSettingsDB.findOne({
 		discordServerId: channelChoice.guild.id,
 		voiceChannelId: channelChoice.id,
 	});

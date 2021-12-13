@@ -3,6 +3,8 @@
 ## 2.4.0-SNAPSHOT
 
 1. Enable twitter flow in channel
+2. Enable tsconfig strict option
+3. Misc cleanup and stability enhancements
 
 ## 2.3.0-RELEASE (2021-12-07)
 

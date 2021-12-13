@@ -10,6 +10,7 @@ import { POAPTwitterSettings } from '../../types/poap/POAPTwitterSettings';
 import { storePresentMembers } from './start/StartPOAP';
 import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
 import { POAPTwitterUnclaimedParticipants } from '../../types/poap/POAPTwitterUnclaimedParticipants';
+import ValidationError from '../../errors/ValidationError';
 
 const POAPService = {
 	runAutoEndSetup: async (client: DiscordClient, platform: string): Promise<void> => {
@@ -65,7 +66,10 @@ const POAPService = {
 			if (platform == constants.PLATFORM_TYPE_DISCORD) {
 				try {
 					const guild: Guild = await client.guilds.fetch(activeEvent.discordServerId);
-					const channelChoice: GuildChannel = await guild.channels.fetch(activeEvent.voiceChannelId);
+					const channelChoice: GuildChannel | null = await guild.channels.fetch(activeEvent.voiceChannelId);
+					if (!channelChoice) {
+						throw new ValidationError('Missing channel');
+					}
 					await storePresentMembers(db, channelChoice).catch();
 				} catch (e) {
 					LogUtils.logError('failed trying to store present members for active poap event', e);
@@ -119,7 +123,7 @@ const POAPService = {
 			
 			Log.debug('deleted all expired poaps');
 		} catch (e) {
-			Log.error('failed to delete expired poaps', e);
+			LogUtils.logError('failed to delete expired poaps', e);
 		}
 	},
 };

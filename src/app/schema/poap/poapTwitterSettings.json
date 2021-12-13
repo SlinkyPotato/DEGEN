@@ -8,7 +8,8 @@
       "twitterId",
       "discordServerId",
       "startDate",
-      "endDate"
+      "endDate",
+      "channelExecutionId"
     ],
     "properties": {
       "event": {
@@ -46,6 +47,10 @@
       "minAttendance": {
         "bsonType": "string",
         "description": "Minimum attendance time required in minutes."
+      },
+      "channelExecutionId": {
+        "bsonType": ["string", "null"],
+        "description": "ChannelId of where the poap start command was executed"
       }
     }
   }

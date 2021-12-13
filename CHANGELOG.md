@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.4.0-SNAPSHOT
+## 2.4.0-RELEASE (2021-12-14)
 
 1. Enable twitter flow in channel
 2. Enable tsconfig strict option

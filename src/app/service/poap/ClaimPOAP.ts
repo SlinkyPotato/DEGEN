@@ -75,7 +75,7 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 		unclaimedParticipantsCollection.deleteMany({
 			discordUserId: ctx.user.id,
 		});
-	}, 300000);
+	}, 1000 * 60 * 60 * 24);
 	
 	Log.debug('POAP claimed');
 };

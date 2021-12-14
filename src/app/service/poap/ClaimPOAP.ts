@@ -128,7 +128,7 @@ const claimPOAPForTwitter = async (ctx: CommandContext, guildMember: GuildMember
 		unclaimedParticipantsCollection.deleteMany({
 			twitterUserId: verifiedTwitter.twitterUser.id_str,
 		});
-	}, 600000);
+	}, 1000 * 60 * 60 * 24);
 	
 	Log.debug('POAP claimed.');
 };

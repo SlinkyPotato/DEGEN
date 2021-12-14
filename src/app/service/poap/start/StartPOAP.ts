@@ -61,7 +61,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 		discordServerId: guildMember.guild.id,
 		isActive: true,
 	});
-	const activeSettings: POAPSettings = await activeSettingsCursor.next();
+	const activeSettings: POAPSettings | null = await activeSettingsCursor.next();
 	if (activeSettings != null) {
 		Log.debug('unable to start due to active event');
 		throw new ValidationError(`Please end \`${activeSettings.voiceChannelName}\` event before starting a new event.`);
@@ -78,7 +78,10 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) as MessageEmbedOptions[] });
 	await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
 	const channel: DMChannel = await message.channel.fetch() as DMChannel;
-	const channelChoice: GuildChannel = await askUserForChannel(guildMember, channel, voiceChannels, true, ctx);
+	const channelChoice: GuildChannel | undefined = await askUserForChannel(guildMember, channel, voiceChannels, true, ctx);
+	if (!channelChoice) {
+		throw new ValidationError('Missing channel');
+	}
 
 	const poapSettingsDoc: POAPSettings = await poapSettingsDB.findOne({
 		discordServerId: channelChoice.guild.id,
@@ -183,7 +186,7 @@ export const askUserForChannel = async (
 	voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>,
 	isDmOn: boolean,
 	ctx?: CommandContext,
-): Promise<GuildChannel> => {
+): Promise<GuildChannel | undefined> => {
 	Log.debug('asking poap organizer for channel');
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -195,7 +198,11 @@ export const askUserForChannel = async (
 	let channelChoice: string;
 	do {
 		try {
-			channelChoice = (await channel.awaitMessages(replyOptions)).first().content;
+			const message: Message | undefined = (await channel.awaitMessages(replyOptions)).first();
+			if (message == null) {
+				throw new Error('missing message');
+			}
+			channelChoice = message.content;
 		} catch (e) {
 			LogUtils.logError('failed to capture channel', e);
 			throw new ValidationError('Please enable view channel and send messages permission for this channel.');
@@ -265,5 +272,5 @@ export const setActiveEventInDb = async (guildMember: GuildMember, db: Db, chann
 	
 	Log.debug(`found and updated poap settings for ${guildMember.user.tag}`);
 	await storePresentMembers(db, channelChoice);
-	POAPService.setupAutoEndForEvent(guildMember.client, activeEventResult.value, constants.PLATFORM_TYPE_DISCORD);
+	POAPService.setupAutoEndForEvent(guildMember.client, activeEventResult.value as POAPSettings, constants.PLATFORM_TYPE_DISCORD);
 };

@@ -44,7 +44,7 @@ const PoapAPI = {
 				expiresIn: response.data.expires_in,
 				tokenType: response.data.token_type,
 			};
-		} catch (e) {
+		} catch (e: Error | any) {
 			LogUtils.logError('failed to request poap auth token', e);
 			Log.warn('poap response', {
 				indexMeta: true,
@@ -52,8 +52,8 @@ const PoapAPI = {
 					error: e.toJSON,
 				},
 			});
-			if (e.response.status == '400') {
-				throw new ValidationError(`${e.response.data.message}`);
+			if (e.response?.status == '400') {
+				throw new ValidationError(`${e.response?.data?.message}`);
 			}
 			throw new Error('poap auth request failed');
 		}

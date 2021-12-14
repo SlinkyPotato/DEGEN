@@ -1,4 +1,7 @@
-import { GuildMember } from 'discord.js';
+import {
+	GuildMember,
+	MessageEmbedOptions,
+} from 'discord.js';
 import apiKeys from '../constants/apiKeys';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';
@@ -7,34 +10,38 @@ import { NextAuthAccountCollection } from '../../types/nextauth/NextAuthAccountC
 import Log from '../../utils/Log';
 import { TwitterApi, UserV1 } from 'twitter-api-v2';
 import ServiceUtils from '../../utils/ServiceUtils';
-import { CommandContext } from 'slash-create';
+import {
+	CommandContext,
+	MessageEmbedOptions as MessageEmbedSlash,
+} from 'slash-create';
+import { TwitterApiTokens } from 'twitter-api-v2/dist/types/client.types';
 
 export type VerifiedTwitter = {
 	twitterUser: UserV1,
 	twitterClientV1: TwitterApi
 };
 
-const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Promise<VerifiedTwitter> => {
-	Log.debug('verifying twitter account link');
+const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Promise<VerifiedTwitter | undefined> => {
+	Log.debug('starting to verify twitter account link');
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hi! Let me check your twitter info');
-	if (!isDmOn) {
-		await ServiceUtils.sendOutErrorMessage(ctx, 'Account verification is temporarily turned off. Please reach out to support with any questions.');
-		return;
+	
+	if (isDmOn) {
+		await ctx.send({ content: 'DM sent!', ephemeral: true });
 	}
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
 	const accountsCollection: Collection<NextAuthAccountCollection> = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);
 	
 	Log.debug('looking for discord auth account');
-	const nextAuthAccount: NextAuthAccountCollection = await accountsCollection.findOne({
+	const nextAuthAccount: NextAuthAccountCollection | null = await accountsCollection.findOne({
 		providerId: 'discord',
 		providerAccountId: guildMember.user.id.toString(),
 	});
 	
 	if (nextAuthAccount == null || nextAuthAccount.userId == null) {
 		Log.debug('next auth account not found');
-		await sendTwitterAuthenticationMessage(guildMember);
+		await sendTwitterAuthenticationMessage(guildMember, ctx, isDmOn);
 		return;
 	}
 	
@@ -46,7 +53,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Pro
 	
 	if (twitterCollection == null || twitterCollection.accessToken == null) {
 		Log.debug('twitter account not linked');
-		await sendTwitterAuthenticationMessage(guildMember);
+		await sendTwitterAuthenticationMessage(guildMember, ctx, isDmOn);
 		return;
 	}
 	
@@ -63,37 +70,39 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Pro
 			appSecret: apiKeys.twitterAppSecret,
 			accessToken: twitterAccessToken,
 			accessSecret: twitterAccessSecret,
-		});
+		} as TwitterApiTokens);
 
 		Log.debug('testing validity of twitter account');
 		userCall = await userClient.currentUser(true);
 	} catch (e) {
 		Log.warn('invalid twitter auth found in db, verifyCredentials failed. Now removing from db...');
 		await removeTwitterAccountLink(nextAuthAccount);
-		await sendTwitterAuthenticationMessage(guildMember);
+		await sendTwitterAuthenticationMessage(guildMember, ctx, isDmOn);
 		return;
 	}
 	
 	if (twitterId != userCall.id_str) {
 		Log.debug('invalid twitter account, sending auth message');
-		await sendTwitterAuthenticationMessage(guildMember);
+		await sendTwitterAuthenticationMessage(guildMember, ctx, isDmOn);
 		return;
 	}
 	
 	Log.debug(`${guildMember.user.tag} has linked their twitter account, twitterId: ${twitterId}, sending message`);
-	await guildMember.send({
-		embeds: [
-			{
-				title: 'Twitter Authentication',
-				description: 'Twitter account linked 👍',
-				fields: [
-					{ name: 'Display Name', value: `${userCall.screen_name}` },
-					{ name: 'Description', value: `${ServiceUtils.prepEmbedField(userCall.description)}` },
-					{ name: 'URL', value: `https://twitter.com/${userCall.screen_name}` },
-				],
-			},
+	const verifiedEmbeds = {
+		title: 'Twitter Authentication',
+		description: 'Twitter account linked 👍',
+		fields: [
+			{ name: 'Display Name', value: `${userCall.screen_name}` },
+			{ name: 'Description', value: `${ServiceUtils.prepEmbedField(userCall.description)}` },
+			{ name: 'URL', value: `https://twitter.com/${userCall.screen_name}` },
 		],
-	});
+	};
+	if (isDmOn) {
+		await guildMember.send({ embeds: [verifiedEmbeds] });
+	} else {
+		await ctx.send({ embeds: [verifiedEmbeds], ephemeral: true });
+	}
+	
 	Log.debug('done verifying twitter account');
 	return {
 		twitterUser: userCall,
@@ -117,19 +126,20 @@ const removeTwitterAccountLink = async (nextAuthAccount: NextAuthAccountCollecti
 	return;
 };
 
-const sendTwitterAuthenticationMessage = async (guildMember: GuildMember): Promise<void> => {
+const sendTwitterAuthenticationMessage = async (guildMember: GuildMember, ctx: CommandContext, isDmOn: boolean): Promise<void> => {
 	Log.info(`${guildMember.user.tag} is not twitter authorized, sending request to link`);
-	await guildMember.send({
-		embeds: [
-			{
-				title: 'Twitter Authentication',
-				description: 'Please verify your twitter account by following the link below.',
-				fields: [
-					{ name: 'URL', value: `${apiKeys.twitterVerificationUrl}` },
-				],
-			},
+	const embedsMsg: MessageEmbedOptions | MessageEmbedSlash = {
+		title: 'Twitter Authentication',
+		description: 'Please verify your twitter account by following the link below.',
+		fields: [
+			{ name: 'URL', value: `${apiKeys.twitterVerificationUrl}` },
 		],
-	});
+	};
+	if (isDmOn) {
+		await guildMember.send({ embeds: [ embedsMsg as MessageEmbedOptions ] }).catch(Log.error);
+	} else {
+		await ctx.send({ embeds: [embedsMsg as MessageEmbedSlash], ephemeral: true }).catch(Log.error);
+	}
 };
 
 export default VerifyTwitter;

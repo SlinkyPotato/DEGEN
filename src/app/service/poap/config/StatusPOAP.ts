@@ -38,14 +38,20 @@ const StatusPOAP = async (ctx: CommandContext, guildMember: GuildMember): Promis
 	const authorizedUsers: EmbedField[] | EmbedFieldSlash[] = [];
 	
 	while (await authorizedUsersAndRolesCursor.hasNext()) {
-		const poapAdmin: POAPAdmin = await authorizedUsersAndRolesCursor.next();
+		const poapAdmin: POAPAdmin | null = await authorizedUsersAndRolesCursor.next();
+		if (poapAdmin == null) {
+			continue;
+		}
 		if (poapAdmin.objectType == 'USER') {
 			const poapAdminMember: GuildMember = await guildMember.guild.members.fetch(poapAdmin.discordObjectId);
 			authorizedUsers.push({
 				name: `${poapAdminMember.user.tag}`, value: `${poapAdminMember.user.id}`, inline: true,
 			});
 		} else if (poapAdmin.objectType == 'ROLE') {
-			const poapAdminRole: Role = await guildMember.guild.roles.fetch(poapAdmin.discordObjectId);
+			const poapAdminRole: Role | null = await guildMember.guild.roles.fetch(poapAdmin.discordObjectId);
+			if (poapAdminRole == null) {
+				continue;
+			}
 			authorizedRoles.push({
 				name: `${poapAdminRole.name}`, value: `${poapAdminRole.id}`, inline: true,
 			});

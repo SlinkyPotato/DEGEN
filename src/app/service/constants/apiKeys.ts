@@ -6,6 +6,10 @@ const apiKeys = Object.freeze({
 	twitterSecretToken: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 	twitterVerificationUrl: process.env.TWITTER_VERIFICATION_URL,
 	twitterClaimPage: process.env.TWITTER_CLAIM_PAGE,
+	
+	logDNAToken: process.env.LOGDNA_TOKEN as string,
+	logDNAAppName: process.env.LOGDNA_APP_NAME,
+	logDNADefault: process.env.LOGDNA_DEFAULT_LEVEL,
 });
 
 export default apiKeys;

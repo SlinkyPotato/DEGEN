@@ -11,4 +11,5 @@ export interface POAPTwitterSettings extends Collection {
 	discordServerId: string
 	twitterUserId: string,
 	twitterSpaceId: string,
+	channelExecutionId: string,
 }

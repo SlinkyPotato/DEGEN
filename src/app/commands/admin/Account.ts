@@ -3,6 +3,7 @@ import { LogUtils } from '../../utils/Log';
 import VerifyTwitter from '../../service/account/VerifyTwitter';
 import ServiceUtils from '../../utils/ServiceUtils';
 import discordServerIds from '../../service/constants/discordServerIds';
+import ValidationError from '../../errors/ValidationError';
 
 export default class Account extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -42,12 +43,22 @@ export default class Account extends SlashCommand {
 	async run(ctx: CommandContext): Promise<any> {
 		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;
-		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx);
+		
+		if (ctx.guildID == null) {
+			await ctx.send({ content: 'Please try this command within a discord server.' });
+			return;
+		}
+		
+		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx.guildID, ctx.user.id);
 		try {
-			await VerifyTwitter(ctx, guildMember);
+			await VerifyTwitter(ctx, guildMember).catch(e => { throw e; });
 		} catch (e) {
-			LogUtils.logError('failed to verify user', e, guildMember.guild.id);
-			await ServiceUtils.sendOutErrorMessage(ctx);
+			if (e instanceof ValidationError) {
+				await ctx.send({ content: `${e.message}`, ephemeral: true });
+			} else {
+				LogUtils.logError('failed to verify user', e, guildMember.guild.id);
+				await ServiceUtils.sendOutErrorMessage(ctx);
+			}
 		}
 	}
 }

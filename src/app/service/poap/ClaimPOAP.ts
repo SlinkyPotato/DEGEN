@@ -13,6 +13,10 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 	Log.debug(`starting claim for ${ctx.user.username}, with ID: ${ctx.user.id}`);
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
+		if (!guildMember) {
+			await ctx.send({ content: 'Please try command within discord server.', ephemeral: true });
+			return;
+		}
 		await claimPOAPForTwitter(ctx, guildMember);
 		return;
 	}
@@ -79,7 +83,10 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 const claimPOAPForTwitter = async (ctx: CommandContext, guildMember: GuildMember) => {
 	Log.debug('claiming POAP for Twitter');
 
-	const verifiedTwitter: VerifiedTwitter = await VerifyTwitter(ctx, guildMember);
+	const verifiedTwitter: VerifiedTwitter | undefined = await VerifyTwitter(ctx, guildMember);
+	if (verifiedTwitter == null) {
+		return;
+	}
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const unclaimedParticipantsCollection: Collection<POAPTwitterUnclaimedParticipants> = await db.collection(constants.DB_COLLECTION_POAP_TWITTER_UNCLAIMED_PARTICIPANTS);

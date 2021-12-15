@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.4.0-RELEASE (2021-12-14)
+
+1. Enable twitter flow in channel
+2. Enable tsconfig strict option
+3. Misc cleanup and stability enhancements
+4. Extend poap claim to 24 hours
+
 ## 2.3.0-RELEASE (2021-12-07)
 
 1. Enable poap scheduling (POAP API integration)

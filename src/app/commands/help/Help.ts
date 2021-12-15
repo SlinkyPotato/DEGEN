@@ -36,7 +36,10 @@ export default class Help extends SlashCommand {
 		case 'poap':
 			messageOptions = HowToPOAP();
 			break;
+		default:
+			messageOptions = { content: 'Invalid command selected' };
+			break;
 		}
-		return ctx.send(messageOptions);
+		await ctx.send(messageOptions);
 	}
 }

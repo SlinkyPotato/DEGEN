@@ -5,7 +5,7 @@ import { POAPSettings } from '../../types/poap/POAPSettings';
 import { POAPParticipant } from '../../types/poap/POAPParticipant';
 import Log, { LogUtils } from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
-import EndPOAP from '../../service/poap/EndPOAP';
+import EndPOAP from '../../service/poap/end/EndPOAP';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 
 export default async (oldState: VoiceState, newState: VoiceState): Promise<any> => {
@@ -15,7 +15,12 @@ export default async (oldState: VoiceState, newState: VoiceState): Promise<any> 
 	}
 	
 	const guild: Guild = (oldState.guild != null) ? oldState.guild : newState.guild;
-	const member: GuildMember = (oldState.guild != null) ? oldState.member : newState.member;
+	const member: GuildMember | null = (oldState.guild != null) ? oldState.member : newState.member;
+	
+	if (member == null) {
+		// could not find member
+		return;
+	}
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
@@ -30,7 +35,11 @@ export default async (oldState: VoiceState, newState: VoiceState): Promise<any> 
 		try {
 			const endDate: Dayjs = (poapSetting.endTime == null) ? currentDate : dayjs(poapSetting.endTime);
 			if (currentDate.isBefore(endDate)) {
-				const voiceChannel: GuildChannel = await guild.channels.fetch(poapSetting.voiceChannelId);
+				const voiceChannel: GuildChannel | null = await guild.channels.fetch(poapSetting.voiceChannelId);
+				if (voiceChannel == null) {
+					Log.warn('voice channel might have been deleted.');
+					return;
+				}
 				await addUserToDb(oldState, newState, db, voiceChannel, member);
 			} else {
 				Log.debug(`current date is after or equal to event end date, currentDate: ${currentDate}, endDate: ${endDate}`);

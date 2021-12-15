@@ -72,19 +72,21 @@ const EventsAPI = {
 				},
 			});
 			return response.data;
-		} catch (e) {
+		} catch (e: Error | undefined | any) {
 			LogUtils.logError('failed to send poap event to POAP BackOffice', e);
-			Log.warn('poap response', {
-				indexMeta: true,
-				meta: {
-					error: e.toJSON,
-					responseHeaders: e.response.headers,
-					responseStatus: e.response.status,
-					responseData: e.response.data,
-				},
-			});
-			if (e.response.status == '400') {
-				throw new ValidationError(`${e.response.data.message}`);
+			if (e) {
+				Log.warn('poap response', {
+					indexMeta: true,
+					meta: {
+						error: e.toJSON,
+						responseHeaders: e.response?.headers,
+						responseStatus: e.response?.status,
+						responseData: e.response?.data,
+					},
+				});
+				if (e.response?.status == '400') {
+					throw new ValidationError(`${e.response?.data?.message}`);
+				}
 			}
 			throw new Error('poap event request failed');
 		}

@@ -8,7 +8,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import StartPOAP from '../../service/poap/start/StartPOAP';
 import ValidationError from '../../errors/ValidationError';
 import EarlyTermination from '../../errors/EarlyTermination';
-import EndPOAP from '../../service/poap/EndPOAP';
+import EndPOAP from '../../service/poap/end/EndPOAP';
 import DistributePOAP from '../../service/poap/DistributePOAP';
 import SchedulePOAP from '../../service/poap/SchedulePOAP';
 import Log, { LogUtils } from '../../utils/Log';
@@ -105,7 +105,7 @@ module.exports = class poap extends SlashCommand {
 							required: true,
 						},
 						{
-							name: 'duration-minutes',
+							name: 'duration',
 							type: CommandOptionType.STRING,
 							description: 'Number of minutes the event will remain active.',
 							required: false,
@@ -216,47 +216,51 @@ module.exports = class poap extends SlashCommand {
 		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;
 		
-		let guildMember: GuildMember;
-		if (ctx.guildID != null) {
-			guildMember = (await ServiceUtils.getGuildAndMember(ctx)).guildMember;
-		}
+		const subCommand: string = ctx.subcommands[0];
 		
-		let command: Promise<any>;
+		let guildMember: GuildMember | undefined;
+		let command: Promise<any> | null = null;
 		let authorizedRoles: any[];
 		let authorizedUsers: any[];
 		let platform: string;
+		
 		try {
-			switch (ctx.subcommands[0]) {
+			if (ctx.guildID) {
+				guildMember = (await ServiceUtils.getGuildAndMember(ctx.guildID, ctx.user.id)).guildMember;
+			}
+			
+			if (subCommand != 'claim' && !guildMember) {
+				await ctx.send({ content: 'Please try command within discord server.', ephemeral: true });
+				return;
+			}
+			
+			switch (subCommand) {
 			case 'config':
 				if (ctx.subcommands[1] == 'status') {
-					command = StatusPOAP(ctx, guildMember);
+					command = StatusPOAP(ctx, guildMember as GuildMember);
 				} else if (ctx.subcommands[1] == 'modify') {
 					authorizedRoles = [ctx.options.config.modify['role-1'], ctx.options.config.modify['role-2'], ctx.options.config.modify['role-3']];
 					authorizedUsers = [ctx.options.config.modify['user-1'], ctx.options.config.modify['user-2'], ctx.options.config.modify['user-3']];
-					command = ModifyPOAP(ctx, guildMember, authorizedRoles, authorizedUsers);
+					command = ModifyPOAP(ctx, guildMember as GuildMember, authorizedRoles, authorizedUsers);
 				}
 				break;
 			case 'mint':
-				command = SchedulePOAP(ctx, guildMember, ctx.options.mint['mint-copies']);
+				command = SchedulePOAP(ctx, guildMember as GuildMember, ctx.options.mint['mint-copies']);
 				break;
 			case 'start':
 				platform = ctx.options.start['platform'] != null && ctx.options.start['platform'] != '' ? ctx.options.start['platform'] : constants.PLATFORM_TYPE_DISCORD;
 				Log.debug(`platform: ${platform}`);
-				command = StartPOAP(ctx, guildMember, platform, ctx.options.start.event, ctx.options.start['duration-minutes']);
+				command = StartPOAP(ctx, guildMember as GuildMember, platform, ctx.options.start.event, ctx.options.start['duration-minutes']);
 				break;
 			case 'end':
-				if (ctx.guildID == undefined) {
-					await ctx.send('I love your enthusiasm, but please return to a Discord channel to end the event.');
-					return;
-				}
 				platform = ctx.options.end['platform'] != null && ctx.options.end['platform'] != '' ? ctx.options.end['platform'] : constants.PLATFORM_TYPE_DISCORD;
 				Log.debug(`platform: ${platform}`);
-				command = EndPOAP(guildMember, platform, ctx);
+				command = EndPOAP(guildMember as GuildMember, platform, ctx);
 				break;
 			case 'distribute':
 				platform = ctx.options.distribute['platform'] != null && ctx.options.distribute['platform'] != '' ? ctx.options.distribute['platform'] : constants.PLATFORM_TYPE_DISCORD;
 				Log.debug(`platform: ${platform}`);
-				command = DistributePOAP(ctx, guildMember, ctx.options.distribute['event'], platform);
+				command = DistributePOAP(ctx, guildMember as GuildMember, ctx.options.distribute['event'], platform);
 				break;
 			case 'claim':
 				platform = ctx.options.claim.platform != null && ctx.options.claim.platform != '' ? ctx.options.claim.platform : constants.PLATFORM_TYPE_DISCORD;
@@ -264,7 +268,8 @@ module.exports = class poap extends SlashCommand {
 				command = ClaimPOAP(ctx, platform, guildMember);
 				break;
 			default:
-				return ctx.send(`${ctx.user.mention} Please try again.`);
+				await ctx.send(`${ctx.user.mention} Please try again.`).catch(Log.error);
+				return;
 			}
 			this.handleCommandError(ctx, command);
 			return;
@@ -275,18 +280,21 @@ module.exports = class poap extends SlashCommand {
 		}
 	}
 
-	handleCommandError(ctx: CommandContext, command: Promise<any>) {
+	handleCommandError(ctx: CommandContext, command?: Promise<any> | null) {
+		if (command == null) {
+			ServiceUtils.sendOutErrorMessage(ctx).catch(Log.error);
+			return;
+		}
 		command.catch(async e => {
 			if (e instanceof ValidationError) {
-				await ctx.sendFollowUp({ content: `${e.message}`, ephemeral: true });
+				await ctx.send({ content: `${e.message}`, ephemeral: true }).catch(Log.error);
 				return;
 			} else if (e instanceof EarlyTermination) {
-				await ctx.sendFollowUp({ content: `${e.message}`, ephemeral: true });
+				await ctx.send({ content: `${e.message}`, ephemeral: true }).catch(Log.error);
 				return;
 			} else {
 				LogUtils.logError('failed to handle poap command', e);
 				await ServiceUtils.sendOutErrorMessage(ctx);
-				return;
 			}
 		});
 	}

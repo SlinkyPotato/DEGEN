@@ -1,4 +1,11 @@
-import { DMChannel, GuildMember, MessageAttachment, TextChannel } from 'discord.js';
+import {
+	DMChannel,
+	GuildMember,
+	Message,
+	MessageAttachment,
+	MessageOptions,
+	TextChannel,
+} from 'discord.js';
 import POAPUtils from '../../utils/POAPUtils';
 import { Db } from 'mongodb';
 import constants from '../constants/constants';
@@ -12,6 +19,7 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import Log, { LogUtils } from '../../utils/Log';
 import DateUtils from '../../utils/DateUtils';
 import MongoDbUtils from '../../utils/MongoDbUtils';
+import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
 
 const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numberToMint: number): Promise<any> => {
 	if (ctx.guildID == undefined) {
@@ -166,11 +174,21 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg10);
 	let imageResponse: AxiosResponse;
 	try {
-		const poapImage: MessageAttachment = (await contextChannel.awaitMessages({
+		const message: Message | undefined = (await contextChannel.awaitMessages({
 			max: 1,
 			time: 900000,
 			errors: ['time'],
-		})).first().attachments.first();
+		})).first();
+		
+		if (!message) {
+			throw new ValidationError('Invalid image, please try the command again');
+		}
+		
+		const poapImage: MessageAttachment | undefined = message.attachments.first();
+		
+		if (!poapImage) {
+			throw new ValidationError('Invalid image, please try the command again');
+		}
 		
 		imageResponse = await axios.get(poapImage.url, {
 			responseType: 'arraybuffer',
@@ -195,7 +213,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg11);
 	request.email = await ServiceUtils.getFirstUserReply(guildMember, contextChannel);
 
-	const msg12 = {
+	const msg12: MessageOptions | MessageOptionsSlash = {
 		embeds: [
 			{
 				title: 'POAP Event',
@@ -203,11 +221,11 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 					{ name: 'Event Title', value: request.name },
 					{ name: 'Event Description', value: request.description },
 					{ name: 'Virtual Event', value: (request.virtual_event ? 'yes' : 'no'), inline: true },
-					{ name: 'City', value: request.city, inline: true },
-					{ name: 'Country', value: request.country, inline: true },
+					{ name: 'City', value: `${request.city} `, inline: true },
+					{ name: 'Country', value: `${request.country} `, inline: true },
 					{ name: 'Event Start', value: request.start_date, inline: true },
 					{ name: 'Event End', value: request.end_date, inline: true },
-					{ name: 'Event URL', value: request.event_url, inline: true },
+					{ name: 'Event URL', value: `${request.event_url} `, inline: true },
 					{ name: 'Edit Code', value: request.secret_code, inline: true },
 					{ name: 'Email', value: request.email, inline: true },
 					{ name: 'Mint Copies Requested', value: request.requested_codes, inline: true },

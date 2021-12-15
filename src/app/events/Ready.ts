@@ -11,9 +11,13 @@ export default class implements DiscordEvent {
 
 	async execute(client: Client): Promise<any> {
 		try {
-			Log.info('The Sun will never set on the DAO. Neither will I. DEGEN & Serendipity are ready for service.');
+			Log.info('The Sun will never set on the DAO. Neither will I. DEGEN is ready for service.');
 			
-			client.user.setActivity(process.env.DISCORD_BOT_ACTIVITY);
+			if (client.user) {
+				Log.debug(`setting status: ${process.env.DISCORD_BOT_ACTIVITY}`);
+				client.user.setActivity(process.env.DISCORD_BOT_ACTIVITY as string);
+			}
+			
 			client.guilds.cache.forEach((guild: Guild) => {
 				Log.info(`DEGEN active for: ${guild.id}, ${guild.name}`);
 			});

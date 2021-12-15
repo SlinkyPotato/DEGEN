@@ -27,7 +27,7 @@ import MongoDbUtils from '../../../utils/MongoDbUtils';
 import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
 import dayjs from 'dayjs';
 
-export default async (ctx: CommandContext, guildMember: GuildMember, roles?: string[], users?: string[]): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember, roles: string[], users: string[]): Promise<any> => {
 	if (ctx.guildID == undefined) {
 		await ctx.send({ content: 'Please try configuration within discord channel', ephemeral: true });
 		return;
@@ -142,11 +142,15 @@ export const askForGrantOrRemoval = async (
 		max: 1,
 		time: (6000 * 60),
 		errors: ['time'],
-		filter: async (reaction, user) => {
-			return ['👍', '❌', '📝'].includes(reaction.emoji.name) && !user.bot;
+		filter: async (reaction: MessageReaction, user) => {
+			const reactionName = reaction.emoji.name ? reaction.emoji.name : '';
+			return ['👍', '❌', '📝'].includes(reactionName) && !user.bot;
 		},
 	});
-	const reaction: MessageReaction = collected.first();
+	const reaction: MessageReaction | undefined = collected.first();
+	if (!reaction) {
+		throw new Error('could not retrieve reaction');
+	}
 	if (reaction.emoji.name === '👍') {
 		Log.info('/poap config add');
 		return true;
@@ -162,7 +166,10 @@ export const retrieveRoles = async (guildMember: GuildMember, authorizedRoles: s
 	for (const authRole of authorizedRoles) {
 		if (authRole == null) continue;
 		try {
-			const roleManager: Role = await guildMember.guild.roles.fetch(authRole);
+			const roleManager: Role | null = await guildMember.guild.roles.fetch(authRole);
+			if (!roleManager) {
+				throw new Error('failed to find role manager');
+			}
 			roles.push(roleManager);
 		} catch (e) {
 			LogUtils.logError('failed to retrieve role from user', e);
@@ -215,6 +222,10 @@ export const storePOAPAdmins = async (
 		result = await poapAdminDb.insertMany(poapAdminsList, {
 			ordered: false,
 		} as CollectionInsertManyOptions);
+		
+		if (result == null) {
+			throw new MongoError('failed to insert poapAdmins');
+		}
 	} catch (e) {
 		if (e instanceof BulkWriteError && e.code === 11000) {
 			LogUtils.logError('dup key found, proceeding', e);
@@ -222,10 +233,6 @@ export const storePOAPAdmins = async (
 			LogUtils.logError('failed to store poap admins from db', e);
 			return;
 		}
-	}
-	
-	if (result == null) {
-		throw new MongoError('failed to insert poapAdmins');
 	}
 };
 

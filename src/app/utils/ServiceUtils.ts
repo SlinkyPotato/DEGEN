@@ -33,13 +33,14 @@ import { ButtonStyle,
 	MessageEmbedOptions as MessageEmbedOptionsSlash,
 } from 'slash-create';
 import { ComponentActionRow } from 'slash-create/lib/constants';
+import ValidationError from '../errors/ValidationError';
 
 const ServiceUtils = {
-	async getGuildAndMember(ctx: CommandContext): Promise<{ guild: Guild, guildMember: GuildMember }> {
-		const guild = await client.guilds.fetch(ctx.guildID);
+	async getGuildAndMember(guildId: string, userId: string): Promise<{ guild: Guild, guildMember: GuildMember }> {
+		const guild = await client.guilds.fetch(guildId);
 		return {
 			guild: guild,
-			guildMember: await guild.members.fetch(ctx.user.id),
+			guildMember: await guild.members.fetch(userId),
 		};
 	},
 
@@ -94,19 +95,25 @@ const ServiceUtils = {
 	},
 
 	/**
-	 * Returns the first message in DM channel from the user
+	 * Returns the first message in channel from the user
 	 * @param guildMember guild user that initiated the command
 	 * @param dmChannel direct message channel
 	 * @param waitInMilli number of milliseconds the bot should wait for a reply
 	 */
-	async getFirstUserReply(guildMember: GuildMember, dmChannel: DMChannel | TextChannel, waitInMilli?: number): Promise<any> {
+	async getFirstUserReply(
+		guildMember: GuildMember, dmChannel: DMChannel | TextChannel, waitInMilli?: number,
+	): Promise<any> {
 		waitInMilli = (waitInMilli == null) ? 600000 : waitInMilli;
-		return (await dmChannel.awaitMessages({
+		const message: Message | undefined = (await dmChannel.awaitMessages({
 			max: 1,
 			time: waitInMilli,
 			errors: ['time'],
 			filter: m => m.author.id == guildMember.user.id,
-		} as AwaitMessagesOptions)).first().content;
+		} as AwaitMessagesOptions)).first();
+		if (message == null) {
+			throw new ValidationError('Could not find message, please try command again');
+		}
+		return message.content;
 	},
 	
 	async tryDMUser(guildMember: GuildMember, message: string): Promise<boolean> {
@@ -157,11 +164,15 @@ const ServiceUtils = {
 				url: 'https://discord.gg/NRj43H83nJ',
 			}],
 		};
-		await ctx.sendFollowUp({
-			content: msg ? msg : 'Something is not working. Please reach out to us and a support member will happily assist!',
-			ephemeral: true,
-			components: [row],
-		});
+		try {
+			await ctx.send({
+				content: msg ? msg : 'Something is not working. Please reach out to us and a support member will happily assist!',
+				ephemeral: true,
+				components: [row],
+			}).catch(Log.error);
+		} catch (e) {
+			Log.error(e);
+		}
 	},
 	
 	sendContextMessage: async (

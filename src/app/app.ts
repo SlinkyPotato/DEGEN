@@ -1,12 +1,15 @@
 // Libs
-import { SlashCreator, GatewayServer, SlashCommand, CommandContext } from 'slash-create';
+import {
+	SlashCreator,
+	GatewayServer,
+	SlashCommand,
+	CommandContext,
+	SlashCreatorOptions,
+} from 'slash-create';
 import Discord, { Client, ClientOptions, Intents, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
 import Log, { LogUtils } from './utils/Log';
-
-// initialize logger
-new Log();
 
 const client: Client = initializeClient();
 initializeEvents();
@@ -15,7 +18,7 @@ const creator = new SlashCreator({
 	applicationID: process.env.DISCORD_BOT_APPLICATION_ID,
 	publicKey: process.env.DISCORD_BOT_PUBLIC_KEY,
 	token: process.env.DISCORD_BOT_TOKEN,
-});
+} as SlashCreatorOptions);
 
 creator.on('debug', (message) => Log.debug(`debug: ${ message }`));
 creator.on('warn', (message) => Log.warn(`warn: ${ message }`));
@@ -48,7 +51,7 @@ creator
 // Log client errors
 client.on('error', Log.error);
 
-client.login(process.env.DISCORD_BOT_TOKEN);
+client.login(process.env.DISCORD_BOT_TOKEN).then(Log.debug);
 
 function initializeClient(): Client {
 	const clientOptions: ClientOptions = {
@@ -80,15 +83,7 @@ function initializeEvents(): void {
 				client.on(event.name, (...args) => event.execute(...args, client));
 			}
 		} catch (e) {
-			Log.error('Event failed to process', {
-				indexMeta: true,
-				meta: {
-					name: e.name,
-					message: e.message,
-					stack: e.stack,
-					event,
-				},
-			});
+			LogUtils.logError('event failed to process', e);
 		}
 	});
 }

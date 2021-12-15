@@ -6,9 +6,9 @@ be registered to listen to the Discord event specified by `name`.
 A full list of available Discord events can be found on the
 [discord.js documentation](https://discord.js.org/#/docs/main/stable/class/Client).
 
-Evant handlers are structured as follows:
+Event handlers are structured as follows:
 ```typescript
-export default class implements Event = {
+export default class implements DiscordEvent {
     /*
      * Name of the Discord event to handle.
      */
@@ -26,7 +26,7 @@ export default class implements Event = {
      * returned by emitted events. Client can be omitted as a function parameter 
      * if it is not used. 
      */
-    async execute(...args, client) { 
+    async execute(...args) { 
         // Code to handle event
     };
 }

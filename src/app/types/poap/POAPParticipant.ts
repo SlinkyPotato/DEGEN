@@ -8,5 +8,6 @@ export interface POAPParticipant extends Collection {
 	startTime: string,
 	endTime: string,
 	voiceChannelId: string,
-	discordServerId: string
+	discordServerId: string,
+	durationInMinutes: number,
 }

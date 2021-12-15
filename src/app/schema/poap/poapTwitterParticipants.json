@@ -1,0 +1,28 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "twitterId",
+      "twitterSpaceId",
+      "dateOfTweet"
+    ],
+    "properties": {
+      "twitterId": {
+        "bsonType": "string",
+        "description": "The twitter ID of the user."
+      },
+      "twitterSpaceId": {
+        "bsonType": "string",
+        "description": "The twitter space ID of the event."
+      },
+      "tweetId": {
+        "bsonType": ["string", "null"],
+        "description": "Tweet ID for POAP eligibility"
+      },
+      "dateOfTweet": {
+        "bsonType": ["string", "null"],
+        "description": "ISO8601 of when the tweet was sent"
+      }
+    }
+  }
+}

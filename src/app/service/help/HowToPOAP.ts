@@ -5,13 +5,22 @@ export default (): MessageOptions => {
 		embeds: [{
 			title: 'POAP Distribution Information',
 			description: 'Thank you for checking out POAP distribution!\n\n' +
-				'I can record attendees and distribute POAP links to those same attendees. A maximum of one active event ' +
-				'is allowed per voice channel.',
+				'Before commands can be used, authorized users and roles must first be set with the `/poap config` command by an admin. ' +
+				'Users can then use the `/poap schedule` command to mint PNG images into POAPs.',
 			fields: [
 				{
-					name: '-> /poap config',
-					value: 'Only discord owners can use this command. With this command, the given users and roles will ' +
-						'have access to start and end poap tracking.',
+					name: '-> /poap config modify',
+					value: 'Authorize users and roles who can use the following poap commands. A malicious user and role can also be removed.',
+					inline: false,
+				},
+				{
+					name: '-> /poap config status',
+					value: 'Display the currently authorized users and roles that can use the POAP commands.',
+					inline: false,
+				},
+				{
+					name: '-> /poap mint',
+					value: 'Mint a POAP for an event, upload the PNG image to be minted, and get the links.txt file over email.',
 					inline: false,
 				},
 				{
@@ -21,9 +30,14 @@ export default (): MessageOptions => {
 					inline: false,
 				},
 				{
+					name: '-> /poap claim',
+					value: 'Claim your missing POAP for an event that you attended but did not receive. Must have been in the discussion for 10 minutes and must have not been deafened.',
+					inline: false,
+				},
+				{
 					name: '-> /poap start',
 					value: 'Start tracking attendees as they enter and exit the specified voice channel. ' +
-						'Once event is started it must be stopped by the same user or configured user/role.',
+						'Once the event is started it must be stopped by the same user or configured user/role.',
 					inline: false,
 				},
 				{
@@ -32,11 +46,15 @@ export default (): MessageOptions => {
 						'Optionally send out POAP links to those who attended by providing a .txt file with the POAP links per line.',
 					inline: false,
 				},
+				{
+					name: '-> Useful Links',
+					value: '[BanklessDAO Product Support Center invite](https://discord.gg/85Kb6Qv6gd)\n' +
+						'[Commands Wiki](https://www.notion.so/bankless/The-POAP-Distribution-Commands-and-Workflow-96cac11447b44d27885c160dc9af85fe)\n' +
+						'[Feature Request Feedback](https://degen.canny.io/feature-requests)\n' +
+						'[POAP Website](https://poap.xyz/)',
+					inline: false,
+				},
 			],
-			footer: {
-				icon_url: null,
-				text: '@Bankless DAO 🏴',
-			},
 		}],
 	};
 };

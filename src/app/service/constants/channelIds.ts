@@ -1,6 +1,5 @@
-export default Object.freeze({
-	bountyBoard: process.env.DISCORD_CHANNEL_BOUNTY_BOARD_ID,
-	COMMUNITY_CALLS_STAGE: process.env.DISCORD_STAGE_COMMUNITY_CALL_ID,
-	DEV_WORKROOM: process.env.DISCORD_CHANNEL_DEV_WORKROOM_ID,
-	WRITERS_ROOM: process.env.DISCORD_CHANNEL_WRITERS_ROOM_ID,
+const channelIds = Object.freeze({
+	DM: 'DIRECT_MESSAGE',
 });
+
+export default channelIds;

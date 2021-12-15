@@ -2,7 +2,10 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es6",
-        "lib": ["es2020"],
+        "lib": [
+            "es2020",
+            "dom"
+        ],
         "sourceMap": true,
         "outDir": "./dist/",
         "allowJs": true,
@@ -10,7 +13,8 @@
         "esModuleInterop": true,
         "noEmitOnError": true,
         "moduleResolution": "node",
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "strict": true,
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules"]

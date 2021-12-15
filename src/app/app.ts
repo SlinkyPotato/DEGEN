@@ -1,8 +1,15 @@
 // Libs
-import { SlashCreator, GatewayServer } from 'slash-create';
+import {
+	SlashCreator,
+	GatewayServer,
+	SlashCommand,
+	CommandContext,
+	SlashCreatorOptions,
+} from 'slash-create';
 import Discord, { Client, ClientOptions, Intents, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
+import Log, { LogUtils } from './utils/Log';
 
 const client: Client = initializeClient();
 initializeEvents();
@@ -11,17 +18,27 @@ const creator = new SlashCreator({
 	applicationID: process.env.DISCORD_BOT_APPLICATION_ID,
 	publicKey: process.env.DISCORD_BOT_PUBLIC_KEY,
 	token: process.env.DISCORD_BOT_TOKEN,
-});
+} as SlashCreatorOptions);
 
-// creator.on('debug', (message) => console.log(`debug: ${ message }`)); // not needed in production
-// creator.on('warn', (message) => console.warn(`warn: ${ message }`)); // not needed in production
-creator.on('error', (error: Error) => console.error(`error: ${ error }`));
-creator.on('synced', () => console.info('Commands synced!'));
-creator.on('commandRegister', (command) => console.info(`Registered command ${command.commandName}`));
-creator.on('commandError', (command, error) => console.error(`Command ${command.commandName}:`, error));
-creator.on('commandRun', (command, _, ctx) =>
-	console.info(`${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) ran command ${command.commandName}`),
-);
+creator.on('debug', (message) => Log.debug(`debug: ${ message }`));
+creator.on('warn', (message) => Log.warn(`warn: ${ message }`));
+creator.on('error', (error: Error) => Log.error(`error: ${ error }`));
+creator.on('synced', () => Log.debug('Commands synced!'));
+creator.on('commandRegister', (command: SlashCommand) => Log.debug(`Registered command ${command.commandName}`));
+creator.on('commandError', (command: SlashCommand, error: Error) => Log.error(`Command ${command.commandName}:`, {
+	indexMeta: true,
+	meta: {
+		name: error.name,
+		message: error.message,
+		stack: error.stack,
+		command,
+	},
+}));
+
+// Ran after the command has completed
+creator.on('commandRun', (command:SlashCommand, result: Promise<any>, ctx: CommandContext) => {
+	LogUtils.logCommandEnd(ctx);
+});
 
 // Register command handlers
 creator
@@ -32,14 +49,15 @@ creator
 	.syncCommands();
 
 // Log client errors
-client.on('error', console.error);
+client.on('error', Log.error);
 
-client.login(process.env.DISCORD_BOT_TOKEN);
+client.login(process.env.DISCORD_BOT_TOKEN).then(Log.debug);
 
 function initializeClient(): Client {
 	const clientOptions: ClientOptions = {
 		intents: [
 			Intents.FLAGS.GUILDS,
+			Intents.FLAGS.GUILD_BANS,
 			Intents.FLAGS.GUILD_MEMBERS,
 			Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
 			Intents.FLAGS.GUILD_VOICE_STATES,
@@ -49,7 +67,7 @@ function initializeClient(): Client {
 			Intents.FLAGS.DIRECT_MESSAGES,
 			Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
 		],
-		partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
+		partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER'],
 	};
 	return new Discord.Client(clientOptions);
 }
@@ -65,7 +83,7 @@ function initializeEvents(): void {
 				client.on(event.name, (...args) => event.execute(...args, client));
 			}
 		} catch (e) {
-			console.error(e);
+			LogUtils.logError('event failed to process', e);
 		}
 	});
 }

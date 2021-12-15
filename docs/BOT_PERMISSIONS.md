@@ -1,28 +1,23 @@
-# Permissions
+# Bot Permissions
 
-## OAuth2
+### OAuth2/Scopes
 - bot
 - applications.commands
 
-## Bot Permission
-- Manage Roles
-- Manage Channels
-- Manage Emojis and Stickers
-- Manage Webhooks
+### General Permissions
 - View Channels
+
+### Text Permissions
 - Send Messages
-- Public Threads
 - Manage Messages
-- Manage Threads
 - Embed Links
 - Read Message History
-- Add Reactions
 - Use Slash Commands
 
-Permission Integer: `55566232656`
+Permission Integer: `2147576832`
 
-## Intents
+### Intents
 - Bot > Privileged Gateway Intents > Enable PRESENCE INTENT
 - Bot > Privileged Gateway Intents > SERVER MEMBERS INTENT
 
-Invite Link: `https://discord.com/api/oauth2/authorize?client_id=APP_ID_HERE&permissions=PERMISSION_ID_HERE&scope=bot%20applications.commands`
+External Discord Invite Link: `https://discord.com/api/oauth2/authorize?client_id=APP_ID_HERE&permissions=PERMISSION_ID_HERE&scope=bot%20applications.commands`

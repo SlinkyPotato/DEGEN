@@ -16,33 +16,31 @@ To get setup, please follow these guidelines:
 8. Under "Scopes", select "bot"
 9. Permissions. Enable only these permissions:
 
--   Manage Server
 -   Manage Roles
 -   Manage Channels
 -   Kick Members
 -   Ban Members
--   Manage Emojis
+-   Manage Emojis & Stickers
 -   Manage Webhooks
 -   View Channels
 -   All of the permissions under "Text Permissions"
 -   No permissions under "Voice Permissions"
 
-10. Select and copy the generated URL under "Scopes." Make sure the value
-    of permissions in the URL reads 4027055222
+10. Select and copy the generated URL under "Scopes." Make sure the you have [these permissions](https://github.com/BanklessDAO/discord-bots/blob/DEGEN/docs/BOT_PERMISSIONS.md) selected.
 11. Send the URL via Discord DM to nonsense to have it added to the test
     Discord server
 
 ## Clone the repo to local
 
-1. Create a new feature branch from the dev branch
-2. Copy the .env file and name it whatever you want; add it to your local
-   .gitignore
+1. Create a new feature branch from the dev branch (`docs/<name>`, `feature/<name>`, `release/<name>`, `hotfix/<name>`).
+2. Copy the `.env.template` file and name it `.env`;
 3. Request the test Notion token and MongoDB URI from one of the repo
    maintainers, copy your bot's token (found under the bot tab in the
    developer's portal) and replace the relevant values in your copied .env
    file, making sure to update the file name where it is required in `app.js`
-4. `npm install`
-5. Run your bot and test your connections
+4. `yarn start` will run the prestart script to get everything installed and running.
+5. Run your bot and test your connections.
+6. Whenever you're ready for a pull request, open a pr with `dev` branch.
 
 ## Develop!
 

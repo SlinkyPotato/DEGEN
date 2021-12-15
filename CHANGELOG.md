@@ -1,5 +1,172 @@
 # Changelog
 
+## 2.4.0-RELEASE (2021-12-14)
+
+1. Enable twitter flow in channel
+2. Enable tsconfig strict option
+3. Misc cleanup and stability enhancements
+4. Extend poap claim to 24 hours
+
+## 2.3.0-RELEASE (2021-12-07)
+
+1. Enable poap scheduling (POAP API integration)
+2. Remove Datadog
+3. Enable poap config via channel flow
+4. Add poap config status command to display list of authorized users and roles
+5. Rename `/poap schedule` -> `/poap mint`
+6. Enable POAP distribution
+   - reduce poap claim deleted to 5 minutes
+   - display poap claimed message
+   - fix poap duration for auto end events
+7. Clear expired POAPs on startup
+   - surround error log in try/catch block
+8. Add a security check for the poap urls that are passed
+   - default platform to discord
+9. Fix poap mint name variable
+
+## 2.2.0-RELEASE (2021-11-30)
+
+1. Send hidden claim messages for POAPs
+2. Fix distribution of failed attendees
+3. Display support error message on failure
+4. Channel-only flow for POAP starting
+5. Disable poap config, poap distribute, account verify
+
+## 2.1.0-RELEASE (2021-11-23)
+
+1. Add Privacy Policy and Terms & Conditions to /docs
+2. Add help for /poap claim
+3. Prepare twitter spaces command
+   - end poap events cleanly on startup or restart of instance
+   - remove period from poap link
+
+## 2.0.2-RELEASE (2021-11-22)
+
+1. Fix auto-end for poap events
+
+## 2.0.1-RELEASE (2021-11-22)
+
+1. Store duration for end of poap event
+
+## 2.0.0-RELEASE (2021-11-22)
+
+1. Remove non-poap features
+2. Tweet spaces event upon startup
+   - organize datadog
+   - complete /poap start platform:twitter
+   - complete /poap end
+   - misc enhancements
+3. Disable twitter spaces (wip)
+4. Enabled twitter spaces (wip), enhance and stabilize poap events
+5. End Twitter event, distribute, and claim
+6. Disable twitter spaces
+
+## 1.9.4-RELEASE (2021-11-18)
+
+1. Add datadog tracer
+
+## 1.9.3-RELEASE (2021-11-12)
+
+1. Add try/catch block to buffering
+   - display logdna error if missing token
+
+## 1.9.2-RELEASE (2021-11-10)
+
+1. Fix auto end for poap events
+   - update help docs with links
+
+## 1.9.1-RELEASE (2021-11-09)
+
+1. Allow poap claiming from DM
+   - enable claim validation and extent to 30 characters
+
+## 1.9.0-RELEASE (2021-11-08)
+
+1. Add guildId to bounty
+2. Add twitter spaces integration (wip)
+   - refactor MongoDbUtils file
+   - add POAP schedule error messaging
+   - setup POAP claiming for failed delivery
+   - remove deaf users for poap events
+   - organize error message validations
+   - add workflow env keys
+3. Fix redelivery for failed participants
+   - add custom start messages
+   
+## 1.8.4-RELEASE (2021-11-03 - 2021-11-07)
+
+1. Introduce /coordinape form request command for BanklessDAO
+2. Update feedback request form to canny
+3. Add /timecard command
+4. Run build-test action on every pull request
+5. Allow multiple coordinape usages for command
+6. /coordinape form request command: Treat level3 and level 4 roles equal to level 1 role.
+
+## 1.8.3-RELEASE (2021-10-26)
+
+1. Check rate limit
+2. Fix github actions for forked repos
+3. Set guestpass limit for 2 weeks instead of 1 week
+
+## 1.8.2-RELEASE (2021-10-23)
+
+1. Fix poap attendee duration time
+2. Fix failed to send poaps message
+
+## 1.8.1-RELEASE (2021-10-21)
+
+1. Fix removal of guest pass users by wraping in try/catch block in case of error
+2. Add DEGEN branch deployment to uat
+
+## 1.8.0-RELEASE (2021-10-21)
+
+1. Fix scoap-squad and update start season 2
+2. Integrate with logDNA sdk, turn off native console.log
+   - fix CODE_OWNERS file
+   - fix `/poap schedule` command
+   - misc enhancements
+   - configure poap time to env variable
+   - set min poap participate time to 10 mins
+   - display guild name and event for poap distribution message
+   - send message on instructions for POAP approval
+   - enable `/scoap-squad` in BanklessDAO
+3. Add option to automatically end poap events
+   - format poap start and end messages
+   - fix guest pass auto removal
+4. Return csv of failed participants at end of event
+5. Extend `/poap config` to guild/server managers
+
+## 1.7.2-RELEASE (2021-10-12)
+
+1. Update deployment actions for pre-release and DEGEN
+2. Update yarn lockfile
+
+## 1.7.1-RELEASE (2021-10-12)
+
+1. Update slash-create dependency 
+
+## 1.7.0-RELEASE (2021-10-11)
+
+1. Add scoap-squad feature for BanklessDAO
+2. Add /poap schedule command
+   - enhance stability
+   - wrap events call to bankelss DAO server
+   - misc text message updates
+3. Setup Major Motoko Kusanagi bot
+4. Fix MessageCreate event
+5. Open bounties to all (except creating new bounties)
+6. Remove voice permissions
+
+## 1.6.0-RELEASE (2021-10-01)
+
+1. Fixed RetrieveFAQs tests to properly use mocking and fix yarn linting script
+2. Misc fixes for POAP commands and enable HELP commands for all discords
+3. Migrate github actions deployment to digital ocean droplet
+4. Add username spam filter
+5. Misc fixes for bounties
+6. Reference production environment files
+7. Enhance stability of DEGEN
+
 ## 1.5.2-RELEASE (2021-09-10)
 
 1. Extend to 25+ voice channels for /poap start

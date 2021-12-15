@@ -1,5 +1,6 @@
 import { SlashCommand, CommandContext, SlashCreator } from 'slash-create';
 import client from '../../app';
+import ServiceUtils from '../../utils/ServiceUtils';
 import discordServerIds from '../../service/constants/discordServerIds';
 
 export default class NotionFAQs extends SlashCommand {
@@ -20,9 +21,13 @@ export default class NotionFAQs extends SlashCommand {
 		if (ctx.user.bot) return;
 		console.log('~~~~~~~~~~~~~~~~~~~~~~/connect START~~~~~~~~~~~~~~~~~~~~~~~');
 
+		if (ctx.guildID == null) {
+			await ctx.send({ content: 'Please try this command within a discord server.' });
+			return;
+		}
+
 		try {
-			const guild = await client.guilds.fetch(ctx.guildID);
-			const guildMember = await guild.members.fetch(ctx.user.id);
+			const { guildMember } = await ServiceUtils.getGuildAndMember(ctx.guildID, ctx.user.id);
 			const publicReplyStr = 'Follow this link to verify your address: http://localhost:4200/connect';
 			const dmReplyStr = `${ctx.user.mention} Sent you a DM with information on how to connect your wallet.`;
 			ctx.send(dmReplyStr);

@@ -250,7 +250,7 @@ module.exports = class poap extends SlashCommand {
 			case 'start':
 				platform = ctx.options.start['platform'] != null && ctx.options.start['platform'] != '' ? ctx.options.start['platform'] : constants.PLATFORM_TYPE_DISCORD;
 				Log.debug(`platform: ${platform}`);
-				command = StartPOAP(ctx, guildMember as GuildMember, platform, ctx.options.start.event, ctx.options.start['duration-minutes']);
+				command = StartPOAP(ctx, guildMember as GuildMember, platform, ctx.options.start.event, ctx.options.start['duration']);
 				break;
 			case 'end':
 				platform = ctx.options.end['platform'] != null && ctx.options.end['platform'] != '' ? ctx.options.end['platform'] : constants.PLATFORM_TYPE_DISCORD;

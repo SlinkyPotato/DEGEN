@@ -1,6 +1,6 @@
 {
     "name": "degen",
-    "version": "2.4.0",
+    "version": "2.4.1",
     "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
     "main": "app.js",
     "private": true,
@@ -27,7 +27,7 @@
         "crypto"
     ],
     "author": "BANKLESS DAO",
-    "license": "MIT",
+    "license": "BUSL-1.1",
     "bugs": {
         "url": "https://github.com/BanklessDAO/discord-bots/issues"
     },

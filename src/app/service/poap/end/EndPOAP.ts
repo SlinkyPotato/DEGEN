@@ -39,7 +39,10 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	
 	if (poapSettingsDoc == null) {
 		Log.debug('poap event not found');
-		throw new ValidationError(`<@${guildMember.id}> Hmm it doesn't seem you are hosting an active event.`);
+		if (ctx) {
+			await ctx.send({ content: 'Hmm it doesn\'t seem you are hosting an active event.', ephemeral: true });
+		}
+		return;
 	}
 	
 	Log.debug('active poap event found');

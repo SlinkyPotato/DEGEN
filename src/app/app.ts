@@ -9,8 +9,13 @@ import {
 import Discord, { Client, ClientOptions, Intents, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
+import './utils/SentryUtils';
 import Log, { LogUtils } from './utils/Log';
+import * as Sentry from '@sentry/node';
+import { RewriteFrames } from '@sentry/integrations';
+import constants from './service/constants/constants';
 
+initializeSentryIO();
 const client: Client = initializeClient();
 initializeEvents();
 
@@ -70,6 +75,20 @@ function initializeClient(): Client {
 		partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER'],
 	};
 	return new Discord.Client(clientOptions);
+}
+
+function initializeSentryIO() {
+	Sentry.init({
+		tracesSampleRate: 1.0,
+		release: `${constants.APP_NAME}@${constants.APP_VERSION}`,
+		environment: process.env.SENTRY_ENVIRONMENT,
+		integrations: [
+			new RewriteFrames({
+				root: __dirname,
+			}),
+			new Sentry.Integrations.Http({ tracing: true }),
+		],
+	});
 }
 
 function initializeEvents(): void {

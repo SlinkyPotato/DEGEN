@@ -152,13 +152,13 @@ const POAPUtils = {
 		}
 		
 		if (message == null) {
-			throw new ValidationError('invalid poap file');
+			throw new ValidationError('Invalid attachment. Session ended. Please try the command again.');
 		}
 		
 		const poapLinksFile: MessageAttachment | undefined = message.attachments.first();
 		
 		if (poapLinksFile == null) {
-			throw new ValidationError('please try again');
+			throw new ValidationError('Invalid attachment. Session ended. Please try the command again.');
 		}
 		
 		Log.debug(`obtained poap links attachment in discord: ${poapLinksFile.url}`);
@@ -356,7 +356,7 @@ const POAPUtils = {
 		if (isDmOn) {
 			await guildMember.send({ content: failedDeliveryMsg });
 		} else if (ctx) {
-			await ctx.sendFollowUp(failedDeliveryMsg);
+			await ctx.sendFollowUp({ content: failedDeliveryMsg, ephemeral: true });
 		}
 		
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);

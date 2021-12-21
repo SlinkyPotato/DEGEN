@@ -4,6 +4,7 @@ import VerifyTwitter from '../../service/account/VerifyTwitter';
 import ServiceUtils from '../../utils/ServiceUtils';
 import discordServerIds from '../../service/constants/discordServerIds';
 import ValidationError from '../../errors/ValidationError';
+import { command } from '../../utils/SentryUtils';
 
 export default class Account extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -40,6 +41,7 @@ export default class Account extends SlashCommand {
 		});
 	}
 	
+	@command
 	async run(ctx: CommandContext): Promise<any> {
 		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;

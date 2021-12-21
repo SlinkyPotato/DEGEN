@@ -7,7 +7,6 @@ import {
 } from 'discord.js';
 import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../../constants/constants';
-import ValidationError from '../../../errors/ValidationError';
 import { POAPSettings } from '../../../types/poap/POAPSettings';
 import POAPUtils, { POAPFileParticipant } from '../../../utils/POAPUtils';
 import { CommandContext, MessageOptions as MessageOptionsSlash } from 'slash-create';

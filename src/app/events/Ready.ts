@@ -39,18 +39,24 @@ export default class implements DiscordEvent {
 
 const updateActiveDiscordServers = async (client: Client, db: Db) => {
 	const guilds: Collection<Snowflake, OAuth2Guild> = await client.guilds.fetch();
+	const discordServerCollection = await db.collection<DiscordServerCollection>(constants.DB_COLLECTION_DISCORD_SERVERS);
+	await discordServerCollection.updateMany({}, {
+		$set: {
+			isDEGENActive: false,
+		},
+	});
 	for await (const guild of guilds.values()) {
 		Log.info(`DEGEN active for: ${guild.id}, ${guild.name}`);
-		const discordServerCollection = await db.collection<DiscordServerCollection>(constants.DB_COLLECTION_DISCORD_SERVERS);
-		await discordServerCollection.updateMany({}, {
-			isDEGENActive: false,
-		});
 		await discordServerCollection.updateOne({
 			id: guild.id,
 		}, {
-			id: guild.id,
-			name: guild.name,
-			isDEGENActive: true,
+			$set: {
+				id: guild.id,
+				name: guild.name,
+				isDEGENActive: true,
+			},
+		}, {
+			upsert: true,
 		});
 	}
 };

@@ -15,6 +15,9 @@
         "moduleResolution": "node",
         "resolveJsonModule": true,
         "strict": true,
+        "inlineSources": true,
+        "sourceRoot": "/",
+        "experimentalDecorators": true,
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules"]

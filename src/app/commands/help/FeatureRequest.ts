@@ -1,5 +1,6 @@
 import { CommandContext, SlashCommand, SlashCreator } from 'slash-create';
 import { LogUtils } from '../../utils/Log';
+import { command } from '../../utils/SentryUtils';
 
 export default class FeatureRequest extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -13,7 +14,8 @@ export default class FeatureRequest extends SlashCommand {
 			defaultPermission: true,
 		});
 	}
-
+	
+	@command
 	async run(ctx: CommandContext): Promise<any> {
 		LogUtils.logCommandStart(ctx);
 		// Ignores commands from bots

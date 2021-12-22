@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.5.0
+
+1. Integrate sentry.io
+   - misc message enhancements
+
+## 2.4.1-RELEASE (2021-12-20)
+
+1. Remove memory bottleneck for poap claim
+2. Add catch block for poap participants
+3. Fix duration
+
 ## 2.4.0-RELEASE (2021-12-14)
 
 1. Enable twitter flow in channel

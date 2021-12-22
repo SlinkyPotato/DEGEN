@@ -47,7 +47,7 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 		} as EmbedField);
 	}).toArray();
 	
-	await ctx.send({ content: `POAP claimed using \`/poap claim platform: ${platform}\`. Thank you!` });
+	await ctx.send({ content: 'POAP claimed using `/poap claim`. Thank you!' });
 	
 	await ctx.send({
 		embeds: [{
@@ -69,13 +69,6 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 	}).catch(Log.error);
 	
 	Log.debug('updated expiration for POAPs in DB');
-	
-	setTimeout(() => {
-		Log.debug('deleted poaps from claim');
-		unclaimedParticipantsCollection.deleteMany({
-			discordUserId: ctx.user.id,
-		});
-	}, 1000 * 60 * 60 * 24);
 	
 	Log.debug('POAP claimed');
 };
@@ -122,13 +115,6 @@ const claimPOAPForTwitter = async (ctx: CommandContext, guildMember: GuildMember
 	});
 	
 	Log.debug('message sent to user!');
-
-	setTimeout(() => {
-		Log.debug('deleted poaps from claim twitter');
-		unclaimedParticipantsCollection.deleteMany({
-			twitterUserId: verifiedTwitter.twitterUser.id_str,
-		});
-	}, 1000 * 60 * 60 * 24);
 	
 	Log.debug('POAP claimed.');
 };

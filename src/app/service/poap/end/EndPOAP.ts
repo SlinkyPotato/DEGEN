@@ -7,7 +7,6 @@ import {
 } from 'discord.js';
 import { Collection, Db, UpdateWriteOpResult } from 'mongodb';
 import constants from '../../constants/constants';
-import ValidationError from '../../../errors/ValidationError';
 import { POAPSettings } from '../../../types/poap/POAPSettings';
 import POAPUtils, { POAPFileParticipant } from '../../../utils/POAPUtils';
 import { CommandContext, MessageOptions as MessageOptionsSlash } from 'slash-create';
@@ -39,7 +38,10 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	
 	if (poapSettingsDoc == null) {
 		Log.debug('poap event not found');
-		throw new ValidationError(`<@${guildMember.id}> Hmm it doesn't seem you are hosting an active event.`);
+		if (ctx) {
+			await ctx.send({ content: 'Hmm it doesn\'t seem you are hosting an active event.', ephemeral: true });
+		}
+		return;
 	}
 	
 	Log.debug('active poap event found');

@@ -9,6 +9,9 @@ import {
 	Guild,
 	GuildMember,
 	Message,
+	MessageActionRow,
+	MessageActionRowComponent,
+	MessageButton,
 	MessageEmbedOptions,
 	MessageOptions,
 	Permissions,
@@ -34,6 +37,7 @@ import { ButtonStyle,
 } from 'slash-create';
 import { ComponentActionRow } from 'slash-create/lib/constants';
 import ValidationError from '../errors/ValidationError';
+import { MessageButtonStyles } from 'discord.js/typings/enums';
 
 const ServiceUtils = {
 	async getGuildAndMember(guildId: string, userId: string): Promise<{ guild: Guild, guildMember: GuildMember }> {
@@ -168,6 +172,23 @@ const ServiceUtils = {
 			await ctx.sendFollowUp({
 				content: msg ? msg : 'Something is not working. Please reach out to us and a support member will happily assist!',
 				ephemeral: true,
+				components: [row],
+			}).catch(Log.error);
+		} catch (e) {
+			Log.error(e);
+		}
+	},
+	
+	sendOutErrorMessageForDM: async (dmChannel: DMChannel, msg?: string): Promise<any> => {
+		const row: MessageActionRow = new MessageActionRow().addComponents(
+			new MessageButton()
+				.setURL('https://discord.gg/NRj43H83nJ')
+				.setStyle('LINK')
+				.setLabel('Support'),
+		);
+		try {
+			await dmChannel.send({
+				content: msg ? msg : 'Something is not working. Please reach out to us and a support member will happily assist!',
 				components: [row],
 			}).catch(Log.error);
 		} catch (e) {

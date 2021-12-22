@@ -462,6 +462,12 @@ const POAPUtils = {
 		}
 	},
 	
+	validateMaximumPOAPClaims(numberOfPOAPs: number): void {
+		if (numberOfPOAPs > 70) {
+			throw new ValidationError('Too many POAPs! Please reach out support for help.');
+		}
+	},
+	
 	validateNumberToMint(numberToMint: number): void {
 		if (numberToMint >= 1000 || numberToMint <= 0) {
 			throw new ValidationError('A maximum of 1000 POAPs can be minted for a single event. Please let us know if you\'d like to see this increased. ');

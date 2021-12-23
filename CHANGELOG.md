@@ -8,6 +8,7 @@
    - send POAPs on gm message
    - store discord server and user settings
    - provide opt-in for DMs
+   - set poap post claim expiration to 24 hours
 
 ## 2.4.1-RELEASE (2021-12-20)
 

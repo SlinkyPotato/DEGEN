@@ -36,6 +36,13 @@ import { ButtonStyle,
 } from 'slash-create';
 import { ComponentActionRow } from 'slash-create/lib/constants';
 import ValidationError from '../errors/ValidationError';
+import {
+	Db,
+	Collection as MongoCollection,
+} from 'mongodb';
+import MongoDbUtils from './MongoDbUtils';
+import constants from '../service/constants/constants';
+import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 
 const ServiceUtils = {
 	async getGuildAndMember(guildId: string, userId: string): Promise<{ guild: Guild, guildMember: GuildMember }> {
@@ -235,6 +242,20 @@ const ServiceUtils = {
 		return {
 			embeds: embedsList as MessageEmbedOptionsSlash[],
 		} as MessageOptionsSlash;
+	},
+	
+	isDMEnabledForUser: async (member: GuildMember): Promise<boolean> => {
+		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		const dbUsers: MongoCollection<DiscordUserCollection> = await db.collection(constants.DB_COLLECTION_DISCORD_USERS);
+		const result: DiscordUserCollection | null = await dbUsers.findOne({
+			userId: member.id.toString(),
+		});
+		
+		if (result == null) {
+			return false;
+		}
+		
+		return result.isDMEnabled;
 	},
 };
 

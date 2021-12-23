@@ -18,6 +18,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import POAPUtils, { TwitterPOAPFileParticipant } from '../../../utils/POAPUtils';
 import { Buffer } from 'buffer';
 import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
+import { POAPDistributionResults } from '../../../types/poap/POAPDistributionResults';
 
 const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandContext): Promise<any> => {
 	Log.debug('starting twitter poap end flow...');
@@ -87,20 +88,19 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 	
 	const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, isDmOn, numberOfParticipants, ctx);
 	const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
-	const listOfFailedPOAPs: TwitterPOAPFileParticipant[] = await POAPUtils.sendOutTwitterPoapLinks(listOfParticipants, activeTwitterSettings.event, listOfPOAPLinks);
-	const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(listOfFailedPOAPs);
+	const distributionResults: POAPDistributionResults = await POAPUtils.sendOutTwitterPoapLinks(listOfParticipants, activeTwitterSettings.event, listOfPOAPLinks);
+	const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(distributionResults.didNotSendList);
+	await POAPUtils.setupFailedAttendeesDelivery(guildMember, distributionResults, activeTwitterSettings.event, constants.PLATFORM_TYPE_TWITTER);
 	let distributionEmbedMsg: MessageOptionsSlash | MessageOptions = {
 		embeds: [
 			{
 				title: 'POAPs Distribution Results',
 				fields: [
 					{ name: 'Attempted to Send', value: `${numberOfParticipants}`, inline: true },
-					{
-						name: 'Successfully Sent... wgmi',
-						value: `${numberOfParticipants - listOfFailedPOAPs.length}`,
-						inline: true,
-					},
-					{ name: 'Failed to Send... ngmi', value: `${listOfFailedPOAPs.length}`, inline: true },
+					{ name: 'Successfully Sent', value: `${distributionResults.successfullySent}`, inline: true },
+					{ name: 'Failed to Send', value: `${distributionResults.failedToSend}`, inline: true },
+					{ name: 'POAP Claim Setup', value: `${distributionResults.claimSetUp}` },
+					{ name: 'Participants Not Opted-In', value: `${distributionResults.hasDMOff}`, inline: true },
 				],
 			},
 		],
@@ -116,7 +116,7 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 	}
 	
 	Log.info('POAPs Distributed');
-	if (listOfFailedPOAPs.length <= 0) {
+	if (distributionResults.successfullySent == distributionResults.totalParticipants) {
 		Log.debug('all poap successfully delivered');
 		const deliveryMsg = 'All POAPs delivered!';
 		if (isDmOn) {
@@ -126,7 +126,6 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 		}
 		return;
 	}
-	await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, activeTwitterSettings.event, constants.PLATFORM_TYPE_TWITTER, isDmOn, ctx);
 };
 
 export default EndTwitterFlow;

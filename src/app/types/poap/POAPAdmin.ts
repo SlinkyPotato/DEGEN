@@ -7,4 +7,5 @@ export interface POAPAdmin extends Collection {
 	discordObjectName: string,
 	discordServerId: string,
 	discordServerName: string,
+	reported: number,
 }

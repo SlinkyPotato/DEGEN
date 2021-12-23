@@ -28,6 +28,10 @@
       "objectType": {
         "bsonType": "string",
         "description": "Can be either ROLE or USER"
+      },
+      "reported": {
+        "bsonType": "number",
+        "description": "Number of times this user or role has been reported"
       }
     }
   }

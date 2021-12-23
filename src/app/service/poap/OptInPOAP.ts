@@ -62,11 +62,19 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 		});
 		// 5 minute timeout
 		await message.awaitMessageComponent({
-			filter: args => args.customId == buttonIds.POAP_OPT_IN_YES && args.user.id == user.id.toString(),
-			time: 1000,
-		}).then(() => {
-			isAllowedToGetDMs = true;
-		}).catch(Log.error);
+			filter: args => (args.customId == buttonIds.POAP_OPT_IN_YES
+				|| args.customId == buttonIds.POAP_OPT_IN_NO) && args.user.id == user.id.toString(),
+			time: 300_000,
+		}).then((interaction) => {
+			if (interaction.customId == buttonIds.POAP_OPT_IN_YES) {
+				isAllowedToGetDMs = true;
+			} else {
+				message.edit({ content: 'No problem!', components: [] });
+			}
+		}).catch(error => {
+			message.edit({ content: 'Timeout reached, please reach out to us with any questions!', components: [] });
+			Log.debug(error?.message);
+		});
 		
 		if (isAllowedToGetDMs) {
 			await userSettingsCol.updateOne({
@@ -78,8 +86,6 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 			});
 			await message.edit({ content: 'Direct messages enabled! You will now receive POAPs, thank you!', components: [] });
 			Log.debug('user settings updated');
-		} else {
-			await message.edit({ content: 'No problem!', components: [] });
 		}
 		Log.debug('user settings update skipped');
 	} else {

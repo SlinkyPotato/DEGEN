@@ -6,6 +6,7 @@ import Log, { LogUtils } from '../../utils/Log';
 import { claimForDiscord } from '../../service/poap/ClaimPOAP';
 import ServiceUtils from '../../utils/ServiceUtils';
 import ValidationError from '../../errors/ValidationError';
+import OptInPOAP from '../../service/poap/OptInPOAP';
 
 const HandlePOAPGM = async (message: Message): Promise<void> => {
 	const content: string = message.cleanContent;
@@ -20,10 +21,10 @@ const HandlePOAPGM = async (message: Message): Promise<void> => {
 	Log.debug('found gm');
 	
 	const dmChannel: DMChannel = message.channel as DMChannel;
-	const userId: string = message.author.id;
 	
 	try {
-		await claimForDiscord(userId, null, dmChannel);
+		await claimForDiscord(message.author.id.toString(), null, dmChannel);
+		await OptInPOAP(message.author, dmChannel);
 		
 	} catch (e) {
 		if (e instanceof ValidationError) {

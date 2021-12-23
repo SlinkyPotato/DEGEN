@@ -2,17 +2,16 @@
   "$jsonSchema": {
     "bsonType": "object",
     "required": [
-      "id",
+      "userId",
       "tag",
-      "isDMEnabled",
-      "discordServersJoined"
+      "isDMEnabled"
     ],
     "properties": {
-      "discordId": {
+      "userId": {
         "bsonType": ["string"],
         "description": "Discord Id of the user that is configured to use this command."
       },
-      "discordTag": {
+      "tag": {
         "bsonType": ["string"],
         "description": "Discord handle of the user that is configured to use this command."
       },

@@ -1,12 +1,11 @@
-import { Collection } from 'mongodb';
+import {
+	Collection,
+	ObjectId,
+} from 'mongodb';
 
 export interface DiscordUserCollection extends Collection {
-	id: string,
+	_id: ObjectId,
+	userId: string,
 	tag: string,
 	isDMEnabled: boolean,
-	discordServersJoined: DiscordServer[],
-}
-
-type DiscordServer = {
-	id: string,
 }

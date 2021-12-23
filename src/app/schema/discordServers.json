@@ -2,16 +2,16 @@
   "$jsonSchema": {
     "bsonType": "object",
     "required": [
-      "id",
+      "serverId",
       "name",
       "isDEGENActive"
     ],
     "properties": {
-      "discordServerId": {
+      "serverId": {
         "bsonType": ["string"],
         "description": "Discord ID of the server."
       },
-      "discordName": {
+      "name": {
         "bsonType": ["string"],
         "description": "Discord server name"
       },

@@ -46,7 +46,7 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	Log.debug('checking for POAP from db');
 	if (!await unclaimedParticipants.hasNext()) {
 		Log.debug('POAP not found');
-		const msg = 'There doesn\'t seem to be any POAPs yet!';
+		const msg = 'There doesn\'t seem to be any POAPs yet.';
 		if (ctx) {
 			await ctx.send({ content: msg, ephemeral: true });
 		} else if (dmChannel) {

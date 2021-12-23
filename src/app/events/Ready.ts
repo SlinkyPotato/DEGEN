@@ -48,10 +48,10 @@ const updateActiveDiscordServers = async (client: Client, db: Db) => {
 	for await (const guild of guilds.values()) {
 		Log.info(`DEGEN active for: ${guild.id}, ${guild.name}`);
 		await discordServerCollection.updateOne({
-			id: guild.id,
+			serverId: guild.id.toString(),
 		}, {
 			$set: {
-				id: guild.id,
+				serverId: guild.id.toString(),
 				name: guild.name,
 				isDEGENActive: true,
 			},

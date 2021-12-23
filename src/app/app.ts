@@ -56,7 +56,7 @@ creator
 // Log client errors
 client.on('error', Log.error);
 
-client.login(process.env.DISCORD_BOT_TOKEN).then(Log.debug);
+client.login(process.env.DISCORD_BOT_TOKEN).catch(Log.debug);
 
 function initializeClient(): Client {
 	const clientOptions: ClientOptions = {

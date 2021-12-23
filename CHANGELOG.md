@@ -5,6 +5,9 @@
 1. Integrate sentry.io
    - misc message enhancements
 2. Restructure POAP delivery
+   - send POAPs on gm message
+   - store discord server and user settings
+   - provide opt-in for DMs
 
 ## 2.4.1-RELEASE (2021-12-20)
 

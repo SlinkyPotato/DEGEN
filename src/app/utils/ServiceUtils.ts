@@ -10,7 +10,6 @@ import {
 	GuildMember,
 	Message,
 	MessageActionRow,
-	MessageActionRowComponent,
 	MessageButton,
 	MessageEmbedOptions,
 	MessageOptions,
@@ -37,7 +36,6 @@ import { ButtonStyle,
 } from 'slash-create';
 import { ComponentActionRow } from 'slash-create/lib/constants';
 import ValidationError from '../errors/ValidationError';
-import { MessageButtonStyles } from 'discord.js/typings/enums';
 
 const ServiceUtils = {
 	async getGuildAndMember(guildId: string, userId: string): Promise<{ guild: Guild, guildMember: GuildMember }> {

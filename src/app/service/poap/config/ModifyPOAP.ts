@@ -5,12 +5,10 @@ import {
 	MessageButton,
 	MessageEmbedOptions,
 	MessageOptions,
-	MessageReaction,
 	Role,
 	TextChannel,
 } from 'discord.js';
 import ValidationError from '../../../errors/ValidationError';
-import { Collection } from '@discordjs/collection';
 import {
 	BulkWriteError,
 	Collection as MongoCollection,
@@ -19,7 +17,6 @@ import {
 	InsertWriteOpResult,
 	MongoError,
 } from 'mongodb';
-import { Snowflake } from 'discord-api-types';
 import constants from '../../constants/constants';
 import { POAPAdmin } from '../../../types/poap/POAPAdmin';
 import ServiceUtils from '../../../utils/ServiceUtils';

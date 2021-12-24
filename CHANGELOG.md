@@ -9,6 +9,11 @@
    - store discord server and user settings
    - provide opt-in for DMs
    - set poap post claim expiration to 24 hours
+   - configure poap access in secret
+   - allow poap participants to report poap organizers
+   - disable poap commands for bad poap organizers
+   - display additional distribution results info
+   - reorganize code
 
 ## 2.4.1-RELEASE (2021-12-20)
 

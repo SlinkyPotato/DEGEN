@@ -53,7 +53,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	if (!isDmOn && ctx) {
 		await ctx.sendFollowUp({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠' });
 	} else if (ctx) {
-		await ctx.sendFollowUp({ content: 'Please check your DMs!', ephemeral: true });
+		await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
 	} else {
 		if (poapSettingsDoc.channelExecutionId == null || poapSettingsDoc.channelExecutionId == '') {
 			Log.debug(`channelExecutionId missing for ${guildMember.user.tag}, ${guildMember.user.id}, skipping poap end for expired event`);

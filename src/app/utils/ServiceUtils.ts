@@ -241,6 +241,7 @@ const ServiceUtils = {
 		}
 		return {
 			embeds: embedsList as MessageEmbedOptionsSlash[],
+			ephemeral: true,
 		} as MessageOptionsSlash;
 	},
 	

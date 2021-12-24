@@ -10,9 +10,12 @@ try {
 		app: apiKeys.logDNAAppName,
 		level: apiKeys.logDNADefault,
 	});
-	logger.log('Logger initialized!');
-	// eslint-disable-next-line no-console
-	console.log('Logger initialized!');
+	if (process.env.NODE_ENV != 'production' || !logger.info) {
+		// eslint-disable-next-line no-console
+		console.log('Logger initialized!');
+	} else {
+		logger.log('Logger initialized!');
+	}
 } catch (e) {
 	// eslint-disable-next-line no-console
 	console.log('Please setup LogDNA token.');

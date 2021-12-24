@@ -39,7 +39,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles: stri
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'I can help you configure authorized users for the POAP commands!');
 	if (isDmOn) {
-		await ctx.sendFollowUp({ content: 'I just sent you a DM!', ephemeral: true });
+		await ctx.send({ content: 'I just sent you a DM!', ephemeral: true });
 	} else {
 		await ctx.sendFollowUp('⚠ **Please make sure this is a private channel.** I can help you configure authorized users for the POAP commands!');
 	}

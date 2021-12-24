@@ -8,4 +8,5 @@ export interface DiscordUserCollection extends Collection {
 	userId: string,
 	tag: string,
 	isDMEnabled: boolean,
+	reportedForPOAP: number,
 }

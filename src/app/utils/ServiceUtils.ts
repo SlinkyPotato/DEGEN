@@ -174,7 +174,7 @@ const ServiceUtils = {
 			}],
 		};
 		try {
-			await ctx.sendFollowUp({
+			await ctx.send({
 				content: msg ? msg : 'Something is not working. Please reach out to us and a support member will happily assist!',
 				ephemeral: true,
 				components: [row],

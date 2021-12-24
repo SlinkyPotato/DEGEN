@@ -4,7 +4,7 @@
     "required": [
       "userId",
       "tag",
-      "isDMEnabled"
+      "isDMEnabled",
     ],
     "properties": {
       "userId": {
@@ -33,6 +33,10 @@
             }
           }
         }
+      },
+      "reportedForPOAP": {
+        "bsonType": "number",
+        "description": "Number of times this user reported for POAP spam"
       }
     }
   }

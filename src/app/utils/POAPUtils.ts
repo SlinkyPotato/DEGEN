@@ -31,6 +31,7 @@ import { TwitterApiTokens } from 'twitter-api-v2/dist/types';
 import { POAPDistributionResults } from '../types/poap/POAPDistributionResults';
 import ApiKeys from '../service/constants/apiKeys';
 import buttonIds from '../service/constants/buttonIds';
+import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 
 export type POAPFileParticipant = {
 	discordUserId: string,
@@ -329,39 +330,36 @@ const POAPUtils = {
 	},
 	
 	async reportPOAPOrganizer(poapOrganizer: GuildMember): Promise<void> {
-		Log.debug('attempting to report poap organizer or role');
+		Log.debug('attempting to report poap organizer');
 		await poapOrganizer.fetch();
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-		const poapAdminsDb: Collection<POAPAdmin> = await db.collection(constants.DB_COLLECTION_POAP_ADMINS);
-		const userResult: UpdateWriteOpResult = await poapAdminsDb.updateOne({
-			objectType: constants.POAP_ADMIN_TYPE_ENUM_USER,
-			discordObjectId: poapOrganizer.user.id.toString(),
-		}, {
+		const discordUsers: Collection<DiscordUserCollection> = await db.collection(constants.DB_COLLECTION_DISCORD_USERS);
+		const findResult: DiscordUserCollection | null = await discordUsers.findOne({
+			userId: poapOrganizer.user.id.toString(),
+		});
+		
+		if (findResult == null) {
+			await discordUsers.insertOne({
+				userId: poapOrganizer.user.id.toString(),
+				tag: poapOrganizer.user.tag,
+				isDMEnabled: false,
+				reportedForPOAP: 1,
+			} as DiscordUserCollection);
+			Log.debug('poap organizer inserted in usersDB and reported');
+			return;
+		}
+		
+		const userResult: UpdateWriteOpResult = await discordUsers.updateOne(findResult, {
 			$inc: {
-				reported: 1,
+				reportedForPOAP: 1,
 			},
+		}, {
+			upsert: true,
 		});
 		
 		if (userResult.result.ok == 1) {
 			Log.debug('poap organizer reported');
 			return;
-		}
-
-		const rolesCursor: Cursor<POAPAdmin> = await poapAdminsDb.find({
-			objectType: constants.POAP_ADMIN_TYPE_ENUM_ROLE,
-			discordServerId: poapOrganizer.guild.id.toString(),
-		});
-		for await (const poapRole of rolesCursor) {
-			if (poapOrganizer.roles.cache.some(role => role.id === poapRole.discordObjectId)) {
-				await poapAdminsDb.updateOne({
-					objectType: constants.POAP_ADMIN_TYPE_ENUM_ROLE,
-					discordObjectId: poapRole.discordObjectId,
-				}, {
-					$inc: {
-						reported: 1,
-					},
-				});
-			}
 		}
 	},
 	
@@ -598,16 +596,22 @@ const POAPUtils = {
 	
 	async validateUserAccess(guildMember: GuildMember, db: Db): Promise<any> {
 		const MAXIMUM_REPORTS_THRESHOLD = 5;
-		const poapAdminsDb: Collection = await db.collection(constants.DB_COLLECTION_POAP_ADMINS);
-		const userResult: POAPAdmin = await poapAdminsDb.findOne({
+		const discordUsers: Collection<DiscordUserCollection> = await db.collection(constants.DB_COLLECTION_DISCORD_USERS);
+		const userOrganizer: DiscordUserCollection | null = await discordUsers.findOne({
+			userId: guildMember.user.id.toString(),
+		});
+		
+		if (userOrganizer != null && userOrganizer.reportedForPOAP >= MAXIMUM_REPORTS_THRESHOLD) {
+			throw new ValidationError('Maximum user reports reached. Please reach out to support for help.');
+		}
+		
+		const poapAdminsDb: Collection<POAPAdmin> = await db.collection(constants.DB_COLLECTION_POAP_ADMINS);
+		const userResult: POAPAdmin | null = await poapAdminsDb.findOne({
 			objectType: constants.POAP_ADMIN_TYPE_ENUM_USER,
 			discordObjectId: guildMember.user.id.toString(),
 			discordServerId: guildMember.guild.id.toString(),
 		});
 		if (userResult != null) {
-			if (userResult.reported >= MAXIMUM_REPORTS_THRESHOLD) {
-				throw new ValidationError('Maximum user reports reached. Please reach out to support for help');
-			}
 			// user has access
 			return;
 		}
@@ -617,9 +621,6 @@ const POAPUtils = {
 		});
 		for await (const poapRole of rolesCursor) {
 			if (guildMember.roles.cache.some(role => role.id === poapRole.discordObjectId)) {
-				if (poapRole.reported >= MAXIMUM_REPORTS_THRESHOLD) {
-					throw new ValidationError('Maximum user reports reached. Please reach out to support for help');
-				}
 				// role has access
 				return;
 			}

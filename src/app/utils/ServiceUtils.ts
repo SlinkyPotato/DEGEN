@@ -210,7 +210,7 @@ const ServiceUtils = {
 		if (isDmOn) {
 			return await guildMember.send(msg as MessageOptions);
 		} else {
-			return await ctx.sendFollowUp(msg as MessageOptionsSlash);
+			return await ctx.send(msg as MessageOptionsSlash) as MessageSlash;
 		}
 	},
 	

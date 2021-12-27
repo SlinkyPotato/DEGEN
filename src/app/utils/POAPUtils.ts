@@ -549,7 +549,7 @@ const POAPUtils = {
 				await ctx.sendFollowUp(deliveryMsg);
 			}
 		} else {
-			const failedDeliveryMsg = `Looks like some degens have DMs off or they haven't opt-in for delivery. They can claim their POAPs by sending \`gm\` to <@${ApiKeys.DISCORD_BOT_ID}> or executing slash command  \`/poap claim\``;
+			const failedDeliveryMsg = `Looks like some degens have DMs off or they haven't oped in for delivery. They can claim their POAPs by sending \`gm\` to <@${ApiKeys.DISCORD_BOT_ID}> or executing slash command  \`/poap claim\``;
 			if (isDmOn) {
 				await guildMember.send({ content: failedDeliveryMsg });
 			} else if (ctx) {

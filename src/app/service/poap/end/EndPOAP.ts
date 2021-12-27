@@ -51,7 +51,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	let channelExecution: TextChannel | null = null;
 	
 	if (!isDmOn && ctx) {
-		await ctx.sendFollowUp({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠' });
+		await ctx.send({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠', ephemeral: true });
 	} else if (ctx) {
 		await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
 	} else {

@@ -1,7 +1,7 @@
 import {
 	GuildMember,
 	MessageAttachment,
-	MessageOptions, TextChannel,
+	TextChannel,
 } from 'discord.js';
 import {
 	Collection,
@@ -18,7 +18,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import POAPUtils, { TwitterPOAPFileParticipant } from '../../../utils/POAPUtils';
 import { Buffer } from 'buffer';
 import { POAPDistributionResults } from '../../../types/poap/POAPDistributionResults';
-import POAP from '../../../commands/poap/POAP';
 
 const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandContext): Promise<any> => {
 	Log.debug('starting twitter poap end flow...');

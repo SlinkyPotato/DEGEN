@@ -38,8 +38,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	const numberOfParticipants: number = participantsList.length;
 	
 	if (numberOfParticipants <= 0) {
-		await ctx.send('Hmm there doesn\'t seem to be any participants.');
-		return;
+		throw new ValidationError('Hmm there doesn\'t seem to be any participants.');
 	}
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {

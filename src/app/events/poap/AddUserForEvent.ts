@@ -80,7 +80,7 @@ export const updateUserForPOAP = async (
 	
 	if (hasDeafened) {
 		Log.debug(`${member.user.tag} | deafened themselves ${channel.name} in ${channel.guild.name}`);
-		await poapParticipantsDb.deleteOne(poapParticipant);
+		await poapParticipantsDb.deleteOne(poapParticipant).catch(Log.error);
 		return;
 	}
 	const currentDate: Dayjs = dayjs();
@@ -96,7 +96,7 @@ export const updateUserForPOAP = async (
 				endTime: (new Date).toISOString(),
 				durationInMinutes: durationInMinutes,
 			},
-		});
+		}).catch(Log.error);
 		return;
 	}
 	if (poapParticipant !== null && poapParticipant.discordUserId != null && poapParticipant.discordUserId === member.user.id) {
@@ -108,19 +108,19 @@ export const updateUserForPOAP = async (
 			$unset: {
 				endTime: null,
 			},
-		});
+		}).catch(Log.error);
 		return;
 	}
 	
 	const currentDateStr = (new Date()).toISOString();
-	const result: InsertOneWriteOpResult<POAPParticipant> = await poapParticipantsDb.insertOne({
+	const result: InsertOneWriteOpResult<POAPParticipant> | void = await poapParticipantsDb.insertOne({
 		discordUserId: `${member.user.id}`,
 		discordUserTag: `${member.user.tag}`,
 		startTime: currentDateStr,
 		voiceChannelId: `${channel.id}`,
 		discordServerId: `${channel.guild.id}`,
 		durationInMinutes: 0,
-	});
+	}).catch(Log.error);
 	if (result == null || result.insertedCount !== 1) {
 		throw new MongoError('failed to insert poapParticipant');
 	}

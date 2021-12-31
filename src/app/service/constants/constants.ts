@@ -1,6 +1,7 @@
 export default Object.freeze({
+	APP_VERSION: process.env.npm_package_version,
+	APP_NAME: 'degen',
 	DB_NAME_DEGEN: 'degen',
-	DB_NAME_BOUNTY_BOARD: 'bountyboard',
 	DB_NAME_NEXTAUTH: 'nextauth',
 	
 	DB_COLLECTION_TIMECARDS: 'timecards',

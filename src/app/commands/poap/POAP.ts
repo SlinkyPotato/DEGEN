@@ -17,8 +17,9 @@ import constants from '../../service/constants/constants';
 import { GuildMember } from 'discord.js';
 import ModifyPOAP from '../../service/poap/config/ModifyPOAP';
 import StatusPOAP from '../../service/poap/config/StatusPOAP';
+import { command } from '../../utils/SentryUtils';
 
-module.exports = class poap extends SlashCommand {
+export default class POAP extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'poap',
@@ -211,15 +212,16 @@ module.exports = class poap extends SlashCommand {
 			defaultPermission: true,
 		});
 	}
-
-	async run(ctx: CommandContext) {
+	
+	@command
+	async run(ctx: CommandContext): Promise<void> {
 		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;
 		
 		const subCommand: string = ctx.subcommands[0];
 		
 		let guildMember: GuildMember | undefined;
-		let command: Promise<any> | null = null;
+		let commandPromise: Promise<any> | null = null;
 		let authorizedRoles: any[];
 		let authorizedUsers: any[];
 		let platform: string;
@@ -237,41 +239,41 @@ module.exports = class poap extends SlashCommand {
 			switch (subCommand) {
 			case 'config':
 				if (ctx.subcommands[1] == 'status') {
-					command = StatusPOAP(ctx, guildMember as GuildMember);
+					commandPromise = StatusPOAP(ctx, guildMember as GuildMember);
 				} else if (ctx.subcommands[1] == 'modify') {
 					authorizedRoles = [ctx.options.config.modify['role-1'], ctx.options.config.modify['role-2'], ctx.options.config.modify['role-3']];
 					authorizedUsers = [ctx.options.config.modify['user-1'], ctx.options.config.modify['user-2'], ctx.options.config.modify['user-3']];
-					command = ModifyPOAP(ctx, guildMember as GuildMember, authorizedRoles, authorizedUsers);
+					commandPromise = ModifyPOAP(ctx, guildMember as GuildMember, authorizedRoles, authorizedUsers);
 				}
 				break;
 			case 'mint':
-				command = SchedulePOAP(ctx, guildMember as GuildMember, ctx.options.mint['mint-copies']);
+				commandPromise = SchedulePOAP(ctx, guildMember as GuildMember, ctx.options.mint['mint-copies']);
 				break;
 			case 'start':
 				platform = ctx.options.start['platform'] != null && ctx.options.start['platform'] != '' ? ctx.options.start['platform'] : constants.PLATFORM_TYPE_DISCORD;
 				Log.debug(`platform: ${platform}`);
-				command = StartPOAP(ctx, guildMember as GuildMember, platform, ctx.options.start.event, ctx.options.start['duration-minutes']);
+				commandPromise = StartPOAP(ctx, guildMember as GuildMember, platform, ctx.options.start.event, ctx.options.start['duration']);
 				break;
 			case 'end':
 				platform = ctx.options.end['platform'] != null && ctx.options.end['platform'] != '' ? ctx.options.end['platform'] : constants.PLATFORM_TYPE_DISCORD;
 				Log.debug(`platform: ${platform}`);
-				command = EndPOAP(guildMember as GuildMember, platform, ctx);
+				commandPromise = EndPOAP(guildMember as GuildMember, platform, ctx);
 				break;
 			case 'distribute':
 				platform = ctx.options.distribute['platform'] != null && ctx.options.distribute['platform'] != '' ? ctx.options.distribute['platform'] : constants.PLATFORM_TYPE_DISCORD;
 				Log.debug(`platform: ${platform}`);
-				command = DistributePOAP(ctx, guildMember as GuildMember, ctx.options.distribute['event'], platform);
+				commandPromise = DistributePOAP(ctx, guildMember as GuildMember, ctx.options.distribute['event'], platform);
 				break;
 			case 'claim':
 				platform = ctx.options.claim.platform != null && ctx.options.claim.platform != '' ? ctx.options.claim.platform : constants.PLATFORM_TYPE_DISCORD;
 				Log.debug(`platform: ${platform}`);
-				command = ClaimPOAP(ctx, platform, guildMember);
+				commandPromise = ClaimPOAP(ctx, platform, guildMember);
 				break;
 			default:
 				await ctx.send(`${ctx.user.mention} Please try again.`).catch(Log.error);
 				return;
 			}
-			this.handleCommandError(ctx, command);
+			await this.handleCommandError(ctx, commandPromise);
 			return;
 		} catch (e) {
 			LogUtils.logError('failed to process POAP command', e);
@@ -280,17 +282,17 @@ module.exports = class poap extends SlashCommand {
 		}
 	}
 
-	handleCommandError(ctx: CommandContext, command?: Promise<any> | null) {
-		if (command == null) {
+	async handleCommandError(ctx: CommandContext, commandPromise?: Promise<any> | null): Promise<void> {
+		if (commandPromise == null) {
 			ServiceUtils.sendOutErrorMessage(ctx).catch(Log.error);
 			return;
 		}
-		command.catch(async e => {
+		await commandPromise.catch(async e => {
 			if (e instanceof ValidationError) {
-				await ctx.send({ content: `${e.message}`, ephemeral: true }).catch(Log.error);
+				await ctx.sendFollowUp({ content: `${e?.message}`, ephemeral: true }).catch(Log.error);
 				return;
 			} else if (e instanceof EarlyTermination) {
-				await ctx.send({ content: `${e.message}`, ephemeral: true }).catch(Log.error);
+				await ctx.sendFollowUp({ content: `${e?.message}`, ephemeral: true }).catch(Log.error);
 				return;
 			} else {
 				LogUtils.logError('failed to handle poap command', e);
@@ -298,4 +300,4 @@ module.exports = class poap extends SlashCommand {
 			}
 		});
 	}
-};
+}

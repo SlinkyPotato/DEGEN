@@ -6,6 +6,7 @@ import {
 } from 'slash-create';
 import HowToPOAP from '../../service/help/HowToPOAP';
 import { LogUtils } from '../../utils/Log';
+import { command } from '../../utils/SentryUtils';
 
 export default class Help extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -27,6 +28,7 @@ export default class Help extends SlashCommand {
 		});
 	}
 	
+	@command
 	async run(ctx: CommandContext): Promise<any> {
 		LogUtils.logCommandStart(ctx);
 		if (ctx.user.bot) return;

@@ -14,13 +14,14 @@ import Log, { LogUtils } from './utils/Log';
 import * as Sentry from '@sentry/node';
 import { RewriteFrames } from '@sentry/integrations';
 import constants from './service/constants/constants';
+import apiKeys from './service/constants/apiKeys';
 
 initializeSentryIO();
 const client: Client = initializeClient();
 initializeEvents();
 
 const creator = new SlashCreator({
-	applicationID: process.env.DISCORD_BOT_APPLICATION_ID,
+	applicationID: apiKeys.DISCORD_BOT_ID,
 	publicKey: process.env.DISCORD_BOT_PUBLIC_KEY,
 	token: process.env.DISCORD_BOT_TOKEN,
 } as SlashCreatorOptions);
@@ -56,7 +57,7 @@ creator
 // Log client errors
 client.on('error', Log.error);
 
-client.login(process.env.DISCORD_BOT_TOKEN).then(Log.debug);
+client.login(process.env.DISCORD_BOT_TOKEN).catch(Log.debug);
 
 function initializeClient(): Client {
 	const clientOptions: ClientOptions = {

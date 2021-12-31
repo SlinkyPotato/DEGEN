@@ -1,6 +1,8 @@
 import logdna, { Logger, LogOptions } from '@logdna/logger';
 import apiKeys from '../service/constants/apiKeys';
 import { CommandContext } from 'slash-create';
+import * as Sentry from '@sentry/node';
+
 let logger: Logger;
 
 try {
@@ -8,9 +10,12 @@ try {
 		app: apiKeys.logDNAAppName,
 		level: apiKeys.logDNADefault,
 	});
-	logger.log('Logger initialized!');
-	// eslint-disable-next-line no-console
-	console.log('Logger initialized!');
+	if (process.env.NODE_ENV != 'production' || !logger.info) {
+		// eslint-disable-next-line no-console
+		console.log('Logger initialized!');
+	} else {
+		logger.log('Logger initialized!');
+	}
 } catch (e) {
 	// eslint-disable-next-line no-console
 	console.log('Please setup LogDNA token.');
@@ -124,6 +129,11 @@ export const LogUtils = {
 	
 	logError(message: string, error: Error | any, guildId?: string): void {
 		try {
+			Sentry.captureException(error, {
+				tags: {
+					guildId: guildId,
+				},
+			});
 			Log.error(message, {
 				indexMeta: true,
 				meta: {

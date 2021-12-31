@@ -289,7 +289,7 @@ export default class POAP extends SlashCommand {
 		}
 		await commandPromise.catch(async e => {
 			if (e instanceof ValidationError) {
-				await ctx.sendFollowUp({ content: `${e?.message}`, ephemeral: true }).catch(Log.error);
+				await ServiceUtils.sendOutErrorMessage(ctx, `${e?.message}`);
 				return;
 			} else if (e instanceof EarlyTermination) {
 				await ctx.sendFollowUp({ content: `${e?.message}`, ephemeral: true }).catch(Log.error);

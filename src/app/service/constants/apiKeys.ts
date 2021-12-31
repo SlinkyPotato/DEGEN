@@ -1,4 +1,6 @@
 const apiKeys = Object.freeze({
+	DISCORD_BOT_ID: process.env.DISCORD_BOT_APPLICATION_ID,
+	
 	twitterAppToken: process.env.TWITTER_API_TOKEN,
 	twitterAppSecret: process.env.TWITTER_API_SECRET,
 	twitterBearerToken: process.env.TWITTER_BEARER_TOKEN,

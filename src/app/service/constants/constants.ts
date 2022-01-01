@@ -7,6 +7,7 @@ export default Object.freeze({
 	DB_COLLECTION_TIMECARDS: 'timecards',
 	DB_COLLECTION_GUEST_USERS: 'guestUsers',
 	DB_COLLECTION_BOUNTIES: 'bounties',
+	DB_DISCORD_USER_ACCOUNTS: 'discordUserAccounts',
 	
 	DB_COLLECTION_POAP_SETTINGS: 'poapSettings',
 	DB_COLLECTION_POAP_PARTICIPANTS: 'poapParticipants',

@@ -1,9 +1,7 @@
 import { SlashCommand, CommandContext, SlashCreator } from 'slash-create';
-import ServiceUtils from '../../utils/ServiceUtils';
 import discordServerIds from '../../service/constants/discordServerIds';
 import MongoDbUtils from '../../utils/MongoDbUtils';
-import { Collection, Db } from 'mongodb';
-import { NextAuthAccountCollection } from '../../types/nextauth/NextAuthAccountCollection';
+import { Db } from 'mongodb';
 import constants from '../../service/constants/constants';
 import Log from '../../utils/Log';
 
@@ -23,7 +21,6 @@ export default class WalletDetails extends SlashCommand {
 	async run(ctx: CommandContext): Promise<any> {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
-		console.log('~~~~~~~~~~~~~~~~~~~~~~/wallet START~~~~~~~~~~~~~~~~~~~~~~~');
 
 		if (ctx.guildID == null) {
 			await ctx.send({ content: 'Please try this command within a discord server.' });
@@ -32,19 +29,16 @@ export default class WalletDetails extends SlashCommand {
 
 		try {
 			const walletAddress = await getWalletDetails(ctx.user.id);
-			console.log(`WALLET DETAILS: ${walletAddress}`)
-			// TODO: vary the string if no wallet found.
 			const username = ctx.user.mention;
 			const dmReplyStr = walletAddress ? `Wallet connected to ${username} is ${walletAddress}. You can change these details with /connect.` : `Sorry, there's no wallet connected to ${username}. Use /connect to connect your wallet.`;
 			return ctx.send(dmReplyStr);
 		} catch (e) {
-			console.error(e);
+			Log.error(e);
 		}
 	}
 }
 
 const getWalletDetails = async (userId: string) => {
-	console.log(`GETTING WALLET DETAILS FOR: ${userId}`);
 	const degenDb: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const walletCollection = degenDb.collection(constants.DB_DISCORD_USER_ACCOUNTS);
 	

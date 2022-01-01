@@ -1,6 +1,7 @@
 import { SlashCommand, CommandContext, SlashCreator } from 'slash-create';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import { Db } from 'mongodb';
+import discordServerIds from '../../service/constants/discordServerIds';
 import constants from '../../service/constants/constants';
 import Log from '../../utils/Log';
 
@@ -9,6 +10,7 @@ export default class WalletDetails extends SlashCommand {
 		super(creator, {
 			name: 'wallet',
 			description: 'Lookup wallet details',
+			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
 		});
 	}
 

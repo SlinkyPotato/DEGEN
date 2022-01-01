@@ -1,6 +1,5 @@
 import { SlashCommand, CommandContext, SlashCreator } from 'slash-create';
 import ServiceUtils from '../../utils/ServiceUtils';
-import discordServerIds from '../../service/constants/discordServerIds';
 import Log from '../../utils/Log';
 
 export default class WalletConnect extends SlashCommand {
@@ -8,11 +7,6 @@ export default class WalletConnect extends SlashCommand {
 		super(creator, {
 			name: 'connect',
 			description: 'Connect your wallet',
-			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
-			throttling: {
-				usages: 2,
-				duration: 1,
-			},
 		});
 	}
 

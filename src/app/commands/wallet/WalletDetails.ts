@@ -1,5 +1,4 @@
 import { SlashCommand, CommandContext, SlashCreator } from 'slash-create';
-import discordServerIds from '../../service/constants/discordServerIds';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import { Db } from 'mongodb';
 import constants from '../../service/constants/constants';
@@ -10,22 +9,12 @@ export default class WalletDetails extends SlashCommand {
 		super(creator, {
 			name: 'wallet',
 			description: 'Lookup wallet details',
-			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
-			throttling: {
-				usages: 2,
-				duration: 1,
-			},
 		});
 	}
 
 	async run(ctx: CommandContext): Promise<any> {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
-
-		if (ctx.guildID == null) {
-			await ctx.send({ content: 'Please try this command within a discord server.' });
-			return;
-		}
 
 		try {
 			const walletAddress = await getWalletDetails(ctx.user.id);

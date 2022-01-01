@@ -9,6 +9,8 @@ import {
 	Guild,
 	GuildMember,
 	Message,
+	MessageActionRow,
+	MessageButton,
 	MessageEmbedOptions,
 	MessageOptions,
 	Permissions,
@@ -34,6 +36,13 @@ import { ButtonStyle,
 } from 'slash-create';
 import { ComponentActionRow } from 'slash-create/lib/constants';
 import ValidationError from '../errors/ValidationError';
+import {
+	Db,
+	Collection as MongoCollection,
+} from 'mongodb';
+import MongoDbUtils from './MongoDbUtils';
+import constants from '../service/constants/constants';
+import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 
 const ServiceUtils = {
 	async getGuildAndMember(guildId: string, userId: string): Promise<{ guild: Guild, guildMember: GuildMember }> {
@@ -165,9 +174,26 @@ const ServiceUtils = {
 			}],
 		};
 		try {
-			await ctx.sendFollowUp({
+			await ctx.send({
 				content: msg ? msg : 'Something is not working. Please reach out to us and a support member will happily assist!',
 				ephemeral: true,
+				components: [row],
+			}).catch(Log.error);
+		} catch (e) {
+			Log.error(e);
+		}
+	},
+	
+	sendOutErrorMessageForDM: async (dmChannel: DMChannel, msg?: string): Promise<any> => {
+		const row: MessageActionRow = new MessageActionRow().addComponents(
+			new MessageButton()
+				.setURL('https://discord.gg/NRj43H83nJ')
+				.setStyle('LINK')
+				.setLabel('Support'),
+		);
+		try {
+			await dmChannel.send({
+				content: msg ? msg : 'Something is not working. Please reach out to us and a support member will happily assist!',
 				components: [row],
 			}).catch(Log.error);
 		} catch (e) {
@@ -184,7 +210,7 @@ const ServiceUtils = {
 		if (isDmOn) {
 			return await guildMember.send(msg as MessageOptions);
 		} else {
-			return await ctx.sendFollowUp(msg as MessageOptionsSlash);
+			return await ctx.send(msg as MessageOptionsSlash) as MessageSlash;
 		}
 	},
 	
@@ -215,7 +241,22 @@ const ServiceUtils = {
 		}
 		return {
 			embeds: embedsList as MessageEmbedOptionsSlash[],
+			ephemeral: true,
 		} as MessageOptionsSlash;
+	},
+	
+	isDMEnabledForUser: async (member: GuildMember): Promise<boolean> => {
+		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		const dbUsers: MongoCollection<DiscordUserCollection> = await db.collection(constants.DB_COLLECTION_DISCORD_USERS);
+		const result: DiscordUserCollection | null = await dbUsers.findOne({
+			userId: member.id.toString(),
+		});
+		
+		if (result == null) {
+			return false;
+		}
+		
+		return result.isDMEnabled;
 	},
 };
 

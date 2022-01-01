@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import MongoDbUtils from '../../../utils/MongoDbUtils';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import EndTwitterFlow from './EndTwitterFlow';
+import { POAPDistributionResults } from '../../../types/poap/POAPDistributionResults';
 
 export default async (guildMember: GuildMember, platform: string, ctx?: CommandContext): Promise<any> => {
 	Log.debug('attempting to end poap event');
@@ -50,9 +51,9 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	let channelExecution: TextChannel | null = null;
 	
 	if (!isDmOn && ctx) {
-		await ctx.sendFollowUp({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠' });
+		await ctx.send({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠', ephemeral: true });
 	} else if (ctx) {
-		await ctx.sendFollowUp({ content: 'Please check your DMs!', ephemeral: true });
+		await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
 	} else {
 		if (poapSettingsDoc.channelExecutionId == null || poapSettingsDoc.channelExecutionId == '') {
 			Log.debug(`channelExecutionId missing for ${guildMember.user.tag}, ${guildMember.user.id}, skipping poap end for expired event`);
@@ -144,11 +145,10 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	
 	const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, isDmOn, numberOfParticipants, ctx, channelExecution);
 	const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
-	const listOfFailedPOAPs: POAPFileParticipant[] = await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapSettingsDoc.event, listOfPOAPLinks);
-	await POAPUtils.handleDistributionResults(isDmOn, guildMember, listOfFailedPOAPs, numberOfParticipants, channelExecution, ctx);
-	
-	if (listOfFailedPOAPs.length > 0) {
-		await POAPUtils.setupFailedAttendeesDelivery(guildMember, listOfFailedPOAPs, poapSettingsDoc.event, constants.PLATFORM_TYPE_DISCORD, isDmOn, ctx);
+	const distributionResults: POAPDistributionResults = await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapSettingsDoc.event, listOfPOAPLinks);
+	if (distributionResults.didNotSendList.length > 0) {
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, distributionResults, poapSettingsDoc.event, constants.PLATFORM_TYPE_DISCORD);
 	}
+	await POAPUtils.handleDistributionResults(isDmOn, guildMember, distributionResults, channelExecution, ctx);
 	Log.debug('POAP end complete');
 };

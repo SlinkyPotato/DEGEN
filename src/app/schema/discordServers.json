@@ -2,21 +2,21 @@
   "$jsonSchema": {
     "bsonType": "object",
     "required": [
-      "discordServerId",
-      "discordName",
-      "isDegenActive"
+      "serverId",
+      "name",
+      "isDEGENActive"
     ],
     "properties": {
-      "discordServerId": {
-        "bsonType": "string",
+      "serverId": {
+        "bsonType": ["string"],
         "description": "Discord ID of the server."
       },
-      "discordName": {
-        "bsonType": "string",
+      "name": {
+        "bsonType": ["string"],
         "description": "Discord server name"
       },
       "isDegenActive": {
-        "bsonType": "bool",
+        "bsonType": ["bool"],
         "description": "Flag that is true if the discord server has DEGEN active"
       }
     }

@@ -31,11 +31,11 @@ export default class WalletDetails extends SlashCommand {
 		}
 
 		try {
-			// TODO: GET WALLET DETAILS
-			const walletDetails = await getWalletDetails(ctx.user.id);
-			console.log(`WALLET DETAILS`)
-			console.log(walletDetails)
-			const dmReplyStr = `Here's wallet details for ${ctx.user.mention}: {}. You can change these details with /connect.`;
+			const walletAddress = await getWalletDetails(ctx.user.id);
+			console.log(`WALLET DETAILS: ${walletAddress}`)
+			// TODO: vary the string if no wallet found.
+			const username = ctx.user.mention;
+			const dmReplyStr = walletAddress ? `Wallet connected to ${username} is ${walletAddress}. You can change these details with /connect.` : `Sorry, there's no wallet connected to ${username}. Use /connect to connect your wallet.`;
 			return ctx.send(dmReplyStr);
 		} catch (e) {
 			console.error(e);
@@ -48,14 +48,10 @@ const getWalletDetails = async (userId: string) => {
 	const degenDb: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const walletCollection = degenDb.collection(constants.DB_DISCORD_USER_ACCOUNTS);
 	
-	// Log.debug('looking for discord auth account');
+	Log.debug('looking for discord wallet details');
 	const userResult = await walletCollection.findOne({
 		discordUserId: userId,
 	});
 
-	console.log(`RESULT----------------------------------`)
-	console.log(userResult)
-
-	// return nextAuthAccount;
-	return "hello world"
-}
+	return userResult?.address || false;
+};

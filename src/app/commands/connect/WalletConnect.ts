@@ -1,9 +1,9 @@
 import { SlashCommand, CommandContext, SlashCreator } from 'slash-create';
-import client from '../../app';
 import ServiceUtils from '../../utils/ServiceUtils';
 import discordServerIds from '../../service/constants/discordServerIds';
+import Log from '../../utils/Log';
 
-export default class NotionFAQs extends SlashCommand {
+export default class WalletConnect extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'connect',
@@ -19,7 +19,6 @@ export default class NotionFAQs extends SlashCommand {
 	async run(ctx: CommandContext): Promise<any> {
 		// Ignores commands from bots
 		if (ctx.user.bot) return;
-		console.log('~~~~~~~~~~~~~~~~~~~~~~/connect START~~~~~~~~~~~~~~~~~~~~~~~');
 
 		if (ctx.guildID == null) {
 			await ctx.send({ content: 'Please try this command within a discord server.' });
@@ -33,7 +32,7 @@ export default class NotionFAQs extends SlashCommand {
 			ctx.send(dmReplyStr);
 			return guildMember.send(publicReplyStr);
 		} catch (e) {
-			console.error(e);
+			Log.error(e);
 		}
 	}
 }

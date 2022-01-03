@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.5.0-RELEASE (2021-01-03)
+## 2.5.0-RELEASE (2022-01-03)
 
 1. Integrate sentry.io
    - misc message enhancements

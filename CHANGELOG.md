@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.2-LEGACY (2022-01-03)
+
+1. Introduce /invite command and disable existing poap commands
+
 ## 2.4.1-RELEASE (2021-12-20)
 
 1. Remove memory bottleneck for poap claim

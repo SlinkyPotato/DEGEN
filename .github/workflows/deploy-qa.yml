@@ -2,11 +2,7 @@ name: Deploy to QA Environment
 on:
     push:
         branches:
-          - 'develop'
-          - 'hotfix/**'
-    pull_request:
-        branches:
-          - 'release/**'
+          - 'hotfix/2.4.2'
 jobs:
     deploy-qa:
         environment:

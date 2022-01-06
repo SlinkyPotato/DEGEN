@@ -18,7 +18,7 @@ export default class implements DiscordEvent {
 
 	async execute(client: Client): Promise<any> {
 		try {
-			Log.info('The Sun will never set on the DAO. Neither will I. DEGEN is ready for service.');
+			Log.info('Starting up degen-tbd');
 			
 			if (client.user) {
 				Log.debug(`setting status: ${process.env.DISCORD_BOT_ACTIVITY}`);
@@ -30,7 +30,7 @@ export default class implements DiscordEvent {
 			await POAPService.runAutoEndSetup(client, constants.PLATFORM_TYPE_TWITTER).catch(Log.error);
 			await POAPService.clearExpiredPOAPs();
 			
-			Log.info('DEGEN is ready!');
+			Log.info('degen-tbd is ready!');
 		} catch (e) {
 			LogUtils.logError('Error processing event ready', e);
 		}

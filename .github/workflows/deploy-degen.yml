@@ -6,7 +6,7 @@ on:
 jobs:
   deploy-prod:
     environment:
-      name: production
+      name: degen-legacy
       url: https://app.logdna.com/273e532689/logs/view?apps=degen
     runs-on: ubuntu-20.04
     steps:
@@ -30,9 +30,9 @@ jobs:
           heroku_email: 'bankless@nonsensecodes.io'
           procfile: 'worker: yarn prod'
         env:
-          HD_DISCORD_BOT_TOKEN: ${{secrets.PROD_DISCORD_TOKEN}}
-          HD_DISCORD_BOT_PUBLIC_KEY: ${{secrets.PROD_BOT_PUBLIC_KEY}}
-          HD_DISCORD_BOT_APPLICATION_ID: ${{secrets.PROD_BOT_APPLICATION_ID}}
+          HD_DISCORD_BOT_TOKEN: ${{secrets.DEGEN_LEGACY_DISCORD_TOKEN}}
+          HD_DISCORD_BOT_PUBLIC_KEY: ${{secrets.DEGEN_LEGACY_PUBLIC_KEY}}
+          HD_DISCORD_BOT_APPLICATION_ID: ${{secrets.DEGEN_LEGACY_APPLICATION_ID}}
           HD_DISCORD_OWNER_ID: ${{secrets.PROD_DISCORD_OWNER_ID}}
           HD_MONGODB_USERNAME: ${{secrets.PROD_MONGODB_USERNAME}}
           HD_MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}

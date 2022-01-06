@@ -21,9 +21,6 @@ import {
 import client from '../app';
 import Log, { LogUtils } from './Log';
 import { stringify } from 'csv-stringify/sync';
-import { parse } from 'csv-parse/sync';
-import { POAPFileParticipant,
-	TwitterPOAPFileParticipant } from './POAPUtils';
 import { ButtonStyle,
 	CommandContext,
 	ComponentType,
@@ -37,6 +34,7 @@ import ValidationError from '../errors/ValidationError';
 
 const ServiceUtils = {
 	async getGuildAndMember(guildId: string, userId: string): Promise<{ guild: Guild, guildMember: GuildMember }> {
+		Log.debug('getting guild member');
 		const guild = await client.guilds.fetch(guildId);
 		return {
 			guild: guild,
@@ -142,16 +140,6 @@ const ServiceUtils = {
 		});
 		Log.debug('finishing csv buffer');
 		return Buffer.from(csvString, 'utf-8');
-	},
-	
-	parseCSVFile: (csvFile: string): POAPFileParticipant[] | TwitterPOAPFileParticipant[] => {
-		Log.debug('starting to parse csv file...');
-		const records: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = parse(csvFile, {
-			columns: true,
-			skip_empty_lines: true,
-		});
-		Log.debug('done parsing csv file');
-		return records;
 	},
 	
 	sendOutErrorMessage: async (ctx: CommandContext, msg?: string): Promise<any> => {

@@ -2,10 +2,8 @@ name: Build and Test
 on:
     pull_request:
       branches:
-        - 'develop'
         - 'DEGEN'
-        - 'hotfix/**'
-        - 'release/**'
+        - 'hotfix/2.4.2-legacy'
 jobs:
     build-test:
         runs-on: ubuntu-20.04

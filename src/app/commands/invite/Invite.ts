@@ -11,7 +11,6 @@ import MongoDbUtils from '../../utils/MongoDbUtils';
 import POAPUtils from '../../utils/POAPUtils';
 import { GuildMember } from 'discord.js';
 import ValidationError from '../../errors/ValidationError';
-import discordServerIds from '../../service/constants/discordServerIds';
 
 export default class Invite extends SlashCommand {
 	constructor(creator: SlashCreator) {

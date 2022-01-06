@@ -4,7 +4,7 @@ on:
     branches:
       - 'DEGEN'
 jobs:
-  deploy-prod:
+  deploy-degen-legacy:
     environment:
       name: degen-legacy
       url: https://app.logdna.com/273e532689/logs/view?apps=degen

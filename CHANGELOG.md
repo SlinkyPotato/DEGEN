@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.5.0
+## 2.5.0-RELEASE (2022-01-03)
 
 1. Integrate sentry.io
    - misc message enhancements
@@ -14,6 +14,7 @@
    - disable poap commands for bad poap organizers
    - display additional distribution results info
    - reorganize code
+3. Setup new bot
 
 ## 2.4.1-RELEASE (2021-12-20)
 

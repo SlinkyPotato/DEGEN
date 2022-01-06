@@ -23,7 +23,6 @@ export default class Invite extends SlashCommand {
 				duration: 1,
 			},
 			defaultPermission: true,
-			guildIDs: [discordServerIds.discordBotGarage],
 		});
 	}
 

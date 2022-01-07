@@ -43,6 +43,7 @@ import {
 import MongoDbUtils from './MongoDbUtils';
 import constants from '../service/constants/constants';
 import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
+import { DiscordServerCollection } from '../types/discord/DiscordServerCollection';
 
 const ServiceUtils = {
 	async getGuildAndMember(guildId: string, userId: string): Promise<{ guild: Guild, guildMember: GuildMember }> {
@@ -248,6 +249,7 @@ const ServiceUtils = {
 	isDMEnabledForUser: async (member: GuildMember): Promise<boolean> => {
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const dbUsers: MongoCollection<DiscordUserCollection> = await db.collection(constants.DB_COLLECTION_DISCORD_USERS);
+		await member.fetch();
 		const result: DiscordUserCollection | null = await dbUsers.findOne({
 			userId: member.id.toString(),
 		});
@@ -257,6 +259,23 @@ const ServiceUtils = {
 		}
 		
 		return result.isDMEnabled;
+	},
+
+	addActiveDiscordServer: async (guild: Guild): Promise<void> => {
+		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		const discordServerCollection = await db.collection<DiscordServerCollection>(constants.DB_COLLECTION_DISCORD_SERVERS);
+		Log.info(`DEGEN active for: ${guild.id}, ${guild.name}`);
+		await discordServerCollection.updateOne({
+			serverId: guild.id.toString(),
+		}, {
+			$set: {
+				serverId: guild.id.toString(),
+				name: guild.name,
+				isDEGENActive: true,
+			},
+		}, {
+			upsert: true,
+		});
 	},
 };
 

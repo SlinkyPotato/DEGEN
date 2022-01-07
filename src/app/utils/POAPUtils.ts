@@ -288,6 +288,10 @@ const POAPUtils = {
 						components: [
 							new MessageActionRow().addComponents(
 								new MessageButton()
+									.setLabel('Claim')
+									.setURL(`${poapLink}`)
+									.setStyle('LINK'),
+								new MessageButton()
 									.setCustomId(buttonIds.POAP_REPORT_SPAM)
 									.setLabel('Report')
 									.setStyle('DANGER'),

@@ -80,6 +80,7 @@ function initializeClient(): Client {
 
 function initializeSentryIO() {
 	Sentry.init({
+		dsn: `${apiKeys.sentryDSN}`,
 		tracesSampleRate: 1.0,
 		release: `${constants.APP_NAME}@${constants.APP_VERSION}`,
 		environment: process.env.SENTRY_ENVIRONMENT,

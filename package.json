@@ -1,6 +1,6 @@
 {
     "name": "degen-tbd",
-    "version": "2.5.0",
+    "version": "2.5.1",
     "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
     "main": "app.js",
     "private": true,

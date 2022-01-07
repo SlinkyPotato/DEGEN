@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.1-RELEASE (2022-01-07)
+
+1. Manually assign DSN, reference bot for gm message, add discord server on event
+
 ## 2.5.0-RELEASE (2022-01-03)
 
 1. Integrate sentry.io

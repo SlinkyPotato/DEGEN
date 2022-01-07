@@ -24,13 +24,16 @@ const HandlePOAPGM = async (message: Message): Promise<void> => {
 	
 	try {
 		await claimForDiscord(message.author.id.toString(), null, dmChannel);
-		await OptInPOAP(message.author, dmChannel).catch(Log.error);
+		await OptInPOAP(message.author, dmChannel).catch(e => {
+			Log.error(e);
+			ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
+		});
 		
 	} catch (e) {
 		if (e instanceof ValidationError) {
-			await ServiceUtils.sendOutErrorMessageForDM(dmChannel, e?.message);
+			await ServiceUtils.sendOutErrorMessageForDM(dmChannel, e?.message).catch(Log.error);
 		} else {
-			await ServiceUtils.sendOutErrorMessageForDM(dmChannel);
+			await ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
 		}
 		LogUtils.logError('failed to claim poap in DM', e);
 	}

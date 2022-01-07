@@ -249,6 +249,7 @@ const ServiceUtils = {
 	isDMEnabledForUser: async (member: GuildMember): Promise<boolean> => {
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const dbUsers: MongoCollection<DiscordUserCollection> = await db.collection(constants.DB_COLLECTION_DISCORD_USERS);
+		await member.fetch();
 		const result: DiscordUserCollection | null = await dbUsers.findOne({
 			userId: member.id.toString(),
 		});

@@ -24,7 +24,7 @@ const HandlePOAPGM = async (message: Message): Promise<void> => {
 	
 	try {
 		await claimForDiscord(message.author.id.toString(), null, dmChannel);
-		await OptInPOAP(message.author, dmChannel);
+		await OptInPOAP(message.author, dmChannel).catch(Log.error);
 		
 	} catch (e) {
 		if (e instanceof ValidationError) {

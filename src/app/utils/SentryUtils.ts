@@ -68,15 +68,22 @@ export function message_event(target: DiscordEvent, propertyKey: string, descrip
 			
 			scope.setSpan(transaction);
 			
+			const authorId = (message.author?.id?.toString()) ? message.author?.id?.toString() : '';
+			const authorUserName = (message.author?.username) ? message.author?.username : '';
+			const discriminator = (message.author?.discriminator) ? message.author?.discriminator : '';
+			
 			scope.setUser({
-				id: message.author.id.toString(),
-				username: message.author.username,
-				discriminator: message.author.discriminator,
+				id: authorId,
+				username: authorUserName,
+				discriminator: discriminator,
 			});
 			
+			const guildId = (message.guild?.id?.toString()) ? message.guild?.id?.toString() : '';
+			const channelId = message.channel?.id?.toString() ? message.channel?.id?.toString() : '';
+			
 			scope.setTags({
-				guild: message.guild?.id.toString(),
-				channelId: message.channel.id.toString(),
+				guild: guildId,
+				channelId: channelId,
 				event: 'messageCreate',
 			});
 			

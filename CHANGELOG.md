@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.2-RELEASE
+
+1. Address sentry.io issues 2022-01-08
+   - add type guards to messageCreate sentry method
+
 ## 2.5.1-RELEASE (2022-01-07)
 
 1. Manually assign DSN, reference bot for gm message, add discord server on event

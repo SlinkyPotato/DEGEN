@@ -308,6 +308,12 @@ const POAPUtils = {
 					});
 				if (!message) {
 					Log.warn('failed to send message');
+					failedPOAPsList.push({
+						discordUserId: participant.discordUserId,
+						discordUserTag: participant.discordUserTag,
+						poapLink: poapLink,
+					});
+					results.failedToSend++;
 					i++;
 					continue;
 				}

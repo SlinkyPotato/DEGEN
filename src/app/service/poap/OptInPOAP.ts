@@ -64,7 +64,7 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 		await message.awaitMessageComponent({
 			filter: args => (args.customId == buttonIds.POAP_OPT_IN_YES
 				|| args.customId == buttonIds.POAP_OPT_IN_NO) && args.user.id == user.id.toString(),
-			time: 10000,
+			time: 300_000,
 		}).then((interaction) => {
 			if (interaction.customId == buttonIds.POAP_OPT_IN_YES) {
 				isAllowedToGetDMs = true;

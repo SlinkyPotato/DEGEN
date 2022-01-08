@@ -11,12 +11,13 @@ import {
 	GuildMember,
 	StageChannel,
 	VoiceChannel,
-	GuildChannel, TextChannel,
+	GuildChannel,
+	TextChannel,
+	Collection,
 } from 'discord.js';
 import {
 	Collection as CollectionMongo,
 } from 'mongodb';
-import { Collection } from '@discordjs/collection';
 import { MessageEmbedOptions as MessageEmbedOptionsSlash } from 'slash-create/lib/structures/message';
 import ValidationError from '../../../errors/ValidationError';
 const StartChannelFlow = async (

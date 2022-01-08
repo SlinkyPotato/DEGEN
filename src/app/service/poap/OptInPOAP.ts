@@ -64,7 +64,7 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 		await message.awaitMessageComponent({
 			filter: args => (args.customId == buttonIds.POAP_OPT_IN_YES
 				|| args.customId == buttonIds.POAP_OPT_IN_NO) && args.user.id == user.id.toString(),
-			time: 300_000,
+			time: 10000,
 		}).then((interaction) => {
 			if (interaction.customId == buttonIds.POAP_OPT_IN_YES) {
 				isAllowedToGetDMs = true;
@@ -72,7 +72,10 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 				message.edit({ content: 'No problem!', components: [] });
 			}
 		}).catch(error => {
-			message.edit({ content: 'Timeout reached, please reach out to us with any questions!', components: [] });
+			message.edit({ content: 'Timeout reached, please reach out to us with any questions!', components: [] }).catch(e => {
+				Log.warn(e);
+				return;
+			});
 			Log.debug(error?.message);
 		});
 		

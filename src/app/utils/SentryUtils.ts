@@ -26,17 +26,26 @@ export function command(target: SlashCommand, propertyKey: string, descriptor: P
 			
 			scope.setSpan(transaction);
 			
+			const userId = (ctx.member?.id) ? ctx.member?.id : '';
+			const userName = (ctx.member?.user?.username) ? ctx.member?.user?.username : '';
+			const discriminator = (ctx.member?.user?.discriminator) ? ctx.member?.user?.discriminator : '';
+			const nickName = (ctx.member?.nick) ? ctx.member?.nick : '';
+			
 			scope.setUser({
-				id: ctx.member?.id,
-				username: ctx.member?.user.username,
-				discriminator: ctx.member?.user.discriminator,
-				nickname: ctx.member?.nick,
+				id: userId,
+				username: userName,
+				discriminator: discriminator,
+				nickname: nickName,
 			});
 			
+			const guildId = (ctx.guildID) ? ctx.guildID : '';
+			const channelId = (ctx.channelID) ? ctx.channelID : '';
+			const commandName = (ctx.commandName) ? ctx.commandName : '';
+			
 			scope.setTags({
-				guild: ctx.guildID,
-				channelId: ctx.channelID,
-				commandName: ctx.commandName,
+				guild: guildId,
+				channelId: channelId,
+				commandName: commandName,
 			});
 			
 			try {

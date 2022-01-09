@@ -4,7 +4,6 @@ on:
         branches:
           - 'develop'
           - 'hotfix/**'
-          - 'feature/stability-check'
     pull_request:
         branches:
           - 'release/**'

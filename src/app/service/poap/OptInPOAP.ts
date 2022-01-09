@@ -92,6 +92,7 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 		}
 		Log.debug('user settings update skipped');
 	} else {
+		Log.debug(`user is opted in to dms, userId: ${user.id}`);
 		await dmChannel.send({ content: 'I will send you POAPs as soon as I get them!' });
 	}
 };

@@ -18,6 +18,7 @@ const HandlePOAPGM = async (message: Message): Promise<void> => {
 	if (!content.match(/^gm$/gi)) {
 		return;
 	}
+	
 	Log.debug(`found gm from ${message.author.tag}`);
 	
 	const dmChannel: DMChannel = message.channel as DMChannel;

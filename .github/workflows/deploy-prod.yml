@@ -47,6 +47,9 @@ jobs:
           HD_POAP_CLIENT_ID: ${{secrets.PROD_POAP_CLIENT_ID}}
           HD_POAP_CLIENT_SECRET: ${{secrets.PROD_POAP_CLIENT_SECRET}}
           HD_SENTRY_IO_DSN: ${{secrets.PROD_SENTRY_IO_DSN}}
+      - name: Get current package version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.1.0
       - name: Sentry Release
         uses: getsentry/action-release@v1.1.6
         env:
@@ -56,4 +59,5 @@ jobs:
           sourcemaps: './dist'
         with:
           environment: 'production'
+          version: 'degen@'${{ steps.package-version.outputs.current-version }}
 

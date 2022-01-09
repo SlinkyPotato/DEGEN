@@ -654,8 +654,8 @@ const POAPUtils = {
 		}
 	},
 	
-	getEventYear(startDateObj: Dayjs): string {
-		return startDateObj.year().toString();
+	getEventYear(startDateObj: Dayjs): number {
+		return startDateObj.year();
 	},
 	
 };

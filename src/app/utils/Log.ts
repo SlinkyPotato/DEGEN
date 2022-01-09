@@ -144,7 +144,7 @@ export const LogUtils = {
 				},
 			});
 		} catch (e) {
-			Log.error(message);
+			Log.warn(message);
 		}
 	},
 };

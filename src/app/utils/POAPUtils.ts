@@ -307,7 +307,15 @@ const POAPUtils = {
 						results.failedToSend++;
 					});
 				if (!message) {
-					throw new Error('failed to send message');
+					Log.warn('failed to send message');
+					failedPOAPsList.push({
+						discordUserId: participant.discordUserId,
+						discordUserTag: participant.discordUserTag,
+						poapLink: poapLink,
+					});
+					results.failedToSend++;
+					i++;
+					continue;
 				}
 				message.awaitMessageComponent({
 					filter: args => (args.customId == buttonIds.POAP_REPORT_SPAM && args.user.id == participant.discordUserId),

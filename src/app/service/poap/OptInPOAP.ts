@@ -72,7 +72,10 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 				message.edit({ content: 'No problem!', components: [] });
 			}
 		}).catch(error => {
-			message.edit({ content: 'Timeout reached, please reach out to us with any questions!', components: [] });
+			message.edit({ content: 'Timeout reached, please reach out to us with any questions!', components: [] }).catch(e => {
+				Log.warn(e);
+				return;
+			});
 			Log.debug(error?.message);
 		});
 		

@@ -16,6 +16,7 @@ import MongoDbUtils from '../../../utils/MongoDbUtils';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import EndTwitterFlow from './EndTwitterFlow';
 import { POAPDistributionResults } from '../../../types/poap/POAPDistributionResults';
+import channelIds from '../../constants/channelIds';
 
 export default async (guildMember: GuildMember, platform: string, ctx?: CommandContext): Promise<any> => {
 	Log.debug('attempting to end poap event');
@@ -47,14 +48,14 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	
 	Log.debug('active poap event found');
 	
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one');
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I found a poap event, let me try ending it.');
 	let channelExecution: TextChannel | null = null;
 	
 	if (!isDmOn && ctx) {
 		await ctx.send({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠', ephemeral: true });
 	} else if (ctx) {
 		await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
-	} else {
+	} else if (poapSettingsDoc.channelExecutionId != channelIds.DM) {
 		if (poapSettingsDoc.channelExecutionId == null || poapSettingsDoc.channelExecutionId == '') {
 			Log.debug(`channelExecutionId missing for ${guildMember.user.tag}, ${guildMember.user.id}, skipping poap end for expired event`);
 			return;

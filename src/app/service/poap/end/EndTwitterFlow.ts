@@ -18,6 +18,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import POAPUtils, { TwitterPOAPFileParticipant } from '../../../utils/POAPUtils';
 import { Buffer } from 'buffer';
 import { POAPDistributionResults } from '../../../types/poap/POAPDistributionResults';
+import channelIds from '../../constants/channelIds';
 
 const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandContext): Promise<any> => {
 	Log.debug('starting twitter poap end flow...');
@@ -42,7 +43,7 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 		await ctx.send({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠', ephemeral: true });
 	} else if (ctx) {
 		await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
-	} else {
+	} else if (activeTwitterSettings.channelExecutionId != channelIds.DM) {
 		if (activeTwitterSettings.channelExecutionId == null || activeTwitterSettings.channelExecutionId == '') {
 			Log.debug(`channelExecutionId missing for ${guildMember.user.tag}, ${guildMember.user.id}, skipping poap end for expired event`);
 			return;

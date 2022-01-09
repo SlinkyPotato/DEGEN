@@ -55,5 +55,5 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           sourcemaps: './dist'
         with:
-          environment: production
+          environment: 'production'
 

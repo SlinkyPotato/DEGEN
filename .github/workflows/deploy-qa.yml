@@ -55,5 +55,6 @@ jobs:
                 SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
                 SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
                 sourcemaps: './dist'
+                version: 'degen@2.6.0'
               with:
                 environment: qa

@@ -27,7 +27,7 @@ const HandleParticipantDuringEvent = async (oldState: VoiceState, newState: Voic
 		if (!await isStateChangeRelatedToActiveEvent(oldState, newState)) {
 			return;
 		}
-		await startTrackingUserParticipation(oldState, newState);
+		// await startTrackingUserParticipation(oldState, newState);
 		return;
 	}
 	
@@ -225,39 +225,39 @@ const removeDeafenedUser = async (oldState: VoiceState, newState: VoiceState) =>
 	}
 };
 
-const startTrackingUserParticipation = async (oldState: VoiceState, newState: VoiceState) => {
-	
-};
-
-const stopTrackingUserParticipation = async (oldState: VoiceState, newState: VoiceState) => {
-	
-};
-
-const hasUserTriggeredState = (oldState: VoiceState, newState: VoiceState): boolean => {
-	// Check if user entered a channel
-	if (newState.channelId != null && newState.channelId != oldState.channelId) {
-		// Log.debug('entered a channel');
-		return true;
-	}
-
-	// Check if user left all channels
-	if (newState.channelId == null && newState.channelId != oldState.channelId) {
-		// Log.debug('left all channels');
-		return true;
-	}
-	
-	return false;
-	// if (oldState.channelId === newState.channelId && (oldState.deaf == newState.deaf)) {
-	// 	// user did not change channels
-	// 	return false;
-	// }
-	// const member: GuildMember | null = (oldState.guild != null) ? oldState.member : newState.member;
-	//
-	// if (member == null) {
-	// 	// could not find member
-	// 	return false;
-	// }
-	// return true;
-};
+// const startTrackingUserParticipation = async (oldState: VoiceState, newState: VoiceState) => {
+//	
+// };
+//
+// const stopTrackingUserParticipation = async (oldState: VoiceState, newState: VoiceState) => {
+//	
+// };
+//
+// const hasUserTriggeredState = (oldState: VoiceState, newState: VoiceState): boolean => {
+// 	// Check if user entered a channel
+// 	if (newState.channelId != null && newState.channelId != oldState.channelId) {
+// 		// Log.debug('entered a channel');
+// 		return true;
+// 	}
+//
+// 	// Check if user left all channels
+// 	if (newState.channelId == null && newState.channelId != oldState.channelId) {
+// 		// Log.debug('left all channels');
+// 		return true;
+// 	}
+//	
+// 	return false;
+// 	// if (oldState.channelId === newState.channelId && (oldState.deaf == newState.deaf)) {
+// 	// 	// user did not change channels
+// 	// 	return false;
+// 	// }
+// 	// const member: GuildMember | null = (oldState.guild != null) ? oldState.member : newState.member;
+// 	//
+// 	// if (member == null) {
+// 	// 	// could not find member
+// 	// 	return false;
+// 	// }
+// 	// return true;
+// };
 
 export default HandleParticipantDuringEvent;

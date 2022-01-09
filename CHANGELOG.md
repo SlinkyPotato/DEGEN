@@ -3,6 +3,10 @@
 ## 2.6.0-SNAPSHOT
 
 1. Stability check
+   - add sentry github action
+   - fix poap mint api call
+   - fix auto end for DM event
+   - fix gm regex for single line
 
 ## 2.5.2-RELEASE
 

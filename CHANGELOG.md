@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.0-SNAPSHOT
+
+1. Stability check
+
 ## 2.5.2-RELEASE
 
 1. Address sentry.io issues 2022-01-08

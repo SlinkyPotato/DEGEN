@@ -1,6 +1,6 @@
 {
-    "name": "degen-tbd",
-    "version": "2.5.2",
+    "name": "degen",
+    "version": "2.6.0",
     "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
     "main": "app.js",
     "private": true,
@@ -9,7 +9,7 @@
         "test": "jest",
         "qa": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.qa",
         "prod": "node -r dotenv/config --trace-warnings dist/app/app.js dotenv_config_path=.env.prod",
-        "prestart": "yarn install && yarn build",
+        "prestart": "yarn install && yarn build && yarn lint",
         "pretest": "yarn install && yarn build",
         "start": "node --trace-warnings -r dotenv/config dist/app/app.js",
         "lint": "eslint . --ext .ts",

@@ -23,7 +23,6 @@ import {
 import constants from '../../constants/constants';
 import { POAPSettings } from '../../../types/poap/POAPSettings';
 import ValidationError from '../../../errors/ValidationError';
-import { updateUserForPOAP } from '../../../events/poap/AddUserForEvent';
 import ServiceUtils from '../../../utils/ServiceUtils';
 import EarlyTermination from '../../../errors/EarlyTermination';
 import POAPUtils from '../../../utils/POAPUtils';
@@ -35,6 +34,7 @@ import MongoDbUtils from '../../../utils/MongoDbUtils';
 import StartTwitterFlow from './StartTwitterFlow';
 import StartChannelFlow from './StartChannelFlow';
 import channelIds from '../../constants/channelIds';
+import { updateUserForPOAP } from '../../../events/poap/HandleParticipantDuringEvent';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, platform: string, event: string, duration?: number): Promise<any> => {
 	if (ctx.guildID == undefined) {

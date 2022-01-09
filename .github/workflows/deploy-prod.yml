@@ -60,4 +60,4 @@ jobs:
         with:
           environment: 'production'
           version: 'degen@'${{ steps.package-version.outputs.current-version }}
-
+          sourcemaps: './dist'

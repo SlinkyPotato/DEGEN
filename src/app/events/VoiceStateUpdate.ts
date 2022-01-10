@@ -18,7 +18,7 @@ export default class implements DiscordEvent {
 	 */
 	async execute(oldState: VoiceState, newState: VoiceState): Promise<any> {
 		try {
-			await HandleParticipantDuringEvent(oldState, newState).catch(e => LogUtils.logError('failed to add user for POAP event', e, oldState.guild.id));
+			await HandleParticipantDuringEvent(oldState, newState).catch(e => LogUtils.logError('failed to handle user in POAP event', e, oldState.guild.id));
 		} catch (e) {
 			LogUtils.logError('failed to process event voiceStateUpdate', e);
 		}

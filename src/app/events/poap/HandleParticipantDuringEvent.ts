@@ -1,263 +1,213 @@
-import { GuildChannel, GuildMember, VoiceState } from 'discord.js';
+import {
+	VoiceState,
+} from 'discord.js';
 import {
 	Collection,
 	Db,
 	DeleteWriteOpResultObject,
 	InsertOneWriteOpResult,
 	MongoError,
+	UpdateWriteOpResult,
 } from 'mongodb';
 import constants from '../../service/constants/constants';
 import { POAPParticipant } from '../../types/poap/POAPParticipant';
-import Log, { LogUtils } from '../../utils/Log';
+import Log from '../../utils/Log';
 import dayjs, { Dayjs } from 'dayjs';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 
+type BasicUser = {
+	id: string;
+	tag: string | undefined;
+}
+
 const HandleParticipantDuringEvent = async (oldState: VoiceState, newState: VoiceState): Promise<any> => {
 	if (hasUserBeenDeafened(oldState, newState)) {
-		if (!await isStateChangeRelatedToActiveEvent(oldState, newState)) {
-			return;
+		Log.log(`user has deafened, userId: ${newState.id}`);
+		if (await isChannelActivePOAPEvent(oldState.channelId, oldState.guild.id)) {
+			await removeDeafenedUser(oldState.channelId, oldState.guild.id, oldState.id);
 		}
-		// user has deafened and state change is related to active event
-		await removeDeafenedUser(oldState, newState);
-		return;
-	}
-	
-	if (hasUserEnteredChannel(oldState, newState)) {
-		if (!await isStateChangeRelatedToActiveEvent(oldState, newState)) {
-			return;
+		if (newState.channelId != oldState.channelId && await isChannelActivePOAPEvent(newState.channelId, newState.guild.id)) {
+			await removeDeafenedUser(newState.channelId, newState.guild.id, newState.id);
 		}
-		// await startTrackingUserParticipation(oldState, newState);
 		return;
 	}
 	
-	// hasUserTriggeredState(oldState, newState);
-	return;
-	// if (oldState.channelId === newState.channelId && (oldState.deaf == newState.deaf)) {
-	// if (oldState.channelId === newState.channelId && (oldState.deaf == newState.deaf)) {
-	// 	// user did not change channels
-	// 	return;
-	// }
-	//
-	// const guild: Guild = (oldState.guild != null) ? oldState.guild : newState.guild;
-	// const member: GuildMember | null = (oldState.guild != null) ? oldState.member : newState.member;
-	//
-	// if (member == null) {
-	// 	// could not find member
-	// 	return;
-	// }
-	//
-	// const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-	// db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
-	//
-	// const poapSettingsDB: Collection = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
-	// const activeChannelsCursor: Cursor<POAPSettings> = await poapSettingsDB.find({
-	// 	isActive: true,
-	// 	discordServerId: `${guild.id}`,
-	// });
-	// for await (const poapSetting of activeChannelsCursor) {
-	// 	const currentDate: Dayjs = dayjs();
-	// 	try {
-	// 		const endDate: Dayjs = (poapSetting.endTime == null) ? currentDate : dayjs(poapSetting.endTime);
-	// 		if (currentDate.isBefore(endDate)) {
-	// 			const voiceChannel: GuildChannel | null = await guild.channels.fetch(poapSetting.voiceChannelId);
-	// 			if (voiceChannel == null) {
-	// 				Log.warn('voice channel might have been deleted.');
-	// 				return;
-	// 			}
-	// 			await addUserToDb(oldState, newState, db, voiceChannel, member);
-	// 		} else {
-	// 			Log.debug(`current date is after or equal to event end date, currentDate: ${currentDate}, endDate: ${endDate}`);
-	// 			const poapOrganizerGuildMember: GuildMember = await guild.members.fetch(poapSetting.discordUserId);
-	// 			await EndPOAP(poapOrganizerGuildMember, constants.PLATFORM_TYPE_DISCORD);
-	// 		}
-	// 	} catch (e) {
-	// 		LogUtils.logError(`failed to add ${member.user.tag} to db`, e);
-	// 	}
-	// }
-};
-
-export const addUserToDb = async (
-	oldState: VoiceState, newState: VoiceState, db: Db, channel: GuildChannel, member: GuildMember,
-): Promise<any> => {
-	if (!(newState.channelId === channel.id || oldState.channelId === channel.id)) {
-		// event change is not related to event parameter
-		return;
-	}
-	if (newState.deaf) {
-		await updateUserForPOAP(member, db, channel, false, true).catch(e => LogUtils.logError('failed to capture user joined for poap', e));
-		return;
-	}
-	const hasJoined: boolean = (newState.channelId === channel.id);
-	await updateUserForPOAP(member, db, channel, hasJoined).catch(e => LogUtils.logError(`failed to capture user change for POAP hasJoined: ${hasJoined}`, e));
-	return;
-};
-
-export const updateUserForPOAP = async (
-	member: GuildMember, db: Db, channel: GuildChannel, hasJoined?: boolean, hasDeafened?: boolean,
-): Promise<any> => {
-	const poapParticipantsDb: Collection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
-	const poapParticipant: POAPParticipant = await poapParticipantsDb.findOne({
-		discordServerId: `${channel.guild.id}`,
-		voiceChannelId: `${channel.id}`,
-		discordUserId: `${member.user.id}`,
-	});
-	
-	if (hasDeafened) {
-		Log.debug(`${member.user.tag} | deafened themselves ${channel.name} in ${channel.guild.name}`);
-		await poapParticipantsDb.deleteOne(poapParticipant).catch(Log.error);
-		return;
-	}
-	const currentDate: Dayjs = dayjs();
-	if (!hasJoined) {
-		Log.debug(`${member.user.tag} | left ${channel.name} in ${channel.guild.name}`);
-		const startTimeDate: Dayjs = dayjs(poapParticipant.startTime);
-		let durationInMinutes: number = poapParticipant.durationInMinutes;
-		if ((currentDate.unix() - startTimeDate.unix() > 0)) {
-			durationInMinutes += ((currentDate.unix() - startTimeDate.unix()) / 60);
+	if (hasUserBeenUnDeafened(oldState, newState)) {
+		Log.log(`user has undeafened, userId: ${newState.id}`);
+		if (await isChannelActivePOAPEvent(newState.channelId, newState.guild.id)) {
+			await startTrackingUserParticipation({ id: newState.id, tag: newState.member?.user.tag }, newState.guild.id, newState.channelId);
 		}
-		await poapParticipantsDb.updateOne(poapParticipant, {
-			$set: {
-				endTime: (new Date).toISOString(),
-				durationInMinutes: durationInMinutes,
-			},
-		}).catch(Log.error);
-		return;
 	}
-	if (poapParticipant !== null && poapParticipant.discordUserId != null && poapParticipant.discordUserId === member.user.id) {
-		Log.debug(`${member.user.tag} | rejoined ${channel.name} in ${channel.guild.name}`);
-		await poapParticipantsDb.updateOne(poapParticipant, {
-			$set: {
-				startTime: currentDate.toISOString(),
-			},
-			$unset: {
-				endTime: null,
-			},
-		}).catch(Log.error);
+	
+	if (isUserDeaf(newState)) {
+		Log.log(`user is deaf, userId: ${newState.id}`);
 		return;
 	}
 	
-	const currentDateStr = (new Date()).toISOString();
-	const result: InsertOneWriteOpResult<POAPParticipant> | void = await poapParticipantsDb.insertOne({
-		discordUserId: `${member.user.id}`,
-		discordUserTag: `${member.user.tag}`,
-		startTime: currentDateStr,
-		voiceChannelId: `${channel.id}`,
-		discordServerId: `${channel.guild.id}`,
-		durationInMinutes: 0,
-	}).catch(Log.error);
-	if (result == null || result.insertedCount !== 1) {
-		throw new MongoError('failed to insert poapParticipant');
+	if (hasUserChangedChannels(oldState, newState)) {
+		if (await isChannelActivePOAPEvent(oldState.channelId, oldState.guild.id)) {
+			await stopTrackingUserParticipation({ id: oldState.id, tag: oldState.member?.user.tag }, oldState.guild.id, oldState.channelId, null);
+		}
+		if (await isChannelActivePOAPEvent(newState.channelId, newState.guild.id)) {
+			await startTrackingUserParticipation({ id: newState.id, tag: newState.member?.user.tag }, newState.guild.id, newState.channelId);
+		}
 	}
-	Log.debug(`${member.user.tag} | joined ${channel.name} in ${channel.guild.name}`);
+	
 };
 
 const hasUserBeenDeafened = (oldState: VoiceState, newState: VoiceState): boolean => {
 	return newState.deaf != null && newState.deaf && newState.deaf != oldState.deaf;
 };
 
-const hasUserEnteredChannel = (oldState: VoiceState, newState: VoiceState): boolean => {
-	return newState.channelId != null && newState.channelId != oldState.channelId;
+const hasUserBeenUnDeafened = (oldState: VoiceState, newState: VoiceState): boolean => {
+	return newState.deaf != null && !newState.deaf && newState.deaf != oldState.deaf;
 };
 
-const isStateChangeRelatedToActiveEvent = async (oldState: VoiceState, newState: VoiceState): Promise<boolean> => {
+const isUserDeaf = (newState: VoiceState): boolean => {
+	return newState.deaf !== null && newState.deaf;
+};
+
+const hasUserChangedChannels = (oldState: VoiceState, newState: VoiceState): boolean => {
+	return newState.channelId != oldState.channelId;
+};
+
+const isChannelActivePOAPEvent = async (
+	channelId: string | null, guildId: string | null,
+): Promise<boolean> => {
+	if (channelId == null || guildId == null) {
+		return false;
+	}
+	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-	const channelIdA = oldState.channelId;
-	const channelIdB = newState.channelId;
 	const poapSettingsDB: Collection<POAPSettings> = db.collection(constants.DB_COLLECTION_POAP_SETTINGS);
+	const activeEvent: POAPSettings | null = await poapSettingsDB.findOne({
+		isActive: true,
+		voiceChannelId: channelId,
+		discordServerId: guildId,
+	});
 	
-	if (channelIdA != null && channelIdA != '' && channelIdB != null && channelIdB != '' && channelIdA == channelIdB) {
-		const activeEvent: POAPSettings | null = await poapSettingsDB.findOne({
-			isActive: true,
-			voiceChannelId: channelIdA.toString(),
-			discordServerId: oldState.guild.id.toString(),
-		});
-		
-		if (activeEvent != null) {
-			Log.debug(`state changed related to active event, userId: ${oldState.id}, channelId: ${channelIdA}`);
-			return true;
-		}
+	if (activeEvent != null) {
+		// Log.debug(`channel is active, channelId: ${channelId}, guildId: ${guildId}`);
+		return true;
 	}
 	
-	if (channelIdB != null) {
-		const activeEvent: POAPSettings | null = await poapSettingsDB.findOne({
-			isActive: true,
-			voiceChannelId: channelIdB.toString(),
-			discordServerId: newState.guild.id.toString(),
-		});
-		
-		if (activeEvent != null) {
-			Log.debug(`state changed related to active event, userId: ${newState.id}, channelId: ${channelIdB}`);
-			return true;
-		}
-	}
-	
-	Log.debug('state change not related to event');
+	// Log.debug('channel not active');
 	return false;
 };
 
-const removeDeafenedUser = async (oldState: VoiceState, newState: VoiceState) => {
-	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-	const poapSettingsDB: Collection<POAPParticipant> = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
-	
-	if (oldState.channelId) {
-		const result: DeleteWriteOpResultObject | void = await poapSettingsDB.deleteOne({
-			isActive: true,
-			voiceChannelId: oldState.channelId.toString(),
-			discordServerId: oldState.guild.id.toString(),
-			discordUserId: oldState.id.toString(),
-		}).catch(Log.warn);
-		if (result != null && result.deletedCount == 1) {
-			Log.debug(`user removed from db, userId: ${oldState.id} deafened themselves, channelId: ${oldState.channelId}, discordServerId: ${oldState.id}`);
-		}
+const removeDeafenedUser = async (channelId: string | null, guildId: string | null, userId: string | null) => {
+	if (channelId == null || guildId == null || userId == null) {
+		return;
 	}
 	
-	if (newState.channelId) {
-		const result: DeleteWriteOpResultObject | void = await poapSettingsDB.deleteOne({
-			isActive: true,
-			voiceChannelId: newState.channelId.toString(),
-			discordServerId: newState.guild.id.toString(),
-			discordUserId: newState.id.toString(),
-		}).catch(Log.warn);
-		if (result != null && result.deletedCount == 1) {
-			Log.debug(`user removed from db, userId: ${newState.id} deafened themselves, channelId: ${newState.channelId}, discordServerId: ${newState.id}`);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+	const poapParticipantsCol: Collection<POAPParticipant> = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
+	
+	const result: DeleteWriteOpResultObject | void = await poapParticipantsCol.deleteOne({
+		voiceChannelId: channelId,
+		discordServerId: guildId,
+		discordUserId: userId,
+	}).catch(Log.warn);
+	if (result != null && result.deletedCount == 1) {
+		Log.debug(`user deafened themselves and removed from db, userId: ${userId}, channelId: ${channelId}, discordServerId: ${guildId}`);
+		return;
+	}
+	Log.debug('deafened user not removed/found in any active channels');
+};
+
+export const startTrackingUserParticipation = async (user: BasicUser, guildId: string, channelId: string | null): Promise<void> => {
+	const participant = await retrieveActiveParticipant(user, channelId, guildId);
+	
+	channelId = channelId as string;
+	guildId = guildId as string;
+	
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+	const poapParticipantsDb: Collection<POAPParticipant> = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
+	if (participant == null) {
+		const userTag: string = user.tag ? user.tag : '';
+		const resultInsert: InsertOneWriteOpResult<POAPParticipant> | void = await poapParticipantsDb.insertOne({
+			discordUserId: user.id,
+			discordUserTag: userTag,
+			voiceChannelId: channelId,
+			startTime: dayjs().toISOString(),
+			discordServerId: guildId,
+			durationInMinutes: 0,
+		} as POAPParticipant).catch(Log.error);
+		if (resultInsert == null || resultInsert.insertedCount !== 1) {
+			throw new MongoError('failed to insert poapParticipant');
 		}
+		Log.debug(`${user.tag} | joined, channelId: ${channelId}, guildId: ${guildId}, userId: ${user.id}`);
+		return;
+	}
+	if (participant.endTime != null) {
+		const updateResult: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
+			$set: {
+				startTime: dayjs().toISOString(),
+			},
+			$unset: {
+				endTime: '',
+			},
+		}).catch(Log.error);
+		
+		if (updateResult == null || updateResult.result.ok != 1) {
+			Log.error('failed to update rejoined participant in db');
+		}
+		Log.debug(`${user.tag} | rejoined, channelId: ${channelId}, guildId: ${guildId}, userId: ${user.id}`);
 	}
 };
 
-// const startTrackingUserParticipation = async (oldState: VoiceState, newState: VoiceState) => {
-//	
-// };
-//
-// const stopTrackingUserParticipation = async (oldState: VoiceState, newState: VoiceState) => {
-//	
-// };
-//
-// const hasUserTriggeredState = (oldState: VoiceState, newState: VoiceState): boolean => {
-// 	// Check if user entered a channel
-// 	if (newState.channelId != null && newState.channelId != oldState.channelId) {
-// 		// Log.debug('entered a channel');
-// 		return true;
-// 	}
-//
-// 	// Check if user left all channels
-// 	if (newState.channelId == null && newState.channelId != oldState.channelId) {
-// 		// Log.debug('left all channels');
-// 		return true;
-// 	}
-//	
-// 	return false;
-// 	// if (oldState.channelId === newState.channelId && (oldState.deaf == newState.deaf)) {
-// 	// 	// user did not change channels
-// 	// 	return false;
-// 	// }
-// 	// const member: GuildMember | null = (oldState.guild != null) ? oldState.member : newState.member;
-// 	//
-// 	// if (member == null) {
-// 	// 	// could not find member
-// 	// 	return false;
-// 	// }
-// 	// return true;
-// };
+export const stopTrackingUserParticipation = async (user: BasicUser, guildId: string, channelId: string | null, participant: POAPParticipant | null): Promise<void> => {
+	if (!participant) {
+		participant = await retrieveActiveParticipant(user, channelId, guildId);
+	}
+	
+	if (participant == null) {
+		throw new MongoError('could not find participant in db when trying to stop tracking');
+	}
+	
+	channelId = channelId as string;
+	guildId = guildId as string;
+	
+	const durationInMinutes: number = calculateDuration(participant.startTime, participant.durationInMinutes);
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+	const poapParticipantsDb: Collection<POAPParticipant> = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
+	const result: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
+		$set: {
+			endTime: dayjs().toISOString(),
+			durationInMinutes: durationInMinutes,
+		},
+	}).catch(Log.error);
+	
+	if (result == null || result.result.ok != 1) {
+		throw new MongoError('failed to update present participant in db');
+	}
+	Log.debug(`${user.tag} | left, channelId: ${channelId}, guildId: ${guildId}, userId: ${user.id}`);
+};
+
+const calculateDuration = (startTime: string, currentDuration: number): number => {
+	const currentDate: Dayjs = dayjs();
+	const startTimeDate: Dayjs = dayjs(startTime);
+	let durationInMinutes: number = currentDuration;
+	if ((currentDate.unix() - startTimeDate.unix() > 0)) {
+		durationInMinutes += ((currentDate.unix() - startTimeDate.unix()) / 60);
+	}
+	return durationInMinutes;
+};
+
+const retrieveActiveParticipant = async (
+	user: BasicUser, channelId: string | null, guildId: string,
+): Promise<POAPParticipant | null> => {
+	if (user.id == null || channelId == null || guildId == null) {
+		return null;
+	}
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+	const poapParticipantsDb: Collection<POAPParticipant> = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
+	return await poapParticipantsDb.findOne({
+		discordUserId: user.id,
+		voiceChannelId: channelId,
+		discordServerId: guildId,
+	});
+};
 
 export default HandleParticipantDuringEvent;

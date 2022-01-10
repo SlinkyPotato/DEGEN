@@ -33,6 +33,7 @@ import buttonIds from '../service/constants/buttonIds';
 import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 import { POAPSettings } from '../types/poap/POAPSettings';
 import { getPoapParticipantsFromDB } from '../service/poap/end/EndPOAP';
+import { POAPTwitterUnclaimedParticipants } from '../types/poap/POAPTwitterUnclaimedParticipants';
 
 export type POAPFileParticipant = {
 	discordUserId: string,
@@ -154,7 +155,7 @@ const POAPUtils = {
 			} catch (e) {
 				listOfPOAPLinks = [];
 			}
-			Log.debug(`DEGEN given ${listOfPOAPLinks.length} poap links`);
+			Log.debug(`${constants.APP_NAME} given ${listOfPOAPLinks.length} poap links`);
 			return listOfPOAPLinks;
 		} catch (e) {
 			LogUtils.logError('failed to process links.txt file', e);
@@ -369,12 +370,12 @@ const POAPUtils = {
 			didNotSendList: [],
 		};
 		
-		const twitterClient: TwitterApi = new TwitterApi({
-			appKey: apiKeys.twitterAppToken,
-			appSecret: apiKeys.twitterAppSecret,
-			accessToken: apiKeys.twitterAccessToken,
-			accessSecret: apiKeys.twitterSecretToken,
-		} as TwitterApiTokens);
+		// const twitterClient: TwitterApi = new TwitterApi({
+		// 	appKey: apiKeys.twitterAppToken,
+		// 	appSecret: apiKeys.twitterAppSecret,
+		// 	accessToken: apiKeys.twitterAccessToken,
+		// 	accessSecret: apiKeys.twitterSecretToken,
+		// } as TwitterApiTokens);
 		while (i < length) {
 			const participant: TwitterPOAPFileParticipant | undefined = listOfParticipants.pop();
 			if (participant == null) {
@@ -401,23 +402,24 @@ const POAPUtils = {
 				continue;
 			}
 			try {
-				const result: void | DirectMessageCreateV1Result = await twitterClient.v1.sendDm({
-					recipient_id: participant.twitterUserId,
-					text: `Thank you for participating in ${event}. Here is your POAP: ${poapLink} Enjoy! (gm)`,
-					quick_reply: {
-						type: 'options',
-						options: [
-							{
-								label: 'gm',
-								description: 'Good Morning',
-								metadata: 'good_morning',
-							},
-						],
-					},
-				});
-				if (result == null || result['event'].type != 'message_create') {
-					throw new Error();
-				}
+				throw new Error();
+				// const result: void | DirectMessageCreateV1Result = await twitterClient.v1.sendDm({
+				// 	recipient_id: participant.twitterUserId,
+				// 	text: `Thank you for participating in ${event}. Here is your POAP: ${poapLink} Enjoy! (gm)`,
+				// 	quick_reply: {
+				// 		type: 'options',
+				// 		options: [
+				// 			{
+				// 				label: 'gm',
+				// 				description: 'Good Morning',
+				// 				metadata: 'good_morning',
+				// 			},
+				// 		],
+				// 	},
+				// });
+				// if (result == null || result['event'].type != 'message_create') {
+				// 	throw new Error();
+				// }
 				results.successfullySent++;
 			} catch (e) {
 				LogUtils.logError(`user might have been banned or has DMs off, failed trying to send POAP to twitterId: ${participant.twitterUserId}, twitterSpaceId: ${participant.twitterSpaceId}, link: ${poapLink}`, e);
@@ -440,6 +442,11 @@ const POAPUtils = {
 		guildMember: GuildMember, distributionResults: POAPDistributionResults,
 		event: string, platform: string,
 	): Promise<any> {
+		if (distributionResults.didNotSendList.length <= 0) {
+			Log.warn('failed delivery participants not found');
+			return;
+		}
+		
 		Log.debug(`${distributionResults.didNotSendList.length} poaps were not sent`);
 		
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
@@ -471,10 +478,13 @@ const POAPUtils = {
 					expiresAt: expirationISO,
 					twitterUserId: failedAttendee.twitterUserId,
 					twitterSpaceId: failedAttendee.twitterSpaceId,
-				};
+				} as POAPTwitterUnclaimedParticipants;
 			});
 			Log.debug('attempting to store failed attendees into db');
-			await unclaimedCollection.insertMany(unclaimedPOAPsList);
+			await unclaimedCollection.insertMany(unclaimedPOAPsList).catch(e => {
+				Log.error(e);
+				throw new ValidationError('failed trying to store unclaimed participants, please try distribution command');
+			});
 			distributionResults.claimSetUp = unclaimedPOAPsList.length;
 		} else {
 			Log.warn('missing platform type when trying to setup failed attendees');

@@ -12,6 +12,7 @@
         "prestart": "yarn install && yarn build && yarn lint",
         "pretest": "yarn install && yarn build",
         "start": "node --trace-warnings -r dotenv/config dist/app/app.js",
+        "force-start": "tsc -p tsconfig.json && node -r dotenv/config dist/app/app.js",
         "lint": "eslint . --ext .ts",
         "format": "eslint . --ext .ts --fix",
         "watch": "tsc -p tsconfig.json -w"

@@ -370,12 +370,12 @@ const POAPUtils = {
 			didNotSendList: [],
 		};
 		
-		// const twitterClient: TwitterApi = new TwitterApi({
-		// 	appKey: apiKeys.twitterAppToken,
-		// 	appSecret: apiKeys.twitterAppSecret,
-		// 	accessToken: apiKeys.twitterAccessToken,
-		// 	accessSecret: apiKeys.twitterSecretToken,
-		// } as TwitterApiTokens);
+		const twitterClient: TwitterApi = new TwitterApi({
+			appKey: apiKeys.twitterAppToken,
+			appSecret: apiKeys.twitterAppSecret,
+			accessToken: apiKeys.twitterAccessToken,
+			accessSecret: apiKeys.twitterSecretToken,
+		} as TwitterApiTokens);
 		while (i < length) {
 			const participant: TwitterPOAPFileParticipant | undefined = listOfParticipants.pop();
 			if (participant == null) {
@@ -402,24 +402,23 @@ const POAPUtils = {
 				continue;
 			}
 			try {
-				throw new Error();
-				// const result: void | DirectMessageCreateV1Result = await twitterClient.v1.sendDm({
-				// 	recipient_id: participant.twitterUserId,
-				// 	text: `Thank you for participating in ${event}. Here is your POAP: ${poapLink} Enjoy! (gm)`,
-				// 	quick_reply: {
-				// 		type: 'options',
-				// 		options: [
-				// 			{
-				// 				label: 'gm',
-				// 				description: 'Good Morning',
-				// 				metadata: 'good_morning',
-				// 			},
-				// 		],
-				// 	},
-				// });
-				// if (result == null || result['event'].type != 'message_create') {
-				// 	throw new Error();
-				// }
+				const result: void | DirectMessageCreateV1Result = await twitterClient.v1.sendDm({
+					recipient_id: participant.twitterUserId,
+					text: `Thank you for participating in ${event}. Here is your POAP: ${poapLink} Enjoy! (gm)`,
+					quick_reply: {
+						type: 'options',
+						options: [
+							{
+								label: 'gm',
+								description: 'Good Morning',
+								metadata: 'good_morning',
+							},
+						],
+					},
+				});
+				if (result == null || result['event'].type != 'message_create') {
+					throw new Error();
+				}
 				results.successfullySent++;
 			} catch (e) {
 				LogUtils.logError(`user might have been banned or has DMs off, failed trying to send POAP to twitterId: ${participant.twitterUserId}, twitterSpaceId: ${participant.twitterSpaceId}, link: ${poapLink}`, e);

@@ -434,7 +434,7 @@ const POAPUtils = {
 		guildMember: GuildMember, distributionResults: POAPDistributionResults,
 		event: string, platform: string,
 	): Promise<any> {
-		Log.debug(`${distributionResults.didNotSendList} poaps were not sent`);
+		Log.debug(`${distributionResults.didNotSendList.length} poaps were not sent`);
 		
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		if (platform == constants.PLATFORM_TYPE_DISCORD) {

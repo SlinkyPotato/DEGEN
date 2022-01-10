@@ -9,6 +9,7 @@
    - fix gm regex for single line
    - refactor poap start/stop tracking event
 2. Twitter stability check
+   - handle timeout for autoend situation
 
 ## 2.5.2-RELEASE
 

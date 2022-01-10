@@ -46,7 +46,12 @@ const POAPService = {
 		for (const expiredEvent of expiredEventsList) {
 			const poapGuild: Guild = await client.guilds.fetch(expiredEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(expiredEvent.discordUserId);
-			EndPOAP(poapOrganizer, platform).catch(Log.error);
+			EndPOAP(poapOrganizer, platform).catch((e) => {
+				if (e instanceof ValidationError) {
+					poapOrganizer.send({ content: `${e?.message}` }).catch(Log.error);
+				}
+				Log.error(e);
+			});
 		}
 		Log.debug(`all expired events ended for ${platform} and possibly pending user intpu, now checking for active events`);
 		const poapSettingsActiveEventsCursor: Cursor<POAPSettings | POAPTwitterSettings> = await poapSettingsDB.find({

@@ -112,24 +112,30 @@ const POAPUtils = {
 		if (isDmOn) {
 			await guildMember.send({ content: uploadLinksMsg });
 			const dmChannel: DMChannel = await guildMember.createDM();
-			message = (await dmChannel.awaitMessages(replyOptions)).first();
+			message = (await dmChannel.awaitMessages(replyOptions).catch(() => {
+				throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
+			})).first();
 		} else if (ctx) {
 			await ctx.sendFollowUp(uploadLinksMsg);
 			const guildChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
-			message = (await guildChannel.awaitMessages(replyOptions)).first();
+			message = (await guildChannel.awaitMessages(replyOptions).catch(() => {
+				throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
+			})).first();
 		} else if (adminChannel != null) {
 			await adminChannel.send(uploadLinksMsg);
-			message = (await adminChannel.awaitMessages(replyOptions)).first();
+			message = (await adminChannel.awaitMessages(replyOptions).catch(() => {
+				throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
+			})).first();
 		}
 		
 		if (message == null) {
-			throw new ValidationError('Invalid attachment. Session ended. Please try the command again.');
+			throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
 		}
 		
 		const poapLinksFile: MessageAttachment | undefined = message.attachments.first();
 		
 		if (poapLinksFile == null) {
-			throw new ValidationError('Invalid attachment. Session ended. Please try the command again.');
+			throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
 		}
 		
 		Log.debug(`obtained poap links attachment in discord: ${poapLinksFile.url}`);

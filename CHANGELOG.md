@@ -7,6 +7,7 @@
    - fix poap mint api call
    - fix auto end for DM event
    - fix gm regex for single line
+   - refactor poap start/stop tracking event
 
 ## 2.5.2-RELEASE
 

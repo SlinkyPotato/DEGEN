@@ -46,9 +46,9 @@ const POAPService = {
 		for (const expiredEvent of expiredEventsList) {
 			const poapGuild: Guild = await client.guilds.fetch(expiredEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(expiredEvent.discordUserId);
-			await EndPOAP(poapOrganizer, platform).catch(Log.error);
+			EndPOAP(poapOrganizer, platform).catch(Log.error);
 		}
-		Log.debug(`all expired events ended for ${platform}, now checking for active events`);
+		Log.debug(`all expired events ended for ${platform} and possibly pending user intpu, now checking for active events`);
 		const poapSettingsActiveEventsCursor: Cursor<POAPSettings | POAPTwitterSettings> = await poapSettingsDB.find({
 			isActive: true,
 			endTime: {
@@ -71,7 +71,7 @@ const POAPService = {
 					if (!channelChoice) {
 						throw new ValidationError('Missing channel');
 					}
-					await storePresentMembers(db, channelChoice).catch(Log.error);
+					storePresentMembers(db, channelChoice).catch(Log.error);
 				} catch (e) {
 					LogUtils.logError('failed trying to store present members for active poap event', e);
 				}

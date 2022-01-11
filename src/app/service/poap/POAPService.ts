@@ -53,7 +53,7 @@ const POAPService = {
 				Log.error(e);
 			});
 		}
-		Log.debug(`all expired events ended for ${platform} and possibly pending user intpu, now checking for active events`);
+		Log.debug(`all expired events ended for ${platform} and possibly pending user input, now checking for active events`);
 		const poapSettingsActiveEventsCursor: Cursor<POAPSettings | POAPTwitterSettings> = await poapSettingsDB.find({
 			isActive: true,
 			endTime: {

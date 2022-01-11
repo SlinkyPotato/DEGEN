@@ -21,10 +21,10 @@ export type VerifiedTwitter = {
 	twitterClientV1: TwitterApi
 };
 
-const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Promise<VerifiedTwitter | undefined> => {
+const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, sendConfirmationMsg: boolean): Promise<VerifiedTwitter | undefined> => {
 	Log.debug('starting to verify twitter account link');
 	
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hi! Let me check your twitter info');
+	const isDmOn: boolean = (sendConfirmationMsg) ? await ServiceUtils.tryDMUser(guildMember, 'Hi! Let me check your twitter info') : false;
 	
 	if (isDmOn) {
 		await ctx.send({ content: 'DM sent!', ephemeral: true });
@@ -97,10 +97,13 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember): Pro
 			{ name: 'URL', value: `https://twitter.com/${userCall.screen_name}` },
 		],
 	};
-	if (isDmOn) {
-		await guildMember.send({ embeds: [verifiedEmbeds] });
-	} else {
-		await ctx.send({ embeds: [verifiedEmbeds], ephemeral: true });
+	
+	if (sendConfirmationMsg) {
+		if (isDmOn) {
+			await guildMember.send({ embeds: [verifiedEmbeds] });
+		} else {
+			await ctx.send({ embeds: [verifiedEmbeds], ephemeral: true });
+		}
 	}
 	
 	Log.debug('done verifying twitter account');

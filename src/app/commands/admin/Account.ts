@@ -53,7 +53,7 @@ export default class Account extends SlashCommand {
 		
 		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx.guildID, ctx.user.id);
 		try {
-			await VerifyTwitter(ctx, guildMember).catch(e => { throw e; });
+			await VerifyTwitter(ctx, guildMember, true).catch(e => { throw e; });
 		} catch (e) {
 			if (e instanceof ValidationError) {
 				await ctx.send({ content: `${e.message}`, ephemeral: true });

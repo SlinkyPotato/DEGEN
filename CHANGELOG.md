@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.6.0-SNAPSHOT
+## 2.6.0-RELEASE (2022-01-11)
 
 1. Stability check
    - add sentry github action
@@ -17,7 +17,7 @@
    - remove extra logging
    - send twitter auth confirmation only on direct auth flow
 
-## 2.5.2-RELEASE
+## 2.5.2-RELEASE (2022-01-09)
 
 1. Address sentry.io issues 2022-01-08
    - add type guards to messageCreate sentry method

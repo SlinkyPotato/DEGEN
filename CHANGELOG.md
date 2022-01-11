@@ -8,6 +8,11 @@
    - fix auto end for DM event
    - fix gm regex for single line
    - refactor poap start/stop tracking event
+2. Twitter stability check
+   - handle timeout for autoend situation
+   - better error messaging
+   - stability enhancements
+   - add forced start script
 
 ## 2.5.2-RELEASE
 

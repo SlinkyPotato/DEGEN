@@ -33,6 +33,7 @@ import buttonIds from '../service/constants/buttonIds';
 import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 import { POAPSettings } from '../types/poap/POAPSettings';
 import { getPoapParticipantsFromDB } from '../service/poap/end/EndPOAP';
+import { POAPTwitterUnclaimedParticipants } from '../types/poap/POAPTwitterUnclaimedParticipants';
 
 export type POAPFileParticipant = {
 	discordUserId: string,
@@ -112,24 +113,30 @@ const POAPUtils = {
 		if (isDmOn) {
 			await guildMember.send({ content: uploadLinksMsg });
 			const dmChannel: DMChannel = await guildMember.createDM();
-			message = (await dmChannel.awaitMessages(replyOptions)).first();
+			message = (await dmChannel.awaitMessages(replyOptions).catch(() => {
+				throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
+			})).first();
 		} else if (ctx) {
 			await ctx.sendFollowUp(uploadLinksMsg);
 			const guildChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
-			message = (await guildChannel.awaitMessages(replyOptions)).first();
+			message = (await guildChannel.awaitMessages(replyOptions).catch(() => {
+				throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
+			})).first();
 		} else if (adminChannel != null) {
 			await adminChannel.send(uploadLinksMsg);
-			message = (await adminChannel.awaitMessages(replyOptions)).first();
+			message = (await adminChannel.awaitMessages(replyOptions).catch(() => {
+				throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
+			})).first();
 		}
 		
 		if (message == null) {
-			throw new ValidationError('Invalid attachment. Session ended. Please try the command again.');
+			throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
 		}
 		
 		const poapLinksFile: MessageAttachment | undefined = message.attachments.first();
 		
 		if (poapLinksFile == null) {
-			throw new ValidationError('Invalid attachment. Session ended. Please try the command again.');
+			throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
 		}
 		
 		Log.debug(`obtained poap links attachment in discord: ${poapLinksFile.url}`);
@@ -148,7 +155,7 @@ const POAPUtils = {
 			} catch (e) {
 				listOfPOAPLinks = [];
 			}
-			Log.debug(`DEGEN given ${listOfPOAPLinks.length} poap links`);
+			Log.debug(`${constants.APP_NAME} given ${listOfPOAPLinks.length} poap links`);
 			return listOfPOAPLinks;
 		} catch (e) {
 			LogUtils.logError('failed to process links.txt file', e);
@@ -434,7 +441,12 @@ const POAPUtils = {
 		guildMember: GuildMember, distributionResults: POAPDistributionResults,
 		event: string, platform: string,
 	): Promise<any> {
-		Log.debug(`${distributionResults.didNotSendList} poaps were not sent`);
+		if (distributionResults.didNotSendList.length <= 0) {
+			Log.warn('failed delivery participants not found');
+			return;
+		}
+		
+		Log.debug(`${distributionResults.didNotSendList.length} poaps were not sent`);
 		
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		if (platform == constants.PLATFORM_TYPE_DISCORD) {
@@ -465,10 +477,13 @@ const POAPUtils = {
 					expiresAt: expirationISO,
 					twitterUserId: failedAttendee.twitterUserId,
 					twitterSpaceId: failedAttendee.twitterSpaceId,
-				};
+				} as POAPTwitterUnclaimedParticipants;
 			});
 			Log.debug('attempting to store failed attendees into db');
-			await unclaimedCollection.insertMany(unclaimedPOAPsList);
+			await unclaimedCollection.insertMany(unclaimedPOAPsList).catch(e => {
+				Log.error(e);
+				throw new ValidationError('failed trying to store unclaimed participants, please try distribution command');
+			});
 			distributionResults.claimSetUp = unclaimedPOAPsList.length;
 		} else {
 			Log.warn('missing platform type when trying to setup failed attendees');

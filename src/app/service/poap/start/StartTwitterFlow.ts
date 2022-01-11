@@ -12,6 +12,7 @@ import ValidationError from '../../../errors/ValidationError';
 import dayjs, { Dayjs } from 'dayjs';
 import POAPService from '../POAPService';
 import { POAPTwitterParticipants } from '../../../types/poap/POAPTwitterParticipants';
+import channelIds from '../../constants/channelIds';
 
 const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration: number): Promise<any> => {
 	Log.debug('starting twitter poap flow...');
@@ -65,6 +66,7 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 	Log.debug('setting up active twitter event in db');
 	const currentDate: Dayjs = dayjs();
 	const endTimeISO: string = currentDate.add(duration, 'minute').toISOString();
+	const channelExecutionId: string = isDmOn ? channelIds.DM : ctx.channelID;
 	const twitterSettingsResult: FindAndModifyWriteOpResultObject<POAPTwitterSettings> = await poapTwitterSettings.findOneAndReplace({
 		discordUserId: guildMember.id,
 		discordServerId: guildMember.guild.id,
@@ -78,7 +80,8 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 		discordServerId: guildMember.guild.id,
 		twitterUserId: verifiedTwitter.twitterUser.id_str,
 		twitterSpaceId: twitterSpaceId,
-	}, {
+		channelExecutionId: channelExecutionId,
+	} as POAPTwitterSettings, {
 		upsert: true,
 		returnDocument: 'after',
 	});

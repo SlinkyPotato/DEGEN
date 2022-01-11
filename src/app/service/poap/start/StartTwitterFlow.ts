@@ -17,7 +17,7 @@ import channelIds from '../../constants/channelIds';
 const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration: number): Promise<any> => {
 	Log.debug('starting twitter poap flow...');
 	
-	const verifiedTwitter: VerifiedTwitter | undefined = await VerifyTwitter(ctx, guildMember);
+	const verifiedTwitter: VerifiedTwitter | undefined = await VerifyTwitter(ctx, guildMember, false);
 	if (verifiedTwitter == null) {
 		return;
 	}
@@ -26,7 +26,9 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 	
 	let twitterSpaceResult: SpaceV2LookupResult | null = null;
 	try {
+		Log.debug(`twitterId: ${verifiedTwitter.twitterUser.id_str}`);
 		twitterSpaceResult = await twitterClientV2.v2.spacesByCreators(verifiedTwitter.twitterUser.id_str);
+		Log.debug(twitterSpaceResult.data);
 	} catch (e) {
 		LogUtils.logError('failed trying to get twitter spaces', e);
 	}

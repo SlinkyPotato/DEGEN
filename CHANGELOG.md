@@ -13,6 +13,9 @@
    - better error messaging
    - stability enhancements
    - add forced start script
+3. Fix key github action reference for twitter spaces
+   - remove extra logging
+   - send twitter auth confirmation only on direct auth flow
 
 ## 2.5.2-RELEASE
 

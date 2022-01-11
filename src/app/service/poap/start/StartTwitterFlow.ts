@@ -21,7 +21,7 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 		return;
 	}
 	const twitterClientV2: TwitterApi = new TwitterApi(apiKeys.twitterBearerToken as string);
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Oh yea, time for a POAP event!...');
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I can help start a POAP event!');
 	
 	let twitterSpaceResult: SpaceV2LookupResult | null = null;
 	try {

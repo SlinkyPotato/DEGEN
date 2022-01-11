@@ -17,6 +17,7 @@ import {
 	MessageEmbedOptions as MessageEmbedOptionsSlash,
 } from 'slash-create/lib/structures/message';
 import POAPUtils from '../../utils/POAPUtils';
+import apiKeys from '../constants/apiKeys';
 
 const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: GuildMember): Promise<any> => {
 	Log.debug(`starting claim for ${ctx.user.username}, with ID: ${ctx.user.id}`);
@@ -66,7 +67,7 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	
 	if (ctx) {
 		Log.debug('sending message in channel');
-		await ctx.send({ content: 'POAP claimed using `/poap claim`. Thank you!' });
+		await ctx.send({ content: `POAP claimed! Consider sending \`gm\` to <@${apiKeys.DISCORD_BOT_ID}>` });
 		const embeds: MessageEmbedOptionsSlash[] = await generatePOAPClaimEmbedMessages(numberOfPOAPs, unclaimedParticipants) as MessageEmbedOptionsSlash[];
 		await ctx.send({
 			embeds: embeds,

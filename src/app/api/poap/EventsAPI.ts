@@ -54,7 +54,7 @@ const EventsAPI = {
 					start_date: `${request.start_date}`,
 					end_date: `${request.end_date}`,
 					expiry_date: `${request.expiry_date}`,
-					year: `${request.year}`,
+					year: request.year,
 					event_url: `${request.event_url}`,
 					virtual_event: `${request.virtual_event}`,
 					secret_code: `${request.secret_code}`,

@@ -23,7 +23,7 @@ import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structur
 
 const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numberToMint: number): Promise<any> => {
 	if (ctx.guildID == undefined) {
-		await ctx.send('Please try schedule within discord channel');
+		await ctx.send('Please try poap mint within discord channel');
 		return;
 	}
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Minting POAPs is always super exciting!');
@@ -51,7 +51,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	
 	if (isDmOn) {
 		await guildMember.send(msg1);
-		await ctx.sendFollowUp('I just sent you a DM!');
+		await ctx.send({ content: 'I just sent you a DM!', ephemeral: true });
 	} else if (ctx) {
 		await ctx.sendFollowUp(msg1);
 	}

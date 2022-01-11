@@ -15,22 +15,26 @@ const HandlePOAPGM = async (message: Message): Promise<void> => {
 		return;
 	}
 	
-	if (!content.match(/gm/gi)) {
+	if (!content.match(/^gm$/gi)) {
 		return;
 	}
+	
 	Log.debug(`found gm from ${message.author.tag}`);
 	
 	const dmChannel: DMChannel = message.channel as DMChannel;
 	
 	try {
 		await claimForDiscord(message.author.id.toString(), null, dmChannel);
-		await OptInPOAP(message.author, dmChannel);
+		await OptInPOAP(message.author, dmChannel).catch(e => {
+			Log.error(e);
+			ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
+		});
 		
 	} catch (e) {
 		if (e instanceof ValidationError) {
-			await ServiceUtils.sendOutErrorMessageForDM(dmChannel, e?.message);
+			await ServiceUtils.sendOutErrorMessageForDM(dmChannel, e?.message).catch(Log.error);
 		} else {
-			await ServiceUtils.sendOutErrorMessageForDM(dmChannel);
+			await ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
 		}
 		LogUtils.logError('failed to claim poap in DM', e);
 	}

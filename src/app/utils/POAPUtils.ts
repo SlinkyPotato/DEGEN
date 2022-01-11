@@ -1,7 +1,6 @@
 import {
 	AwaitMessagesOptions,
 	DMChannel,
-	GuildChannel,
 	GuildMember,
 	Message,
 	MessageActionRow,
@@ -32,6 +31,8 @@ import { POAPDistributionResults } from '../types/poap/POAPDistributionResults';
 import ApiKeys from '../service/constants/apiKeys';
 import buttonIds from '../service/constants/buttonIds';
 import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
+import { POAPSettings } from '../types/poap/POAPSettings';
+import { getPoapParticipantsFromDB } from '../service/poap/end/EndPOAP';
 
 export type POAPFileParticipant = {
 	discordUserId: string,
@@ -49,22 +50,17 @@ export type TwitterPOAPFileParticipant = {
 
 const POAPUtils = {
 	
-	async getListOfParticipants(db: Db, voiceChannel: GuildChannel): Promise<POAPFileParticipant[]> {
-		const poapParticipants: MongoCollection = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
-		const resultCursor: Cursor<POAPParticipant> = await poapParticipants.find({
-			voiceChannelId: voiceChannel.id,
-			discordServerId: voiceChannel.guild.id,
-		});
-
-		if ((await resultCursor.count()) === 0) {
-			Log.debug(`no participants found for ${voiceChannel.name} in ${voiceChannel.guild.name}`);
+	async getListOfParticipants(poapSettingsDoc: POAPSettings): Promise<POAPFileParticipant[]> {
+		Log.debug('checking for participants in db cursor');
+		const participantsCursor: Cursor<POAPParticipant> = await getPoapParticipantsFromDB(poapSettingsDoc.voiceChannelId, poapSettingsDoc.discordServerId);
+		if ((await participantsCursor.count()) === 0) {
+			Log.debug('no participants found');
 			return [];
 		}
-		
-		await POAPUtils.setEndDateForPresentParticipants(poapParticipants, resultCursor);
 
+		Log.debug('found participants from cursor');
 		const participants: POAPFileParticipant[] = [];
-		await resultCursor.forEach((participant: POAPParticipant) => {
+		await participantsCursor.forEach((participant: POAPParticipant) => {
 			if (participant.durationInMinutes >= constants.POAP_REQUIRED_PARTICIPATION_DURATION) {
 				participants.push({
 					discordUserId: participant.discordUserId,
@@ -73,6 +69,7 @@ const POAPUtils = {
 				});
 			}
 		});
+		Log.debug('finished preparing participants array');
 		return participants;
 	},
 	
@@ -96,38 +93,6 @@ const POAPUtils = {
 		});
 		Log.debug(`prepared ${participants.length} participants`);
 		return participants;
-	},
-	
-	async setEndDateForPresentParticipants(poapParticipantsCollection: MongoCollection, poapParticipantsCursor: Cursor<POAPParticipant>): Promise<void> {
-		Log.debug('starting to set endDate for present participants in db');
-		const currentDateStr = dayjs().toISOString();
-		for await (const participant of poapParticipantsCursor) {
-			if (participant.endTime != null) {
-				// skip setting endDate for present endTime;
-				continue;
-			}
-			let result: UpdateWriteOpResult;
-			try {
-				const currentDate: Dayjs = dayjs();
-				const startTimeDate: Dayjs = dayjs(participant.startTime);
-				let durationInMinutes: number = participant.durationInMinutes;
-				if ((currentDate.unix() - startTimeDate.unix() > 0)) {
-					durationInMinutes += ((currentDate.unix() - startTimeDate.unix()) / 60);
-				}
-				result = await poapParticipantsCollection.updateOne(participant, {
-					$set: {
-						endTime: currentDateStr,
-						durationInMinutes: durationInMinutes,
-					},
-				});
-				if (result == null) {
-					throw new Error('Mongodb operation failed');
-				}
-			} catch (e) {
-				LogUtils.logError('failed to update poap participants with endTime', e);
-			}
-		}
-		Log.debug('finished setting endDate for present participants in db');
 	},
 	
 	async askForPOAPLinks(
@@ -288,6 +253,10 @@ const POAPUtils = {
 						components: [
 							new MessageActionRow().addComponents(
 								new MessageButton()
+									.setLabel('Claim')
+									.setURL(`${poapLink}`)
+									.setStyle('LINK'),
+								new MessageButton()
 									.setCustomId(buttonIds.POAP_REPORT_SPAM)
 									.setLabel('Report')
 									.setStyle('DANGER'),
@@ -303,7 +272,15 @@ const POAPUtils = {
 						results.failedToSend++;
 					});
 				if (!message) {
-					throw new Error('failed to send message');
+					Log.warn('failed to send message');
+					failedPOAPsList.push({
+						discordUserId: participant.discordUserId,
+						discordUserTag: participant.discordUserTag,
+						poapLink: poapLink,
+					});
+					results.failedToSend++;
+					i++;
+					continue;
 				}
 				message.awaitMessageComponent({
 					filter: args => (args.customId == buttonIds.POAP_REPORT_SPAM && args.user.id == participant.discordUserId),
@@ -642,8 +619,8 @@ const POAPUtils = {
 		}
 	},
 	
-	getEventYear(startDateObj: Dayjs): string {
-		return startDateObj.year().toString();
+	getEventYear(startDateObj: Dayjs): number {
+		return startDateObj.year();
 	},
 	
 };

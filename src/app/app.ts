@@ -83,7 +83,7 @@ function initializeSentryIO() {
 		dsn: `${apiKeys.sentryDSN}`,
 		tracesSampleRate: 1.0,
 		release: `${constants.APP_NAME}@${constants.APP_VERSION}`,
-		environment: process.env.SENTRY_ENVIRONMENT,
+		environment: `${process.env.SENTRY_ENVIRONMENT}`,
 		integrations: [
 			new RewriteFrames({
 				root: __dirname,

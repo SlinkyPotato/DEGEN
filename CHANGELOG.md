@@ -1,6 +1,23 @@
 # Changelog
 
-## 2.5.2-RELEASE
+## 2.6.0-RELEASE (2022-01-11)
+
+1. Stability check
+   - add sentry github action
+   - fix poap mint api call
+   - fix auto end for DM event
+   - fix gm regex for single line
+   - refactor poap start/stop tracking event
+2. Twitter stability check
+   - handle timeout for autoend situation
+   - better error messaging
+   - stability enhancements
+   - add forced start script
+3. Fix key github action reference for twitter spaces
+   - remove extra logging
+   - send twitter auth confirmation only on direct auth flow
+
+## 2.5.2-RELEASE (2022-01-09)
 
 1. Address sentry.io issues 2022-01-08
    - add type guards to messageCreate sentry method

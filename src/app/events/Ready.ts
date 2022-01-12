@@ -26,8 +26,9 @@ export default class implements DiscordEvent {
 			}
 			const db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 			await updateActiveDiscordServers(client, db);
-			await POAPService.runAutoEndSetup(client, constants.PLATFORM_TYPE_DISCORD).catch(Log.error);
-			await POAPService.runAutoEndSetup(client, constants.PLATFORM_TYPE_TWITTER).catch(Log.error);
+			// should not wait
+			POAPService.runAutoEndSetup(client, constants.PLATFORM_TYPE_DISCORD).catch(Log.error);
+			POAPService.runAutoEndSetup(client, constants.PLATFORM_TYPE_TWITTER).catch(Log.error);
 			await POAPService.clearExpiredPOAPs();
 			
 			Log.info(`${constants.APP_NAME} is ready!`);

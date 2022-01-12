@@ -96,7 +96,7 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 const claimPOAPForTwitter = async (ctx: CommandContext, guildMember: GuildMember) => {
 	Log.debug('claiming POAP for Twitter');
 
-	const verifiedTwitter: VerifiedTwitter | undefined = await VerifyTwitter(ctx, guildMember);
+	const verifiedTwitter: VerifiedTwitter | undefined = await VerifyTwitter(ctx, guildMember, false);
 	if (verifiedTwitter == null) {
 		return;
 	}

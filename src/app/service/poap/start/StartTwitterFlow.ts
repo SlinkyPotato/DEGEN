@@ -12,20 +12,23 @@ import ValidationError from '../../../errors/ValidationError';
 import dayjs, { Dayjs } from 'dayjs';
 import POAPService from '../POAPService';
 import { POAPTwitterParticipants } from '../../../types/poap/POAPTwitterParticipants';
+import channelIds from '../../constants/channelIds';
 
 const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration: number): Promise<any> => {
 	Log.debug('starting twitter poap flow...');
 	
-	const verifiedTwitter: VerifiedTwitter | undefined = await VerifyTwitter(ctx, guildMember);
+	const verifiedTwitter: VerifiedTwitter | undefined = await VerifyTwitter(ctx, guildMember, false);
 	if (verifiedTwitter == null) {
 		return;
 	}
 	const twitterClientV2: TwitterApi = new TwitterApi(apiKeys.twitterBearerToken as string);
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Oh yea, time for a POAP event!...');
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I can help start a POAP event!');
 	
 	let twitterSpaceResult: SpaceV2LookupResult | null = null;
 	try {
+		Log.debug(`twitterId: ${verifiedTwitter.twitterUser.id_str}`);
 		twitterSpaceResult = await twitterClientV2.v2.spacesByCreators(verifiedTwitter.twitterUser.id_str);
+		Log.debug(twitterSpaceResult.data);
 	} catch (e) {
 		LogUtils.logError('failed trying to get twitter spaces', e);
 	}
@@ -65,6 +68,7 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 	Log.debug('setting up active twitter event in db');
 	const currentDate: Dayjs = dayjs();
 	const endTimeISO: string = currentDate.add(duration, 'minute').toISOString();
+	const channelExecutionId: string = isDmOn ? channelIds.DM : ctx.channelID;
 	const twitterSettingsResult: FindAndModifyWriteOpResultObject<POAPTwitterSettings> = await poapTwitterSettings.findOneAndReplace({
 		discordUserId: guildMember.id,
 		discordServerId: guildMember.guild.id,
@@ -78,7 +82,8 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 		discordServerId: guildMember.guild.id,
 		twitterUserId: verifiedTwitter.twitterUser.id_str,
 		twitterSpaceId: twitterSpaceId,
-	}, {
+		channelExecutionId: channelExecutionId,
+	} as POAPTwitterSettings, {
 		upsert: true,
 		returnDocument: 'after',
 	});

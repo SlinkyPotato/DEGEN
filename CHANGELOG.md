@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.1-RELEASE (2022-01-11)
+
+1. Fix prod keys
+
 ## 2.6.0-RELEASE (2022-01-11)
 
 1. Stability check

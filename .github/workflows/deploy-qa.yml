@@ -45,7 +45,10 @@ jobs:
                   HD_TWITTER_API_TOKEN: ${{secrets.QA_TWITTER_API_TOKEN}}
                   HD_TWITTER_API_SECRET: ${{secrets.QA_TWITTER_API_SECRET}}
                   HD_TWITTER_BEARER_TOKEN: ${{secrets.QA_TWITTER_BEARER_TOKEN}}
+                  HD_TWITTER_ACCESS_TOKEN: ${{secrets.QA_TWITTER_ACCESS_TOKEN}}
                   HD_TWITTER_ACCESS_TOKEN_SECRET: ${{secrets.QA_TWITTER_ACCESS_TOKEN_SECRET}}
+                  HD_TWITTER_CLIENT_ID: ${{secrets.QA_TWITTER_CLIENT_ID}}
+                  HD_TWITTER_CLIENT_SECRET: ${{secrets.QA_TWITTER_CLIENT_SECRET}}
                   HD_SENTRY_IO_DSN: ${{secrets.QA_SENTRY_IO_DSN}}
             - name: Get current package version
               id: package-version

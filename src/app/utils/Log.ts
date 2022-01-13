@@ -129,20 +129,24 @@ export const LogUtils = {
 	
 	logError(message: string, error: Error | any, guildId?: string): void {
 		try {
-			Sentry.captureException(error, {
-				tags: {
-					guildId: guildId,
-				},
-			});
-			Log.error(message, {
-				indexMeta: true,
-				meta: {
-					name: error?.name,
-					message: error?.message,
-					stack: error?.stack,
-					guildId: guildId,
-				},
-			});
+			if (error != null && error instanceof Error) {
+				Sentry.captureException(error, {
+					tags: {
+						guildId: guildId,
+					},
+				});
+				Log.error(message, {
+					indexMeta: true,
+					meta: {
+						name: error?.name,
+						message: error?.message,
+						stack: error?.stack,
+						guildId: guildId,
+					},
+				});
+			} else {
+				Log.error(message);
+			}
 		} catch (e) {
 			Log.warn(message);
 		}

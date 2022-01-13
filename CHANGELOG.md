@@ -3,6 +3,7 @@
 ## 2.6.2-RELEASE (2022-01-13)
 
 1. Handle twitter spaces exceptions
+   - update twitter settings schema validation
 
 ## 2.6.1-RELEASE (2022-01-11)
 

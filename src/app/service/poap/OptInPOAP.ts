@@ -6,7 +6,7 @@ import {
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';
 import { DiscordUserCollection } from '../../types/discord/DiscordUserCollection';
-import Log from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import {
 	DMChannel,
 	Message,
@@ -44,7 +44,6 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 	}
 	
 	if (!isAllowedToGetDMs) {
-		Log.debug('user has DMs option turned off, now asking user for opt-in to get DM POAPs');
 		const row: MessageActionRow = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
@@ -56,28 +55,38 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 					.setLabel('No')
 					.setStyle('SECONDARY'),
 			);
+		Log.debug('user has DMs option turned off, now asking user for opt-in to get DM POAPs');
 		const message: Message = await dmChannel.send({
 			content: 'I can send you POAPs directly to you. Would you like me to do that going forward?',
 			components: [row],
 		});
 		// 5 minute timeout
-		await message.awaitMessageComponent({
-			filter: args => (args.customId == buttonIds.POAP_OPT_IN_YES
-				|| args.customId == buttonIds.POAP_OPT_IN_NO) && args.user.id == user.id.toString(),
-			time: 300_000,
-		}).then((interaction) => {
-			if (interaction.customId == buttonIds.POAP_OPT_IN_YES) {
-				isAllowedToGetDMs = true;
-			} else {
-				message.edit({ content: 'No problem!', components: [] });
-			}
-		}).catch(error => {
-			message.edit({ content: 'Timeout reached, please reach out to us with any questions!', components: [] }).catch(e => {
-				Log.warn(e);
-				return;
+		try {
+			await message.awaitMessageComponent({
+				filter: args => (args.customId == buttonIds.POAP_OPT_IN_YES
+					|| args.customId == buttonIds.POAP_OPT_IN_NO) && args.user.id == user.id.toString(),
+				time: 300_000,
+			}).then((interaction) => {
+				if (interaction.customId == buttonIds.POAP_OPT_IN_YES) {
+					isAllowedToGetDMs = true;
+				} else {
+					message.edit({ content: 'No problem!', components: [] });
+				}
+			}).catch(error => {
+				try {
+					message.edit({ content: 'Timeout reached, please reach out to us with any questions!', components: [] }).catch(e => {
+						Log.warn(e);
+						return;
+					});
+					Log.debug(error?.message);
+				} catch (e) {
+					LogUtils.logError('gm opt-in message edit occurred', e);
+				}
 			});
-			Log.debug(error?.message);
-		});
+		} catch (e) {
+			LogUtils.logError('gm opt-in time/error occurred', e);
+			return;
+		}
 		
 		if (isAllowedToGetDMs) {
 			await userSettingsCol.updateOne({

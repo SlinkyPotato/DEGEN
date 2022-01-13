@@ -41,7 +41,6 @@ const HandleParticipantDuringEvent = async (oldState: VoiceState, newState: Voic
 	}
 	
 	if (isUserDeaf(newState)) {
-		Log.log(`user is deaf, userId: ${newState.id}`);
 		return;
 	}
 	

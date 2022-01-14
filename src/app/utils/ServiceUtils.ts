@@ -263,7 +263,7 @@ const ServiceUtils = {
 	addActiveDiscordServer: async (guild: Guild): Promise<void> => {
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const discordServerCollection = await db.collection<DiscordServerCollection>(constants.DB_COLLECTION_DISCORD_SERVERS);
-		Log.info(`DEGEN active for: ${guild.id}, ${guild.name}`);
+		Log.info(`${constants.APP_NAME} active for: ${guild.id}, ${guild.name}`);
 		await discordServerCollection.updateOne({
 			serverId: guild.id.toString(),
 		}, {

@@ -101,7 +101,7 @@ const POAPUtils = {
 		adminChannel?: TextChannel | null,
 	): Promise<MessageAttachment> {
 		Log.debug('asking poap organizer for poap links attachment');
-		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have a least ${numberOfParticipants} link(s). Each link should be on a new line.`;
+		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have a least ${numberOfParticipants} link(s). Each link should be on a new line. This file can be obtained from \`/poap mint\` command`;
 		const replyOptions: AwaitMessagesOptions = {
 			max: 1,
 			time: 900000,

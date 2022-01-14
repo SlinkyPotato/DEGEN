@@ -4,6 +4,8 @@
 
 1. Add more stability to opt-in messages
 2. Add account unlink/status commands
+3. Restrict DEGEN to certain discord servers
+4. Upgrade discord.js -> 13.6.0, upgrade slash-create -> 5.0.3
 
 ## 2.6.2-RELEASE (2022-01-13)
 

@@ -2,9 +2,9 @@ import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 's
 import Log, { LogUtils } from '../../utils/Log';
 import VerifyTwitter from '../../service/account/VerifyTwitter';
 import ServiceUtils from '../../utils/ServiceUtils';
-import discordServerIds from '../../service/constants/discordServerIds';
 import ValidationError from '../../errors/ValidationError';
 import { command } from '../../utils/SentryUtils';
+import allowedServers from '../../service/constants/allowedServers';
 
 export default class Account extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -15,7 +15,7 @@ export default class Account extends SlashCommand {
 				usages: 1,
 				duration: 2,
 			},
-			guildIDs: [discordServerIds.banklessDAO, discordServerIds.discordBotGarage],
+			guildIDs: allowedServers,
 			defaultPermission: true,
 			options: [
 				{

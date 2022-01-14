@@ -7,6 +7,7 @@ import {
 import HowToPOAP from '../../service/help/HowToPOAP';
 import { LogUtils } from '../../utils/Log';
 import { command } from '../../utils/SentryUtils';
+import HowToAccount from '../../service/help/HowToAccount';
 
 export default class Help extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -37,6 +38,9 @@ export default class Help extends SlashCommand {
 		switch (ctx.subcommands[0]) {
 		case 'poap':
 			messageOptions = HowToPOAP();
+			break;
+		case 'account':
+			messageOptions = HowToAccount();
 			break;
 		default:
 			messageOptions = { content: 'Invalid command selected' };

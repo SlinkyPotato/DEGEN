@@ -3,21 +3,24 @@ import {
 	DMChannel,
 	GuildMember,
 	MessageEmbedOptions,
+	Message as Message,
 } from 'discord.js';
 import { Collection, Cursor, Db } from 'mongodb';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';
 import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
-import Log from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import { POAPTwitterUnclaimedParticipants } from '../../types/poap/POAPTwitterUnclaimedParticipants';
 import VerifyTwitter, { VerifiedTwitter } from '../account/VerifyTwitter';
 import dayjs from 'dayjs';
 import {
 	EmbedField as EmbedFieldSlash,
+	Message as MessageSlash,
 	MessageEmbedOptions as MessageEmbedOptionsSlash,
 } from 'slash-create/lib/structures/message';
 import POAPUtils from '../../utils/POAPUtils';
 import apiKeys from '../constants/apiKeys';
+import ValidationError from '../../errors/ValidationError';
 
 const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: GuildMember): Promise<any> => {
 	Log.debug(`starting claim for ${ctx.user.username}, with ID: ${ctx.user.id}`);
@@ -64,21 +67,31 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	unclaimedParticipants = await unclaimedParticipantsCollection.find({
 		discordUserId: userId,
 	});
-	
+	let result: Message | MessageSlash | boolean | void;
 	if (ctx) {
 		Log.debug('sending message in channel');
 		await ctx.send({ content: `POAP claimed! Consider sending \`gm\` to <@${apiKeys.DISCORD_BOT_ID}>` });
 		const embeds: MessageEmbedOptionsSlash[] = await generatePOAPClaimEmbedMessages(numberOfPOAPs, unclaimedParticipants) as MessageEmbedOptionsSlash[];
-		await ctx.send({
+		result = await ctx.send({
 			embeds: embeds,
 			ephemeral: true,
+		}).catch(e => {
+			LogUtils.logError('failed to provide poap links to user', e);
+			throw new ValidationError('try the command in a valid channel');
 		});
 	} else if (dmChannel) {
 		Log.debug('sending DM to user');
 		const embeds: MessageEmbedOptions[] = await generatePOAPClaimEmbedMessages(numberOfPOAPs, unclaimedParticipants) as MessageEmbedOptions[];
-		await dmChannel.send({
+		result = await dmChannel.send({
 			embeds: embeds,
+		}).catch(e => {
+			LogUtils.logError('failed to send POAP DMs to user', e);
+			throw new ValidationError('try turning on DMs');
 		});
+	}
+	if (result == null) {
+		Log.warn('failed to send poaps');
+		return;
 	}
 	
 	Log.debug('message sent to user!');

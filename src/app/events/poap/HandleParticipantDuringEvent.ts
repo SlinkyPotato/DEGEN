@@ -23,19 +23,20 @@ type BasicUser = {
 
 const HandleParticipantDuringEvent = async (oldState: VoiceState, newState: VoiceState): Promise<any> => {
 	if (hasUserBeenDeafened(oldState, newState)) {
-		Log.log(`user has deafened, userId: ${newState.id}`);
 		if (await isChannelActivePOAPEvent(oldState.channelId, oldState.guild.id)) {
+			Log.log(`user has deafened for previous channel, userId: ${newState.id}`);
 			await removeDeafenedUser(oldState.channelId, oldState.guild.id, oldState.id);
 		}
 		if (newState.channelId != oldState.channelId && await isChannelActivePOAPEvent(newState.channelId, newState.guild.id)) {
+			Log.log(`user has deafened for new channel, userId: ${newState.id}`);
 			await removeDeafenedUser(newState.channelId, newState.guild.id, newState.id);
 		}
 		return;
 	}
 	
 	if (hasUserBeenUnDeafened(oldState, newState)) {
-		Log.log(`user has undeafened, userId: ${newState.id}`);
 		if (await isChannelActivePOAPEvent(newState.channelId, newState.guild.id)) {
+			Log.log(`user has undeafened for new channel, userId: ${newState.id}`);
 			await startTrackingUserParticipation({ id: newState.id, tag: newState.member?.user.tag }, newState.guild.id, newState.channelId);
 		}
 	}

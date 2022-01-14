@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.0-RELEASE (2022-01-18)
+
+1. Add more stability to opt-in messages
+2. Add account unlink/status commands
+
 ## 2.6.2-RELEASE (2022-01-13)
 
 1. Handle twitter spaces exceptions

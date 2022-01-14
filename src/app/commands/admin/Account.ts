@@ -1,5 +1,5 @@
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create';
-import { LogUtils } from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import VerifyTwitter from '../../service/account/VerifyTwitter';
 import ServiceUtils from '../../utils/ServiceUtils';
 import discordServerIds from '../../service/constants/discordServerIds';
@@ -26,6 +26,25 @@ export default class Account extends SlashCommand {
 						{
 							name: 'platform',
 							type: CommandOptionType.STRING,
+							description: 'Type of account or wallet to unlink from discord.',
+							required: true,
+							choices: [
+								{
+									name: 'Twitter',
+									value: 'TWITTER_ACCOUNT',
+								},
+							],
+						},
+					],
+				},
+				{
+					name: 'unlink',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Link DEGEN to your account or wallet.',
+					options: [
+						{
+							name: 'platform',
+							type: CommandOptionType.STRING,
 							description: 'Type of account or wallet to verify and link.',
 							required: true,
 							choices: [
@@ -36,6 +55,12 @@ export default class Account extends SlashCommand {
 							],
 						},
 					],
+				},
+				{
+					name: 'status',
+					type: CommandOptionType.SUB_COMMAND,
+					description: 'Check linked accounts',
+					options: [],
 				},
 			],
 		});
@@ -51,14 +76,29 @@ export default class Account extends SlashCommand {
 			return;
 		}
 		
-		const { guildMember } = await ServiceUtils.getGuildAndMember(ctx.guildID, ctx.user.id);
+		const subCommand: string = ctx.subcommands[0];
+		
 		try {
-			await VerifyTwitter(ctx, guildMember, true).catch(e => { throw e; });
+			const { guildMember } = await ServiceUtils.getGuildAndMember(ctx.guildID, ctx.user.id);
+			
+			switch (subCommand) {
+			case 'verify':
+				await VerifyTwitter(ctx, guildMember, true).catch(e => { throw e; });
+				break;
+			case 'unlink':
+				break;
+			case 'status':
+				break;
+			default:
+				await ctx.send({ content: 'Please try again' }).catch(Log.error);
+				break;
+			}
+			
 		} catch (e) {
 			if (e instanceof ValidationError) {
 				await ctx.send({ content: `${e.message}`, ephemeral: true });
 			} else {
-				LogUtils.logError('failed to verify user', e, guildMember.guild.id);
+				LogUtils.logError('failed to verify user', e);
 				await ServiceUtils.sendOutErrorMessage(ctx);
 			}
 		}

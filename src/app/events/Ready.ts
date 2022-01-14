@@ -1,4 +1,8 @@
-import { Client, Guild } from 'discord.js';
+import {
+	Client,
+	Guild,
+	GuildMember,
+} from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import Log, { LogUtils } from '../utils/Log';
 import MongoDbUtils from '../utils/MongoDbUtils';
@@ -19,6 +23,12 @@ export default class implements DiscordEvent {
 			
 			client.guilds.cache.forEach((guild: Guild) => {
 				Log.info(`DEGEN active for: ${guild.id}, ${guild.name}`);
+				guild.members.fetch(constants.NEW_DEGEN_ID).then((member: GuildMember) => {
+					if (member != null) {
+						guild.leave();
+						Log.info('DEGEN found, now removing legacy DEGEN');
+					}
+				}).catch(Log.error);
 			});
 			await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 			

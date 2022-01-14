@@ -1,6 +1,6 @@
 {
-    "name": "degen",
-    "version": "2.4.2",
+    "name": "degen-legacy",
+    "version": "0.0.1",
     "description": "Administrative and Utilitarian bot for the Bankless Discord Server.",
     "main": "app.js",
     "private": true,
@@ -40,7 +40,7 @@
         "csv-parse": "^5.0.3",
         "csv-stringify": "^6.0.3",
         "dayjs": "^1.10.7",
-        "discord.js": "^13.3.1",
+        "discord.js": "^13.6.0",
         "discord.js-captcha": "^2.2.2",
         "dotenv": "^10.0.0",
         "form-data": "^4.0.0",
@@ -48,7 +48,7 @@
         "lodash.isequal": "^4.5.0",
         "mongodb": "^3.6.9",
         "p-queue": "^6.6.2",
-        "slash-create": "^4.3.1",
+        "slash-create": "^5.0.3",
         "twitter-api-v2": "^1.6.5",
         "uuid": "^8.3.2"
     },

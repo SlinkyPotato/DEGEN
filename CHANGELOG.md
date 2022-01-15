@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.1-LEGACY
+
+1. Kick bot if DEGEN is found
+
 ## 2.4.2-LEGACY (2022-01-03)
 
 1. Introduce /invite command and disable existing poap commands

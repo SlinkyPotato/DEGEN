@@ -4,6 +4,9 @@ import VerifyTwitter from '../../service/account/VerifyTwitter';
 import ServiceUtils from '../../utils/ServiceUtils';
 import ValidationError from '../../errors/ValidationError';
 import { command } from '../../utils/SentryUtils';
+import UnlinkAccount from '../../service/account/UnlinkAccount';
+import { platform } from 'os';
+import constants from '../../service/constants/constants';
 
 export default class Account extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -14,7 +17,6 @@ export default class Account extends SlashCommand {
 				usages: 1,
 				duration: 2,
 			},
-			// guildIDs: allowedServers,
 			defaultPermission: true,
 			options: [
 				{
@@ -30,7 +32,7 @@ export default class Account extends SlashCommand {
 							choices: [
 								{
 									name: 'Twitter',
-									value: 'TWITTER_ACCOUNT',
+									value: constants.PLATFORM_TYPE_TWITTER,
 								},
 							],
 						},
@@ -49,7 +51,7 @@ export default class Account extends SlashCommand {
 							choices: [
 								{
 									name: 'Twitter',
-									value: 'TWITTER_ACCOUNT',
+									value: constants.PLATFORM_TYPE_TWITTER,
 								},
 							],
 						},
@@ -85,6 +87,7 @@ export default class Account extends SlashCommand {
 				await VerifyTwitter(ctx, guildMember, true).catch(e => { throw e; });
 				break;
 			case 'unlink':
+				await UnlinkAccount(ctx, guildMember, ctx.options.unlink.platform).catch(e => { throw e; });
 				break;
 			case 'status':
 				break;

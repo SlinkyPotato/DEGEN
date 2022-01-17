@@ -21,7 +21,7 @@ import {
 	VoiceChannel,
 } from 'discord.js';
 import client from '../app';
-import Log, { LogUtils } from './Log';
+import Log from './Log';
 import { stringify } from 'csv-stringify/sync';
 import { parse } from 'csv-parse/sync';
 import { POAPFileParticipant,
@@ -131,7 +131,7 @@ const ServiceUtils = {
 			await guildMember.send({ content: message });
 			return true;
 		} catch (e) {
-			LogUtils.logError(`DM is turned off for ${guildMember.user.tag}`, e);
+			Log.warn(`DM is turned off for ${guildMember.user.tag}`);
 			return false;
 		}
 	},

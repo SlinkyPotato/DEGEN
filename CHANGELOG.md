@@ -6,6 +6,7 @@
 2. Add account unlink/status commands
 3. Restrict DEGEN to certain discord servers
 4. Upgrade discord.js -> 13.6.0, upgrade slash-create -> 5.0.3
+5. Introduce basic `/claim` command and prompt user for opt-in on slash command
 
 ## 2.6.2-RELEASE (2022-01-13)
 

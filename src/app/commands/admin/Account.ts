@@ -4,7 +4,6 @@ import VerifyTwitter from '../../service/account/VerifyTwitter';
 import ServiceUtils from '../../utils/ServiceUtils';
 import ValidationError from '../../errors/ValidationError';
 import { command } from '../../utils/SentryUtils';
-import allowedServers from '../../service/constants/allowedServers';
 
 export default class Account extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -15,7 +14,7 @@ export default class Account extends SlashCommand {
 				usages: 1,
 				duration: 2,
 			},
-			guildIDs: allowedServers,
+			// guildIDs: allowedServers,
 			defaultPermission: true,
 			options: [
 				{

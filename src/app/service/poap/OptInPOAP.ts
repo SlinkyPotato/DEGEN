@@ -55,9 +55,9 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 					.setLabel('No')
 					.setStyle('SECONDARY'),
 			);
-		Log.debug('user has DMs option turned off, now asking user for opt-in to get DM POAPs');
+		Log.debug('user has not opted in to DMs, now asking user for opt-in to get DM POAPs');
 		const message: Message | void = await dmChannel.send({
-			content: 'I can send you POAPs directly to you. Would you like me to do that going forward?',
+			content: 'Would you like me to send you POAPs directly to you going forward?',
 			components: [row],
 		}).catch(e => {
 			LogUtils.logError('failed to ask for opt-in', e);
@@ -65,7 +65,7 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 		});
 		
 		if (message == null) {
-			Log.debug('did not sent opt-in message');
+			Log.debug('did not send opt-in message');
 			return;
 		}
 		
@@ -105,7 +105,7 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 					isDMEnabled: true,
 				},
 			});
-			await message.edit({ content: 'Direct messages enabled! You will now receive POAPs, thank you!', components: [] });
+			await message.edit({ content: 'Direct messages enabled! I will send you POAPs as soon as I get them, thank you!', components: [] });
 			Log.debug('user settings updated');
 		}
 		Log.debug('user settings update skipped');

@@ -18,7 +18,6 @@ import { GuildMember } from 'discord.js';
 import ModifyPOAP from '../../service/poap/config/ModifyPOAP';
 import StatusPOAP from '../../service/poap/config/StatusPOAP';
 import { command } from '../../utils/SentryUtils';
-import allowedServers from '../../service/constants/allowedServers';
 
 export default class POAP extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -30,7 +29,6 @@ export default class POAP extends SlashCommand {
 				duration: 1,
 			},
 			defaultPermission: true,
-			guildIDs: allowedServers,
 			options: [
 				{
 					name: 'config',
@@ -191,7 +189,7 @@ export default class POAP extends SlashCommand {
 				{
 					name: 'claim',
 					type: CommandOptionType.SUB_COMMAND,
-					description: 'Claim POAPs for all the events DEGEN failed to deliver.',
+					description: 'Claim your POAPs.',
 					options: [
 						{
 							name: 'platform',

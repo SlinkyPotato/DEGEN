@@ -21,6 +21,8 @@ import {
 import POAPUtils from '../../utils/POAPUtils';
 import apiKeys from '../constants/apiKeys';
 import ValidationError from '../../errors/ValidationError';
+import OptInPOAP from './OptInPOAP';
+import ServiceUtils from '../../utils/ServiceUtils';
 
 const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: GuildMember): Promise<any> => {
 	Log.debug(`starting claim for ${ctx.user.username}, with ID: ${ctx.user.id}`);
@@ -34,6 +36,17 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 		return;
 	}
 	await claimForDiscord(ctx.user.id, ctx);
+	if (guildMember && ctx) {
+		try {
+			const dmChannel: DMChannel = await guildMember.createDM();
+			await OptInPOAP(guildMember.user, await dmChannel).catch(e => {
+				Log.error(e);
+				ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
+			});
+		} catch (e) {
+			LogUtils.logError('failed to ask for opt-in', e);
+		}
+	}
 };
 
 export const claimForDiscord = async (userId: string, ctx?: CommandContext | null, dmChannel?: DMChannel | null): Promise<void> => {
@@ -70,7 +83,7 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	let result: Message | MessageSlash | boolean | void;
 	if (ctx) {
 		Log.debug('sending message in channel');
-		await ctx.send({ content: `POAP claimed! Consider sending \`gm\` to <@${apiKeys.DISCORD_BOT_ID}>` });
+		await ctx.send({ content: `POAP claimed! Consider sending \`gm\` to <@${apiKeys.DISCORD_BOT_ID}> to get POAPs directly in your DMs.` });
 		const embeds: MessageEmbedOptionsSlash[] = await generatePOAPClaimEmbedMessages(numberOfPOAPs, unclaimedParticipants) as MessageEmbedOptionsSlash[];
 		result = await ctx.send({
 			embeds: embeds,

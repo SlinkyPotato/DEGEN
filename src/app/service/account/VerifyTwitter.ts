@@ -1,5 +1,6 @@
 import {
 	GuildMember,
+	MessageEmbedOptions,
 	MessageOptions,
 } from 'discord.js';
 import apiKeys from '../constants/apiKeys';
@@ -19,6 +20,8 @@ import {
 } from 'slash-create';
 import { TwitterApiTokens } from 'twitter-api-v2/dist/types/client.types';
 import { unlinkTwitterAccount } from './UnlinkAccount';
+import { generateTwitterEmbedItem } from './ListAccounts';
+import { MessageEmbedOptions as MessageEmbedOptionsSlash } from 'slash-create/lib/structures/message';
 
 export type VerifiedTwitter = {
 	twitterUser: UserV1,
@@ -28,7 +31,7 @@ export type VerifiedTwitter = {
 const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, sendConfirmationMsg: boolean): Promise<VerifiedTwitter | undefined> => {
 	Log.debug('starting to verify twitter account link');
 	
-	const isDmOn: boolean = (sendConfirmationMsg) ? await ServiceUtils.tryDMUser(guildMember, 'Hi! Let me check your twitter info') : false;
+	const isDmOn: boolean = (sendConfirmationMsg) ? await ServiceUtils.tryDMUser(guildMember, 'Hi! Let me check your twitter info.') : false;
 	
 	// important
 	await ctx.defer(true);
@@ -45,28 +48,14 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, send
 	}
 	
 	Log.debug(`${guildMember.user.tag} has linked their twitter account, twitterId: ${verifiedTwitter.twitterUser.id_str}, sending message`);
-	let authenticatedMsg: MessageOptions | MessageOptionsSlash = {
-		embeds: [
-			{
-				title: 'Twitter Authentication',
-				description: 'Twitter account linked 👍',
-				fields: [
-					{ name: 'Display Name', value: `${verifiedTwitter.twitterUser.screen_name}` },
-					{ name: 'Description', value: `${ServiceUtils.prepEmbedField(verifiedTwitter.twitterUser.description)}` },
-					{ name: 'Profile', value: `https://twitter.com/${verifiedTwitter.twitterUser.screen_name}` },
-				],
-			},
-		],
-	};
 	
 	if (sendConfirmationMsg) {
 		if (isDmOn) {
-			authenticatedMsg = authenticatedMsg as MessageOptions;
-			await guildMember.send(authenticatedMsg);
+			const embedMsg: MessageEmbedOptions = generateTwitterEmbedItem(verifiedTwitter) as MessageEmbedOptions;
+			await guildMember.send({ embeds: [embedMsg] });
 		} else {
-			authenticatedMsg = authenticatedMsg as MessageOptionsSlash;
-			authenticatedMsg.ephemeral = true;
-			await ctx.send(authenticatedMsg);
+			const embedMsg: MessageEmbedOptionsSlash = generateTwitterEmbedItem(verifiedTwitter) as MessageEmbedOptionsSlash;
+			await ctx.send({ embeds: [embedMsg], ephemeral: true });
 		}
 	}
 	

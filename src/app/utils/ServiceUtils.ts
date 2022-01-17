@@ -206,11 +206,13 @@ const ServiceUtils = {
 		guildMember: GuildMember,
 		ctx: CommandContext,
 		msg: MessageOptions | MessageOptionsSlash,
-	): Promise<Message | MessageSlash> => {
+	): Promise<boolean | Message | MessageSlash> => {
 		if (isDmOn) {
 			return await guildMember.send(msg as MessageOptions);
 		} else {
-			return await ctx.send(msg as MessageOptionsSlash) as MessageSlash;
+			msg = msg as MessageOptionsSlash;
+			msg.ephemeral = true;
+			return await ctx.send(msg);
 		}
 	},
 	

@@ -44,6 +44,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles: stri
 	}
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'I can help you configure authorized users for the POAP commands!');
+	await ctx.defer(true);
+	
 	if (isDmOn) {
 		await ctx.send({ content: 'I just sent you a DM!', ephemeral: true });
 	} else {
@@ -165,11 +167,12 @@ export const askForGrantOrRemoval = async (
 		} as MessageOptionsSlash;
 	}
 	
-	let message: Message | MessageSlash = await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg1);
+	let message = await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg1);
 	
 	if (isDmOn) {
 		message = message as Message;
 	} else {
+		message = message as MessageSlash;
 		const textChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
 		message = await textChannel.messages.fetch(message.id) as Message;
 	}

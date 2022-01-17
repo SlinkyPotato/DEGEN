@@ -35,7 +35,7 @@ import buttonIds from '../constants/buttonIds';
 const UnlinkAccount = async (ctx: CommandContext, guildMember: GuildMember, platform: string): Promise<any> => {
 	Log.debug(`starting to unlink account ${platform}`);
 
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, `Attempting to unlink account \`${platform}\``);
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, `Attempting to unlink account \`${platform}\`.`);
 	
 	// important
 	await ctx.defer(true);
@@ -65,6 +65,7 @@ const UnlinkAccount = async (ctx: CommandContext, guildMember: GuildMember, plat
 		LogUtils.logError('failed to unlink twitter account', e);
 		await ServiceUtils.sendOutErrorMessage(ctx).catch(Log.error);
 	}
+	Log.debug('finished linking account');
 };
 
 const promptToUnlink = async (ctx: CommandContext, guildMember: GuildMember, isDMOn: boolean, twitterUser: VerifiedTwitter): Promise<boolean> => {

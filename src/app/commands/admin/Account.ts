@@ -7,6 +7,7 @@ import { command } from '../../utils/SentryUtils';
 import UnlinkAccount from '../../service/account/UnlinkAccount';
 import constants from '../../service/constants/constants';
 import discordServerIds from '../../service/constants/discordServerIds';
+import ListAccounts from '../../service/account/ListAccounts';
 
 export default class Account extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -74,7 +75,7 @@ export default class Account extends SlashCommand {
 		if (ctx.user.bot) return;
 		
 		if (ctx.guildID == null) {
-			await ctx.send({ content: 'Please try this command within a discord server.' });
+			await ctx.send({ content: 'Please try command within a discord server.' });
 			return;
 		}
 		
@@ -91,6 +92,7 @@ export default class Account extends SlashCommand {
 				await UnlinkAccount(ctx, guildMember, ctx.options.unlink.platform).catch(e => { throw e; });
 				break;
 			case 'list':
+				await ListAccounts(ctx, guildMember).catch(e => { throw e; });
 				break;
 			default:
 				await ctx.send({ content: 'Please try again' }).catch(Log.error);

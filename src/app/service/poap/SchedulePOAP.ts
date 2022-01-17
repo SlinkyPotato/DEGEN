@@ -28,6 +28,8 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	}
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Minting POAPs is always super exciting!');
 	
+	await ctx.defer(true);
+	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
 	await POAPUtils.validateUserAccess(guildMember, db);

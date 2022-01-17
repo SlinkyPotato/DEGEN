@@ -6,7 +6,6 @@ import ValidationError from '../../errors/ValidationError';
 import { command } from '../../utils/SentryUtils';
 import UnlinkAccount from '../../service/account/UnlinkAccount';
 import constants from '../../service/constants/constants';
-import discordServerIds from '../../service/constants/discordServerIds';
 import ListAccounts from '../../service/account/ListAccounts';
 
 export default class Account extends SlashCommand {
@@ -19,7 +18,6 @@ export default class Account extends SlashCommand {
 				duration: 2,
 			},
 			defaultPermission: true,
-			guildIDs: [discordServerIds.discordBotGarage],
 			options: [
 				{
 					name: 'link',

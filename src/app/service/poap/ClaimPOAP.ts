@@ -11,7 +11,10 @@ import constants from '../constants/constants';
 import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
 import Log, { LogUtils } from '../../utils/Log';
 import { POAPTwitterUnclaimedParticipants } from '../../types/poap/POAPTwitterUnclaimedParticipants';
-import VerifyTwitter, { VerifiedTwitter } from '../account/VerifyTwitter';
+import {
+	retrieveVerifiedTwitter,
+	VerifiedTwitter,
+} from '../account/VerifyTwitter';
 import dayjs from 'dayjs';
 import {
 	EmbedField as EmbedFieldSlash,
@@ -122,8 +125,10 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 const claimPOAPForTwitter = async (ctx: CommandContext, guildMember: GuildMember) => {
 	Log.debug('claiming POAP for Twitter');
 
-	const verifiedTwitter: VerifiedTwitter | undefined = await VerifyTwitter(ctx, guildMember, false);
+	const verifiedTwitter: VerifiedTwitter | null = await retrieveVerifiedTwitter(ctx, guildMember);
+	
 	if (verifiedTwitter == null) {
+		
 		return;
 	}
 	

@@ -13,9 +13,17 @@ import {
 	MessageButton,
 	MessageOptions,
 } from 'discord.js';
-import VerifyTwitter, { VerifiedTwitter } from './VerifyTwitter';
+import {
+	retrieveVerifiedTwitter,
+	VerifiedTwitter,
+} from './VerifyTwitter';
 import constants from '../constants/constants';
-import { Collection, Db, DeleteWriteOpResultObject } from 'mongodb';
+import {
+	Collection,
+	Db,
+	DeleteWriteOpResultObject,
+	ObjectID,
+} from 'mongodb';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import { NextAuthAccountCollection } from '../../types/nextauth/NextAuthAccountCollection';
 import {
@@ -23,7 +31,6 @@ import {
 	MessageOptions as MessageOptionsSlash,
 } from 'slash-create';
 import buttonIds from '../constants/buttonIds';
-import ValidationError from '../../errors/ValidationError';
 
 const UnlinkAccount = async (ctx: CommandContext, guildMember: GuildMember, platform: string): Promise<any> => {
 	Log.debug(`starting to unlink account ${platform}`);
@@ -36,16 +43,18 @@ const UnlinkAccount = async (ctx: CommandContext, guildMember: GuildMember, plat
 	
 	try {
 		if (platform == constants.PLATFORM_TYPE_TWITTER) {
-			const twitterUser: VerifiedTwitter | undefined = await VerifyTwitter(ctx, guildMember, false);
+			const twitterUser: VerifiedTwitter | null = await retrieveVerifiedTwitter(ctx, guildMember);
 			if (twitterUser != null) {
 				const shouldUnlink: boolean = await promptToUnlink(ctx, guildMember, isDmOn, twitterUser);
 				if (shouldUnlink) {
-					await unlinkTwitter(ctx, guildMember, twitterUser.twitterUser.id_str).catch(Log.error);
-					await ctx.send({ content: 'Twitter account removed. To relink account try `/account link`.', ephemeral: true }).catch(Log.error);
+					await unlinkTwitterAccount(guildMember).catch(e => { throw e; });
+					await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, { content: 'Twitter account removed. To relink account try `/account link`.', ephemeral: true }).catch(Log.error);
 					return;
 				}
-				await ctx.send({ content: 'Account not removed. To see list of accounts try `/account list`.', ephemeral: true }).catch(Log.error);
+				await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, { content: 'Account not removed. To see list of accounts try `/account list`.', ephemeral: true }).catch(Log.error);
+				return;
 			}
+			await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, { content: 'Twitter account not found!', ephemeral: true });
 		} else {
 			Log.error('could not find platform');
 		}
@@ -57,7 +66,7 @@ const UnlinkAccount = async (ctx: CommandContext, guildMember: GuildMember, plat
 
 const promptToUnlink = async (ctx: CommandContext, guildMember: GuildMember, isDMOn: boolean, twitterUser: VerifiedTwitter): Promise<boolean> => {
 	Log.debug('attempting to ask user for confirmation on unlinking');
-	let shouldUnlinkPromise: Promise<any>;
+	let shouldUnlinkPromise: Promise<boolean>;
 	let shouldUnlinkMsg: MessageOptions | MessageOptionsSlash = {
 		embeds: [
 			{
@@ -89,18 +98,26 @@ const promptToUnlink = async (ctx: CommandContext, guildMember: GuildMember, isD
 					.setStyle('DANGER'),
 			),
 		];
+		Log.debug('attempting to send dm to user');
+		Log.debug(shouldUnlinkMsg);
 		messageResponse = await guildMember.send(shouldUnlinkMsg);
 		Log.debug('dm message confirmation on unlink sent');
-		shouldUnlinkPromise = new Promise<any>((resolve, reject) => {
+		shouldUnlinkPromise = new Promise<any>((resolve, _) => {
 			messageResponse.awaitMessageComponent({
 				time: expiration,
-				filter: args => (args.customId == buttonIds.ACCOUNT_UNLINK_APPROVE) && args.user.id == guildMember.id.toString(),
+				filter: args => (args.customId == buttonIds.ACCOUNT_UNLINK_APPROVE || args.customId == buttonIds.ACCOUNT_UNLINK_REJECT)
+					&& args.user.id == guildMember.id.toString(),
 			}).then((interaction) => {
-				resolve(true);
-				Log.log(interaction);
+				if (interaction.customId == buttonIds.ACCOUNT_UNLINK_APPROVE) {
+					messageResponse.edit({ components: [] }).catch(Log.error);
+					resolve(true);
+				} else if (interaction.customId == buttonIds.ACCOUNT_UNLINK_REJECT) {
+					messageResponse.edit({ components: [] }).catch(Log.error);
+					resolve(false);
+				}
 			}).catch(error => {
 				Log.error(error);
-				reject(new ValidationError('Timeout reached, please try command again to start a new session.'));
+				resolve(false);
 			});
 		});
 	} else {
@@ -127,7 +144,7 @@ const promptToUnlink = async (ctx: CommandContext, guildMember: GuildMember, isD
 		await ctx.defer(true);
 		const msgSlashResponse: MessageSlash = await ctx.send(shouldUnlinkMsg) as MessageSlash;
 		Log.debug('ctx message on user confirmation sent');
-		shouldUnlinkPromise = new Promise<any>((resolve, reject) => {
+		shouldUnlinkPromise = new Promise<any>((resolve, _) => {
 			ctx.registerComponentFrom(msgSlashResponse.id, buttonIds.ACCOUNT_UNLINK_APPROVE, (compCtx: ComponentContext) => {
 				if (compCtx.user.id == guildMember.id) {
 					compCtx.editParent({ components: [] });
@@ -135,7 +152,7 @@ const promptToUnlink = async (ctx: CommandContext, guildMember: GuildMember, isD
 				}
 			}, expiration, () => {
 				ctx.send({ content: 'Message expired, please try command again.', ephemeral: true });
-				reject(false);
+				resolve(false);
 			});
 			
 			ctx.registerComponentFrom(msgSlashResponse.id, buttonIds.ACCOUNT_UNLINK_REJECT, (compCtx: ComponentContext) => {
@@ -145,7 +162,7 @@ const promptToUnlink = async (ctx: CommandContext, guildMember: GuildMember, isD
 				}
 			}, expiration, () => {
 				ctx.send({ content: 'Message expired, please try command again.', ephemeral: true });
-				reject(false);
+				resolve(false);
 			});
 		});
 		Log.debug('ctx response message registered');
@@ -153,17 +170,32 @@ const promptToUnlink = async (ctx: CommandContext, guildMember: GuildMember, isD
 	return await shouldUnlinkPromise;
 };
 
-const unlinkTwitter = async (ctx: CommandContext, guildMember: GuildMember, twitterUserId: string): Promise<void> => {
+export const unlinkTwitterAccount = async (guildMember: GuildMember): Promise<void> => {
+	Log.debug('removing twitter account link from db');
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
 	const accountsCollection: Collection<NextAuthAccountCollection> = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);
+	
+	const nextAuthAccount: NextAuthAccountCollection | null = await accountsCollection.findOne({
+		providerId: 'discord',
+		providerAccountId: guildMember.user.id.toString(),
+	});
+	
+	if (nextAuthAccount == null || nextAuthAccount.userId == null) {
+		Log.debug('next auth account not found');
+		return;
+	}
+	
 	const result: DeleteWriteOpResultObject = await accountsCollection.deleteMany({
 		providerId: 'twitter',
-		providerAccountId: twitterUserId,
+		userId: new ObjectID(nextAuthAccount.userId),
 	});
+	
 	if (result.result.ok != 1) {
 		Log.warn('failed to remove twitter account');
 		throw new Error('failed to unlink twitter account');
 	}
+	Log.debug('twitter account unlinked and removed from db');
+	return;
 };
 
 export default UnlinkAccount;

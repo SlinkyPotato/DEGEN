@@ -5,7 +5,10 @@ import {
 import apiKeys from '../constants/apiKeys';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';
-import { Collection, Db, DeleteWriteOpResultObject } from 'mongodb';
+import {
+	Collection,
+	Db,
+} from 'mongodb';
 import { NextAuthAccountCollection } from '../../types/nextauth/NextAuthAccountCollection';
 import Log from '../../utils/Log';
 import { TwitterApi, UserV1 } from 'twitter-api-v2';
@@ -15,6 +18,7 @@ import {
 	MessageEmbedOptions as MessageEmbedSlash,
 } from 'slash-create';
 import { TwitterApiTokens } from 'twitter-api-v2/dist/types/client.types';
+import { unlinkTwitterAccount } from './UnlinkAccount';
 
 export type VerifiedTwitter = {
 	twitterUser: UserV1,
@@ -30,6 +34,39 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, send
 		await ctx.send({ content: 'DM sent!', ephemeral: true });
 	}
 	
+	const verifiedTwitter: VerifiedTwitter | null = await retrieveVerifiedTwitter(ctx, guildMember);
+	
+	if (verifiedTwitter == null) {
+		await sendTwitterAuthenticationMessage(guildMember, ctx, isDmOn);
+		return;
+	}
+	
+	Log.debug(`${guildMember.user.tag} has linked their twitter account, twitterId: ${verifiedTwitter.twitterUser.id_str}, sending message`);
+	const verifiedEmbeds = {
+		title: 'Twitter Authentication',
+		description: 'Twitter account linked 👍',
+		fields: [
+			{ name: 'Display Name', value: `${verifiedTwitter.twitterUser.screen_name}` },
+			{ name: 'Description', value: `${ServiceUtils.prepEmbedField(verifiedTwitter.twitterUser.description)}` },
+			{ name: 'Profile', value: `https://twitter.com/${verifiedTwitter.twitterUser.screen_name}` },
+		],
+	};
+	
+	if (sendConfirmationMsg) {
+		if (isDmOn) {
+			await guildMember.send({ embeds: [verifiedEmbeds] });
+		} else {
+			await ctx.send({ embeds: [verifiedEmbeds], ephemeral: true });
+		}
+	}
+	
+	Log.debug('done verifying twitter account');
+	return verifiedTwitter;
+};
+
+export const retrieveVerifiedTwitter = async (ctx: CommandContext, guildMember: GuildMember): Promise<VerifiedTwitter | null> => {
+	Log.debug('starting to link twitter account link');
+	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
 	const accountsCollection: Collection<NextAuthAccountCollection> = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);
 	
@@ -41,8 +78,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, send
 	
 	if (nextAuthAccount == null || nextAuthAccount.userId == null) {
 		Log.debug('next auth account not found');
-		await sendTwitterAuthenticationMessage(guildMember, ctx, isDmOn);
-		return;
+		return null;
 	}
 	
 	Log.debug('found next auth discord from db, now looking for twitter account');
@@ -53,8 +89,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, send
 	
 	if (twitterCollection == null || twitterCollection.accessToken == null) {
 		Log.debug('twitter account not linked');
-		await sendTwitterAuthenticationMessage(guildMember, ctx, isDmOn);
-		return;
+		return null;
 	}
 	
 	const twitterAccessToken = twitterCollection.accessToken;
@@ -71,62 +106,26 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, send
 			accessToken: twitterAccessToken,
 			accessSecret: twitterAccessSecret,
 		} as TwitterApiTokens);
-
+		
 		Log.debug('testing validity of twitter account');
 		userCall = await userClient.currentUser(true);
 	} catch (e) {
 		Log.warn('invalid twitter auth found in db, verifyCredentials failed. Now removing from db...');
-		await removeTwitterAccountLink(nextAuthAccount);
-		await sendTwitterAuthenticationMessage(guildMember, ctx, isDmOn);
-		return;
+		await unlinkTwitterAccount(guildMember);
+		return null;
 	}
 	
 	if (twitterId != userCall.id_str) {
-		Log.debug('invalid twitter account, sending auth message');
-		await sendTwitterAuthenticationMessage(guildMember, ctx, isDmOn);
-		return;
+		Log.debug('invalid twitter account Id');
+		await unlinkTwitterAccount(guildMember);
+		return null;
 	}
 	
-	Log.debug(`${guildMember.user.tag} has linked their twitter account, twitterId: ${twitterId}, sending message`);
-	const verifiedEmbeds = {
-		title: 'Twitter Authentication',
-		description: 'Twitter account linked 👍',
-		fields: [
-			{ name: 'Display Name', value: `${userCall.screen_name}` },
-			{ name: 'Description', value: `${ServiceUtils.prepEmbedField(userCall.description)}` },
-			{ name: 'Profile', value: `https://twitter.com/${userCall.screen_name}` },
-		],
-	};
-	
-	if (sendConfirmationMsg) {
-		if (isDmOn) {
-			await guildMember.send({ embeds: [verifiedEmbeds] });
-		} else {
-			await ctx.send({ embeds: [verifiedEmbeds], ephemeral: true });
-		}
-	}
-	
-	Log.debug('done verifying twitter account');
+	Log.debug('done linking twitter account');
 	return {
 		twitterUser: userCall,
 		twitterClientV1: userClient,
 	};
-};
-
-const removeTwitterAccountLink = async (nextAuthAccount: NextAuthAccountCollection): Promise<any> => {
-	Log.debug('removing twitter account link from db');
-	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
-	const accountsCollection: Collection<NextAuthAccountCollection> = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);
-	const result: DeleteWriteOpResultObject = await accountsCollection.deleteOne({
-		providerId: 'twitter',
-		userId: nextAuthAccount.userId,
-	});
-	if (result.result.ok != 1) {
-		Log.warn('failed to remove twitter account');
-		throw new Error('failed to unlink twitter account');
-	}
-	Log.debug('twitter account unlinked and removed from db');
-	return;
 };
 
 const sendTwitterAuthenticationMessage = async (guildMember: GuildMember, ctx: CommandContext, isDmOn: boolean): Promise<void> => {

@@ -37,13 +37,16 @@ const UnlinkAccount = async (ctx: CommandContext, guildMember: GuildMember, plat
 
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, `Attempting to unlink account \`${platform}\``);
 	
+	// important
+	await ctx.defer(true);
+	
 	if (isDmOn) {
 		await ctx.send({ content: 'DM sent!', ephemeral: true });
 	}
 	
 	try {
 		if (platform == constants.PLATFORM_TYPE_TWITTER) {
-			const twitterUser: VerifiedTwitter | null = await retrieveVerifiedTwitter(ctx, guildMember);
+			const twitterUser: VerifiedTwitter | null = await retrieveVerifiedTwitter(guildMember);
 			if (twitterUser != null) {
 				const shouldUnlink: boolean = await promptToUnlink(ctx, guildMember, isDmOn, twitterUser);
 				if (shouldUnlink) {

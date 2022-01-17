@@ -1,6 +1,6 @@
 import {
 	GuildMember,
-	MessageEmbedOptions,
+	MessageOptions,
 } from 'discord.js';
 import apiKeys from '../constants/apiKeys';
 import MongoDbUtils from '../../utils/MongoDbUtils';
@@ -15,7 +15,7 @@ import { TwitterApi, UserV1 } from 'twitter-api-v2';
 import ServiceUtils from '../../utils/ServiceUtils';
 import {
 	CommandContext,
-	MessageEmbedOptions as MessageEmbedSlash,
+	MessageOptions as MessageOptionsSlash,
 } from 'slash-create';
 import { TwitterApiTokens } from 'twitter-api-v2/dist/types/client.types';
 import { unlinkTwitterAccount } from './UnlinkAccount';
@@ -30,11 +30,14 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, send
 	
 	const isDmOn: boolean = (sendConfirmationMsg) ? await ServiceUtils.tryDMUser(guildMember, 'Hi! Let me check your twitter info') : false;
 	
+	// important
+	await ctx.defer(true);
+	
 	if (isDmOn) {
 		await ctx.send({ content: 'DM sent!', ephemeral: true });
 	}
 	
-	const verifiedTwitter: VerifiedTwitter | null = await retrieveVerifiedTwitter(ctx, guildMember);
+	const verifiedTwitter: VerifiedTwitter | null = await retrieveVerifiedTwitter(guildMember);
 	
 	if (verifiedTwitter == null) {
 		await sendTwitterAuthenticationMessage(guildMember, ctx, isDmOn);
@@ -42,21 +45,28 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, send
 	}
 	
 	Log.debug(`${guildMember.user.tag} has linked their twitter account, twitterId: ${verifiedTwitter.twitterUser.id_str}, sending message`);
-	const verifiedEmbeds = {
-		title: 'Twitter Authentication',
-		description: 'Twitter account linked 👍',
-		fields: [
-			{ name: 'Display Name', value: `${verifiedTwitter.twitterUser.screen_name}` },
-			{ name: 'Description', value: `${ServiceUtils.prepEmbedField(verifiedTwitter.twitterUser.description)}` },
-			{ name: 'Profile', value: `https://twitter.com/${verifiedTwitter.twitterUser.screen_name}` },
+	let authenticatedMsg: MessageOptions | MessageOptionsSlash = {
+		embeds: [
+			{
+				title: 'Twitter Authentication',
+				description: 'Twitter account linked 👍',
+				fields: [
+					{ name: 'Display Name', value: `${verifiedTwitter.twitterUser.screen_name}` },
+					{ name: 'Description', value: `${ServiceUtils.prepEmbedField(verifiedTwitter.twitterUser.description)}` },
+					{ name: 'Profile', value: `https://twitter.com/${verifiedTwitter.twitterUser.screen_name}` },
+				],
+			},
 		],
 	};
 	
 	if (sendConfirmationMsg) {
 		if (isDmOn) {
-			await guildMember.send({ embeds: [verifiedEmbeds] });
+			authenticatedMsg = authenticatedMsg as MessageOptions;
+			await guildMember.send(authenticatedMsg);
 		} else {
-			await ctx.send({ embeds: [verifiedEmbeds], ephemeral: true });
+			authenticatedMsg = authenticatedMsg as MessageOptionsSlash;
+			authenticatedMsg.ephemeral = true;
+			await ctx.send(authenticatedMsg);
 		}
 	}
 	
@@ -64,7 +74,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, send
 	return verifiedTwitter;
 };
 
-export const retrieveVerifiedTwitter = async (ctx: CommandContext, guildMember: GuildMember): Promise<VerifiedTwitter | null> => {
+export const retrieveVerifiedTwitter = async (guildMember: GuildMember): Promise<VerifiedTwitter | null> => {
 	Log.debug('starting to link twitter account link');
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
@@ -130,17 +140,24 @@ export const retrieveVerifiedTwitter = async (ctx: CommandContext, guildMember: 
 
 const sendTwitterAuthenticationMessage = async (guildMember: GuildMember, ctx: CommandContext, isDmOn: boolean): Promise<void> => {
 	Log.info(`${guildMember.user.tag} is not twitter authorized, sending request to link`);
-	const embedsMsg: MessageEmbedOptions | MessageEmbedSlash = {
-		title: 'Twitter Authentication',
-		description: 'Please verify your twitter account by following the link below.',
-		fields: [
-			{ name: 'URL', value: `${apiKeys.twitterVerificationUrl}` },
+	let msg: MessageOptions | MessageOptionsSlash = {
+		embeds: [
+			{
+				title: 'Twitter Authentication',
+				description: 'Please verify your twitter account by following the link below.',
+				fields: [
+					{ name: 'URL', value: `${apiKeys.twitterVerificationUrl}` },
+				],
+			},
 		],
 	};
 	if (isDmOn) {
-		await guildMember.send({ embeds: [ embedsMsg as MessageEmbedOptions ] }).catch(Log.error);
+		msg = msg as MessageOptions;
+		await guildMember.send(msg).catch(Log.error);
 	} else {
-		await ctx.send({ embeds: [embedsMsg as MessageEmbedSlash], ephemeral: true }).catch(Log.error);
+		msg = msg as MessageOptionsSlash;
+		msg.ephemeral = true;
+		await ctx.send(msg).catch(Log.error);
 	}
 };
 

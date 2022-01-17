@@ -12,7 +12,7 @@ export default class Account extends SlashCommand {
 	constructor(creator: SlashCreator) {
 		super(creator, {
 			name: 'account',
-			description: 'Manage your account\'s integration.',
+			description: 'Manage external account integration.',
 			throttling: {
 				usages: 1,
 				duration: 2,

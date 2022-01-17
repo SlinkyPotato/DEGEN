@@ -7,13 +7,13 @@ export default (): MessageOptions => {
 			description: 'These set of commands allows linking, unlinking, and viewing external accounts.\n\n',
 			fields: [
 				{
-					name: '-> /account verify',
+					name: '-> /account link',
 					value: 'Link external account to your discord account.',
 					inline: false,
 				},
 				{
-					name: '-> /account status',
-					value: 'Display the currently linked accounts to your discord account.',
+					name: '-> /account list',
+					value: 'Display the currently linked external accounts to your discord account.',
 					inline: false,
 				},
 				{

@@ -3,7 +3,6 @@
 		"bsonType": "object",
 		"required": [
 			"discordUserId",
-			"discordUserTag",
 			"discordServerId",
 			"poapLink",
 			"expiresAt"
@@ -14,23 +13,23 @@
 				"description": "The event for the discussion which can be any alphanumeric text."
 			},
 			"discordUserId": {
-				"bsonType": "string",
+				"bsonType": ["string"],
 				"description": "Discord Id of the user that is configured to use this command."
 			},
 			"discordUserTag": {
-				"bsonType": "string",
+				"bsonType": ["string", "null"],
 				"description": "Discord tag of the participant."
 			},
 			"discordServerId": {
-				"bsonType": "string",
+				"bsonType": ["string"],
 				"description": "Identifier for the discord guild."
 			},
 			"poapLink": {
-				"bsonType": "string",
+				"bsonType": ["string"],
 				"description": "POAP URL to redeem."
 			},
 			"expiresAt": {
-				"bsonType": "string",
+				"bsonType": ["string"],
 				"description": "ISO date string of when the poap link expires"
 			}
 		}

@@ -17,7 +17,7 @@ import {
 	EmbedField as EmbedFieldSlash,
 	Message as MessageSlash,
 	MessageEmbedOptions as MessageEmbedOptionsSlash,
-} from 'slash-create/lib/structures/message';
+} from 'slash-create';
 import POAPUtils from '../../utils/POAPUtils';
 import apiKeys from '../constants/apiKeys';
 import ValidationError from '../../errors/ValidationError';

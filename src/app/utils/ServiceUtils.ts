@@ -34,7 +34,7 @@ import { ButtonStyle,
 	EmbedField as EmbedFieldSlash,
 	MessageEmbedOptions as MessageEmbedOptionsSlash,
 } from 'slash-create';
-import { ComponentActionRow } from 'slash-create/lib/constants';
+import { ComponentActionRow } from 'slash-create';
 import ValidationError from '../errors/ValidationError';
 import {
 	Db,

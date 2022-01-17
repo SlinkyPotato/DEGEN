@@ -94,7 +94,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, send
 		fields: [
 			{ name: 'Display Name', value: `${userCall.screen_name}` },
 			{ name: 'Description', value: `${ServiceUtils.prepEmbedField(userCall.description)}` },
-			{ name: 'URL', value: `https://twitter.com/${userCall.screen_name}` },
+			{ name: 'Profile', value: `https://twitter.com/${userCall.screen_name}` },
 		],
 	};
 	

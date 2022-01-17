@@ -29,7 +29,7 @@ import {
 } from 'slash-create';
 import Log, { LogUtils } from '../../../utils/Log';
 import MongoDbUtils from '../../../utils/MongoDbUtils';
-import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
+import { MessageOptions as MessageOptionsSlash } from 'slash-create';
 import dayjs from 'dayjs';
 import buttonIds from '../../constants/buttonIds';
 

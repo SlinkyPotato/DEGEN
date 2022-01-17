@@ -5,8 +5,8 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import ValidationError from '../../errors/ValidationError';
 import { command } from '../../utils/SentryUtils';
 import UnlinkAccount from '../../service/account/UnlinkAccount';
-import { platform } from 'os';
 import constants from '../../service/constants/constants';
+import discordServerIds from '../../service/constants/discordServerIds';
 
 export default class Account extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -18,9 +18,10 @@ export default class Account extends SlashCommand {
 				duration: 2,
 			},
 			defaultPermission: true,
+			guildIDs: [discordServerIds.discordBotGarage],
 			options: [
 				{
-					name: 'verify',
+					name: 'link',
 					type: CommandOptionType.SUB_COMMAND,
 					description: 'Link DEGEN to your account or wallet.',
 					options: [
@@ -58,9 +59,9 @@ export default class Account extends SlashCommand {
 					],
 				},
 				{
-					name: 'status',
+					name: 'list',
 					type: CommandOptionType.SUB_COMMAND,
-					description: 'Check linked accounts',
+					description: 'Display all linked accounts.',
 					options: [],
 				},
 			],
@@ -83,13 +84,13 @@ export default class Account extends SlashCommand {
 			const { guildMember } = await ServiceUtils.getGuildAndMember(ctx.guildID, ctx.user.id);
 			
 			switch (subCommand) {
-			case 'verify':
+			case 'link':
 				await VerifyTwitter(ctx, guildMember, true).catch(e => { throw e; });
 				break;
 			case 'unlink':
 				await UnlinkAccount(ctx, guildMember, ctx.options.unlink.platform).catch(e => { throw e; });
 				break;
-			case 'status':
+			case 'list':
 				break;
 			default:
 				await ctx.send({ content: 'Please try again' }).catch(Log.error);

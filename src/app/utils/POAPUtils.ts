@@ -309,6 +309,7 @@ const POAPUtils = {
 			i++;
 		}
 		results.didNotSendList = failedPOAPsList;
+		Log.info(results);
 		Log.info(`Links sent to ${results.successfullySent} participants.`);
 		return results;
 	},

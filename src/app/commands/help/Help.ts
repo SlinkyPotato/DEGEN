@@ -18,7 +18,7 @@ export default class Help extends SlashCommand {
 				{
 					name: 'poap',
 					type: CommandOptionType.SUB_COMMAND,
-					description: 'Information on how to start, stop, and optionally send out POAP links',
+					description: 'Information on how to claim, start, stop, and send out POAP links.',
 				},
 			],
 			throttling: {

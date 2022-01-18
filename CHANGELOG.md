@@ -12,7 +12,12 @@
 5. Introduce basic `/claim` command and prompt user for opt-in on slash command
 6. Increase poap max time to 12 hours
 7. Add poap expiration cron job
-8. Enhance poap distribution to work on public channels
+8. Enhance poap distribution to with ephemeral
+   - fix timeout reply after poap distribution
+   - enhance poap distribution loop
+   - enhance poap end
+9. Parse blank strings for msg embed display
+10. Prompt users to DM delivery is /claim is executed from channel
 
 ## 2.6.2-RELEASE (2022-01-13)
 

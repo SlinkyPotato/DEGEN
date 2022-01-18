@@ -136,7 +136,7 @@ const ServiceUtils = {
 		}
 	},
 	
-	prepEmbedField: (field: string | null): string => {
+	prepEmbedField: (field: string | null | undefined): string => {
 		return (field) ? field : '-';
 	},
 	

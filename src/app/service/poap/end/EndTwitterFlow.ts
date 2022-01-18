@@ -100,6 +100,8 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 		await ctx.send(embedTwitterEnd);
 	}
 	
+	Log.debug('POAP end message sent to organizer!');
+	
 	const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, isDmOn, numberOfParticipants, ctx);
 	const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
 	const distributionResults: POAPDistributionResults = await POAPUtils.sendOutTwitterPoapLinks(listOfParticipants, activeTwitterSettings.event, listOfPOAPLinks);

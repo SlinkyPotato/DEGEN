@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.7.0-RELEASE (2022-01-18)
+
+1. Add more stability to opt-in messages
+2. Add account commands
+   - /account link (renamed from /account verify)
+   - /account list
+   - /account unlink
+3. Restrict DEGEN to certain discord servers
+4. Upgrade discord.js -> 13.6.0, upgrade slash-create -> 5.0.3
+5. Introduce basic `/claim` command and prompt user for opt-in on slash command
+6. Increase poap max time to 12 hours
+7. Add poap expiration cron job
+
+## 2.6.2-RELEASE (2022-01-13)
+
+1. Handle twitter spaces exceptions
+   - update twitter settings schema validation
+   - add log msg for twitter flow
+   - stability enhancements
+
+## 2.6.1-RELEASE (2022-01-11)
+
+1. Fix prod keys
+
 ## 2.6.0-RELEASE (2022-01-11)
 
 1. Stability check

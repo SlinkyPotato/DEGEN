@@ -147,7 +147,7 @@ const distributeTwitterFlow = async (ctx: CommandContext, guildMember: GuildMemb
 
 	let distributionResults: POAPDistributionResults;
 	if (!participantsList[0].poapLink) {
-		const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, false, numberOfParticipants, ctx);
+		const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, isDmOn, numberOfParticipants, ctx);
 		const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
 		distributionResults = await POAPUtils.sendOutTwitterPoapLinks(participantsList, event, listOfPOAPLinks);
 	} else {

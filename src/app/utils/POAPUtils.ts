@@ -25,7 +25,7 @@ import TwitterApi, { DirectMessageCreateV1Result } from 'twitter-api-v2';
 import apiKeys from '../service/constants/apiKeys';
 import { Buffer } from 'buffer';
 import ServiceUtils from './ServiceUtils';
-import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
+import { MessageOptions as MessageOptionsSlash } from 'slash-create';
 import { TwitterApiTokens } from 'twitter-api-v2/dist/types';
 import { POAPDistributionResults } from '../types/poap/POAPDistributionResults';
 import ApiKeys from '../service/constants/apiKeys';
@@ -101,7 +101,7 @@ const POAPUtils = {
 		adminChannel?: TextChannel | null,
 	): Promise<MessageAttachment> {
 		Log.debug('asking poap organizer for poap links attachment');
-		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have a least ${numberOfParticipants} link(s). Each link should be on a new line.`;
+		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have a least ${numberOfParticipants} link(s). Each link should be on a new line. This file can be obtained from \`/poap mint\` command`;
 		const replyOptions: AwaitMessagesOptions = {
 			max: 1,
 			time: 900000,
@@ -309,6 +309,7 @@ const POAPUtils = {
 			i++;
 		}
 		results.didNotSendList = failedPOAPsList;
+		Log.info(results);
 		Log.info(`Links sent to ${results.successfullySent} participants.`);
 		return results;
 	},

@@ -18,7 +18,7 @@ import {
 import {
 	Collection as CollectionMongo,
 } from 'mongodb';
-import { MessageEmbedOptions as MessageEmbedOptionsSlash } from 'slash-create/lib/structures/message';
+import { MessageEmbedOptions as MessageEmbedOptionsSlash } from 'slash-create';
 import ValidationError from '../../../errors/ValidationError';
 const StartChannelFlow = async (
 	ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration: number,

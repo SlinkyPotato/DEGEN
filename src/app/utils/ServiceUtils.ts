@@ -21,7 +21,7 @@ import {
 	VoiceChannel,
 } from 'discord.js';
 import client from '../app';
-import Log, { LogUtils } from './Log';
+import Log from './Log';
 import { stringify } from 'csv-stringify/sync';
 import { parse } from 'csv-parse/sync';
 import { POAPFileParticipant,
@@ -34,7 +34,7 @@ import { ButtonStyle,
 	EmbedField as EmbedFieldSlash,
 	MessageEmbedOptions as MessageEmbedOptionsSlash,
 } from 'slash-create';
-import { ComponentActionRow } from 'slash-create/lib/constants';
+import { ComponentActionRow } from 'slash-create';
 import ValidationError from '../errors/ValidationError';
 import {
 	Db,
@@ -131,7 +131,7 @@ const ServiceUtils = {
 			await guildMember.send({ content: message });
 			return true;
 		} catch (e) {
-			LogUtils.logError(`DM is turned off for ${guildMember.user.tag}`, e);
+			Log.warn(`DM is turned off for ${guildMember.user.tag}`);
 			return false;
 		}
 	},
@@ -206,11 +206,13 @@ const ServiceUtils = {
 		guildMember: GuildMember,
 		ctx: CommandContext,
 		msg: MessageOptions | MessageOptionsSlash,
-	): Promise<Message | MessageSlash> => {
+	): Promise<boolean | Message | MessageSlash> => {
 		if (isDmOn) {
 			return await guildMember.send(msg as MessageOptions);
 		} else {
-			return await ctx.send(msg as MessageOptionsSlash) as MessageSlash;
+			msg = msg as MessageOptionsSlash;
+			msg.ephemeral = true;
+			return await ctx.send(msg);
 		}
 	},
 	
@@ -263,7 +265,7 @@ const ServiceUtils = {
 	addActiveDiscordServer: async (guild: Guild): Promise<void> => {
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const discordServerCollection = await db.collection<DiscordServerCollection>(constants.DB_COLLECTION_DISCORD_SERVERS);
-		Log.info(`DEGEN active for: ${guild.id}, ${guild.name}`);
+		Log.info(`${constants.APP_NAME} active for: ${guild.id}, ${guild.name}`);
 		await discordServerCollection.updateOne({
 			serverId: guild.id.toString(),
 		}, {

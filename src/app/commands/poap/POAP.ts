@@ -24,6 +24,11 @@ export default class POAP extends SlashCommand {
 		super(creator, {
 			name: 'poap',
 			description: 'Receive a list of all attendees in the specified voice channel and optionally send out POAP links.',
+			throttling: {
+				usages: 10,
+				duration: 1,
+			},
+			defaultPermission: true,
 			options: [
 				{
 					name: 'config',
@@ -184,7 +189,7 @@ export default class POAP extends SlashCommand {
 				{
 					name: 'claim',
 					type: CommandOptionType.SUB_COMMAND,
-					description: 'Claim POAPs for all the events DEGEN failed to deliver.',
+					description: 'Claim your POAPs.',
 					options: [
 						{
 							name: 'platform',
@@ -205,11 +210,6 @@ export default class POAP extends SlashCommand {
 					],
 				},
 			],
-			throttling: {
-				usages: 10,
-				duration: 1,
-			},
-			defaultPermission: true,
 		});
 	}
 	

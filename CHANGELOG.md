@@ -11,6 +11,7 @@
 4. Upgrade discord.js -> 13.6.0, upgrade slash-create -> 5.0.3
 5. Introduce basic `/claim` command and prompt user for opt-in on slash command
 6. Increase poap max time to 12 hours
+7. Add poap expiration cron job
 
 ## 2.6.2-RELEASE (2022-01-13)
 

@@ -18,6 +18,7 @@
    - enhance poap end
 9. Parse blank strings for msg embed display
 10. Prompt users to DM delivery is /claim is executed from channel
+11. Message enhancements to twitter flow
 
 ## 2.6.2-RELEASE (2022-01-13)
 

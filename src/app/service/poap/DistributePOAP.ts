@@ -85,9 +85,9 @@ export const askForParticipantsList = async (guildMember: GuildMember, platform:
 	Log.debug('preparing to ask for participants list csv file');
 	let csvPrompt = '';
 	if (platform == constants.PLATFORM_TYPE_DISCORD) {
-		csvPrompt = 'Please upload participants.csv file with header containing discordUserId. POAPs will be distributed to these degens.';
+		csvPrompt = 'Please upload distribution file with header containing discordUserId. POAPs will be distributed to these degens.';
 	} else if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		csvPrompt = 'Please upload participants.csv file with header containing twitterUserId. POAPs will be distributed to these degens.';
+		csvPrompt = 'Please upload distribution file with header containing twitterUserId. POAPs will be distributed to these degens.';
 	}
 	
 	if (isDmOn) {

@@ -28,6 +28,12 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 	const twitterClientV2: TwitterApi = new TwitterApi(apiKeys.twitterBearerToken as string);
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I can help start a POAP event!');
 	
+	await ctx.defer(true);
+	
+	if (isDmOn) {
+		await ctx.send({ content: 'DM sent!', ephemeral: true });
+	}
+	
 	let twitterSpaceResult: SpaceV2LookupResult | null = null;
 	try {
 		Log.debug(`twitterId: ${verifiedTwitter.twitterUser.id_str}`);

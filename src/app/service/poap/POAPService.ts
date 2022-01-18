@@ -138,7 +138,7 @@ const POAPService = {
 	setupPOAPCleanupCronJob: (): void => {
 		Log.debug('setting up cron job for checking expired POAPs');
 		// run cron job every 23 hours
-		const task: ScheduledTask = cron.schedule('* */23 * * *', () => {
+		const task: ScheduledTask = cron.schedule('* 23 * * *', () => {
 			POAPService.clearExpiredPOAPs().catch(Log.error);
 		});
 		task.start();

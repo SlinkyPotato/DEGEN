@@ -31,10 +31,12 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I can help you distribute POAPS.');
 	
-	if (!isDmOn) {
-		await ctx.sendFollowUp({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see private information! ⚠' });
-	} else if (ctx) {
+	await ctx.defer(true);
+	
+	if (isDmOn) {
 		await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
+	} else {
+		await ctx.send({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see private information! ⚠', ephemeral: true });
 	}
 	
 	let participantsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = await askForParticipantsList(guildMember, platform, isDmOn, ctx);
@@ -56,7 +58,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 		if (isDmOn) {
 			await guildMember.send({ content: msg }).catch(Log.error);
 		} else {
-			await ctx.send({ content: msg });
+			await ctx.send({ content: msg, ephemeral: true });
 		}
 		throw Error('failed to parse');
 	}
@@ -91,7 +93,7 @@ export const askForParticipantsList = async (guildMember: GuildMember, platform:
 	if (isDmOn) {
 		await guildMember.send({ content: csvPrompt });
 	} else {
-		await ctx.sendFollowUp({ content: csvPrompt });
+		await ctx.send({ content: csvPrompt, ephemeral: true });
 	}
 	
 	Log.debug(`message: '${csvPrompt}' send to user`);
@@ -104,8 +106,9 @@ export const askForParticipantsList = async (guildMember: GuildMember, platform:
 	try {
 		const message: Message | undefined = (await contextChannel.awaitMessages({
 			max: 1,
-			time: 180000,
+			time: 180_000,
 			errors: ['time'],
+			filter: m => m.author.id == guildMember.id && m.attachments.size >= 1,
 		})).first();
 		if (message == null) {
 			throw new ValidationError('Invalid message');
@@ -119,6 +122,10 @@ export const askForParticipantsList = async (guildMember: GuildMember, platform:
 		Log.debug(`found participants file: ${participantAttachment.url}`);
 		const fileResponse = await axios.get(participantAttachment.url);
 		participantsList = ServiceUtils.parseCSVFile(fileResponse.data);
+		
+		if (!isDmOn) {
+			await message.delete();
+		}
 		
 		if ((participantsList as POAPFileParticipant[])[0].discordUserId == null) {
 			if ((participantsList as TwitterPOAPFileParticipant[])[0].twitterUserId == null) {

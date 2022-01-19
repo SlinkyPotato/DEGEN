@@ -11,6 +11,7 @@ import { storePresentMembers } from './start/StartPOAP';
 import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
 import { POAPTwitterUnclaimedParticipants } from '../../types/poap/POAPTwitterUnclaimedParticipants';
 import ValidationError from '../../errors/ValidationError';
+import cron, { ScheduledTask } from 'node-cron';
 
 const POAPService = {
 	runAutoEndSetup: async (client: DiscordClient, platform: string): Promise<void> => {
@@ -111,6 +112,7 @@ const POAPService = {
 	},
 	
 	clearExpiredPOAPs: async (): Promise<void> => {
+		Log.debug('starting cleanup of expired POAPs');
 		try {
 			const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 			const unclaimedPOAPsCollection: Collection<POAPUnclaimedParticipants> = await db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
@@ -127,10 +129,20 @@ const POAPService = {
 				},
 			}).catch(Log.error);
 			
-			Log.debug('deleted all expired poaps');
+			Log.debug('deleted all expired POAPs');
 		} catch (e) {
-			LogUtils.logError('failed to delete expired poaps', e);
+			LogUtils.logError('failed to delete expired POAPs', e);
 		}
+	},
+	
+	setupPOAPCleanupCronJob: (): void => {
+		Log.debug('setting up cron job for checking expired POAPs');
+		// run cron job every 23 hours
+		const task: ScheduledTask = cron.schedule('* 23 * * *', () => {
+			POAPService.clearExpiredPOAPs().catch(Log.error);
+		});
+		task.start();
+		Log.debug('cron job setup for checking expired POAPs');
 	},
 };
 

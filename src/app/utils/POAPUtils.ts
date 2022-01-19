@@ -25,7 +25,7 @@ import TwitterApi, { DirectMessageCreateV1Result } from 'twitter-api-v2';
 import apiKeys from '../service/constants/apiKeys';
 import { Buffer } from 'buffer';
 import ServiceUtils from './ServiceUtils';
-import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
+import { MessageOptions as MessageOptionsSlash } from 'slash-create';
 import { TwitterApiTokens } from 'twitter-api-v2/dist/types';
 import { POAPDistributionResults } from '../types/poap/POAPDistributionResults';
 import ApiKeys from '../service/constants/apiKeys';
@@ -101,29 +101,29 @@ const POAPUtils = {
 		adminChannel?: TextChannel | null,
 	): Promise<MessageAttachment> {
 		Log.debug('asking poap organizer for poap links attachment');
-		const uploadLinksMsg = `Please upload the POAP links.txt file. This file should have a least ${numberOfParticipants} link(s). Each link should be on a new line.`;
+		const uploadLinksMsg = `Please upload the \`links.txt\` file. This file should have a least ${numberOfParticipants} link(s). Each link should be on a new line. This file can be obtained from \`/poap mint\` command.`;
 		const replyOptions: AwaitMessagesOptions = {
 			max: 1,
-			time: 900000,
+			time: 900_000,
 			errors: ['time'],
-			filter: m => m.author.id == guildMember.user.id,
+			filter: m => m.author.id == guildMember.user.id && m.attachments.size >= 1,
 		};
 		
 		let message: Message | undefined;
 		if (isDmOn) {
-			await guildMember.send({ content: uploadLinksMsg });
-			const dmChannel: DMChannel = await guildMember.createDM();
+			const promptMsg: Message = await guildMember.send({ content: uploadLinksMsg });
+			const dmChannel: DMChannel = await promptMsg.channel.fetch() as DMChannel;
 			message = (await dmChannel.awaitMessages(replyOptions).catch(() => {
 				throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
 			})).first();
 		} else if (ctx) {
-			await ctx.sendFollowUp(uploadLinksMsg);
+			await ctx.send({ content: uploadLinksMsg, ephemeral: true });
 			const guildChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
 			message = (await guildChannel.awaitMessages(replyOptions).catch(() => {
 				throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
 			})).first();
 		} else if (adminChannel != null) {
-			await adminChannel.send(uploadLinksMsg);
+			await adminChannel.send({ content: uploadLinksMsg });
 			message = (await adminChannel.awaitMessages(replyOptions).catch(() => {
 				throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
 			})).first();
@@ -137,6 +137,10 @@ const POAPUtils = {
 		
 		if (poapLinksFile == null) {
 			throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
+		}
+		
+		if (!isDmOn) {
+			await message.delete();
 		}
 		
 		Log.debug(`obtained poap links attachment in discord: ${poapLinksFile.url}`);
@@ -195,6 +199,9 @@ const POAPUtils = {
 		
 		const poapHostRegex = /^http[s]?:\/\/poap\.xyz\/.*$/gis;
 		
+		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		const dbUsersCollection: MongoCollection<DiscordUserCollection> = await db.collection(constants.DB_COLLECTION_DISCORD_USERS);
+		
 		while (i < length) {
 			const participant: POAPFileParticipant | undefined = listOfParticipants.pop();
 			if (participant == null) {
@@ -202,6 +209,8 @@ const POAPUtils = {
 				++i;
 				continue;
 			}
+			
+			Log.debug(participant);
 			
 			let poapLink: string | undefined = '';
 			if (listOfPOAPLinks) {
@@ -223,6 +232,7 @@ const POAPUtils = {
 			if (participant.discordUserId.length < 17) {
 				throw new ValidationError('There appears to be a parsing error. Please check that the discordUserID is greater than 16 digits.');
 			}
+			
 			try {
 				if (!poapLink.match(poapHostRegex)) {
 					Log.warn('invalid POAP link provided', {
@@ -239,11 +249,12 @@ const POAPUtils = {
 						discordUserTag: participant.discordUserTag,
 						poapLink: 'Invalid POAP link',
 					});
+					i++;
 					continue;
 				}
 				const participantMember: GuildMember = await guildMember.guild.members.fetch(participant.discordUserId);
 				
-				if (!(await ServiceUtils.isDMEnabledForUser(participantMember))) {
+				if (!(await ServiceUtils.isDMEnabledForUser(participantMember, dbUsersCollection))) {
 					Log.debug('user has not opted in to DMs');
 					results.hasDMOff++;
 					failedPOAPsList.push({
@@ -251,6 +262,7 @@ const POAPUtils = {
 						discordUserTag: participant.discordUserTag,
 						poapLink: poapLink,
 					});
+					i++;
 					continue;
 				}
 				
@@ -295,7 +307,10 @@ const POAPUtils = {
 				}).then((_) => {
 					message.edit({ content: 'Report received, thank you!', components: [] });
 					POAPUtils.reportPOAPOrganizer(guildMember).catch(Log.error);
+				}).catch(e => {
+					LogUtils.logError('failed to handle user poap link response', e);
 				});
+				
 				results.successfullySent++;
 			} catch (e) {
 				LogUtils.logError('user might have been banned or has DMs off', e);
@@ -309,6 +324,7 @@ const POAPUtils = {
 			i++;
 		}
 		results.didNotSendList = failedPOAPsList;
+		Log.info(results);
 		Log.info(`Links sent to ${results.successfullySent} participants.`);
 		return results;
 	},
@@ -517,6 +533,7 @@ const POAPUtils = {
 			await guildMember.send(distributionEmbedMsg).catch(Log.error);
 		} else if (ctx) {
 			distributionEmbedMsg = distributionEmbedMsg as MessageOptionsSlash;
+			distributionEmbedMsg.ephemeral = true;
 			distributionEmbedMsg.file = [{ name: 'failed_to_send_poaps.csv', file: failedPOAPsBuffer }];
 			await ctx.sendFollowUp(distributionEmbedMsg);
 		} else if (channelExecution) {
@@ -538,14 +555,14 @@ const POAPUtils = {
 			if (isDmOn) {
 				await guildMember.send({ content: deliveryMsg }).catch(Log.error);
 			} else if (ctx) {
-				await ctx.sendFollowUp(deliveryMsg);
+				await ctx.send({ content: deliveryMsg, ephemeral: true });
 			}
 		} else {
-			const failedDeliveryMsg = `Looks like some degens have DMs off or they haven't oped in for delivery. They can claim their POAPs by sending \`gm\` to <@${ApiKeys.DISCORD_BOT_ID}> or executing slash command  \`/poap claim\``;
+			const failedDeliveryMsg = `Looks like some degens have DMs off or they haven't opted in for delivery. They can claim their POAPs by sending \`gm\` to <@${ApiKeys.DISCORD_BOT_ID}> or executing slash command  \`/poap claim\``;
 			if (isDmOn) {
 				await guildMember.send({ content: failedDeliveryMsg });
 			} else if (ctx) {
-				await ctx.sendFollowUp({ content: failedDeliveryMsg, ephemeral: true });
+				await ctx.send({ content: failedDeliveryMsg, ephemeral: true });
 			}
 		}
 	},

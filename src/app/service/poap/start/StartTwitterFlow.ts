@@ -16,7 +16,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import POAPService from '../POAPService';
 import { POAPTwitterParticipants } from '../../../types/poap/POAPTwitterParticipants';
 import channelIds from '../../constants/channelIds';
-import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
+import { MessageOptions as MessageOptionsSlash } from 'slash-create';
 
 const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration: number): Promise<any> => {
 	Log.debug('starting twitter poap flow...');
@@ -27,6 +27,12 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 	}
 	const twitterClientV2: TwitterApi = new TwitterApi(apiKeys.twitterBearerToken as string);
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I can help start a POAP event!');
+	
+	await ctx.defer(true);
+	
+	if (isDmOn) {
+		await ctx.send({ content: 'DM sent!', ephemeral: true });
+	}
 	
 	let twitterSpaceResult: SpaceV2LookupResult | null = null;
 	try {
@@ -48,14 +54,10 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 		return;
 	}
 	
-	if (!isDmOn) {
-		await ctx.send({ content: '⚠ **Please make sure this is a private channel.** I can help you setup the poap event! ⚠', ephemeral: true });
-	}
-	
 	const twitterSpaceId: string = twitterSpaceResult.data[0]['id'];
 	Log.debug(`twitter spaces event active: ${twitterSpaceId}`);
 	
-	await ctx.send({ content: `Something really special is starting...:bird: https://twitter.com/i/spaces/${twitterSpaceId}` });
+	await ctx.send({ content: `Twitter Spaces :bird: is live at https://twitter.com/i/spaces/${twitterSpaceId}` });
 	
 	const poapTwitterSettings: Collection<POAPTwitterSettings> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_SETTINGS);
 	const activeSettings: POAPTwitterSettings | null = await poapTwitterSettings.findOne({
@@ -68,7 +70,7 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 		Log.debug('unable to start twitter event due to active event');
 		const msg = 'Looks like you have an active twitter spaces event!';
 		if (isDmOn) {
-			await ctx.send({ content: msg });
+			await ctx.send({ content: msg, ephemeral: true });
 		}
 		throw new ValidationError(msg);
 	}

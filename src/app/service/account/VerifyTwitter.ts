@@ -64,7 +64,7 @@ const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, send
 };
 
 export const retrieveVerifiedTwitter = async (guildMember: GuildMember): Promise<VerifiedTwitter | null> => {
-	Log.debug('starting to link twitter account link');
+	Log.debug('starting to retrieve twitter account');
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_NEXTAUTH);
 	const accountsCollection: Collection<NextAuthAccountCollection> = db.collection(constants.DB_COLLECTION_NEXT_AUTH_ACCOUNTS);
@@ -87,7 +87,7 @@ export const retrieveVerifiedTwitter = async (guildMember: GuildMember): Promise
 	});
 	
 	if (twitterCollection == null || twitterCollection.accessToken == null) {
-		Log.debug('twitter account not linked');
+		Log.debug('twitter account not found');
 		return null;
 	}
 	
@@ -120,7 +120,7 @@ export const retrieveVerifiedTwitter = async (guildMember: GuildMember): Promise
 		return null;
 	}
 	
-	Log.debug('done linking twitter account');
+	Log.debug('found twitter account');
 	return {
 		twitterUser: userCall,
 		twitterClientV1: userClient,

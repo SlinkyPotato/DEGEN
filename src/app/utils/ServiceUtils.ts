@@ -136,7 +136,7 @@ const ServiceUtils = {
 		}
 	},
 	
-	prepEmbedField: (field: string | null): string => {
+	prepEmbedField: (field: string | null | undefined): string => {
 		return (field) ? field : '-';
 	},
 	
@@ -247,11 +247,9 @@ const ServiceUtils = {
 		} as MessageOptionsSlash;
 	},
 	
-	isDMEnabledForUser: async (member: GuildMember): Promise<boolean> => {
-		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-		const dbUsers: MongoCollection<DiscordUserCollection> = await db.collection(constants.DB_COLLECTION_DISCORD_USERS);
+	isDMEnabledForUser: async (member: GuildMember, dbUsersCollection: MongoCollection<DiscordUserCollection>): Promise<boolean> => {
 		await member.fetch();
-		const result: DiscordUserCollection | null = await dbUsers.findOne({
+		const result: DiscordUserCollection | null = await dbUsersCollection.findOne({
 			userId: member.id.toString(),
 		});
 		

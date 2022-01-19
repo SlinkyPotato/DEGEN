@@ -41,11 +41,14 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 	await claimForDiscord(ctx.user.id, ctx);
 	if (guildMember && ctx) {
 		try {
-			const dmChannel: DMChannel = await guildMember.createDM();
-			await OptInPOAP(guildMember.user, await dmChannel).catch(e => {
-				Log.error(e);
-				ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
-			});
+			const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'gm');
+			if (isDmOn) {
+				const dmChannel: DMChannel = await guildMember.createDM();
+				await OptInPOAP(guildMember.user, dmChannel).catch(e => {
+					Log.error(e);
+					ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
+				});
+			}
 		} catch (e) {
 			LogUtils.logError('failed to ask for opt-in', e);
 		}

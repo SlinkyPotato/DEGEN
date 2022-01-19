@@ -79,7 +79,7 @@ const promptToUnlink = async (ctx: CommandContext, guildMember: GuildMember, isD
 				fields: [
 					{ name: 'UserId', value: `${twitterUser.twitterUser.id_str}`, inline: false },
 					{ name: 'Name', value: `${twitterUser.twitterUser.screen_name}`, inline: false },
-					{ name: 'Description', value: `${twitterUser.twitterUser.description}`, inline: false },
+					{ name: 'Description', value: `${ServiceUtils.prepEmbedField(twitterUser.twitterUser.description)}`, inline: false },
 					{ name: 'Profile', value: `https://twitter.com/${twitterUser.twitterUser.screen_name}`, inline: false },
 				],
 			},
@@ -145,7 +145,6 @@ const promptToUnlink = async (ctx: CommandContext, guildMember: GuildMember, isD
 		];
 		Log.debug('attempting to send msg to user');
 		Log.debug(shouldUnlinkMsg);
-		await ctx.defer(true);
 		const msgSlashResponse: MessageSlash = await ctx.send(shouldUnlinkMsg) as MessageSlash;
 		Log.debug('ctx message on user confirmation sent');
 		shouldUnlinkPromise = new Promise<any>((resolve, _) => {

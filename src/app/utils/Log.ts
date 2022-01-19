@@ -20,121 +20,176 @@ try {
 	// eslint-disable-next-line no-console
 	console.log('Please setup LogDNA token.');
 	// eslint-disable-next-line no-console
-	console.log(e);
-	throw new Error();
+	console.error(e);
 }
 
 const Log = {
 	
 	info(statement: string | any, options?: Omit<LogOptions, 'level'>): void {
-		if (process.env.NODE_ENV != 'production' || !logger.info) {
+		try {
+			if (process.env.NODE_ENV != 'production' || !logger.info) {
+				// eslint-disable-next-line no-console
+				console.log(statement);
+			} else {
+				logger.info(statement, options);
+			}
+		} catch (e) {
 			// eslint-disable-next-line no-console
-			console.log(statement);
-		} else {
-			logger.info(statement, options);
+			console.error(e);
 		}
 	},
 	
 	warn(statement: string | any, options?: Omit<LogOptions, 'level'>): void {
-		if (process.env.NODE_ENV != 'production' || !logger.warn) {
+		try {
+			if (process.env.NODE_ENV != 'production' || !logger.warn) {
+				// eslint-disable-next-line no-console
+				console.log(statement);
+			} else {
+				logger.warn(statement, options);
+			}
+		} catch (e) {
 			// eslint-disable-next-line no-console
-			console.log(statement);
-		} else {
-			logger.warn(statement, options);
+			console.error(e);
 		}
 	},
 	
 	debug(statement: string | any, options?: Omit<LogOptions, 'level'>): void {
-		if (process.env.NODE_ENV != 'production' || !logger.debug) {
+		try {
+			if (process.env.NODE_ENV != 'production' || !logger.debug) {
+				// eslint-disable-next-line no-console
+				console.debug(statement);
+			} else {
+				logger.debug(statement, options);
+			}
+		} catch (e) {
 			// eslint-disable-next-line no-console
-			console.debug(statement);
-		} else {
-			logger.debug(statement, options);
+			console.error(e);
 		}
 	},
 	
 	error(statement: string | any, options?: Omit<LogOptions, 'level'>): void {
-		if (process.env.NODE_ENV != 'production' || !logger.error) {
+		try {
+			if (process.env.NODE_ENV != 'production' || !logger.error) {
+				// eslint-disable-next-line no-console
+				console.error(statement);
+			} else {
+				logger.error(statement, options);
+			}
+		} catch (e) {
 			// eslint-disable-next-line no-console
-			console.error(statement);
-		} else {
-			logger.error(statement, options);
+			console.error(e);
 		}
 	},
 	
 	fatal(statement: string | any, options?: Omit<LogOptions, 'level'>): void {
-		if (process.env.NODE_ENV != 'production' || !logger.fatal) {
+		try {
+			if (process.env.NODE_ENV != 'production' || !logger.fatal) {
+				// eslint-disable-next-line no-console
+				console.error(statement);
+			} else {
+				logger.fatal(statement, options);
+			}
+		} catch (e) {
 			// eslint-disable-next-line no-console
-			console.error(statement);
-		} else {
-			logger.fatal(statement, options);
+			console.error(e);
 		}
 	},
 	
 	trace(statement: string | any, options?: Omit<LogOptions, 'level'>): void {
-		if (process.env.NODE_ENV != 'production' || !logger.trace) {
+		try {
+			if (process.env.NODE_ENV != 'production' || !logger.trace) {
+				// eslint-disable-next-line no-console
+				console.log(statement);
+			} else {
+				logger.trace(statement, options);
+			}
+		} catch (e) {
 			// eslint-disable-next-line no-console
-			console.log(statement);
-		} else {
-			logger.trace(statement, options);
+			console.error(e);
 		}
 	},
 	
 	log(statement: string | any, options?: Omit<LogOptions, 'level'>): void {
-		if (process.env.NODE_ENV != 'production') {
+		try {
+			if (process.env.NODE_ENV != 'production') {
+				// eslint-disable-next-line no-console
+				console.log(statement);
+			}
+			logger.log(statement, options);
+		} catch (e) {
 			// eslint-disable-next-line no-console
-			console.log(statement);
+			console.error(e);
 		}
-		logger.log(statement, options);
 	},
 	
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 	addMetaProperty(key: string, value: any): void {
-		logger.addMetaProperty(key, value);
+		try {
+			logger.addMetaProperty(key, value);
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(e);
+		}
 	},
 	
 	removeMetaProperty(key: string): void {
-		logger.removeMetaProperty(key);
+		try {
+			logger.removeMetaProperty(key);
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(e);
+		}
 	},
 	
 	flush(): void {
-		logger.flush();
+		try {
+			logger.flush();
+		} catch(e) {
+			// eslint-disable-next-line no-console
+			console.error(e);
+		}
 	},
 };
 
 export const LogUtils = {
 	logCommandStart(ctx: CommandContext): void {
-		Log.info(`/${ctx.commandName} ran ${ctx.user.username}#${ctx.user.discriminator}`, {
-			indexMeta: true,
-			meta: {
-				guildId: ctx.guildID,
-				userTag: `${ctx.user.username}#${ctx.user.discriminator}`,
-				userId: ctx.user.id,
-				params: ctx.options,
-			},
-		});
+		try {
+			Log.info(`/${ctx.commandName} ran ${ctx.user.username}#${ctx.user.discriminator}`, {
+				indexMeta: true,
+				meta: {
+					guildId: ctx.guildID,
+					userTag: `${ctx.user.username}#${ctx.user.discriminator}`,
+					userId: ctx.user.id,
+					params: ctx.options,
+				},
+			});
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(e);
+		}
 	},
 	
 	logCommandEnd(ctx: CommandContext): void {
-		Log.info(`/${ctx.commandName} ended ${ctx.user.username}#${ctx.user.discriminator}`, {
-			indexMeta: true,
-			meta: {
-				guildId: ctx.guildID,
-				userTag: `${ctx.user.username}#${ctx.user.discriminator}`,
-				userId: ctx.user.id,
-				params: ctx.options,
-			},
-		});
+		try {
+			Log.info(`/${ctx.commandName} ended ${ctx.user.username}#${ctx.user.discriminator}`, {
+				indexMeta: true,
+				meta: {
+					guildId: ctx.guildID,
+					userTag: `${ctx.user.username}#${ctx.user.discriminator}`,
+					userId: ctx.user.id,
+					params: ctx.options,
+				},
+			});
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(e);
+		}
 	},
 	
 	logError(message: string, error: Error | any, guildId?: string): void {
 		try {
 			if (error != null && error instanceof Error) {
-				Sentry.captureException(error, {
-					tags: {
-						guildId: guildId,
-					},
-				});
+				Sentry.captureException(error);
 				Log.error(message, {
 					indexMeta: true,
 					meta: {
@@ -144,11 +199,16 @@ export const LogUtils = {
 						guildId: guildId,
 					},
 				});
+				if (process.env.SENTRY_ENVIRONMENT == 'local') {
+					// eslint-disable-next-line no-console
+					console.error(error);
+				}
 			} else {
 				Log.error(message);
 			}
 		} catch (e) {
-			Log.warn(message);
+			// eslint-disable-next-line no-console
+			console.error(e);
 		}
 	},
 };

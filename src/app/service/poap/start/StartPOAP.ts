@@ -52,6 +52,8 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	
 	Log.debug('poap start validated');
 	
+	await ctx.defer();
+	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
 		await StartTwitterFlow(ctx, guildMember, db, event, duration);
 		return;

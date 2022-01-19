@@ -54,14 +54,10 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 		return;
 	}
 	
-	if (!isDmOn) {
-		await ctx.send({ content: '⚠ **Please make sure this is a private channel.** I can help you setup the poap event! ⚠', ephemeral: true });
-	}
-	
 	const twitterSpaceId: string = twitterSpaceResult.data[0]['id'];
 	Log.debug(`twitter spaces event active: ${twitterSpaceId}`);
 	
-	await ctx.send({ content: `Something really special is starting...:bird: https://twitter.com/i/spaces/${twitterSpaceId}` });
+	await ctx.send({ content: `Twitter Spaces :bird: is live at https://twitter.com/i/spaces/${twitterSpaceId}` });
 	
 	const poapTwitterSettings: Collection<POAPTwitterSettings> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_SETTINGS);
 	const activeSettings: POAPTwitterSettings | null = await poapTwitterSettings.findOne({
@@ -74,7 +70,7 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 		Log.debug('unable to start twitter event due to active event');
 		const msg = 'Looks like you have an active twitter spaces event!';
 		if (isDmOn) {
-			await ctx.send({ content: msg });
+			await ctx.send({ content: msg, ephemeral: true });
 		}
 		throw new ValidationError(msg);
 	}

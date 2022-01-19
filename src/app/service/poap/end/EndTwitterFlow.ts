@@ -1,6 +1,7 @@
 import {
 	GuildMember,
 	MessageAttachment,
+	MessageOptions,
 	TextChannel,
 } from 'discord.js';
 import {
@@ -19,6 +20,7 @@ import POAPUtils, { TwitterPOAPFileParticipant } from '../../../utils/POAPUtils'
 import { Buffer } from 'buffer';
 import { POAPDistributionResults } from '../../../types/poap/POAPDistributionResults';
 import channelIds from '../../constants/channelIds';
+import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
 
 const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandContext): Promise<any> => {
 	Log.debug('starting twitter poap end flow...');
@@ -81,7 +83,8 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 	}
 	
 	const bufferFile: Buffer = ServiceUtils.generateCSVStringBuffer(listOfParticipants);
-	const embedTwitterEnd = {
+	const fileName = `twitter_participants_${numberOfParticipants}.csv`;
+	let embedTwitterEnd: MessageOptionsSlash | MessageOptions = {
 		embeds: [
 			{
 				title: 'Twitter Event Ended',
@@ -92,11 +95,14 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 				],
 			},
 		],
-		files: [{ name: `twitter_participants_${numberOfParticipants}.csv`, attachment: bufferFile }],
 	};
 	if (isDmOn) {
+		embedTwitterEnd = embedTwitterEnd as MessageOptions;
+		embedTwitterEnd.files = [{ name: fileName, attachment: bufferFile }];
 		await guildMember.send(embedTwitterEnd);
 	} else if (ctx) {
+		embedTwitterEnd = embedTwitterEnd as MessageOptionsSlash;
+		embedTwitterEnd.file = [{ name: fileName, file: bufferFile }];
 		await ctx.send(embedTwitterEnd);
 	}
 	

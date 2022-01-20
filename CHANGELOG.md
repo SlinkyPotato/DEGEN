@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.0-SNAPSHOT
+
+1. Update core deps
+
 ## 2.7.0-RELEASE (2022-01-18)
 
 1. Add more stability to opt-in messages

@@ -1,2 +1,0 @@
-# Scoap Squad
-

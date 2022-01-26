@@ -13,11 +13,9 @@ DEGEN distributes POAPs by monitoring who participates in a Discord Voice Channe
 
 POAPs still need to be claimed from the POAP website; DEGEN simply automates distribution of the claim links.
 
+<mark style="color:blue;background-color:orange;">**DEGEN POAP Distribution is a free service and are supported by donations.**</mark>
 
-
-#### <mark style="color:blue;background-color:orange;">DEGEN POAP Distribution is a free service and are supported by donations.</mark>
-
-#### <mark style="color:blue;background-color:orange;">Help our 9-person team keep rocking it and support us here:</mark> <mark style="color:blue;background-color:orange;"></mark>_<mark style="color:blue;background-color:orange;">0x735FF6F197B0dc18eBEE127DD918d2111Eaf8220</mark>_
+<mark style="color:blue;background-color:orange;">**Help our 9-person team keep rocking it and support us here:**</mark>**  **_<mark style="color:blue;background-color:orange;">**0x735FF6F197B0dc18eBEE127DD918d2111Eaf8220**</mark>_
 
 _We accept any tokens and/or NFTs - your support is highly appreciated!_
 {% endhint %}
@@ -43,12 +41,6 @@ _We accept any tokens and/or NFTs - your support is highly appreciated!_
 ![](<../.gitbook/assets/poap config status.png>)
 
 <mark style="background-color:blue;">VIDEO (a)</mark>
-
-<mark style="background-color:blue;"></mark>
-
-<mark style="background-color:blue;"></mark>
-
-<mark style="background-color:blue;"></mark>
 
 ### Before we start:
 
@@ -115,7 +107,7 @@ _/**poap end**_
 ![](<../.gitbook/assets/poap distribution.png>)
 
 {% hint style="warning" %}
-* If participants have their DMs off, they will not receive their POAPs automatically but can run /poap claim to get their links.&#x20;
+* If participants have their DMs off, they will not receive their POAPs automatically but can run /poap claim to get their links.
 {% endhint %}
 
 #### _/poap claim_
@@ -125,10 +117,10 @@ _/**poap end**_
 ![](https://media.discordapp.net/attachments/867013446586204170/930772308006670376/Screenshot\_from\_2022-01-12\_18-36-23.png?width=361\&height=300)
 
 {% hint style="info" %}
-* If you wish to receive POAPs automatically on the next event. Shoot DEGEN a 'gm'&#x20;
+* If you wish to receive POAPs automatically on the next event. Shoot DEGEN a 'gm'
 {% endhint %}
 
-****
+***
 
 **Here's how your claim links would look like:**
 
@@ -138,8 +130,6 @@ _/**poap end**_
 POAP ORGANIZERS: Remember to set proper expectations with your participants upon ending your call. If they don't know why they're receiving what from who, you as the organizer will be reported and will not be able to use DEGEN anymore.
 {% endhint %}
 
-
-
 #### Alternative uses:
 
 * Using /poap distribute, you are able to upload a .csv file of selected users to distribute when a call doesn’t happen in discord. This would need to be a correctly formatted .csv file with the most important piece of data being the discord UserID, _not the username#xxxx_ which can be found through the following methods.
@@ -147,25 +137,21 @@ POAP ORGANIZERS: Remember to set proper expectations with your participants upon
   * [https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-)
   * [https://www.swipetips.com/how-to-find-your-discord-user-id/](https://www.swipetips.com/how-to-find-your-discord-user-id/)
 
-\
-
+\\
 
 **FAQs**
 
-\
-
+\\
 
 _Is there a way to make it so that people who have their speakers muted and not participating during an entire call to not distribute a POAP to them using DEGEN?_
 
 \- To encourage participation, DEGEN already resets the timer if a participant is deafened for more than 1 minute.
 
-\
-
+\\
 
 _Can you tell me the funding DEGEN would need for another dao to use the platform?_
 
-\- For POAP distribution, it’s a freely provided service. However, we welcome contributions via any ERC-20 or ERC-721 token to our multisig if they end up loving the service and are so inclined to contribute.\
-
+\- For POAP distribution, it’s a freely provided service. However, we welcome contributions via any ERC-20 or ERC-721 token to our multisig if they end up loving the service and are so inclined to contribute.\\
 
 \
-\
+\\

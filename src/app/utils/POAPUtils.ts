@@ -3,9 +3,7 @@ import {
 	DMChannel,
 	GuildMember,
 	Message,
-	MessageActionRow,
 	MessageAttachment,
-	MessageButton,
 	MessageOptions,
 	TextChannel,
 } from 'discord.js';
@@ -29,7 +27,6 @@ import { MessageOptions as MessageOptionsSlash } from 'slash-create';
 import { TwitterApiTokens } from 'twitter-api-v2/dist/types';
 import { POAPDistributionResults } from '../types/poap/POAPDistributionResults';
 import ApiKeys from '../service/constants/apiKeys';
-import buttonIds from '../service/constants/buttonIds';
 import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 import { POAPSettings } from '../types/poap/POAPSettings';
 import { getPoapParticipantsFromDB } from '../service/poap/end/EndPOAP';
@@ -168,7 +165,7 @@ const POAPUtils = {
 	},
 	
 	/**
-	 * Mass send out message containing POAP link for each user
+	 * Send out POAPs to user's ethereum wallets
 	 * @param guildMember
 	 * @param listOfParticipants
 	 * @param event
@@ -179,7 +176,7 @@ const POAPUtils = {
 	): Promise<POAPDistributionResults> {
 		Log.debug('preparing to send out poap links...');
 		const failedPOAPsList: POAPFileParticipant[] = [];
-		const guildName = guildMember.guild.name;
+		// const guildName = guildMember.guild.name;
 		
 		let i = 0;
 		const length = listOfParticipants.length;
@@ -266,52 +263,55 @@ const POAPUtils = {
 					continue;
 				}
 				
-				const message: Message | void = await participantMember
-					.send({
-						content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${poapLink}`,
-						components: [
-							new MessageActionRow().addComponents(
-								new MessageButton()
-									.setLabel('Claim')
-									.setURL(`${poapLink}`)
-									.setStyle('LINK'),
-								new MessageButton()
-									.setCustomId(buttonIds.POAP_REPORT_SPAM)
-									.setLabel('Report')
-									.setStyle('DANGER'),
-							),
-						],
-					}).catch((e) => {
-						failedPOAPsList.push({
-							discordUserId: participant.discordUserId,
-							discordUserTag: participant.discordUserTag,
-							poapLink: poapLink,
-						});
-						LogUtils.logError(`failed trying to send POAP to: ${participant.discordUserId}, userTag: ${participant.discordUserTag}, link: ${poapLink}`, e);
-						results.failedToSend++;
-					});
-				if (!message) {
-					Log.warn('failed to send message');
-					failedPOAPsList.push({
-						discordUserId: participant.discordUserId,
-						discordUserTag: participant.discordUserTag,
-						poapLink: poapLink,
-					});
-					results.failedToSend++;
-					i++;
-					continue;
-				}
-				message.awaitMessageComponent({
-					filter: args => (args.customId == buttonIds.POAP_REPORT_SPAM && args.user.id == participant.discordUserId),
-					time: 300_000,
-				}).then((_) => {
-					message.edit({ content: 'Report received, thank you!', components: [] });
-					POAPUtils.reportPOAPOrganizer(guildMember).catch(Log.error);
-				}).catch(e => {
-					LogUtils.logError('failed to handle user poap link response', e);
+				// TODO: call POAP delivery API
+				// const message: Message | void = await participantMember
+				// 	.send({
+				// 		content: `Thank you for participating in the ${event} from ${guildName}! Here is your POAP: ${poapLink}`,
+				// 		components: [
+				// 			new MessageActionRow().addComponents(
+				// 				new MessageButton()
+				// 					.setLabel('Claim')
+				// 					.setURL(`${poapLink}`)
+				// 					.setStyle('LINK'),
+				// 				new MessageButton()
+				// 					.setCustomId(buttonIds.POAP_REPORT_SPAM)
+				// 					.setLabel('Report')
+				// 					.setStyle('DANGER'),
+				// 			),
+				// 		],
+				// 	}).catch((e) => {
+				// 		failedPOAPsList.push({
+				// 			discordUserId: participant.discordUserId,
+				// 			discordUserTag: participant.discordUserTag,
+				// 			poapLink: poapLink,
+				// 		});
+				// 		LogUtils.logError(`failed trying to send POAP to: ${participant.discordUserId}, userTag: ${participant.discordUserTag}, link: ${poapLink}`, e);
+				// 		results.failedToSend++;
+				// 	});
+				// if (!message) {
+				// Log.warn('failed to send message');
+				Log.debug('skipping DM and adding to failed POAP list, DM off');
+				failedPOAPsList.push({
+					discordUserId: participant.discordUserId,
+					discordUserTag: participant.discordUserTag,
+					poapLink: poapLink,
 				});
+				// results.failedToSend++;
+				results.hasDMOff++;
+				i++;
+				continue;
+				// }
+				// message.awaitMessageComponent({
+				// 	filter: args => (args.customId == buttonIds.POAP_REPORT_SPAM && args.user.id == participant.discordUserId),
+				// 	time: 300_000,
+				// }).then((_) => {
+				// 	message.edit({ content: 'Report received, thank you!', components: [] });
+				// 	POAPUtils.reportPOAPOrganizer(guildMember).catch(Log.error);
+				// }).catch(e => {
+				// 	LogUtils.logError('failed to handle user poap link response', e);
+				// });
 				
-				results.successfullySent++;
+				// results.successfullySent++;
 			} catch (e) {
 				LogUtils.logError('user might have been banned or has DMs off', e);
 				failedPOAPsList.push({

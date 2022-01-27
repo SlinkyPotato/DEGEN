@@ -29,7 +29,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	await POAPUtils.validateUserAccess(guildMember, db);
 	POAPUtils.validateEvent(event);
 	
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I can help you distribute POAPS.');
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! Sending out mass DMs is not something Discord likes... Instead I can help assign POAPs for participants. They can claim their poap with `/claim`. ');
 	
 	await ctx.defer(true);
 	

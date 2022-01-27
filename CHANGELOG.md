@@ -3,6 +3,8 @@
 ## 2.8.0
 
 1. Remove poap delivery via dm, store poap for user
+2. Add platform to `/claim`
+3. Rename isDMEnabled flag -> isWalletDeliveryEnabled
 
 ## 2.7.0-RELEASE (2022-01-18)
 

@@ -18,9 +18,19 @@
         "bsonType": ["number"],
         "description": "Number of times this user reported for POAP spam."
       },
-      "ethAddress": {
-        "bsonType": ["string", "null"],
-        "description": "The ethereum address tied to the user."
+      "ethWalletSettings": {
+        "bsonType": ["null", "object"],
+        "description": "Wallet details.",
+        "properties": {
+          "publicAddress": {
+            "bsonType": ["string", "null"],
+            "description": "Ethereum public wallet."
+          },
+          "isPOAPDeliveryEnabled": {
+            "bsonType": ["boolean", "null"],
+            "description": "true if user opted to have POAPs directly delivered."
+          }
+        }
       }
     }
   }

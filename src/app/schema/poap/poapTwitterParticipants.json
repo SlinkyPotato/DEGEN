@@ -2,12 +2,12 @@
   "$jsonSchema": {
     "bsonType": "object",
     "required": [
-      "twitterId",
+      "twitterUserId",
       "twitterSpaceId",
       "dateOfTweet"
     ],
     "properties": {
-      "twitterId": {
+      "twitterUserId": {
         "bsonType": "string",
         "description": "The twitter ID of the user."
       },

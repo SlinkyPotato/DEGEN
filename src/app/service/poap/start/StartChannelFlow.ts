@@ -11,13 +11,14 @@ import {
 	GuildMember,
 	StageChannel,
 	VoiceChannel,
-	GuildChannel, TextChannel,
+	GuildChannel,
+	TextChannel,
+	Collection,
 } from 'discord.js';
 import {
 	Collection as CollectionMongo,
 } from 'mongodb';
-import { Collection } from '@discordjs/collection';
-import { MessageEmbedOptions as MessageEmbedOptionsSlash } from 'slash-create/lib/structures/message';
+import { MessageEmbedOptions as MessageEmbedOptionsSlash } from 'slash-create';
 import ValidationError from '../../../errors/ValidationError';
 const StartChannelFlow = async (
 	ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration: number,
@@ -26,7 +27,6 @@ const StartChannelFlow = async (
 	Log.debug('starting channel flow for poap start');
 	const voiceChannels: Collection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
 	
-	await ctx.sendFollowUp({ content: '⚠ **Please make sure this is a private channel.** I can help you setup the poap event! ⚠' });
 	const embedsVoiceChannels = generateVoiceChannelEmbedMessage(voiceChannels) as MessageEmbedOptionsSlash[];
 	const message = await ctx.sendFollowUp({ embeds: embedsVoiceChannels });
 	
@@ -44,13 +44,13 @@ const StartChannelFlow = async (
 	
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
 		Log.warn('unable to start due to active event');
-		await ctx.sendFollowUp(`\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`);
+		await ctx.send({ content: `\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`, ephemeral: true });
 		return;
 	}
 	
 	await setActiveEventInDb(guildMember, db, channelChoice, event, duration, ctx.channelID);
 	
-	await ctx.sendFollowUp({
+	await ctx.send({
 		embeds: [
 			{
 				title: 'Event Started',
@@ -64,9 +64,10 @@ const StartChannelFlow = async (
 				],
 			},
 		],
+		ephemeral: true,
 	});
 	
-	await ctx.sendFollowUp(({ content: 'Everything is set, catch you later!' }));
+	await ctx.sendFollowUp(({ content: 'Everything is set, catch you later!', ephemeral: true }));
 };
 
 export default StartChannelFlow;

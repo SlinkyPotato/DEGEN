@@ -1,5 +1,8 @@
 import { CommandContext } from 'slash-create';
-import { GuildMember } from 'discord.js';
+import {
+	GuildMember,
+	MessageOptions,
+} from 'discord.js';
 import { Collection, Db, FindAndModifyWriteOpResultObject } from 'mongodb';
 import Log, { LogUtils } from '../../../utils/Log';
 import VerifyTwitter, { VerifiedTwitter } from '../../account/VerifyTwitter';
@@ -12,20 +15,30 @@ import ValidationError from '../../../errors/ValidationError';
 import dayjs, { Dayjs } from 'dayjs';
 import POAPService from '../POAPService';
 import { POAPTwitterParticipants } from '../../../types/poap/POAPTwitterParticipants';
+import channelIds from '../../constants/channelIds';
+import { MessageOptions as MessageOptionsSlash } from 'slash-create';
 
 const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration: number): Promise<any> => {
 	Log.debug('starting twitter poap flow...');
 	
-	const verifiedTwitter: VerifiedTwitter | undefined = await VerifyTwitter(ctx, guildMember);
+	const verifiedTwitter: VerifiedTwitter | undefined = await VerifyTwitter(ctx, guildMember, false);
 	if (verifiedTwitter == null) {
 		return;
 	}
 	const twitterClientV2: TwitterApi = new TwitterApi(apiKeys.twitterBearerToken as string);
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Oh yea, time for a POAP event!...');
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I can help start a POAP event!');
+	
+	await ctx.defer(true);
+	
+	if (isDmOn) {
+		await ctx.send({ content: 'DM sent!', ephemeral: true });
+	}
 	
 	let twitterSpaceResult: SpaceV2LookupResult | null = null;
 	try {
+		Log.debug(`twitterId: ${verifiedTwitter.twitterUser.id_str}`);
 		twitterSpaceResult = await twitterClientV2.v2.spacesByCreators(verifiedTwitter.twitterUser.id_str);
+		Log.debug(twitterSpaceResult.data);
 	} catch (e) {
 		LogUtils.logError('failed trying to get twitter spaces', e);
 	}
@@ -41,14 +54,10 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 		return;
 	}
 	
-	if (!isDmOn) {
-		await ctx.sendFollowUp({ content: '⚠ **Please make sure this is a private channel.** I can help you setup the poap event! ⚠' });
-	}
-	
 	const twitterSpaceId: string = twitterSpaceResult.data[0]['id'];
 	Log.debug(`twitter spaces event active: ${twitterSpaceId}`);
 	
-	await ctx.send({ content: `Something really special is starting...:bird: https://twitter.com/i/spaces/${twitterSpaceId}` });
+	await ctx.send({ content: `Twitter Spaces :bird: is live at https://twitter.com/i/spaces/${twitterSpaceId}` });
 	
 	const poapTwitterSettings: Collection<POAPTwitterSettings> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_SETTINGS);
 	const activeSettings: POAPTwitterSettings | null = await poapTwitterSettings.findOne({
@@ -59,12 +68,17 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 	
 	if (activeSettings != null) {
 		Log.debug('unable to start twitter event due to active event');
-		throw new ValidationError('Looks like you have an active twitter spaces event!');
+		const msg = 'Looks like you have an active twitter spaces event!';
+		if (isDmOn) {
+			await ctx.send({ content: msg, ephemeral: true });
+		}
+		throw new ValidationError(msg);
 	}
 	
 	Log.debug('setting up active twitter event in db');
 	const currentDate: Dayjs = dayjs();
 	const endTimeISO: string = currentDate.add(duration, 'minute').toISOString();
+	const channelExecutionId: string = isDmOn ? channelIds.DM : ctx.channelID;
 	const twitterSettingsResult: FindAndModifyWriteOpResultObject<POAPTwitterSettings> = await poapTwitterSettings.findOneAndReplace({
 		discordUserId: guildMember.id,
 		discordServerId: guildMember.guild.id,
@@ -78,7 +92,8 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 		discordServerId: guildMember.guild.id,
 		twitterUserId: verifiedTwitter.twitterUser.id_str,
 		twitterSpaceId: twitterSpaceId,
-	}, {
+		channelExecutionId: channelExecutionId,
+	} as POAPTwitterSettings, {
 		upsert: true,
 		returnDocument: 'after',
 	});
@@ -94,23 +109,29 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 	const claimURL = `${apiKeys.twitterClaimPage}/${twitterSpaceId}`;
 	
 	const claimUrlMsg = `POAP event setup! Please hand out ${claimURL} to your participants!`;
-	const eventStartedEmbed = {
-		title: 'Twitter Event Started',
-		fields: [
-			{ name: 'Event', value: `${event}`, inline: true },
-			{ name: 'Organizer', value: `${guildMember.user.tag}`, inline: true },
-			{ name: 'Discord Server', value: `${guildMember.guild.name}`, inline: true },
-			{ name: 'Platform', value: 'Twitter', inline: true },
-			{ name: 'Duration', value: `${duration} minutes`, inline: true },
-			{ name: 'POAP Participation Claim Link', value: claimUrlMsg, inline: false },
+	const eventStartedEmbed: MessageOptionsSlash | MessageOptions = {
+		embeds: [
+			{
+				title: 'Twitter Event Started',
+				fields: [
+					{ name: 'Event', value: `${event}`, inline: true },
+					{ name: 'Organizer', value: `${guildMember.user.tag}`, inline: true },
+					{ name: 'Discord Server', value: `${guildMember.guild.name}`, inline: true },
+					{ name: 'Platform', value: 'Twitter', inline: true },
+					{ name: 'Duration', value: `${duration} minutes`, inline: true },
+					{ name: 'POAP Participation Claim Link', value: claimUrlMsg, inline: false },
+				],
+			},
 		],
 	};
 	if (isDmOn) {
-		await guildMember.send({ embeds: [ eventStartedEmbed ] });
+		await guildMember.send(eventStartedEmbed as MessageOptions);
 	} else {
 		await ctx.send({ content: claimUrlMsg });
-		await ctx.send({ embeds: [eventStartedEmbed] });
+		await ctx.send(eventStartedEmbed as MessageOptionsSlash);
 	}
+	
+	Log.debug('POAP Twitter spaces event start message sent');
 	
 	const poapTwitterParticipants: Collection<POAPTwitterParticipants> = db.collection(constants.DB_COLLECTION_POAP_TWITTER_PARTICIPANTS);
 	const result: FindAndModifyWriteOpResultObject<any> = await poapTwitterParticipants.findOneAndReplace({
@@ -127,7 +148,8 @@ const StartTwitterFlow = async (ctx: CommandContext, guildMember: GuildMember, d
 	if (result.ok != 1) {
 		throw new ValidationError('POAP event started but there was an issue with your claim...');
 	}
-	Log.debug('POAP Twitter spaces event start message sent');
+	
+	Log.debug('poap organizer added to participants db');
 };
 
 export default StartTwitterFlow;

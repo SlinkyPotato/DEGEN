@@ -1,6 +1,7 @@
 import {
 	GuildMember,
 	MessageAttachment,
+	MessageOptions,
 	TextChannel,
 } from 'discord.js';
 import {
@@ -18,6 +19,8 @@ import dayjs, { Dayjs } from 'dayjs';
 import POAPUtils, { TwitterPOAPFileParticipant } from '../../../utils/POAPUtils';
 import { Buffer } from 'buffer';
 import { POAPDistributionResults } from '../../../types/poap/POAPDistributionResults';
+import channelIds from '../../constants/channelIds';
+import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
 
 const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandContext): Promise<any> => {
 	Log.debug('starting twitter poap end flow...');
@@ -35,14 +38,14 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 	}
 	
 	Log.debug('active twitter poap event found');
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Over already? Can\'t wait for the next one');
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I found a poap event, let me try ending it.');
 	let channelExecution: TextChannel | null = null;
 
 	if (!isDmOn && ctx) {
 		await ctx.send({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠', ephemeral: true });
 	} else if (ctx) {
 		await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
-	} else {
+	} else if (activeTwitterSettings.channelExecutionId != channelIds.DM) {
 		if (activeTwitterSettings.channelExecutionId == null || activeTwitterSettings.channelExecutionId == '') {
 			Log.debug(`channelExecutionId missing for ${guildMember.user.tag}, ${guildMember.user.id}, skipping poap end for expired event`);
 			return;
@@ -80,7 +83,8 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 	}
 	
 	const bufferFile: Buffer = ServiceUtils.generateCSVStringBuffer(listOfParticipants);
-	const embedTwitterEnd = {
+	const fileName = `twitter_participants_${numberOfParticipants}.csv`;
+	let embedTwitterEnd: MessageOptionsSlash | MessageOptions = {
 		embeds: [
 			{
 				title: 'Twitter Event Ended',
@@ -91,18 +95,25 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 				],
 			},
 		],
-		files: [{ name: `twitter_participants_${numberOfParticipants}.csv`, attachment: bufferFile }],
 	};
 	if (isDmOn) {
+		embedTwitterEnd = embedTwitterEnd as MessageOptions;
+		embedTwitterEnd.files = [{ name: fileName, attachment: bufferFile }];
 		await guildMember.send(embedTwitterEnd);
 	} else if (ctx) {
+		embedTwitterEnd = embedTwitterEnd as MessageOptionsSlash;
+		embedTwitterEnd.file = [{ name: fileName, file: bufferFile }];
 		await ctx.send(embedTwitterEnd);
 	}
+	
+	Log.debug('POAP end message sent to organizer!');
 	
 	const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, isDmOn, numberOfParticipants, ctx);
 	const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
 	const distributionResults: POAPDistributionResults = await POAPUtils.sendOutTwitterPoapLinks(listOfParticipants, activeTwitterSettings.event, listOfPOAPLinks);
-	await POAPUtils.setupFailedAttendeesDelivery(guildMember, distributionResults, activeTwitterSettings.event, constants.PLATFORM_TYPE_TWITTER);
+	if (distributionResults.didNotSendList.length > 0) {
+		await POAPUtils.setupFailedAttendeesDelivery(guildMember, distributionResults, activeTwitterSettings.event, constants.PLATFORM_TYPE_TWITTER);
+	}
 	await POAPUtils.handleDistributionResults(isDmOn, guildMember, distributionResults, channelExecution, ctx);
 	Log.debug('POAP twitter end complete');
 };

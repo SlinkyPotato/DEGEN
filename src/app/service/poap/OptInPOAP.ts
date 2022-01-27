@@ -6,7 +6,7 @@ import {
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';
 import { DiscordUserCollection } from '../../types/discord/DiscordUserCollection';
-import Log from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import {
 	DMChannel,
 	Message,
@@ -44,7 +44,6 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 	}
 	
 	if (!isAllowedToGetDMs) {
-		Log.debug('user has DMs option turned off, now asking user for opt-in to get DM POAPs');
 		const row: MessageActionRow = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
@@ -56,25 +55,47 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 					.setLabel('No')
 					.setStyle('SECONDARY'),
 			);
-		const message: Message = await dmChannel.send({
-			content: 'I can send you POAPs directly to you. Would you like me to do that going forward?',
+		Log.debug('user has not opted in to DMs, now asking user for opt-in to get DM POAPs');
+		const message: Message | void = await dmChannel.send({
+			content: 'Would you like me to send you POAPs directly to you going forward?',
 			components: [row],
+		}).catch(e => {
+			LogUtils.logError('failed to ask for opt-in', e);
+			return;
 		});
+		
+		if (message == null) {
+			Log.debug('did not send opt-in message');
+			return;
+		}
+		
 		// 5 minute timeout
-		await message.awaitMessageComponent({
-			filter: args => (args.customId == buttonIds.POAP_OPT_IN_YES
-				|| args.customId == buttonIds.POAP_OPT_IN_NO) && args.user.id == user.id.toString(),
-			time: 300_000,
-		}).then((interaction) => {
-			if (interaction.customId == buttonIds.POAP_OPT_IN_YES) {
-				isAllowedToGetDMs = true;
-			} else {
-				message.edit({ content: 'No problem!', components: [] });
-			}
-		}).catch(error => {
-			message.edit({ content: 'Timeout reached, please reach out to us with any questions!', components: [] });
-			Log.debug(error?.message);
-		});
+		try {
+			await message.awaitMessageComponent({
+				filter: args => (args.customId == buttonIds.POAP_OPT_IN_YES
+					|| args.customId == buttonIds.POAP_OPT_IN_NO) && args.user.id == user.id.toString(),
+				time: 300_000,
+			}).then((interaction) => {
+				if (interaction.customId == buttonIds.POAP_OPT_IN_YES) {
+					isAllowedToGetDMs = true;
+				} else {
+					message.edit({ content: 'No problem!', components: [] });
+				}
+			}).catch(error => {
+				try {
+					message.edit({ content: 'Timeout reached, please reach out to us with any questions!', components: [] }).catch(e => {
+						Log.warn(e);
+						return;
+					});
+					Log.debug(error?.message);
+				} catch (e) {
+					LogUtils.logError('gm opt-in message edit occurred', e);
+				}
+			});
+		} catch (e) {
+			LogUtils.logError('gm opt-in time/error occurred', e);
+			return;
+		}
 		
 		if (isAllowedToGetDMs) {
 			await userSettingsCol.updateOne({
@@ -84,12 +105,15 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 					isDMEnabled: true,
 				},
 			});
-			await message.edit({ content: 'Direct messages enabled! You will now receive POAPs, thank you!', components: [] });
+			await message.edit({ content: 'Direct messages enabled! I will send you POAPs as soon as I get them, thank you!', components: [] });
 			Log.debug('user settings updated');
 		}
 		Log.debug('user settings update skipped');
 	} else {
-		await dmChannel.send({ content: 'I will send you POAPs as soon as I get them!' });
+		Log.debug(`user is opted in to dms, userId: ${user.id}`);
+		await dmChannel.send({ content: 'I will send you POAPs as soon as I get them!' }).catch(e => {
+			LogUtils.logError('failed to send opt-in confirmation', e);
+		});
 	}
 };
 

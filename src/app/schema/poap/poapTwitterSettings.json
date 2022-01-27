@@ -5,10 +5,10 @@
       "isActive",
       "twitterSpaceId",
       "discordUserId",
-      "twitterId",
+      "twitterUserId",
       "discordServerId",
-      "startDate",
-      "endDate",
+      "startTime",
+      "endTime",
       "channelExecutionId"
     ],
     "properties": {
@@ -31,6 +31,10 @@
       "discordUserId": {
         "bsonType": "string",
         "description": "Discord Id of the user that is configured to use this command."
+      },
+      "twitterUserId": {
+        "bsonType": "string",
+        "description": "Twitter Id of the user that started the event."
       },
       "voiceChannelId": {
         "bsonType": "string",

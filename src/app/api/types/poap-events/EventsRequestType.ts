@@ -8,7 +8,7 @@ export type EventsRequestType = {
 	start_date: string,
 	end_date: string,
 	expiry_date: string,
-	year: string,
+	year: number,
 	event_url?: string,
 	virtual_event: boolean,
 	image: AxiosResponse,

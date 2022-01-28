@@ -100,7 +100,7 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	let result: Message | MessageSlash | boolean | void;
 	if (ctx) {
 		Log.debug('sending message in channel');
-		await ctx.send({ content: `POAP claimed! Consider sending \`gm\` to <@${apiKeys.DISCORD_BOT_ID}> to get POAPs directly in your DMs.`, ephemeral: false });
+		await ctx.send({ content: `POAP claimed! Consider sending \`gm\` to <@${apiKeys.DISCORD_BOT_ID}> to get POAPs directly in your wallet.`, ephemeral: false });
 		const embeds: MessageEmbedOptionsSlash[] = await generatePOAPClaimEmbedMessages(numberOfPOAPs, unclaimedParticipants) as MessageEmbedOptionsSlash[];
 		result = await ctx.send({
 			embeds: embeds,
@@ -115,8 +115,8 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 		result = await dmChannel.send({
 			embeds: embeds,
 		}).catch(e => {
-			LogUtils.logError('failed to send POAP DMs to user', e);
-			throw new ValidationError('try turning on DMs');
+			LogUtils.logError('failed to send POAP to user wallet', e);
+			throw new ValidationError('Try turning on DMs!');
 		});
 	}
 	if (result == null) {

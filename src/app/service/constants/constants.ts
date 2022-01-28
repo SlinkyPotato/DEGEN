@@ -1,5 +1,5 @@
 export default Object.freeze({
-	INVITE_BOT_POAP_LINK: 'https://discord.com/api/oauth2/authorize?client_id=936262131903529021&permissions=105495260240&scope=bot%20applications.commands',
+	INVITE_BOT_POAP_LINK: 'https://discord.com/api/oauth2/authorize?client_id=936262131903529021&permissions=397553036368&scope=bot%20applications.commands',
 	APP_VERSION: process.env.npm_package_version,
 	APP_NAME: 'degen-legacy-v2',
 	

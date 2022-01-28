@@ -1,5 +1,5 @@
 export default Object.freeze({
-	INVITE_BOT_POAP_LINK: 'https://discord.com/api/oauth2/authorize?client_id=927569512612659230&permissions=2147576832&scope=bot%20applications.commands',
+	INVITE_BOT_POAP_LINK: 'https://discord.com/api/oauth2/authorize?client_id=936262131903529021&permissions=105495260240&scope=bot%20applications.commands',
 	DB_NAME_DEGEN: 'degen',
 	DB_NAME_NEXTAUTH: 'nextauth',
 	
@@ -21,5 +21,5 @@ export default Object.freeze({
 	PLATFORM_TYPE_DISCORD: 'DISCORD',
 	PLATFORM_TYPE_TWITTER: 'TWITTER',
 	
-	NEW_DEGEN_ID: '927569512612659230',
+	NEW_DEGEN_ID: '936262131903529021',
 });

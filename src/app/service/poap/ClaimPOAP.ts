@@ -43,21 +43,26 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 		await claimPOAPForTwitter(ctx, guildMember);
 		return;
 	}
-	await claimForDiscord(ctx.user.id, ctx);
-	if (guildMember && ctx) {
-		try {
-			const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'gm');
-			if (isDmOn) {
+	let isDmOn = false;
+	
+	if (guildMember) {
+		isDmOn = await ServiceUtils.tryDMUser(guildMember, 'gm');
+		if (isDmOn) {
+			try {
+				await ctx.send({ content: 'DM sent!', ephemeral: true });
 				const dmChannel: DMChannel = await guildMember.createDM();
+				await claimForDiscord(ctx.user.id, null, dmChannel);
 				await OptInPOAP(guildMember.user, dmChannel).catch(e => {
 					Log.error(e);
 					ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
 				});
+				return;
+			} catch (e) {
+				LogUtils.logError('failed to ask for opt-in', e);
 			}
-		} catch (e) {
-			LogUtils.logError('failed to ask for opt-in', e);
 		}
 	}
+	await claimForDiscord(ctx.user.id, ctx);
 };
 
 export const claimForDiscord = async (userId: string, ctx?: CommandContext | null, dmChannel?: DMChannel | null): Promise<void> => {
@@ -91,10 +96,11 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	unclaimedParticipants = await unclaimedParticipantsCollection.find({
 		discordUserId: userId,
 	});
+	
 	let result: Message | MessageSlash | boolean | void;
 	if (ctx) {
 		Log.debug('sending message in channel');
-		await ctx.send({ content: `POAP claimed! Consider sending \`gm\` to <@${apiKeys.DISCORD_BOT_ID}> to get POAPs directly in your DMs.` });
+		await ctx.send({ content: `POAP claimed! Consider sending \`gm\` to <@${apiKeys.DISCORD_BOT_ID}> to get POAPs directly in your DMs.`, ephemeral: false });
 		const embeds: MessageEmbedOptionsSlash[] = await generatePOAPClaimEmbedMessages(numberOfPOAPs, unclaimedParticipants) as MessageEmbedOptionsSlash[];
 		result = await ctx.send({
 			embeds: embeds,

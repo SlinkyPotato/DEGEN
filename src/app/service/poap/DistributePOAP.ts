@@ -54,7 +54,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	participantsList = participantsList as POAPFileParticipant[];
 	
 	if (!participantsList[0].discordUserId) {
-		const msg = 'parsing failed, please try a csv file with headers discordUserId';
+		const msg = 'Parsing failed, please try a csv file with headers `discordUserId`.';
 		if (isDmOn) {
 			await guildMember.send({ content: msg }).catch(Log.error);
 		} else {
@@ -85,9 +85,9 @@ export const askForParticipantsList = async (guildMember: GuildMember, platform:
 	Log.debug('preparing to ask for participants list csv file');
 	let csvPrompt = '';
 	if (platform == constants.PLATFORM_TYPE_DISCORD) {
-		csvPrompt = 'Please upload distribution file with header containing discordUserId.';
+		csvPrompt = 'Please upload distribution file with header containing `discordUserId`.';
 	} else if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		csvPrompt = 'Please upload distribution file with header containing twitterUserId.';
+		csvPrompt = 'Please upload distribution file with header containing `twitterUserId`.';
 	}
 	
 	if (isDmOn) {

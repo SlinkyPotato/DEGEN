@@ -9,7 +9,7 @@
    - disable DM delivery
 4. Update poap expiration only for dates longer than 24 hours
 5. Fix duplicate poap assignment
-6. Create a private channel for in-channel flow
+6. Enhance poap claim flow
 
 ## 2.7.0-RELEASE (2022-01-18)
 

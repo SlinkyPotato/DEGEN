@@ -26,7 +26,6 @@ import ServiceUtils from './ServiceUtils';
 import { MessageOptions as MessageOptionsSlash } from 'slash-create';
 import { TwitterApiTokens } from 'twitter-api-v2/dist/types';
 import { POAPDistributionResults } from '../types/poap/POAPDistributionResults';
-import ApiKeys from '../service/constants/apiKeys';
 import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 import { POAPSettings } from '../types/poap/POAPSettings';
 import { getPoapParticipantsFromDB } from '../service/poap/end/EndPOAP';
@@ -342,8 +341,8 @@ const POAPUtils = {
 			await discordUsers.insertOne({
 				userId: poapOrganizer.user.id.toString(),
 				tag: poapOrganizer.user.tag,
-				isDMEnabled: false,
 				reportedForPOAP: 1,
+				isPremium: false,
 			} as DiscordUserCollection);
 			Log.debug('poap organizer inserted in usersDB and reported');
 			return;
@@ -481,6 +480,7 @@ const POAPUtils = {
 			});
 			Log.debug('attempting to store failed attendees into db');
 			await unclaimedCollection.insertMany(unclaimedPOAPsList);
+			distributionResults.claimSetUp = unclaimedPOAPsList.length;
 		} else if (platform == constants.PLATFORM_TYPE_TWITTER) {
 			const unclaimedCollection: Collection = db.collection(constants.DB_COLLECTION_POAP_TWITTER_UNCLAIMED_PARTICIPANTS);
 			const unclaimedPOAPsList: any[] = (distributionResults.didNotSendList as TwitterPOAPFileParticipant[]).map((failedAttendee: TwitterPOAPFileParticipant) => {
@@ -515,7 +515,7 @@ const POAPUtils = {
 		let distributionEmbedMsg: MessageOptionsSlash | MessageOptions = {
 			embeds: [
 				{
-					title: 'POAPs Distribution Results',
+					title: 'POAPs Wallet Distribution Results',
 					fields: [
 						{ name: 'Attempted to Send', value: `${distributionResults.totalParticipants}`, inline: true },
 						{ name: 'Successfully Sent', value: `${distributionResults.successfullySent}`, inline: true },
@@ -549,22 +549,26 @@ const POAPUtils = {
 				totalParticipants: distributionResults.totalParticipants,
 			},
 		});
-		if (distributionResults.successfullySent == distributionResults.totalParticipants) {
-			Log.debug('all POAPs successfully delivered');
-			const deliveryMsg = 'All POAPs delivered!';
-			if (isDmOn) {
-				await guildMember.send({ content: deliveryMsg }).catch(Log.error);
-			} else if (ctx) {
-				await ctx.send({ content: deliveryMsg, ephemeral: true });
-			}
-		} else {
-			const failedDeliveryMsg = `Looks like some degens have DMs off or they haven't opted in for delivery. They can claim their POAPs by sending \`gm\` to <@${ApiKeys.DISCORD_BOT_ID}> or executing slash command  \`/poap claim\``;
-			if (isDmOn) {
-				await guildMember.send({ content: failedDeliveryMsg });
-			} else if (ctx) {
-				await ctx.send({ content: failedDeliveryMsg, ephemeral: true });
-			}
-		}
+		const resultsMsg: MessageOptions | MessageOptionsSlash = {
+			content: 'Distribution is complete! Some degens have wallet delivery enabled, others can claim their POAPs with `/claim` command.',
+		};
+		await ServiceUtils.sendContextMessage(resultsMsg, isDmOn, guildMember, ctx, channelExecution);
+		// if (distributionResults.successfullySent == distributionResults.totalParticipants) {
+		// 	Log.debug('all POAPs successfully delivered');
+		// 	const deliveryMsg = 'All POAPs delivered!';
+		// 	if (isDmOn) {
+		// 		await guildMember.send({ content: deliveryMsg }).catch(Log.error);
+		// 	} else if (ctx) {
+		// 		await ctx.send({ content: deliveryMsg, ephemeral: true });
+		// 	}
+		// } else {
+		// 	const failedDeliveryMsg = `Looks like some degens have DMs off or they haven't opted in for delivery. They can claim their POAPs by sending \`gm\` to <@${ApiKeys.DISCORD_BOT_ID}> or executing slash command  \`/poap claim\``;
+		// 	if (isDmOn) {
+		// 		await guildMember.send({ content: failedDeliveryMsg });
+		// 	} else if (ctx) {
+		// 		await ctx.send({ content: failedDeliveryMsg, ephemeral: true });
+		// 	}
+		// }
 	},
 
 	validateEvent(event?: string): void {

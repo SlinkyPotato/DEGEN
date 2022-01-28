@@ -51,13 +51,13 @@ const UnlinkAccount = async (ctx: CommandContext, guildMember: GuildMember, plat
 				const shouldUnlink: boolean = await promptToUnlink(ctx, guildMember, isDmOn, twitterUser);
 				if (shouldUnlink) {
 					await unlinkTwitterAccount(guildMember).catch(e => { throw e; });
-					await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, { content: 'Twitter account removed. To relink account try `/account link`.', ephemeral: true }).catch(Log.error);
+					await ServiceUtils.sendContextMessage({ content: 'Twitter account removed. To relink account try `/account link`.' }, isDmOn, guildMember, ctx).catch(Log.error);
 					return;
 				}
-				await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, { content: 'Account not removed. To see list of accounts try `/account list`.', ephemeral: true }).catch(Log.error);
+				await ServiceUtils.sendContextMessage({ content: 'Account not removed. To see list of accounts try `/account list`.' }, isDmOn, guildMember, ctx).catch(Log.error);
 				return;
 			}
-			await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, { content: 'Twitter account not found!', ephemeral: true });
+			await ServiceUtils.sendContextMessage({ content: 'Twitter account not found!' }, isDmOn, guildMember, ctx);
 		} else {
 			Log.error('could not find platform');
 		}

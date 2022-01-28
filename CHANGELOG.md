@@ -5,6 +5,10 @@
 1. Remove poap delivery via dm, store poap for user
 2. Add platform to `/claim`
 3. Rename isDMEnabled flag -> isWalletDeliveryEnabled
+   - add ethWalletSettings to discordUsers
+   - disable DM delivery
+4. Update poap expiration only for dates longer than 24 hours
+5. Create a private channel for in-channel flow
 
 ## 2.7.0-RELEASE (2022-01-18)
 

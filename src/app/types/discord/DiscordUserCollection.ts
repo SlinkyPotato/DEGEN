@@ -8,8 +8,9 @@ export interface DiscordUserCollection extends Collection {
 	userId: string,
 	tag: string,
 	reportedForPOAP: number,
+	isPremium: boolean,
 	ethWalletSettings: {
-		publicAddress: string,
+		publicAddress: string[],
 		isPOAPDeliveryEnabled: boolean,
-	}
+	} | null
 }

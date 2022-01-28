@@ -28,8 +28,14 @@
         "description": "Wallet details.",
         "properties": {
           "publicAddress": {
-            "bsonType": ["string", "null"],
-            "description": "Ethereum public wallet."
+            "bsonType": ["array"],
+            "description": "List of Ethereum public wallets.",
+            "minItems": 0,
+            "uniqueItems": true,
+            "items": {
+              "bsonType": ["string"],
+              "description": "Public Ethereum address."
+            }
           },
           "isPOAPDeliveryEnabled": {
             "bsonType": ["boolean", "null"],

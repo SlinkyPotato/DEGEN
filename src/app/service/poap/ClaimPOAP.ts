@@ -5,7 +5,12 @@ import {
 	MessageEmbedOptions,
 	Message as Message,
 } from 'discord.js';
-import { Collection, Cursor, Db } from 'mongodb';
+import {
+	Collection,
+	Cursor,
+	Db,
+	UpdateWriteOpResult,
+} from 'mongodb';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';
 import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
@@ -115,14 +120,27 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	
 	Log.debug('message sent to user!');
 	
-	unclaimedParticipantsCollection.updateMany({
+	const expirationDate: string = dayjs().add(1, 'day').toISOString();
+	const resultUpdate: UpdateWriteOpResult | void = await unclaimedParticipantsCollection.updateMany({
 		discordUserId: userId,
+		expiresAt: {
+			$gt: expirationDate,
+		},
 	}, {
 		$set: {
-			expiresAt: dayjs().add(1, 'day').toISOString(),
+			expiresAt: expirationDate,
 		},
 	}).catch(Log.error);
-	Log.debug('updated expiration for POAPs in DB and POAPs claimed');
+	
+	if (resultUpdate == null) {
+		throw new Error('failed to update expiration date for POAPs');
+	}
+	
+	if (resultUpdate.result.nModified > 0) {
+		Log.debug('updated expiration dates for POAPs in DB and POAPs claimed');
+	} else {
+		Log.debug('existing POAPs found that are expiring soon');
+	}
 };
 
 const claimPOAPForTwitter = async (ctx: CommandContext, guildMember: GuildMember) => {

@@ -3,7 +3,8 @@
     "bsonType": "object",
     "required": [
       "userId",
-      "tag"
+      "tag",
+      "isPremium"
     ],
     "properties": {
       "userId": {
@@ -17,6 +18,10 @@
       "reportedForPOAP": {
         "bsonType": ["number"],
         "description": "Number of times this user reported for POAP spam."
+      },
+      "isPremium": {
+        "bsonType": ["boolean"],
+        "description": "True if discord member is a premium DEGEN pro subscriber, false otherwise"
       },
       "ethWalletSettings": {
         "bsonType": ["null", "object"],

@@ -1,13 +1,13 @@
-name: Deploy to Production Environment
+name: Deploy to Production Environment Legacy V2
 on:
   push:
     branches:
-      - 'DEGEN'
+      - 'DEGEN-v2'
 jobs:
-  deploy-degen-legacy:
+  deploy-degen-legacy-v2:
     environment:
-      name: degen-legacy
-      url: https://app.logdna.com/273e532689/logs/view?apps=degen
+      name: degen-legacy-v2
+      url: https://app.logdna.com/273e532689/logs/view?apps=degen-legacy-v2
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -26,24 +26,15 @@ jobs:
         uses: AkhileshNS/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.PROD_HEROKU_API_KEY}}
-          heroku_app_name: 'degen-poap'
-          heroku_email: 'bankless@nonsensecodes.io'
+          heroku_app_name: 'degen-legacy-v2'
+          heroku_email: 'patinobrian@gmail.com'
           procfile: 'worker: yarn prod'
         env:
-          HD_DISCORD_BOT_TOKEN: ${{secrets.DEGEN_LEGACY_DISCORD_TOKEN}}
-          HD_DISCORD_BOT_PUBLIC_KEY: ${{secrets.DEGEN_LEGACY_PUBLIC_KEY}}
-          HD_DISCORD_BOT_APPLICATION_ID: ${{secrets.DEGEN_LEGACY_APPLICATION_ID}}
+          HD_DISCORD_BOT_TOKEN: ${{secrets.DEGEN_LEGACY_V2_DISCORD_TOKEN}}
+          HD_DISCORD_BOT_PUBLIC_KEY: ${{secrets.DEGEN_LEGACY_V2_PUBLIC_KEY}}
+          HD_DISCORD_BOT_APPLICATION_ID: ${{secrets.DEGEN_LEGACY_V2_APPLICATION_ID}}
           HD_DISCORD_OWNER_ID: ${{secrets.PROD_DISCORD_OWNER_ID}}
           HD_MONGODB_USERNAME: ${{secrets.PROD_MONGODB_USERNAME}}
           HD_MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}
           HD_MONGODB_CLUSTER: ${{secrets.PROD_MONGODB_CLUSTER}}
-          HD_NOTION_TOKEN: ${{secrets.PROD_NOTION_TOKEN}}
           HD_LOGDNA_TOKEN: ${{secrets.PROD_LOGDNA_TOKEN}}
-          HD_TWITTER_API_TOKEN: ${{secrets.PROD_TWITTER_API_TOKEN}}
-          HD_TWITTER_API_SECRET: ${{secrets.PROD_TWITTER_API_SECRET}}
-          HD_TWITTER_BEARER_TOKEN: ${{secrets.PROD_TWITTER_API_BEARER_TOKEN}}
-          HD_TWITTER_ACCESS_TOKEN_SECRET: ${{secrets.PROD_TWITTER_API_ACCESS_TOKEN_SECRET}}
-          HD_POAP_DOMAIN: ${{secrets.PROD_POAP_DOMAIN}}
-          HD_POAP_AUDIENCE: ${{secrets.PROD_POAP_AUDIENCE}}
-          HD_POAP_CLIENT_ID: ${{secrets.PROD_POAP_CLIENT_ID}}
-          HD_POAP_CLIENT_SECRET: ${{secrets.PROD_POAP_CLIENT_SECRET}}

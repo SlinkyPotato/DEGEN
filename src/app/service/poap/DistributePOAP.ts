@@ -29,7 +29,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	await POAPUtils.validateUserAccess(guildMember, db);
 	POAPUtils.validateEvent(event);
 	
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! Sending out mass DMs is not something Discord likes... Instead I can help assign POAPs for participants. They can claim their poap with `/claim`. ');
+	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I can help distribute POAPs directly to user wallets. ');
 	
 	await ctx.defer(true);
 	
@@ -85,9 +85,9 @@ export const askForParticipantsList = async (guildMember: GuildMember, platform:
 	Log.debug('preparing to ask for participants list csv file');
 	let csvPrompt = '';
 	if (platform == constants.PLATFORM_TYPE_DISCORD) {
-		csvPrompt = 'Please upload distribution file with header containing discordUserId. POAPs will be distributed to these degens.';
+		csvPrompt = 'Please upload distribution file with header containing discordUserId.';
 	} else if (platform == constants.PLATFORM_TYPE_TWITTER) {
-		csvPrompt = 'Please upload distribution file with header containing twitterUserId. POAPs will be distributed to these degens.';
+		csvPrompt = 'Please upload distribution file with header containing twitterUserId.';
 	}
 	
 	if (isDmOn) {

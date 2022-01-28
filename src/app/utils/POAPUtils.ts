@@ -174,11 +174,10 @@ const POAPUtils = {
 		guildMember: GuildMember, listOfParticipants: POAPFileParticipant[], event: string, listOfPOAPLinks?: string[],
 	): Promise<POAPDistributionResults> {
 		Log.debug('preparing to send out poap links...');
-		const failedPOAPsList: POAPFileParticipant[] = [];
 		// const guildName = guildMember.guild.name;
 		
-		let i = 0;
 		const length = listOfParticipants.length;
+		Log.debug(`list of participants before distribution: ${length}`);
 		
 		if (listOfPOAPLinks != null && listOfPOAPLinks.length < listOfParticipants.length) {
 			throw new ValidationError('There is not enough POAP links for all the participants!');
@@ -188,25 +187,22 @@ const POAPUtils = {
 			successfullySent: 0,
 			hasDMOff: 0,
 			claimSetUp: 0,
-			failedToSend: 0,
+			failedToSendList: [] as POAPFileParticipant[],
 			totalParticipants: listOfParticipants.length,
-			didNotSendList: [],
+			didNotSendList: [] as POAPFileParticipant[],
 		};
 		
 		const poapHostRegex = /^http[s]?:\/\/poap\.xyz\/.*$/gis;
 		
-		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-		const dbUsersCollection: MongoCollection<DiscordUserCollection> = await db.collection(constants.DB_COLLECTION_DISCORD_USERS);
+		// const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		// const dbUsersCollection: MongoCollection<DiscordUserCollection> = await db.collection(constants.DB_COLLECTION_DISCORD_USERS);
 		
-		while (i < length) {
-			const participant: POAPFileParticipant | undefined = listOfParticipants.pop();
+		for (let i = 0; i < length; i++) {
+			const participant: POAPFileParticipant = listOfParticipants[i];
 			if (participant == null) {
 				Log.debug('participant null, skipping');
-				++i;
 				continue;
 			}
-			
-			Log.debug(participant);
 			
 			let poapLink: string | undefined = '';
 			if (listOfPOAPLinks) {
@@ -217,12 +213,12 @@ const POAPUtils = {
 			
 			if (poapLink == null || poapLink == '') {
 				Log.warn('ran out of poap links...');
-				failedPOAPsList.push({
+				(results.failedToSendList as POAPFileParticipant[]).push({
 					discordUserId: participant.discordUserId,
 					discordUserTag: participant.discordUserTag,
+					durationInMinutes: participant.durationInMinutes,
 					poapLink: 'n/a',
 				});
-				i++;
 				continue;
 			}
 			if (participant.discordUserId.length < 17) {
@@ -240,27 +236,26 @@ const POAPUtils = {
 							event: event,
 						},
 					});
-					failedPOAPsList.push({
+					(results.failedToSendList as POAPFileParticipant[]).push({
 						discordUserId: participant.discordUserId,
 						discordUserTag: participant.discordUserTag,
+						durationInMinutes: participant.durationInMinutes,
 						poapLink: 'Invalid POAP link',
 					});
-					i++;
 					continue;
 				}
-				const participantMember: GuildMember = await guildMember.guild.members.fetch(participant.discordUserId);
-				
-				if (!(await ServiceUtils.isDMEnabledForUser(participantMember, dbUsersCollection))) {
-					Log.debug('user has not opted in to DMs');
-					results.hasDMOff++;
-					failedPOAPsList.push({
-						discordUserId: participant.discordUserId,
-						discordUserTag: participant.discordUserTag,
-						poapLink: poapLink,
-					});
-					i++;
-					continue;
-				}
+				// const participantMember: GuildMember = await guildMember.guild.members.fetch(participant.discordUserId);
+				//
+				// if (!(await ServiceUtils.isDMEnabledForUser(participantMember, dbUsersCollection))) {
+				// 	Log.debug('user has not opted in to DMs');
+				// 	results.hasDMOff++;
+				// 	failedPOAPsList.push({
+				// 		discordUserId: participant.discordUserId,
+				// 		discordUserTag: participant.discordUserTag,
+				// 		poapLink: poapLink,
+				// 	});
+				// 	continue;
+				// }
 				
 				// TODO: call POAP delivery API
 				// const message: Message | void = await participantMember
@@ -289,16 +284,16 @@ const POAPUtils = {
 				// 	});
 				// if (!message) {
 				// Log.warn('failed to send message');
-				Log.debug('skipping DM and adding to failed POAP list, DM off');
-				failedPOAPsList.push({
+				Log.debug(`skipping wallet delivery and adding to didNotSendList, discordUserId: ${participant.discordUserId}, tag: ${participant.discordUserTag}`);
+				(results.didNotSendList as POAPFileParticipant[]).push({
 					discordUserId: participant.discordUserId,
 					discordUserTag: participant.discordUserTag,
+					durationInMinutes: participant.durationInMinutes,
 					poapLink: poapLink,
 				});
 				// results.failedToSend++;
-				results.hasDMOff++;
-				i++;
-				continue;
+				// results.hasDMOff++;
+				// continue;
 				// }
 				// message.awaitMessageComponent({
 				// 	filter: args => (args.customId == buttonIds.POAP_REPORT_SPAM && args.user.id == participant.discordUserId),
@@ -313,18 +308,16 @@ const POAPUtils = {
 				// results.successfullySent++;
 			} catch (e) {
 				LogUtils.logError('user might have been banned or has DMs off', e);
-				failedPOAPsList.push({
+				(results.failedToSendList as POAPFileParticipant[]).push({
 					discordUserId: participant.discordUserId,
 					discordUserTag: participant.discordUserTag,
 					poapLink: poapLink,
 				});
-				results.failedToSend++;
 			}
-			i++;
 		}
-		results.didNotSendList = failedPOAPsList;
-		Log.info(results);
-		Log.info(`Links sent to ${results.successfullySent} participants.`);
+		results.hasDMOff = results.didNotSendList.length;
+		results.successfullySent = results.totalParticipants - results.didNotSendList.length - results.failedToSendList.length;
+		Log.info(`Results -> successfullySent: ${results.successfullySent}, hasDMOff: ${results.hasDMOff}, totalParticipants: ${results.totalParticipants}`);
 		return results;
 	},
 	
@@ -367,10 +360,8 @@ const POAPUtils = {
 		listOfPOAPLinks?: string[],
 	): Promise<POAPDistributionResults> {
 		Log.debug('preparing to send out poap links for twitter spaces');
-		const failedPOAPList: TwitterPOAPFileParticipant[] = [];
-		
-		let i = 0;
 		const length = listOfParticipants.length;
+		Log.debug(`list of participants before distribution: ${length}`);
 		
 		if (listOfPOAPLinks != null && listOfPOAPLinks.length < listOfParticipants.length) {
 			throw new ValidationError('There is not enough POAP links for all the participants!');
@@ -380,9 +371,9 @@ const POAPUtils = {
 			successfullySent: 0,
 			hasDMOff: 0,
 			claimSetUp: 0,
-			failedToSend: 0,
+			failedToSendList: [] as TwitterPOAPFileParticipant[],
 			totalParticipants: listOfParticipants.length,
-			didNotSendList: [],
+			didNotSendList: [] as TwitterPOAPFileParticipant[],
 		};
 		
 		const twitterClient: TwitterApi = new TwitterApi({
@@ -391,10 +382,11 @@ const POAPUtils = {
 			accessToken: apiKeys.twitterAccessToken,
 			accessSecret: apiKeys.twitterSecretToken,
 		} as TwitterApiTokens);
-		while (i < length) {
+		
+		for (let i = 0; i < length; i++) {
 			const participant: TwitterPOAPFileParticipant | undefined = listOfParticipants.pop();
 			if (participant == null) {
-				i++;
+				Log.debug('participant null, skipping');
 				continue;
 			}
 			
@@ -407,13 +399,12 @@ const POAPUtils = {
 			
 			if (poapLink == null || poapLink == '') {
 				Log.warn('ran out of poap links...');
-				failedPOAPList.push({
+				(results.failedToSendList as TwitterPOAPFileParticipant[]).push({
 					twitterUserId: participant.twitterUserId,
 					twitterSpaceId: participant.twitterSpaceId,
 					dateOfTweet: participant.dateOfTweet,
 					poapLink: 'n/a',
 				});
-				i++;
 				continue;
 			}
 			try {
@@ -434,21 +425,19 @@ const POAPUtils = {
 				if (result == null || result['event'].type != 'message_create') {
 					throw new Error();
 				}
-				results.successfullySent++;
 			} catch (e) {
 				LogUtils.logError(`user might have been banned or has DMs off, failed trying to send POAP to twitterId: ${participant.twitterUserId}, twitterSpaceId: ${participant.twitterSpaceId}, link: ${poapLink}`, e);
-				failedPOAPList.push({
+				(results.failedToSendList as TwitterPOAPFileParticipant[]).push({
 					twitterUserId: participant.twitterUserId,
 					twitterSpaceId: participant.twitterSpaceId,
 					dateOfTweet: participant.dateOfTweet,
 					poapLink: poapLink,
 				});
-				results.failedToSend++;
 			}
-			i++;
 		}
-		results.didNotSendList = failedPOAPList;
-		Log.info(`Links sent to ${results.successfullySent} participants.`);
+		results.hasDMOff = results.didNotSendList.length;
+		results.successfullySent = results.totalParticipants - results.didNotSendList.length - results.failedToSendList.length;
+		Log.info(`Results -> successfullySent: ${results.successfullySent}, hasDMOff: ${results.hasDMOff}, totalParticipants: ${results.totalParticipants}`);
 		return results;
 	},
 	
@@ -519,7 +508,8 @@ const POAPUtils = {
 					fields: [
 						{ name: 'Attempted to Send', value: `${distributionResults.totalParticipants}`, inline: true },
 						{ name: 'Successfully Sent', value: `${distributionResults.successfullySent}`, inline: true },
-						{ name: 'Failed to Send', value: `${distributionResults.failedToSend}`, inline: true },
+						{ name: 'Did Not Send', value: `${distributionResults.didNotSendList.length}`, inline: true },
+						{ name: 'Failed to Send', value: `${distributionResults.failedToSendList.length}`, inline: true },
 						{ name: 'POAP Claim Setup', value: `${distributionResults.claimSetUp}`, inline: true },
 						{ name: 'Participants Not Opted-In', value: `${distributionResults.hasDMOff}`, inline: true },
 					],
@@ -550,7 +540,7 @@ const POAPUtils = {
 			},
 		});
 		const resultsMsg: MessageOptions | MessageOptionsSlash = {
-			content: 'Distribution is complete! Some degens have wallet delivery enabled, others can claim their POAPs with `/claim` command.',
+			content: 'Distribution complete! Some degens have not connected their wallets, they can claim their POAPs with `/claim` command.',
 		};
 		await ServiceUtils.sendContextMessage(resultsMsg, isDmOn, guildMember, ctx, channelExecution);
 		// if (distributionResults.successfullySent == distributionResults.totalParticipants) {

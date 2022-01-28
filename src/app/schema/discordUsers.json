@@ -1,0 +1,43 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "userId",
+      "tag",
+      "isDMEnabled"
+    ],
+    "properties": {
+      "userId": {
+        "bsonType": ["string"],
+        "description": "Discord Id of the user that is configured to use this command."
+      },
+      "tag": {
+        "bsonType": ["string"],
+        "description": "Discord handle of the user that is configured to use this command."
+      },
+      "discordServersJoined": {
+        "bsonType": ["array"],
+        "description": "List of discord servers the user is active in",
+        "minItems": 0,
+        "uniqueItems": true,
+        "additionalProperties": false,
+        "items": {
+          "bsonType": ["object"],
+          "required": ["id"],
+          "additionalProperties": false,
+          "description": "discord server ID where the user is active",
+          "properties": {
+            "id": {
+              "bsonType": ["string"],
+              "description": "ID of the discord server"
+            }
+          }
+        }
+      },
+      "reportedForPOAP": {
+        "bsonType": "number",
+        "description": "Number of times this user reported for POAP spam"
+      }
+    }
+  }
+}

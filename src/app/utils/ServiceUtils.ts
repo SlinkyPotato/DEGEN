@@ -9,6 +9,8 @@ import {
 	Guild,
 	GuildMember,
 	Message,
+	MessageActionRow,
+	MessageButton,
 	MessageEmbedOptions,
 	MessageOptions,
 	Permissions,
@@ -19,8 +21,11 @@ import {
 	VoiceChannel,
 } from 'discord.js';
 import client from '../app';
-import Log, { LogUtils } from './Log';
+import Log from './Log';
 import { stringify } from 'csv-stringify/sync';
+import { parse } from 'csv-parse/sync';
+import { POAPFileParticipant,
+	TwitterPOAPFileParticipant } from './POAPUtils';
 import { ButtonStyle,
 	CommandContext,
 	ComponentType,
@@ -29,12 +34,19 @@ import { ButtonStyle,
 	EmbedField as EmbedFieldSlash,
 	MessageEmbedOptions as MessageEmbedOptionsSlash,
 } from 'slash-create';
-import { ComponentActionRow } from 'slash-create/lib/constants';
+import { ComponentActionRow } from 'slash-create';
 import ValidationError from '../errors/ValidationError';
+import {
+	Db,
+	Collection as MongoCollection,
+} from 'mongodb';
+import MongoDbUtils from './MongoDbUtils';
+import constants from '../service/constants/constants';
+import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
+import { DiscordServerCollection } from '../types/discord/DiscordServerCollection';
 
 const ServiceUtils = {
 	async getGuildAndMember(guildId: string, userId: string): Promise<{ guild: Guild, guildMember: GuildMember }> {
-		Log.debug('getting guild member');
 		const guild = await client.guilds.fetch(guildId);
 		return {
 			guild: guild,
@@ -117,15 +129,14 @@ const ServiceUtils = {
 	async tryDMUser(guildMember: GuildMember, message: string): Promise<boolean> {
 		try {
 			await guildMember.send({ content: message });
-			Log.debug(`DM is turned off for ${guildMember.user.tag}`);
 			return true;
 		} catch (e) {
-			LogUtils.logError(`DM is turned off for ${guildMember.user.tag}`, e);
+			Log.warn(`DM is turned off for ${guildMember.user.tag}`);
 			return false;
 		}
 	},
 	
-	prepEmbedField: (field: string | null): string => {
+	prepEmbedField: (field: string | null | undefined): string => {
 		return (field) ? field : '-';
 	},
 	
@@ -140,6 +151,16 @@ const ServiceUtils = {
 		});
 		Log.debug('finishing csv buffer');
 		return Buffer.from(csvString, 'utf-8');
+	},
+	
+	parseCSVFile: (csvFile: string): POAPFileParticipant[] | TwitterPOAPFileParticipant[] => {
+		Log.debug('starting to parse csv file...');
+		const records: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = parse(csvFile, {
+			columns: true,
+			skip_empty_lines: true,
+		});
+		Log.debug('done parsing csv file');
+		return records;
 	},
 	
 	sendOutErrorMessage: async (ctx: CommandContext, msg?: string): Promise<any> => {
@@ -163,16 +184,35 @@ const ServiceUtils = {
 		}
 	},
 	
+	sendOutErrorMessageForDM: async (dmChannel: DMChannel, msg?: string): Promise<any> => {
+		const row: MessageActionRow = new MessageActionRow().addComponents(
+			new MessageButton()
+				.setURL('https://discord.gg/NRj43H83nJ')
+				.setStyle('LINK')
+				.setLabel('Support'),
+		);
+		try {
+			await dmChannel.send({
+				content: msg ? msg : 'Something is not working. Please reach out to us and a support member will happily assist!',
+				components: [row],
+			}).catch(Log.error);
+		} catch (e) {
+			Log.error(e);
+		}
+	},
+	
 	sendContextMessage: async (
 		isDmOn: boolean,
 		guildMember: GuildMember,
 		ctx: CommandContext,
 		msg: MessageOptions | MessageOptionsSlash,
-	): Promise<Message | MessageSlash> => {
+	): Promise<boolean | Message | MessageSlash> => {
 		if (isDmOn) {
 			return await guildMember.send(msg as MessageOptions);
 		} else {
-			return await ctx.sendFollowUp(msg as MessageOptionsSlash);
+			msg = msg as MessageOptionsSlash;
+			msg.ephemeral = true;
+			return await ctx.send(msg);
 		}
 	},
 	
@@ -203,7 +243,38 @@ const ServiceUtils = {
 		}
 		return {
 			embeds: embedsList as MessageEmbedOptionsSlash[],
+			ephemeral: true,
 		} as MessageOptionsSlash;
+	},
+	
+	isDMEnabledForUser: async (member: GuildMember, dbUsersCollection: MongoCollection<DiscordUserCollection>): Promise<boolean> => {
+		await member.fetch();
+		const result: DiscordUserCollection | null = await dbUsersCollection.findOne({
+			userId: member.id.toString(),
+		});
+		
+		if (result == null) {
+			return false;
+		}
+		
+		return result.isDMEnabled;
+	},
+
+	addActiveDiscordServer: async (guild: Guild): Promise<void> => {
+		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		const discordServerCollection = await db.collection<DiscordServerCollection>(constants.DB_COLLECTION_DISCORD_SERVERS);
+		Log.info(`${constants.APP_NAME} active for: ${guild.id}, ${guild.name}`);
+		await discordServerCollection.updateOne({
+			serverId: guild.id.toString(),
+		}, {
+			$set: {
+				serverId: guild.id.toString(),
+				name: guild.name,
+				isDEGENActive: true,
+			},
+		}, {
+			upsert: true,
+		});
 	},
 };
 

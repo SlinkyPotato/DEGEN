@@ -9,13 +9,19 @@ import {
 import Discord, { Client, ClientOptions, Intents, WSEventType } from 'discord.js';
 import path from 'path';
 import fs from 'fs';
+import './utils/SentryUtils';
 import Log, { LogUtils } from './utils/Log';
+import * as Sentry from '@sentry/node';
+import { RewriteFrames } from '@sentry/integrations';
+import constants from './service/constants/constants';
+import apiKeys from './service/constants/apiKeys';
 
+initializeSentryIO();
 const client: Client = initializeClient();
 initializeEvents();
 
 const creator = new SlashCreator({
-	applicationID: process.env.DISCORD_BOT_APPLICATION_ID,
+	applicationID: apiKeys.DISCORD_BOT_ID,
 	publicKey: process.env.DISCORD_BOT_PUBLIC_KEY,
 	token: process.env.DISCORD_BOT_TOKEN,
 } as SlashCreatorOptions);
@@ -70,6 +76,21 @@ function initializeClient(): Client {
 		partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER'],
 	};
 	return new Discord.Client(clientOptions);
+}
+
+function initializeSentryIO() {
+	Sentry.init({
+		dsn: `${apiKeys.sentryDSN}`,
+		tracesSampleRate: 1.0,
+		release: `${constants.APP_NAME}@${constants.APP_VERSION}`,
+		environment: `${process.env.SENTRY_ENVIRONMENT}`,
+		integrations: [
+			new RewriteFrames({
+				root: __dirname,
+			}),
+			new Sentry.Integrations.Http({ tracing: true }),
+		],
+	});
 }
 
 function initializeEvents(): void {

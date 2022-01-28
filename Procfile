@@ -1,1 +1,1 @@
-worker: yarn prod
+worker: yarn prod 

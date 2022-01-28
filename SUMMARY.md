@@ -6,7 +6,9 @@
 
 * [POAP Distribution Commands & Workflow](product-resources/poap-distribution-commands-and-workflow.md)
 
-***
+## Premium Features
 
-* [Twitter Spaces](twitter-spaces.md)
-* [Website Configuration](website-configuration.md)
+* [Twitter Spaces](premium-features/twitter-spaces.md)
+* [Twitch](premium-features/twitch.md)
+* [Website Configuration](premium-features/website-configuration.md)
+* [Wallet Delivery](premium-features/wallet-delivery.md)

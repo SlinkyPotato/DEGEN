@@ -5,7 +5,7 @@ on:
       - 'main'
       - 'feature/setup-new-bot'
 jobs:
-  deploy-prod:
+  deploy-degen-poap:
     environment:
       name: production
       url: https://app.logdna.com/273e532689/logs/view?apps=degen

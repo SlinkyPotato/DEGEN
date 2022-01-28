@@ -28,13 +28,15 @@ export default class implements DiscordEvent {
 			}
 			
 			client.guilds.cache.forEach((guild: Guild) => {
-				Log.info(`DEGEN active for: ${guild.id}, ${guild.name}`);
 				guild.members.fetch(constants.NEW_DEGEN_ID).then((member: GuildMember) => {
+					Log.debug(member);
 					if (member != null) {
 						guild.leave();
 						Log.info('DEGEN found, now removing legacy DEGEN');
 					}
-				}).catch(Log.error);
+				}).catch(_ => {
+					Log.error('could not find new DEGEN bot');
+				});
 			});
 			
 			const db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);

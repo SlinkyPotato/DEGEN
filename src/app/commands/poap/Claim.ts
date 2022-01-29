@@ -1,5 +1,6 @@
 import {
-	CommandContext, CommandOptionType,
+	CommandContext,
+	CommandOptionType,
 	SlashCommand,
 	SlashCreator,
 } from 'slash-create';

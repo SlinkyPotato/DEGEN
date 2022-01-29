@@ -27,7 +27,7 @@ import EndTwitterFlow from './EndTwitterFlow';
 import { POAPDistributionResults } from '../../../types/poap/POAPDistributionResults';
 import channelIds from '../../constants/channelIds';
 import { POAPParticipant } from '../../../types/poap/POAPParticipant';
-import { stopTrackingUserParticipation } from '../../../events/poap/HandleParticipantDuringEvent';
+import { stopTrackingUserParticipation } from '../../../events/tracking/HandleParticipantDuringEvent';
 
 export default async (guildMember: GuildMember, platform: string, ctx?: CommandContext): Promise<any> => {
 	Log.debug('attempting to end poap event');

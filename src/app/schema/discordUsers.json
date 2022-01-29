@@ -4,7 +4,7 @@
     "required": [
       "userId",
       "tag",
-      "isDMEnabled"
+      "isPremium"
     ],
     "properties": {
       "userId": {
@@ -15,28 +15,33 @@
         "bsonType": ["string"],
         "description": "Discord handle of the user that is configured to use this command."
       },
-      "discordServersJoined": {
-        "bsonType": ["array"],
-        "description": "List of discord servers the user is active in",
-        "minItems": 0,
-        "uniqueItems": true,
-        "additionalProperties": false,
-        "items": {
-          "bsonType": ["object"],
-          "required": ["id"],
-          "additionalProperties": false,
-          "description": "discord server ID where the user is active",
-          "properties": {
-            "id": {
+      "reportedForPOAP": {
+        "bsonType": ["number"],
+        "description": "Number of times this user reported for POAP spam."
+      },
+      "isPremium": {
+        "bsonType": ["boolean"],
+        "description": "True if discord member is a premium DEGEN pro subscriber, false otherwise"
+      },
+      "ethWalletSettings": {
+        "bsonType": ["null", "object"],
+        "description": "Wallet details.",
+        "properties": {
+          "publicAddress": {
+            "bsonType": ["array"],
+            "description": "List of Ethereum public wallets.",
+            "minItems": 0,
+            "uniqueItems": true,
+            "items": {
               "bsonType": ["string"],
-              "description": "ID of the discord server"
+              "description": "Public Ethereum address."
             }
+          },
+          "isPOAPDeliveryEnabled": {
+            "bsonType": ["boolean", "null"],
+            "description": "true if user opted to have POAPs directly delivered."
           }
         }
-      },
-      "reportedForPOAP": {
-        "bsonType": "number",
-        "description": "Number of times this user reported for POAP spam"
       }
     }
   }

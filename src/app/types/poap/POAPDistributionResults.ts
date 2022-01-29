@@ -8,6 +8,6 @@ export interface POAPDistributionResults {
 	hasDMOff: number,
 	claimSetUp: number,
 	totalParticipants: number,
-	failedToSend: number,
+	failedToSendList: POAPFileParticipant[] | TwitterPOAPFileParticipant[],
 	didNotSendList: POAPFileParticipant[] | TwitterPOAPFileParticipant[],
 }

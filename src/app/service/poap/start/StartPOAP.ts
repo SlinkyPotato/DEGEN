@@ -35,7 +35,7 @@ import StartChannelFlow from './StartChannelFlow';
 import channelIds from '../../constants/channelIds';
 import {
 	startTrackingUserParticipation,
-} from '../../../events/poap/HandleParticipantDuringEvent';
+} from '../../../events/tracking/HandleParticipantDuringEvent';
 import { POAPParticipant } from '../../../types/poap/POAPParticipant';
 
 export default async (ctx: CommandContext, guildMember: GuildMember, platform: string, event: string, duration?: number): Promise<any> => {

@@ -28,7 +28,7 @@ const ListAccounts = async (ctx: CommandContext, guildMember: GuildMember): Prom
 	const twitterUser: VerifiedTwitter | null = await retrieveVerifiedTwitter(guildMember);
 	
 	if (twitterUser == null) {
-		await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, { content: 'No external accounts found!', ephemeral: true });
+		await ServiceUtils.sendContextMessage({ content: 'No external accounts found!' }, isDmOn, guildMember, ctx);
 		return;
 	}
 	

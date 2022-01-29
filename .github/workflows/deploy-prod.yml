@@ -4,7 +4,7 @@ on:
     branches:
       - 'main'
 jobs:
-  deploy-prod:
+  deploy-degen-poap:
     environment:
       name: production
       url: https://app.logdna.com/273e532689/logs/view?apps=degen
@@ -26,8 +26,8 @@ jobs:
         uses: AkhileshNS/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.PROD_HEROKU_API_KEY}}
-          heroku_app_name: 'degen-tbd'
-          heroku_email: 'bankless-dao-devops'
+          heroku_app_name: 'degen-poap'
+          heroku_email: 'patinobrian@gmail.com'
           procfile: 'worker: yarn prod'
         env:
           HD_DISCORD_BOT_TOKEN: ${{secrets.PROD_DISCORD_TOKEN}}

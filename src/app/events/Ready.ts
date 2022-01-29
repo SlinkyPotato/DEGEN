@@ -11,6 +11,7 @@ import POAPService from '../service/poap/POAPService';
 import MongoDbUtils from '../utils/MongoDbUtils';
 import { DiscordServerCollection } from '../types/discord/DiscordServerCollection';
 import { Db } from 'mongodb';
+import { v1WalletConnect } from '../utils/v1WalletConnect';
 
 export default class implements DiscordEvent {
 	name = 'ready';
@@ -25,13 +26,14 @@ export default class implements DiscordEvent {
 				client.user.setActivity(process.env.DISCORD_BOT_ACTIVITY as string);
 			}
 			const db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+			Log.debug('made it here');
 			await updateActiveDiscordServers(client, db);
 			// should not wait
 			POAPService.runAutoEndSetup(client, constants.PLATFORM_TYPE_DISCORD).catch(Log.error);
 			POAPService.runAutoEndSetup(client, constants.PLATFORM_TYPE_TWITTER).catch(Log.error);
 			await POAPService.clearExpiredPOAPs().catch(Log.error);
 			POAPService.setupPOAPCleanupCronJob();
-			
+			await v1WalletConnect(null, null);
 			Log.info(`${constants.APP_NAME} is ready!`);
 		} catch (e) {
 			LogUtils.logError('Error processing event ready', e);
@@ -40,6 +42,7 @@ export default class implements DiscordEvent {
 }
 
 const updateActiveDiscordServers = async (client: Client, db: Db) => {
+	Log.debug(' Starting UpdateActiveDiscordServers');
 	const guilds: Collection<Snowflake, OAuth2Guild> = await client.guilds.fetch();
 	const discordServerCollection = await db.collection<DiscordServerCollection>(constants.DB_COLLECTION_DISCORD_SERVERS);
 	await discordServerCollection.updateMany({}, {

@@ -24,43 +24,56 @@
         "description": "True if discord member is a premium DEGEN pro subscriber, false otherwise"
       },
       "walletSettings": {
-        "bsonType": ["null", "object"],
+        "bsonType": ["null", "array"],
         "description": "Wallet details.",
         "properties": {
-          "publicAddress": {
-            "bsonType": ["null", "object"],
+          "ETH": {
+            "bsonType": ["null", "array"],
             "description": "List of public addresses.",
             "minItems": 0,
             "uniqueItems": true,
             "items": {
-              "bsonType": ["string"],
-              "description": "Public Ethereum address."
+              "bsonType": ["null", "object"],
+              "description": "Eth address",
+              "properties": {
+                "publicAddress": {
+                  "bsonType": ["null", "string"],
+                  "uniqueItems": true,
+                  "minItems": 0,
+                  "description": "Eth address"
+                },
+                "isPOAPDeliveryEnabled": {
+                  "bsonType": ["string", "null"],
+                  "description": "Enabled Address"
+                }
+              }
             }
           },
-          "isPOAPDeliveryEnabled": {
-            "bsonType": ["string", "null"],
-            "description": "Enabled Address"
-          }
+          "MATIC": {
+            "bsonType": ["null", "array"],
+            "description": "List of public addresses and whether or not POAP is enabled",
+            "minItems": 0,
+            "uniqueItems": true,
+            "items": {
+              "bsonType": ["null", "object"],
+              "description": "MATIC address",
+              "properties": {
+                "publicAddress": {
+                  "bsonType": ["null", "string"],
+                  "uniqueItems": true,
+                  "minItems": 0,
+                  "description": "MATIC address"
+                },
+                "isPOAPDeliveryEnabled": {
+                  "bsonType": ["string", "null"],
+                  "description": "Enabled Address"
+                }
+              }
+            }
+          },
+          
         }
       }
     }
   }
 }
-
-/*
-{
-    "userId": "1231",
-    "tag": "slinkypotato#123",
-    "reportedForPOAP": 1,
-    "walletSettings": {
-        "ETH": [{
-            "publicAddress": "0x6FAdD14635ceD43a8C2eAf11894d2771524ac2c2",
-            "poapDeliveryEnabled": true,
-        }],
-        "MATIC": [{
-            "publicAddress": "0x6FAdD14635ceD43a8C2eAf11894d2771524ac2c2",
-            "poapDeliveryEnabled": true,
-        }]
-    }
-}
-*/

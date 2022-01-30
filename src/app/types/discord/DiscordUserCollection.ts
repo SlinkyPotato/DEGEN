@@ -9,9 +9,17 @@ export interface DiscordUserCollection extends Collection {
 	tag: string,
 	reportedForPOAP: number,
 	isPremium: boolean,
-	ethWalletSettings: {
-		publicAddress: string[],
-		isPOAPDeliveryEnabled: boolean,
+	walletSettings: {
+		ETH:[{
+			publicAddress: string[],
+			isPOAPDeliveryEnabled: boolean,
+		}],
+		MATIC: [{
+			publicAddress: string[],
+			isPOAPDeliveryEnabled: boolean,
+		}]
+
 	} | null,
+	]
 	isDMEnabled: boolean,
 }

@@ -7,6 +7,8 @@ import MongoDbUtils from '../utils/MongoDbUtils';
 import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 import constants from '../service/constants/constants';
 import { Db, Collection, UpdateWriteOpResult } from 'mongodb';
+import { convertUtf8ToHex } from '@walletconnect/utils';
+import { ethers } from 'ethers';
 
 
 export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<any> => {
@@ -28,6 +30,7 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<
 		// create new session
 		connector.createSession();
 	}
+	
 
 	connector.on('display_uri', async (error, payload) => {
 		if (error) {
@@ -55,7 +58,11 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<
 		// Get provided accounts and chainId
 		const { accounts, chainId } = payload.params[0];
 		try {
-			if (user) {
+			// sign a message from the connected account
+			const signedMessage = await signMessage(connector, user, accounts);
+            
+			Log.debug(signedMessage);
+			if (signedMessage) {
 				const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 				const userSettingsCol: Collection<DiscordUserCollection> = db.collection(constants.DB_COLLECTION_DISCORD_USERS);
 				const result: UpdateWriteOpResult = await userSettingsCol.updateOne({
@@ -91,4 +98,28 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<
 		}
 		// Delete connector
 	});
+};
+
+const signMessage = async (connector: WalletConnect, user: User, accounts: string) => {
+	Log.debug('signMessage Called');
+	const address = accounts[0];
+	// Log.debug(connector);
+	const message = `Discord Tag = ${user.tag}`;
+	const msgParams = [
+		convertUtf8ToHex(message),
+		address,
+	];
+	Log.debug(msgParams);
+	// Sign message
+	try {
+		Log.debug('ask user to sign message');
+		const result = await connector.signPersonalMessage(msgParams);
+		const signingAddress = ethers.utils.verifyMessage(message, result);
+		Log.debug(signingAddress);
+        
+		Log.debug(`Signed Message result: ${result}`);
+		return signingAddress.toLowerCase === address.toLowerCase;
+	} catch (e) {
+		Log.error('failed to sign message');
+	}
 };

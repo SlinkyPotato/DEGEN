@@ -1,11 +1,15 @@
 import WalletConnect from '@walletconnect/client';
-import { CommandContext } from 'slash-create';
-import { GuildMember, MessageAttachment } from 'discord.js';
+import { DMChannel, User, MessageAttachment } from 'discord.js';
 import Canvas from 'canvas';
 import QRCode from 'qrcode';
 import Log from './Log';
+import MongoDbUtils from '../utils/MongoDbUtils';
+import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
+import constants from '../service/constants/constants';
+import { Db, Collection, UpdateWriteOpResult } from 'mongodb';
 
-export const v1WalletConnect = async (ctx: CommandContext | null, guildMember: GuildMember | null):Promise<any> => {
+
+export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<any> => {
 // Create a connector
 	Log.debug('starting v1 WalletConnect');
 	let uri;
@@ -24,7 +28,7 @@ export const v1WalletConnect = async (ctx: CommandContext | null, guildMember: G
 		// create new session
 		connector.createSession();
 	}
-	
+
 	connector.on('display_uri', async (error, payload) => {
 		if (error) {
 			throw error;
@@ -35,8 +39,9 @@ export const v1WalletConnect = async (ctx: CommandContext | null, guildMember: G
 		await QRCode.toCanvas(canvas, uri);
 		const attachment = new MessageAttachment(canvas.toBuffer(), 'profile-image.png');
 		try {
-			if (guildMember) {
-				await guildMember.send({ content: 'Scan the QR code with your mobile app to connect to DEGEN', files: [attachment] });
+			if (dmChannel) {
+				
+				await dmChannel.send({ content: 'Scan the QR code with your mobile app to connect to DEGEN', files: [attachment] });
 			}
 		} catch (e) {
 			return e;
@@ -50,8 +55,19 @@ export const v1WalletConnect = async (ctx: CommandContext | null, guildMember: G
 		// Get provided accounts and chainId
 		const { accounts, chainId } = payload.params[0];
 		try {
-			if (guildMember) {
-				await guildMember.send({ content: `${accounts}` });
+			if (user) {
+				const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+				const userSettingsCol: Collection<DiscordUserCollection> = db.collection(constants.DB_COLLECTION_DISCORD_USERS);
+				const result: UpdateWriteOpResult = await userSettingsCol.updateOne({
+					userId: user.id.toString(),
+				},
+				{
+					$set: { ethWalletSettings: { isPOAPDeliveryEnabled: true, publicAddress: accounts } },
+				},
+				);
+				if (await result.result.ok) {
+					await dmChannel.send({ content: `Connected ${user.tag} to Eth Public Address: ${accounts}` });
+				}
 			}
 		}catch (e) {
 			return e;

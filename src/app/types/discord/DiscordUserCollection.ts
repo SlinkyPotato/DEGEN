@@ -12,5 +12,6 @@ export interface DiscordUserCollection extends Collection {
 	ethWalletSettings: {
 		publicAddress: string[],
 		isPOAPDeliveryEnabled: boolean,
-	} | null
+	} | null,
+	isDMEnabled: boolean,
 }

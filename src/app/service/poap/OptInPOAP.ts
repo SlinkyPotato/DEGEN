@@ -15,6 +15,7 @@ import {
 	User,
 } from 'discord.js';
 import buttonIds from '../constants/buttonIds';
+import { v1WalletConnect } from '../../utils/v1WalletConnect';
 
 const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 	Log.debug('starting opt-in check for user');
@@ -25,27 +26,29 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 	const userSettings: DiscordUserCollection | null = await userSettingsCol.findOne({
 		userId: user.id.toString(),
 	});
-	let isAllowedToGetDMs = false;
+	const isPOAPDeliveryEnabled = false;
 	await dmChannel.sendTyping();
 	
 	if (userSettings == null) {
 		Log.debug('user settings not found');
-		const result: InsertOneWriteOpResult<DiscordUserCollection> = await userSettingsCol.insertOne({
-			userId: user.id.toString(),
-			tag: user.tag,
-			isDMEnabled: false,
-		} as DiscordUserCollection);
-		if (result == null || result.result.ok != 1) {
-			throw new Error('failed to insert user settings');
+		try {
+			Log.debug('adding new user to DiscordUserCollection');
+			const result: InsertOneWriteOpResult<DiscordUserCollection> = await userSettingsCol.insertOne({
+				userId: user.id.toString(),
+				tag: user.tag,
+				ethWalletSettings: { isPOAPDeliveryEnabled: false },
+			} as DiscordUserCollection);
+			if (result == null || result.result.ok != 1) {
+				throw new Error('failed to insert user settings');
+			}
+		} catch (e) {
+			LogUtils.logError('Failed trying to add user to DiscordUserCollection', e);
+			throw e;
 		}
-		
-	} else {
-		// handle eth wallet dm check
-		isAllowedToGetDMs = userSettings.isDMEnabled;
 	}
 	
-	if (!isAllowedToGetDMs) {
-		// ask to opt in to eth delivery
+	if (!isPOAPDeliveryEnabled) {
+	// ask to opt in to eth delivery
 		const row: MessageActionRow = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
@@ -59,27 +62,27 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 			);
 		Log.debug('user has not opted in to DMs, now asking user for opt-in to get DM POAPs');
 		const message: Message | void = await dmChannel.send({
-			content: 'Would you like me to send you POAPs directly to you going forward?',
+			content: 'Would you like me to send you POAPs directly to your ETH address?',
 			components: [row],
 		}).catch(e => {
 			LogUtils.logError('failed to ask for opt-in', e);
 			return;
 		});
-		
+	
 		if (message == null) {
 			Log.debug('did not send opt-in message');
 			return;
 		}
-		
+	
 		// 5 minute timeout
 		try {
 			await message.awaitMessageComponent({
 				filter: args => (args.customId == buttonIds.POAP_OPT_IN_YES
-					|| args.customId == buttonIds.POAP_OPT_IN_NO) && args.user.id == user.id.toString(),
+				|| args.customId == buttonIds.POAP_OPT_IN_NO) && args.user.id == user.id.toString(),
 				time: 300_000,
 			}).then((interaction) => {
 				if (interaction.customId == buttonIds.POAP_OPT_IN_YES) {
-					isAllowedToGetDMs = true;
+					v1WalletConnect(user, dmChannel);
 				} else {
 					message.edit({ content: 'No problem!', components: [] });
 				}
@@ -98,8 +101,8 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 			LogUtils.logError('gm opt-in time/error occurred', e);
 			return;
 		}
-		
-		if (isAllowedToGetDMs) {
+	
+		if (isPOAPDeliveryEnabled) {
 			await userSettingsCol.updateOne({
 				userId: user.id.toString(),
 			}, {

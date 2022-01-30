@@ -23,13 +23,13 @@
         "bsonType": ["boolean"],
         "description": "True if discord member is a premium DEGEN pro subscriber, false otherwise"
       },
-      "ethWalletSettings": {
+      "walletSettings": {
         "bsonType": ["null", "object"],
         "description": "Wallet details.",
         "properties": {
           "publicAddress": {
-            "bsonType": ["array"],
-            "description": "List of Ethereum public wallets.",
+            "bsonType": ["null", "object"],
+            "description": "List of public addresses.",
             "minItems": 0,
             "uniqueItems": true,
             "items": {
@@ -38,11 +38,29 @@
             }
           },
           "isPOAPDeliveryEnabled": {
-            "bsonType": ["boolean", "null"],
-            "description": "true if user opted to have POAPs directly delivered."
+            "bsonType": ["string", "null"],
+            "description": "Enabled Address"
           }
         }
       }
     }
   }
 }
+
+/*
+{
+    "userId": "1231",
+    "tag": "slinkypotato#123",
+    "reportedForPOAP": 1,
+    "walletSettings": {
+        "ETH": [{
+            "publicAddress": "0x6FAdD14635ceD43a8C2eAf11894d2771524ac2c2",
+            "poapDeliveryEnabled": true,
+        }],
+        "MATIC": [{
+            "publicAddress": "0x6FAdD14635ceD43a8C2eAf11894d2771524ac2c2",
+            "poapDeliveryEnabled": true,
+        }]
+    }
+}
+*/

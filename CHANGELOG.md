@@ -5,6 +5,7 @@
 1. Disable all DMs
 2. Enhance poap url logging
 3. Remove all mentions (except for self reference of the discord bot)
+4. Add eol-last rule to eslint
 
 ## 2.8.0-RELEASE (2022-01-28)
 

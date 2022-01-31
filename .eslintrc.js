@@ -63,5 +63,6 @@ module.exports = {
 				'argsIgnorePattern': '^_',
 			},
 		],
+		'eol-last': ['error', 'always'],
 	},
 };

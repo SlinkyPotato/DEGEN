@@ -270,7 +270,7 @@ export default class POAP extends SlashCommand {
 				commandPromise = ClaimPOAP(ctx, platform, guildMember);
 				break;
 			default:
-				await ctx.send(`${ctx.user.mention} Please try again.`).catch(Log.error);
+				await ctx.send({ content: `${ctx.user.mention} Please try another command.`, ephemeral: true }).catch(Log.error);
 				return;
 			}
 			await this.handleCommandError(ctx, commandPromise);

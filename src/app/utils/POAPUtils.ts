@@ -139,7 +139,7 @@ const POAPUtils = {
 			await message.delete();
 		}
 		
-		Log.debug(`obtained poap links attachment in discord: ${poapLinksFile.url}`);
+		Log.info(`obtained poap links attachment in discord: ${poapLinksFile.url}, poapOrganizerId: ${guildMember.id}`);
 		return poapLinksFile;
 	},
 	

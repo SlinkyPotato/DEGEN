@@ -37,6 +37,8 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	
 	Log.debug('authorized to end poap event');
 	
+	await ctx?.defer(true);
+	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
 		await EndTwitterFlow(guildMember, db, ctx);
 		return;
@@ -144,6 +146,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	} else if (ctx) {
 		embedOptions = embedOptions as MessageOptionsSlash;
 		embedOptions.file = [{ name: fileName, file: bufferFile }];
+		embedOptions.ephemeral = true;
 		await ctx.send(embedOptions);
 	} else if (channelExecution != null) {
 		embedOptions = embedOptions as MessageOptions;

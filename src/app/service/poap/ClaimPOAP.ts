@@ -35,6 +35,8 @@ import ServiceUtils from '../../utils/ServiceUtils';
 const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: GuildMember): Promise<any> => {
 	Log.debug(`starting claim for ${ctx.user.username}, with ID: ${ctx.user.id}`);
 	
+	await ctx.defer(true);
+	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
 		if (!guildMember) {
 			await ctx.send({ content: 'Please try command within discord server.', ephemeral: true });

@@ -49,7 +49,8 @@ const POAPService = {
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(expiredEvent.discordUserId);
 			EndPOAP(poapOrganizer, platform).catch((e) => {
 				if (e instanceof ValidationError) {
-					poapOrganizer.send({ content: `${e?.message}` }).catch(Log.error);
+					// poapOrganizer.send({ content: `${e?.message}` }).catch(Log.error);
+					Log.error(`failed to autoend event for: ${poapOrganizer.id}, because: ${e?.message}`);
 				}
 				Log.error(e);
 			});

@@ -1,6 +1,11 @@
 # Changelog
 
-## 2.8.0
+## 2.8.1-RELEASE (2022-01-31)
+
+1. Disable all DMs
+2. Enhance poap url logging
+
+## 2.8.0-RELEASE (2022-01-28)
 
 1. Remove poap delivery via dm, store poap for user
 2. Add platform to `/claim`

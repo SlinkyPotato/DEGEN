@@ -20,6 +20,7 @@ import {
 } from 'mongodb';
 import { MessageEmbedOptions as MessageEmbedOptionsSlash } from 'slash-create';
 import ValidationError from '../../../errors/ValidationError';
+import { Message } from 'slash-create/lib/structures/message';
 const StartChannelFlow = async (
 	ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration: number,
 	poapSettingsDB: CollectionMongo<POAPSettings>,
@@ -28,7 +29,7 @@ const StartChannelFlow = async (
 	const voiceChannels: Collection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
 	
 	const embedsVoiceChannels = generateVoiceChannelEmbedMessage(voiceChannels) as MessageEmbedOptionsSlash[];
-	const message = await ctx.sendFollowUp({ embeds: embedsVoiceChannels });
+	const message = await ctx.send({ embeds: embedsVoiceChannels, ephemeral: true }) as Message;
 	
 	const channel: TextChannel = await guildMember.guild.channels.fetch(message.channelID) as TextChannel;
 	

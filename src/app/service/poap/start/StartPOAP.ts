@@ -52,7 +52,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	
 	Log.debug('poap start validated');
 	
-	await ctx.defer();
+	await ctx.defer(true);
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
 		await StartTwitterFlow(ctx, guildMember, db, event, duration);
@@ -226,7 +226,7 @@ export const askUserForChannel = async (
 			if (isDmOn) {
 				await guildMember.send({ content: enterValidNumberMsg }).catch(Log.error);
 			} else if (ctx) {
-				await ctx.sendFollowUp(enterValidNumberMsg).catch(Log.error);
+				await ctx.send(enterValidNumberMsg).catch(Log.error);
 			}
 		} else {
 			break;

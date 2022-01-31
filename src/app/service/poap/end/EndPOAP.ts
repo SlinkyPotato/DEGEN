@@ -155,7 +155,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	}
 
 	if ((guildMember.id !== guildMember.user.id) && isDmOn) {
-		return guildMember.send({ content: `Previous event ended.` }).catch(Log.error);
+		return guildMember.send({ content: 'Previous event ended.' }).catch(Log.error);
 	}
 	
 	const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, isDmOn, numberOfParticipants, ctx, channelExecution);

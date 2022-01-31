@@ -18,8 +18,5 @@ export interface DiscordUserCollection extends Collection {
 			publicAddress: string[],
 			isPOAPDeliveryEnabled: boolean,
 		}]
-
 	} | null,
-	]
-	isDMEnabled: boolean,
 }

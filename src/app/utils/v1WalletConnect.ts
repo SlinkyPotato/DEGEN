@@ -28,19 +28,11 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<
 	// Check if connection is already established
 	if (!connector.connected) {
 		// create new session
-		connector.createSession();
-	}
-	
-
-	connector.on('display_uri', async (error, payload) => {
-		if (error) {
-			throw error;
-		}
-		uri = payload.params[0];
-		
+		await connector.createSession();
+		Log.debug(connector.uri);
 		const canvas = Canvas.createCanvas(244, 244);
-		await QRCode.toCanvas(canvas, uri);
-		const attachment = new MessageAttachment(canvas.toBuffer(), 'profile-image.png');
+		await QRCode.toCanvas(canvas, connector.uri);
+		const attachment = new MessageAttachment(canvas.toBuffer(), 'qr-code.png');
 		try {
 			if (dmChannel) {
 				
@@ -49,6 +41,16 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<
 		} catch (e) {
 			return e;
 		}
+	}
+	
+
+	connector.on('display_uri', async (error, payload) => {
+		if (error) {
+			throw error;
+		}
+		uri = payload.params[0];
+		Log.debug(`Display_URI: ${uri}`);
+		
 	});
 	// Subscribe to connection events
 	connector.on('connect', async (error, payload) => {
@@ -57,23 +59,29 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<
 		}
 		// Get provided accounts and chainId
 		const { accounts, chainId } = payload.params[0];
+		const chain = chainId === 1 ? 'ETH' : 'MATIC';
+		Log.debug(chainId);
 		try {
 			// sign a message from the connected account
 			const signedMessage = await signMessage(connector, user, accounts);
-            
+			// figure out if chainId is ETH or Matic and save the address to the correct place
 			Log.debug(signedMessage);
 			if (signedMessage) {
 				const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 				const userSettingsCol: Collection<DiscordUserCollection> = db.collection(constants.DB_COLLECTION_DISCORD_USERS);
-				const result: UpdateWriteOpResult = await userSettingsCol.updateOne({
-					userId: user.id.toString(),
-				},
-				{
-					$set: { ethWalletSettings: { isPOAPDeliveryEnabled: true, publicAddress: accounts } },
-				},
-				);
-				if (await result.result.ok) {
-					await dmChannel.send({ content: `Connected ${user.tag} to Eth Public Address: ${accounts}` });
+				if (chain === 'ETH') {
+					const result: UpdateWriteOpResult = await userSettingsCol.updateOne({
+						userId: user.id.toString(),
+					},
+					{
+						$push: { 'walletSettings.ETH':
+                        { isPOAPDeliveryEnabled: true, publicAddress: accounts } },
+					},
+					);
+					Log.debug(result);
+					if (await result.result.ok) {
+						await dmChannel.send({ content: `Connected ${user.tag} to Eth Public Address: ${accounts}` });
+					}
 				}
 			}
 		}catch (e) {
@@ -92,7 +100,7 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<
 	});
 
 	connector.on('disconnect', (error, payload) => {
-		Log.debug(`payload: ${payload}`);
+		Log.debug(`Connector disconnected: ${payload}`);
 		if (error) {
 			throw error;
 		}

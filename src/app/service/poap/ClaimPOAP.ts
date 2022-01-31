@@ -5,7 +5,12 @@ import {
 	MessageEmbedOptions,
 	Message as Message,
 } from 'discord.js';
-import { Collection, Cursor, Db } from 'mongodb';
+import {
+	Collection,
+	Cursor,
+	Db,
+	UpdateWriteOpResult,
+} from 'mongodb';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import constants from '../constants/constants';
 import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
@@ -22,13 +27,14 @@ import {
 	MessageEmbedOptions as MessageEmbedOptionsSlash,
 } from 'slash-create';
 import POAPUtils from '../../utils/POAPUtils';
-import apiKeys from '../constants/apiKeys';
 import ValidationError from '../../errors/ValidationError';
 import OptInPOAP from './OptInPOAP';
 import ServiceUtils from '../../utils/ServiceUtils';
 
 const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: GuildMember): Promise<any> => {
 	Log.debug(`starting claim for ${ctx.user.username}, with ID: ${ctx.user.id}`);
+	
+	await ctx.defer(true);
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
 		if (!guildMember) {
@@ -38,21 +44,26 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 		await claimPOAPForTwitter(ctx, guildMember);
 		return;
 	}
-	await claimForDiscord(ctx.user.id, ctx);
-	if (guildMember && ctx) {
-		try {
-			const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'gm');
-			if (isDmOn) {
+	let isDmOn = false;
+	
+	if (guildMember) {
+		isDmOn = await ServiceUtils.tryDMUser(guildMember, 'gm');
+		if (isDmOn) {
+			try {
+				await ctx.send({ content: 'DM sent!', ephemeral: true });
 				const dmChannel: DMChannel = await guildMember.createDM();
+				await claimForDiscord(ctx.user.id, null, dmChannel);
 				await OptInPOAP(guildMember.user, dmChannel).catch(e => {
 					Log.error(e);
 					ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
 				});
+				return;
+			} catch (e) {
+				LogUtils.logError('failed to ask for opt-in', e);
 			}
-		} catch (e) {
-			LogUtils.logError('failed to ask for opt-in', e);
 		}
 	}
+	await claimForDiscord(ctx.user.id, ctx);
 };
 
 export const claimForDiscord = async (userId: string, ctx?: CommandContext | null, dmChannel?: DMChannel | null): Promise<void> => {
@@ -86,10 +97,11 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	unclaimedParticipants = await unclaimedParticipantsCollection.find({
 		discordUserId: userId,
 	});
+	
 	let result: Message | MessageSlash | boolean | void;
 	if (ctx) {
 		Log.debug('sending message in channel');
-		await ctx.send({ content: `POAP claimed! Consider sending \`gm\` to <@${apiKeys.DISCORD_BOT_ID}> to get POAPs directly in your DMs.` });
+		await ctx.send({ content: 'POAP claimed! Consider sending `gm` to DEGEN to get POAPs directly in your wallet.', ephemeral: false });
 		const embeds: MessageEmbedOptionsSlash[] = await generatePOAPClaimEmbedMessages(numberOfPOAPs, unclaimedParticipants) as MessageEmbedOptionsSlash[];
 		result = await ctx.send({
 			embeds: embeds,
@@ -104,8 +116,8 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 		result = await dmChannel.send({
 			embeds: embeds,
 		}).catch(e => {
-			LogUtils.logError('failed to send POAP DMs to user', e);
-			throw new ValidationError('try turning on DMs');
+			LogUtils.logError('failed to send POAP to user wallet', e);
+			throw new ValidationError('Try turning on DMs!');
 		});
 	}
 	if (result == null) {
@@ -115,14 +127,27 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	
 	Log.debug('message sent to user!');
 	
-	unclaimedParticipantsCollection.updateMany({
+	const expirationDate: string = dayjs().add(1, 'day').toISOString();
+	const resultUpdate: UpdateWriteOpResult | void = await unclaimedParticipantsCollection.updateMany({
 		discordUserId: userId,
+		expiresAt: {
+			$gt: expirationDate,
+		},
 	}, {
 		$set: {
-			expiresAt: dayjs().add(1, 'day').toISOString(),
+			expiresAt: expirationDate,
 		},
 	}).catch(Log.error);
-	Log.debug('updated expiration for POAPs in DB and POAPs claimed');
+	
+	if (resultUpdate == null) {
+		throw new Error('failed to update expiration date for POAPs');
+	}
+	
+	if (resultUpdate.result.nModified > 0) {
+		Log.debug('updated expiration dates for POAPs in DB and POAPs claimed');
+	} else {
+		Log.debug('existing POAPs found that are expiring soon');
+	}
 };
 
 const claimPOAPForTwitter = async (ctx: CommandContext, guildMember: GuildMember) => {

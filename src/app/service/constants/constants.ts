@@ -1,5 +1,5 @@
 export default Object.freeze({
-	INVITE_BOT_POAP_LINK: 'https://discord.com/api/oauth2/authorize?client_id=936262131903529021&permissions=397553036368&scope=bot%20applications.commands',
+	INVITE_BOT_POAP_LINK: 'https://discord.com/api/oauth2/authorize?client_id=937748367235235861&permissions=397553036368&scope=bot%20applications.commands',
 	APP_VERSION: process.env.npm_package_version,
 	APP_NAME: 'degen-legacy-v2',
 	
@@ -38,5 +38,5 @@ export default Object.freeze({
 	
 	POAP_ADMIN_TYPE_ENUM_USER: 'USER',
 	POAP_ADMIN_TYPE_ENUM_ROLE: 'ROLE',
-	NEW_DEGEN_ID: '936262131903529021',
+	NEW_DEGEN_ID: '937748367235235861',
 });

@@ -3,6 +3,23 @@
 ## LEGACY
 1. Kick bot if DEGEN is found
 
+## 2.8.1-RELEASE (2022-01-31)
+
+1. Disable all DMs
+2. Enhance poap url logging
+3. Remove all mentions (except for self reference of the discord bot)
+
+## 2.8.0-RELEASE (2022-01-28)
+
+1. Remove poap delivery via dm, store poap for user
+2. Add platform to `/claim`
+3. Rename isDMEnabled flag -> isWalletDeliveryEnabled
+   - add ethWalletSettings to discordUsers
+   - disable DM delivery
+4. Update poap expiration only for dates longer than 24 hours
+5. Fix duplicate poap assignment
+6. Enhance poap claim flow
+
 ## 2.7.0-RELEASE (2022-01-18)
 
 1. Add more stability to opt-in messages

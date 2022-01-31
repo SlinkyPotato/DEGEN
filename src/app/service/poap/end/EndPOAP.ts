@@ -27,7 +27,7 @@ import EndTwitterFlow from './EndTwitterFlow';
 import { POAPDistributionResults } from '../../../types/poap/POAPDistributionResults';
 import channelIds from '../../constants/channelIds';
 import { POAPParticipant } from '../../../types/poap/POAPParticipant';
-import { stopTrackingUserParticipation } from '../../../events/poap/HandleParticipantDuringEvent';
+import { stopTrackingUserParticipation } from '../../../events/tracking/HandleParticipantDuringEvent';
 
 export default async (guildMember: GuildMember, platform: string, ctx?: CommandContext): Promise<any> => {
 	Log.debug('attempting to end poap event');
@@ -36,6 +36,8 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	await POAPUtils.validateUserAccess(guildMember, db);
 	
 	Log.debug('authorized to end poap event');
+	
+	await ctx?.defer(true);
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
 		await EndTwitterFlow(guildMember, db, ctx);
@@ -72,7 +74,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 			return;
 		}
 		channelExecution = await guildMember.guild.channels.fetch(poapSettingsDoc.channelExecutionId) as TextChannel;
-		await channelExecution.send(`Hi <@${guildMember.user.id}>! Below are the participants results for ${poapSettingsDoc.event}`);
+		await channelExecution.send(`Hello! Below are the participants results for ${poapSettingsDoc.event}`);
 	}
 	
 	const currentDateISO = dayjs().toISOString();
@@ -144,6 +146,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	} else if (ctx) {
 		embedOptions = embedOptions as MessageOptionsSlash;
 		embedOptions.file = [{ name: fileName, file: bufferFile }];
+		embedOptions.ephemeral = true;
 		await ctx.send(embedOptions);
 	} else if (channelExecution != null) {
 		embedOptions = embedOptions as MessageOptions;
@@ -152,7 +155,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	}
 
 	if ((guildMember.id !== guildMember.user.id) && isDmOn) {
-		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` }).catch(Log.error);
+		return guildMember.send({ content: 'Previous event ended.' }).catch(Log.error);
 	}
 	
 	const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, isDmOn, numberOfParticipants, ctx, channelExecution);

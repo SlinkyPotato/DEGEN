@@ -27,7 +27,6 @@ import {
 	MessageEmbedOptions as MessageEmbedOptionsSlash,
 } from 'slash-create';
 import POAPUtils from '../../utils/POAPUtils';
-import apiKeys from '../constants/apiKeys';
 import ValidationError from '../../errors/ValidationError';
 import OptInPOAP from './OptInPOAP';
 import ServiceUtils from '../../utils/ServiceUtils';
@@ -102,7 +101,7 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	let result: Message | MessageSlash | boolean | void;
 	if (ctx) {
 		Log.debug('sending message in channel');
-		await ctx.send({ content: `POAP claimed! Consider sending \`gm\` to <@${apiKeys.DISCORD_BOT_ID}> to get POAPs directly in your wallet.`, ephemeral: false });
+		await ctx.send({ content: 'POAP claimed! Consider sending `gm` to DEGEN to get POAPs directly in your wallet.', ephemeral: false });
 		const embeds: MessageEmbedOptionsSlash[] = await generatePOAPClaimEmbedMessages(numberOfPOAPs, unclaimedParticipants) as MessageEmbedOptionsSlash[];
 		result = await ctx.send({
 			embeds: embeds,

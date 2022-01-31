@@ -1,6 +1,13 @@
 # Changelog
 
-## 2.8.0
+## 2.8.1-RELEASE (2022-01-31)
+
+1. Disable all DMs
+2. Enhance poap url logging
+3. Remove all mentions (except for self reference of the discord bot)
+4. Add eol-last rule to eslint
+
+## 2.8.0-RELEASE (2022-01-28)
 
 1. Remove poap delivery via dm, store poap for user
 2. Add platform to `/claim`

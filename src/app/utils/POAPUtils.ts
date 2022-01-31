@@ -139,7 +139,7 @@ const POAPUtils = {
 			await message.delete();
 		}
 		
-		Log.debug(`obtained poap links attachment in discord: ${poapLinksFile.url}`);
+		Log.info(`obtained poap links attachment in discord: ${poapLinksFile.url}, poapOrganizerId: ${guildMember.id}`);
 		return poapLinksFile;
 	},
 	
@@ -552,7 +552,7 @@ const POAPUtils = {
 		// 		await ctx.send({ content: deliveryMsg, ephemeral: true });
 		// 	}
 		// } else {
-		// 	const failedDeliveryMsg = `Looks like some degens have DMs off or they haven't opted in for delivery. They can claim their POAPs by sending \`gm\` to <@${ApiKeys.DISCORD_BOT_ID}> or executing slash command  \`/poap claim\``;
+		// 	const failedDeliveryMsg = `Looks like some degens have DMs off or they haven't opted in for delivery. They can claim their POAPs by sending \`gm\` to DEGEN or executing slash command  \`/poap claim\``;
 		// 	if (isDmOn) {
 		// 		await guildMember.send({ content: failedDeliveryMsg });
 		// 	} else if (ctx) {

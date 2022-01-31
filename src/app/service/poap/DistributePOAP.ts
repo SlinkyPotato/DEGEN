@@ -119,7 +119,7 @@ export const askForParticipantsList = async (guildMember: GuildMember, platform:
 			throw new ValidationError('Invalid attachment');
 		}
 		
-		Log.debug(`found participants file: ${participantAttachment.url}`);
+		Log.info(`found participants file: ${participantAttachment.url}, poapOrganizerId: ${guildMember.id}`);
 		const fileResponse = await axios.get(participantAttachment.url);
 		participantsList = ServiceUtils.parseCSVFile(fileResponse.data);
 		

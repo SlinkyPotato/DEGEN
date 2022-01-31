@@ -51,7 +51,7 @@ const EndTwitterFlow = async (guildMember: GuildMember, db: Db, ctx?: CommandCon
 			return;
 		}
 		channelExecution = await guildMember.guild.channels.fetch(activeTwitterSettings.channelExecutionId) as TextChannel;
-		await channelExecution.send(`Hi <@${guildMember.user.id}>! Below are the participants results for ${activeTwitterSettings.event}`);
+		await channelExecution.send(`Hello! Below are the participants results for ${activeTwitterSettings.event}`);
 	}
 
 	const currentDate: Dayjs = dayjs();

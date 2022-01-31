@@ -4,6 +4,7 @@
 
 1. Disable all DMs
 2. Enhance poap url logging
+3. Remove all mentions (except for self reference of the discord bot)
 
 ## 2.8.0-RELEASE (2022-01-28)
 

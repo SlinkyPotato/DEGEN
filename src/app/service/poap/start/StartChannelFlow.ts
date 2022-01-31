@@ -45,7 +45,7 @@ const StartChannelFlow = async (
 	
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
 		Log.warn('unable to start due to active event');
-		await ctx.send({ content: `\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`, ephemeral: true });
+		await ctx.send({ content: `\`${channelChoice.name}\` is already active. Please reach out to support to end event.`, ephemeral: true });
 		return;
 	}
 	

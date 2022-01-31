@@ -74,7 +74,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 			return;
 		}
 		channelExecution = await guildMember.guild.channels.fetch(poapSettingsDoc.channelExecutionId) as TextChannel;
-		await channelExecution.send(`Hi <@${guildMember.user.id}>! Below are the participants results for ${poapSettingsDoc.event}`);
+		await channelExecution.send(`Hello! Below are the participants results for ${poapSettingsDoc.event}`);
 	}
 	
 	const currentDateISO = dayjs().toISOString();
@@ -155,7 +155,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	}
 
 	if ((guildMember.id !== guildMember.user.id) && isDmOn) {
-		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` }).catch(Log.error);
+		return guildMember.send({ content: `Previous event ended.` }).catch(Log.error);
 	}
 	
 	const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, isDmOn, numberOfParticipants, ctx, channelExecution);

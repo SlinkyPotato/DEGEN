@@ -3,6 +3,8 @@ import {
 	Collection,
 	OAuth2Guild,
 	Snowflake,
+	Guild,
+	GuildMember,
 } from 'discord.js';
 import constants from '../service/constants/constants';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
@@ -24,6 +26,19 @@ export default class implements DiscordEvent {
 				Log.debug(`setting status: ${process.env.DISCORD_BOT_ACTIVITY}`);
 				client.user.setActivity(process.env.DISCORD_BOT_ACTIVITY as string);
 			}
+			
+			client.guilds.cache.forEach((guild: Guild) => {
+				guild.members.fetch(constants.NEW_DEGEN_ID).then((member: GuildMember) => {
+					Log.debug(member);
+					if (member != null) {
+						guild.leave();
+						Log.info('DEGEN found, now removing legacy DEGEN');
+					}
+				}).catch(_ => {
+					Log.error('could not find new DEGEN bot');
+				});
+			});
+			
 			const db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 			await updateActiveDiscordServers(client, db);
 			// should not wait

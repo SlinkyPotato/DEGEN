@@ -1,6 +1,7 @@
 export default Object.freeze({
+	INVITE_BOT_POAP_LINK: 'https://discord.com/api/oauth2/authorize?client_id=937748367235235861&permissions=397553036368&scope=bot%20applications.commands',
 	APP_VERSION: process.env.npm_package_version,
-	APP_NAME: 'degen',
+	APP_NAME: 'degen-legacy-v3',
 	
 	DB_NAME_DEGEN: 'degen',
 	DB_NAME_NEXTAUTH: 'nextauth',
@@ -37,4 +38,5 @@ export default Object.freeze({
 	
 	POAP_ADMIN_TYPE_ENUM_USER: 'USER',
 	POAP_ADMIN_TYPE_ENUM_ROLE: 'ROLE',
+	NEW_DEGEN_ID: '937748367235235861',
 });

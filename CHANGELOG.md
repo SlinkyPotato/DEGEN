@@ -1,5 +1,8 @@
 # Changelog
 
+## LEGACY
+1. Kick bot if DEGEN is found
+
 ## 2.8.1-RELEASE (2022-01-31)
 
 1. Disable all DMs

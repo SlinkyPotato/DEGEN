@@ -1,5 +1,5 @@
 import { CommandContext, SlashCommand, SlashCreator } from 'slash-create';
-import { LogUtils } from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import { command } from '../../utils/SentryUtils';
 
 export default class FeatureRequest extends SlashCommand {
@@ -18,10 +18,10 @@ export default class FeatureRequest extends SlashCommand {
 	@command
 	async run(ctx: CommandContext): Promise<any> {
 		LogUtils.logCommandStart(ctx);
-		// Ignores commands from bots
+		// Ignore commands from bots
 		if (ctx.user.bot) return;
 
-		const form = 'https://degen.canny.io/';
-		await ctx.send(`The DEGEN feature request form: ${form}`);
+		const form = 'https://discord.gg/yHTQkERpsD';
+		await ctx.send(`Easily submit requests at #request-features on our support discord: ${form}`).catch(Log.error);
 	}
 }

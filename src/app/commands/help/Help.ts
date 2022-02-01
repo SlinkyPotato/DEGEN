@@ -5,7 +5,7 @@ import {
 	SlashCreator,
 } from 'slash-create';
 import HowToPOAP from '../../service/help/HowToPOAP';
-import { LogUtils } from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import { command } from '../../utils/SentryUtils';
 import HowToAccount from '../../service/help/HowToAccount';
 
@@ -46,6 +46,6 @@ export default class Help extends SlashCommand {
 			messageOptions = { content: 'Invalid command selected' };
 			break;
 		}
-		await ctx.send(messageOptions);
+		await ctx.send(messageOptions).catch(Log.error);
 	}
 }

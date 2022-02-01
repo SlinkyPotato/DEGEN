@@ -1,5 +1,9 @@
 # Changelog
 
+# 2.9.0
+
+1. Enable private threads
+
 ## 2.8.1-RELEASE (2022-01-31)
 
 1. Disable all DMs

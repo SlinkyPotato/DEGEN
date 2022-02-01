@@ -32,7 +32,7 @@ export default class Tipping extends SlashCommand {
 		try {
 			const recipient = ctx.options.recipient_wallet_address;
 			const token_quantity = ctx.options.token_quantity;
-			const dmReplyStr = `Sign your transaction here: https://localhost:4200?recipient=${recipient}&quantity=${token_quantity}`;
+			const dmReplyStr = `Sign your transaction here: https://localhost:4200/connect?recipient=${recipient}&quantity=${token_quantity}`;
 			return ctx.send({ content: dmReplyStr, ephemeral: true });
 		} catch (e) {
 			Log.error(e);

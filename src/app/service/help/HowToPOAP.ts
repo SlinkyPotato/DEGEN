@@ -1,21 +1,24 @@
-import { MessageOptions } from 'slash-create';
+import constants from '../constants/constants';
 
-export default (): MessageOptions => {
+export default (): { embeds: any[] } => {
 	return {
 		embeds: [{
 			title: 'POAP Distribution Information',
-			description: 'Thank you for checking out POAP distribution!\n\n' +
-				'Before commands can be used, authorized users and roles must first be set with the `/poap config` command by an admin. ' +
-				'Users can then use the `/poap schedule` command to mint PNG images into POAPs.',
+			description: 'DEGEN is a discord bot that helps distribute POAPs to eligible participates. It can also `mint` poaps before an event has started.',
 			fields: [
 				{
-					name: '-> /poap config modify',
-					value: 'Authorize users and roles who can use the following poap commands. A malicious user and role can also be removed.',
+					name: '-> /setup',
+					value: 'Initialize all of the settings needed for DEGEN to operate. This command should automatically execute after degen is invited.',
 					inline: false,
 				},
 				{
-					name: '-> /poap config status',
-					value: 'Display the currently authorized users and roles that can use the POAP commands.',
+					name: '-> /poap config modify',
+					value: 'Authorize users and roles who can use poap commands. A malicious user and role can also be removed.',
+					inline: false,
+				},
+				{
+					name: '-> /poap config list',
+					value: 'Display a list of authorized users and roles that can use the POAP commands.',
 					inline: false,
 				},
 				{
@@ -35,6 +38,11 @@ export default (): MessageOptions => {
 					inline: false,
 				},
 				{
+					name: '-> /claim',
+					value: 'Same as /poap claim.',
+					inline: false,
+				},
+				{
 					name: '-> /poap start',
 					value: 'Start tracking attendees as they enter and exit the specified voice channel. ' +
 						'Once the event is started it must be stopped by the same user or configured user/role.',
@@ -49,8 +57,9 @@ export default (): MessageOptions => {
 				{
 					name: '-> Useful Links',
 					value: '[BanklessDAO Product Support Center invite](https://discord.gg/85Kb6Qv6gd)\n' +
-						'[Commands Wiki](https://www.notion.so/bankless/The-POAP-Distribution-Commands-and-Workflow-96cac11447b44d27885c160dc9af85fe)\n' +
-						'[Feature Request Feedback](https://degen.canny.io/feature-requests)\n' +
+						'[Youtube Tutorials](https://www.youtube.com/playlist?list=PLc6o7Cxn7Uq6DQCptSItO5_IQfegCRImb)\n' +
+						'[Docs](https://docs.bankless.community)\n' +
+						'[Feature Request Feedback](' + constants.FEATURE_REQUEST_CHANNEL_INVITE + ')\n' +
 						'[POAP Website](https://poap.xyz/)',
 					inline: false,
 				},

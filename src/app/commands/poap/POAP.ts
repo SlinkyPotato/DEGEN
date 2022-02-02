@@ -16,7 +16,7 @@ import ClaimPOAP from '../../service/poap/ClaimPOAP';
 import constants from '../../service/constants/constants';
 import { GuildMember } from 'discord.js';
 import ModifyPOAP from '../../service/poap/config/ModifyPOAP';
-import StatusPOAP from '../../service/poap/config/StatusPOAP';
+import ListPOAPConfig from '../../service/poap/config/ListPOAPConfig';
 import { command } from '../../utils/SentryUtils';
 
 export default class POAP extends SlashCommand {
@@ -36,7 +36,7 @@ export default class POAP extends SlashCommand {
 					description: 'Configure users and roles to have access to POAP commands.',
 					options: [
 						{
-							name: 'status',
+							name: 'list',
 							description: 'Display the list of authorized users and roles that can use the POAP commands.',
 							type: CommandOptionType.SUB_COMMAND,
 							options: [],
@@ -238,8 +238,8 @@ export default class POAP extends SlashCommand {
 			
 			switch (subCommand) {
 			case 'config':
-				if (ctx.subcommands[1] == 'status') {
-					commandPromise = StatusPOAP(ctx, guildMember as GuildMember);
+				if (ctx.subcommands[1] == 'list') {
+					commandPromise = ListPOAPConfig(ctx, guildMember as GuildMember);
 				} else if (ctx.subcommands[1] == 'modify') {
 					authorizedRoles = [ctx.options.config.modify['role-1'], ctx.options.config.modify['role-2'], ctx.options.config.modify['role-3']];
 					authorizedUsers = [ctx.options.config.modify['user-1'], ctx.options.config.modify['user-2'], ctx.options.config.modify['user-3']];

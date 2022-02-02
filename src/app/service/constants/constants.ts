@@ -37,4 +37,6 @@ export default Object.freeze({
 	
 	POAP_ADMIN_TYPE_ENUM_USER: 'USER',
 	POAP_ADMIN_TYPE_ENUM_ROLE: 'ROLE',
+	
+	FEATURE_REQUEST_CHANNEL_INVITE: 'https://discord.gg/yHTQkERpsD',
 });

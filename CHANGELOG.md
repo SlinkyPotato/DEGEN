@@ -3,6 +3,7 @@
 # 2.9.0
 
 1. Enable private threads
+2. Add `/setup` command for first time degen setup or when bot is invited to discord server
 
 ## 2.8.1-RELEASE (2022-01-31)
 

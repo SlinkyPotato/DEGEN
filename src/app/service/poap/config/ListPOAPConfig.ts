@@ -8,7 +8,7 @@ import constants from '../../constants/constants';
 import MongoDbUtils from '../../../utils/MongoDbUtils';
 import Log from '../../../utils/Log';
 
-const StatusPOAP = async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
+const ListPOAPConfig = async (ctx: CommandContext, guildMember: GuildMember): Promise<any> => {
 	if (ctx.guildID == undefined) {
 		await ctx.send({ content: 'Please try configuration within discord channel', ephemeral: true });
 		return;
@@ -18,7 +18,7 @@ const StatusPOAP = async (ctx: CommandContext, guildMember: GuildMember): Promis
 		throw new ValidationError('Sorry, only discord admins and managers can view poap settings.');
 	}
 	
-	Log.debug(`${guildMember.user.tag} is authorized to use poap status`);
+	Log.debug(`${guildMember.user.tag} is authorized to use /poap config list`);
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'I can show you the list of authorized roles and users for POAP commands!');
 	
 	if (isDmOn) {
@@ -95,4 +95,4 @@ const StatusPOAP = async (ctx: CommandContext, guildMember: GuildMember): Promis
 	Log.debug('list of authorized users and roles sent');
 };
 
-export default StatusPOAP;
+export default ListPOAPConfig;

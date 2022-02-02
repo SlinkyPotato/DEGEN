@@ -19,14 +19,16 @@ import ServiceUtils from '../../utils/ServiceUtils';
 import Log, { LogUtils } from '../../utils/Log';
 import DateUtils from '../../utils/DateUtils';
 import MongoDbUtils from '../../utils/MongoDbUtils';
-import { MessageOptions as MessageOptionsSlash } from 'slash-create/lib/structures/interfaces/messageInteraction';
+import { MessageOptions as MessageOptionsSlash } from 'slash-create';
 
 const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numberToMint: number): Promise<any> => {
 	if (ctx.guildID == undefined) {
-		await ctx.send('Please try schedule within discord channel');
+		await ctx.send('Please try poap mint within discord channel');
 		return;
 	}
 	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Minting POAPs is always super exciting!');
+	
+	await ctx.defer(true);
 	
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	
@@ -51,7 +53,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 	
 	if (isDmOn) {
 		await guildMember.send(msg1);
-		await ctx.sendFollowUp('I just sent you a DM!');
+		await ctx.send({ content: 'I just sent you a DM!', ephemeral: true });
 	} else if (ctx) {
 		await ctx.sendFollowUp(msg1);
 	}
@@ -221,8 +223,8 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 					{ name: 'Event Title', value: request.name },
 					{ name: 'Event Description', value: request.description },
 					{ name: 'Virtual Event', value: (request.virtual_event ? 'yes' : 'no'), inline: true },
-					{ name: 'City', value: `${request.city} `, inline: true },
-					{ name: 'Country', value: `${request.country} `, inline: true },
+					{ name: 'City', value: `${ServiceUtils.prepEmbedField(request.city)}`, inline: true },
+					{ name: 'Country', value: `${ServiceUtils.prepEmbedField(request.country)}`, inline: true },
 					{ name: 'Event Start', value: request.start_date, inline: true },
 					{ name: 'Event End', value: request.end_date, inline: true },
 					{ name: 'Event URL', value: `${request.event_url} `, inline: true },

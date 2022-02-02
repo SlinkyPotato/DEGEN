@@ -1,5 +1,65 @@
 # Changelog
 
+## 2.7.0-RELEASE (2022-01-18)
+
+1. Add more stability to opt-in messages
+2. Add account commands
+   - /account link (renamed from /account verify)
+   - /account list
+   - /account unlink
+3. Restrict DEGEN to certain discord servers
+4. Upgrade discord.js -> 13.6.0, upgrade slash-create -> 5.0.3
+5. Introduce basic `/claim` command and prompt user for opt-in on slash command
+6. Increase poap max time to 12 hours
+7. Add poap expiration cron job
+8. Enhance poap distribution to with ephemeral
+   - fix timeout reply after poap distribution
+   - enhance poap distribution loop
+   - enhance poap end
+9. Parse blank strings for msg embed display
+10. Prompt users to DM delivery is /claim is executed from channel
+11. Message enhancements to twitter flow
+
+## 2.6.2-RELEASE (2022-01-13)
+
+1. Handle twitter spaces exceptions
+   - update twitter settings schema validation
+   - add log msg for twitter flow
+   - stability enhancements
+
+## 2.6.1-RELEASE (2022-01-11)
+
+1. Fix prod keys
+
+## 2.6.0-RELEASE (2022-01-11)
+
+1. Stability check
+   - add sentry github action
+   - fix poap mint api call
+   - fix auto end for DM event
+   - fix gm regex for single line
+   - refactor poap start/stop tracking event
+2. Twitter stability check
+   - handle timeout for autoend situation
+   - better error messaging
+   - stability enhancements
+   - add forced start script
+3. Fix key github action reference for twitter spaces
+   - remove extra logging
+   - send twitter auth confirmation only on direct auth flow
+
+## 2.5.2-RELEASE (2022-01-09)
+
+1. Address sentry.io issues 2022-01-08
+   - add type guards to messageCreate sentry method
+   - handle failed to send poap message edge case
+   - upgrade discord.js -> 13.5.1
+   - upgrade slash-create -> 5.0.2
+
+## 2.5.1-RELEASE (2022-01-07)
+
+1. Manually assign DSN, reference bot for gm message, add discord server on event
+
 ## 2.5.0-RELEASE (2022-01-03)
 
 1. Integrate sentry.io

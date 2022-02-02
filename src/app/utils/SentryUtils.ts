@@ -26,17 +26,26 @@ export function command(target: SlashCommand, propertyKey: string, descriptor: P
 			
 			scope.setSpan(transaction);
 			
+			const userId = (ctx.member?.id) ? ctx.member?.id : '';
+			const userName = (ctx.member?.user?.username) ? ctx.member?.user?.username : '';
+			const discriminator = (ctx.member?.user?.discriminator) ? ctx.member?.user?.discriminator : '';
+			const nickName = (ctx.member?.nick) ? ctx.member?.nick : '';
+			
 			scope.setUser({
-				id: ctx.member?.id,
-				username: ctx.member?.user.username,
-				discriminator: ctx.member?.user.discriminator,
-				nickname: ctx.member?.nick,
+				id: userId,
+				username: userName,
+				discriminator: discriminator,
+				nickname: nickName,
 			});
 			
+			const guildId = (ctx.guildID) ? ctx.guildID : '';
+			const channelId = (ctx.channelID) ? ctx.channelID : '';
+			const commandName = (ctx.commandName) ? ctx.commandName : '';
+			
 			scope.setTags({
-				guild: ctx.guildID,
-				channelId: ctx.channelID,
-				commandName: ctx.commandName,
+				guild: guildId,
+				channelId: channelId,
+				commandName: commandName,
 			});
 			
 			try {
@@ -68,15 +77,22 @@ export function message_event(target: DiscordEvent, propertyKey: string, descrip
 			
 			scope.setSpan(transaction);
 			
+			const authorId = (message.author?.id?.toString()) ? message.author?.id?.toString() : '';
+			const authorUserName = (message.author?.username) ? message.author?.username : '';
+			const discriminator = (message.author?.discriminator) ? message.author?.discriminator : '';
+			
 			scope.setUser({
-				id: message.author.id.toString(),
-				username: message.author.username,
-				discriminator: message.author.discriminator,
+				id: authorId,
+				username: authorUserName,
+				discriminator: discriminator,
 			});
 			
+			const guildId = (message.guild?.id?.toString()) ? message.guild?.id?.toString() : '';
+			const channelId = message.channel?.id?.toString() ? message.channel?.id?.toString() : '';
+			
 			scope.setTags({
-				guild: message.guild?.id.toString(),
-				channelId: message.channel.id.toString(),
+				guild: guildId,
+				channelId: channelId,
 				event: 'messageCreate',
 			});
 			

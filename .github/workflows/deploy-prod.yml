@@ -38,12 +38,29 @@ jobs:
           HD_MONGODB_PASS: ${{secrets.PROD_MONGODB_PASS}}
           HD_MONGODB_CLUSTER: ${{secrets.PROD_MONGODB_CLUSTER}}
           HD_LOGDNA_TOKEN: ${{secrets.PROD_LOGDNA_TOKEN}}
-          HD_TWITTER_API_TOKEN: ${{secrets.PROD_TWITTER_API_KEY}}
+          HD_TWITTER_API_TOKEN: ${{secrets.PROD_TWITTER_API_TOKEN}}
           HD_TWITTER_API_SECRET: ${{secrets.PROD_TWITTER_API_SECRET}}
           HD_TWITTER_BEARER_TOKEN: ${{secrets.PROD_TWITTER_BEARER_TOKEN}}
-          HD_TWITTER_ACCESS_TOKEN_SECRET: ${{secrets.PROD_TWITTER_API_SECRET}}
+          HD_TWITTER_ACCESS_TOKEN: ${{secrets.PROD_TWITTER_ACCESS_TOKEN}}
+          HD_TWITTER_ACCESS_TOKEN_SECRET: ${{secrets.PROD_TWITTER_ACCESS_TOKEN_SECRET}}
+          HD_TWITTER_CLIENT_ID: ${{secrets.PROD_TWITTER_CLIENT_ID}}
+          HD_TWITTER_CLIENT_SECRET: ${{secrets.PROD_TWITTER_CLIENT_SECRET}}
           HD_POAP_DOMAIN: ${{secrets.PROD_POAP_DOMAIN}}
           HD_POAP_AUDIENCE: ${{secrets.PROD_POAP_AUDIENCE}}
           HD_POAP_CLIENT_ID: ${{secrets.PROD_POAP_CLIENT_ID}}
           HD_POAP_CLIENT_SECRET: ${{secrets.PROD_POAP_CLIENT_SECRET}}
           HD_SENTRY_IO_DSN: ${{secrets.PROD_SENTRY_IO_DSN}}
+      - name: Get current package version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.1.0
+      - name: Sentry Release
+        uses: getsentry/action-release@v1.1.6
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          sourcemaps: './dist'
+        with:
+          environment: 'production'
+          version: 'degen@${{ steps.package-version.outputs.current-version }}'
+          sourcemaps: './dist'

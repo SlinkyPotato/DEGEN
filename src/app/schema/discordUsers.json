@@ -4,7 +4,7 @@
     "required": [
       "userId",
       "tag",
-      "isDMEnabled",
+      "isDMEnabled"
     ],
     "properties": {
       "userId": {

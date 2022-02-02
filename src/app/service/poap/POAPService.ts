@@ -11,6 +11,7 @@ import { storePresentMembers } from './start/StartPOAP';
 import { POAPUnclaimedParticipants } from '../../types/poap/POAPUnclaimedParticipants';
 import { POAPTwitterUnclaimedParticipants } from '../../types/poap/POAPTwitterUnclaimedParticipants';
 import ValidationError from '../../errors/ValidationError';
+import cron, { ScheduledTask } from 'node-cron';
 
 const POAPService = {
 	runAutoEndSetup: async (client: DiscordClient, platform: string): Promise<void> => {
@@ -46,9 +47,14 @@ const POAPService = {
 		for (const expiredEvent of expiredEventsList) {
 			const poapGuild: Guild = await client.guilds.fetch(expiredEvent.discordServerId);
 			const poapOrganizer: GuildMember = await poapGuild.members.fetch(expiredEvent.discordUserId);
-			EndPOAP(poapOrganizer, platform).catch(Log.error);
+			EndPOAP(poapOrganizer, platform).catch((e) => {
+				if (e instanceof ValidationError) {
+					poapOrganizer.send({ content: `${e?.message}` }).catch(Log.error);
+				}
+				Log.error(e);
+			});
 		}
-		Log.debug(`all expired events ended for ${platform}`);
+		Log.debug(`all expired events ended for ${platform} and possibly pending user input, now checking for active events`);
 		const poapSettingsActiveEventsCursor: Cursor<POAPSettings | POAPTwitterSettings> = await poapSettingsDB.find({
 			isActive: true,
 			endTime: {
@@ -62,6 +68,7 @@ const POAPService = {
 		});
 		Log.debug(`found ${activeEventsList.length} active events for ${platform}`);
 
+		// Skip twitter active event check (since it uses a participant check in system)
 		for (const activeEvent of activeEventsList) {
 			if (platform == constants.PLATFORM_TYPE_DISCORD) {
 				try {
@@ -70,7 +77,7 @@ const POAPService = {
 					if (!channelChoice) {
 						throw new ValidationError('Missing channel');
 					}
-					await storePresentMembers(db, channelChoice).catch();
+					storePresentMembers(db, channelChoice).catch(Log.error);
 				} catch (e) {
 					LogUtils.logError('failed trying to store present members for active poap event', e);
 				}
@@ -105,6 +112,7 @@ const POAPService = {
 	},
 	
 	clearExpiredPOAPs: async (): Promise<void> => {
+		Log.debug('starting cleanup of expired POAPs');
 		try {
 			const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 			const unclaimedPOAPsCollection: Collection<POAPUnclaimedParticipants> = await db.collection(constants.DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS);
@@ -121,10 +129,20 @@ const POAPService = {
 				},
 			}).catch(Log.error);
 			
-			Log.debug('deleted all expired poaps');
+			Log.debug('deleted all expired POAPs');
 		} catch (e) {
-			LogUtils.logError('failed to delete expired poaps', e);
+			LogUtils.logError('failed to delete expired POAPs', e);
 		}
+	},
+	
+	setupPOAPCleanupCronJob: (): void => {
+		Log.debug('setting up cron job for checking expired POAPs');
+		// run cron job every 23 hours
+		const task: ScheduledTask = cron.schedule('* 23 * * *', () => {
+			POAPService.clearExpiredPOAPs().catch(Log.error);
+		});
+		task.start();
+		Log.debug('cron job setup for checking expired POAPs');
 	},
 };
 

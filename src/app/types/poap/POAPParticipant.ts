@@ -6,7 +6,7 @@ export interface POAPParticipant extends Collection {
 	discordUserId: string,
 	discordUserTag: string,
 	startTime: string,
-	endTime: string,
+	endTime: string | null,
 	voiceChannelId: string,
 	discordServerId: string,
 	durationInMinutes: number,

@@ -202,18 +202,22 @@ const ServiceUtils = {
 	},
 	
 	sendContextMessage: async (
+		msg: MessageOptions | MessageOptionsSlash,
 		isDmOn: boolean,
 		guildMember: GuildMember,
-		ctx: CommandContext,
-		msg: MessageOptions | MessageOptionsSlash,
+		ctx?: CommandContext | undefined | null,
+		channelExecution?: TextChannel | null,
 	): Promise<boolean | Message | MessageSlash> => {
 		if (isDmOn) {
 			return await guildMember.send(msg as MessageOptions);
-		} else {
+		} else if (ctx) {
 			msg = msg as MessageOptionsSlash;
 			msg.ephemeral = true;
 			return await ctx.send(msg);
+		} else if (channelExecution) {
+			return await channelExecution.send(msg as MessageOptions);
 		}
+		throw new Error('Failed to send msg to user');
 	},
 	
 	generateEmbedFieldsMessage: (
@@ -247,17 +251,19 @@ const ServiceUtils = {
 		} as MessageOptionsSlash;
 	},
 	
-	isDMEnabledForUser: async (member: GuildMember, dbUsersCollection: MongoCollection<DiscordUserCollection>): Promise<boolean> => {
-		await member.fetch();
-		const result: DiscordUserCollection | null = await dbUsersCollection.findOne({
-			userId: member.id.toString(),
-		});
-		
-		if (result == null) {
-			return false;
-		}
-		
-		return result.isDMEnabled;
+	isDMEnabledForUser: async (_: GuildMember, __: MongoCollection<DiscordUserCollection>): Promise<boolean> => {
+		// TODO: lookup isPOAPDeliveryEnabled in ethWalletSettings
+		return false;
+		// await member.fetch();
+		// const result: DiscordUserCollection | null = await dbUsersCollection.findOne({
+		// 	userId: member.id.toString(),
+		// });
+		//
+		// if (result == null) {
+		// 	return false;
+		// }
+		//
+		// return result.isDMEnabled;
 	},
 
 	addActiveDiscordServer: async (guild: Guild): Promise<void> => {

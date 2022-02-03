@@ -92,7 +92,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles: stri
 		embeds: [confirmationMsg],
 		ephemeral: true,
 	};
-	await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, endConfigMsg);
+	await ServiceUtils.sendContextMessage(endConfigMsg, isDmOn, guildMember, ctx);
 	return;
 };
 
@@ -167,7 +167,7 @@ export const askForGrantOrRemoval = async (
 		} as MessageOptionsSlash;
 	}
 	
-	let message = await ServiceUtils.sendContextMessage(isDmOn, guildMember, ctx, msg1);
+	let message = await ServiceUtils.sendContextMessage(msg1, isDmOn, guildMember, ctx);
 	
 	if (isDmOn) {
 		message = message as Message;

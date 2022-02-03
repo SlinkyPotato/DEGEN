@@ -1,7 +1,7 @@
 import { VoiceState } from 'discord.js';
 import { DiscordEvent } from '../types/discord/DiscordEvent';
 import { LogUtils } from '../utils/Log';
-import HandleParticipantDuringEvent from './poap/HandleParticipantDuringEvent';
+import HandleParticipantDuringEvent from './tracking/HandleParticipantDuringEvent';
 
 /**
  * voiceStateUpdate

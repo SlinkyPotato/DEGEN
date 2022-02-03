@@ -1,5 +1,6 @@
 import {
 	CommandContext,
+	CommandOptionType,
 	SlashCommand,
 	SlashCreator,
 } from 'slash-create';
@@ -22,6 +23,24 @@ export default class POAP extends SlashCommand {
 				duration: 1,
 			},
 			defaultPermission: true,
+			options: [
+				{
+					name: 'platform',
+					type: CommandOptionType.STRING,
+					description: 'Platform where users can claim from where they attended the event.',
+					required: false,
+					choices: [
+						{
+							name: 'Discord',
+							value: constants.PLATFORM_TYPE_DISCORD,
+						},
+						{
+							name: 'Twitter Spaces',
+							value: constants.PLATFORM_TYPE_TWITTER,
+						},
+					],
+				},
+			],
 		});
 	}
 

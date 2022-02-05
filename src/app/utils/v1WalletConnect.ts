@@ -3,15 +3,14 @@ import { DMChannel, User, MessageAttachment } from 'discord.js';
 import Canvas from 'canvas';
 import QRCode from 'qrcode';
 import Log from './Log';
-import MongoDbUtils from '../utils/MongoDbUtils';
-import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
-import constants from '../service/constants/constants';
-import { Db, Collection, UpdateWriteOpResult } from 'mongodb';
+
 import { convertUtf8ToHex } from '@walletconnect/utils';
 import { ethers } from 'ethers';
+import { ConnectedAddress } from '../types/discord/ConnectedAddress';
+import { addUserAddress } from './mongoDbOperations/addUserAddress';
 
 
-export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<any> => {
+export const v1WalletConnect = async (user: User, dmChannel: DMChannel, connectedAddresses: ConnectedAddress[] | null):Promise<any> => {
 // Create a connector
 	Log.debug('starting v1 WalletConnect');
 	let uri;
@@ -35,7 +34,6 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<
 		const attachment = new MessageAttachment(canvas.toBuffer(), 'qr-code.png');
 		try {
 			if (dmChannel) {
-				
 				await dmChannel.send({ content: 'Scan the QR code with your mobile app to connect to DEGEN', files: [attachment] });
 			}
 		} catch (e) {
@@ -58,33 +56,36 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel):Promise<
 			throw error;
 		}
 		// Get provided accounts and chainId
-		const { accounts, chainId } = payload.params[0];
-		const chain = chainId === 1 ? 'ETH' : 'MATIC';
-		Log.debug(chainId);
+		Log.debug(payload.params[0]);
+		const chainId = payload.params[0].chainId.toString();
+		const { accounts }: {accounts: string[0]} = payload.params[0];
+		const addressToConnect: ConnectedAddress = { address: accounts[0], chainId, nickname: null };
+
 		try {
-			// sign a message from the connected account
-			const signedMessage = await signMessage(connector, user, accounts);
-			// figure out if chainId is ETH or Matic and save the address to the correct place
-			Log.debug(signedMessage);
-			if (signedMessage) {
-				const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-				const userSettingsCol: Collection<DiscordUserCollection> = db.collection(constants.DB_COLLECTION_DISCORD_USERS);
-				if (chain === 'ETH') {
-					const result: UpdateWriteOpResult = await userSettingsCol.updateOne({
-						userId: user.id.toString(),
-					},
-					{
-						$push: { 'walletSettings.ETH':
-                        { isPOAPDeliveryEnabled: true, publicAddress: accounts } },
-					},
-					);
-					Log.debug(result);
-					if (await result.result.ok) {
-						await dmChannel.send({ content: `Connected ${user.tag} to Eth Public Address: ${accounts}` });
-					}
+			// if the address is already connected, notify user
+			if (connectedAddresses) {
+				const addressAlreaadyConected: boolean = connectedAddresses.some(item => item.address === addressToConnect.address);
+				if (addressAlreaadyConected) {
+					return await dmChannel.send(`Address: ${accounts[0]} is already connected`);
 				}
 			}
-		}catch (e) {
+			// sign a message from the connected account
+			
+			const signedMessage = await signMessage(connector, user, accounts);
+			if (signedMessage) {
+				// add a new address to the DM
+				const result = await addUserAddress(user, addressToConnect);
+				Log.debug(result);
+				if (result) {
+					await dmChannel.send({ content: `Connected ${user.tag} to Eth Public Address: ${accounts}` });
+				}
+			} else {
+				// addressAlreadyConnected
+				Log.debug('Sign Message Failed');
+				// add to additional new chain?
+			}
+			
+		} catch (e) {
 			return e;
 		}
 		Log.debug(`accounts: ${accounts}, chainId: ${chainId}`);
@@ -121,8 +122,13 @@ const signMessage = async (connector: WalletConnect, user: User, accounts: strin
 	// Sign message
 	try {
 		Log.debug('ask user to sign message');
+		const waitFor = (delay: number) => new Promise(resolve => setTimeout(resolve, delay));
+
+		await waitFor(500);
+
 		const result = await connector.signPersonalMessage(msgParams);
 		const signingAddress = ethers.utils.verifyMessage(message, result);
+		// Need to add a time out here and error message
 		Log.debug(signingAddress);
         
 		Log.debug(`Signed Message result: ${result}`);

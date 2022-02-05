@@ -23,54 +23,32 @@
         "bsonType": ["boolean"],
         "description": "True if discord member is a premium DEGEN pro subscriber, false otherwise"
       },
-      "walletSettings": {
+      "connectedAddresses": {
         "bsonType": ["null", "array"],
         "description": "Wallet details.",
         "properties": {
-          "ETH": {
-            "bsonType": ["null", "array"],
-            "description": "List of public addresses.",
+          "adress": {
+            "bsonType": ["null", "string"],
+            "description": "Public addresses.",
             "minItems": 0,
-            "uniqueItems": true,
-            "items": {
-              "bsonType": ["null", "object"],
-              "description": "Eth address",
-              "properties": {
-                "publicAddress": {
-                  "bsonType": ["null", "string"],
-                  "uniqueItems": true,
-                  "minItems": 0,
-                  "description": "Eth address"
-                },
-                "isPOAPDeliveryEnabled": {
-                  "bsonType": ["string", "null"],
-                  "description": "Enabled Address"
-                }
-              }
-            }
+            "uniqueItems": true
           },
-          "MATIC": {
-            "bsonType": ["null", "array"],
-            "description": "List of public addresses and whether or not POAP is enabled",
+          "chainId": {
+            "bsonType": ["null", "string"],
+            "description": "ChainlistId of the address.",
             "minItems": 0,
-            "uniqueItems": true,
-            "items": {
-              "bsonType": ["null", "object"],
-              "description": "MATIC address",
-              "properties": {
-                "publicAddress": {
-                  "bsonType": ["null", "string"],
-                  "uniqueItems": true,
-                  "minItems": 0,
-                  "description": "MATIC address"
-                },
-                "isPOAPDeliveryEnabled": {
-                  "bsonType": ["string", "null"],
-                  "description": "Enabled Address"
-                }
-              }
-            }
+            "uniqueItems": true
+          },
+          "nickname": {
+            "bsonType": ["null", "string"],
+            "description": "An addresses nickname.",
+            "minItems": 0,
+            "uniqueItems": true
           }
+      },
+      "POAPAddress": {
+        "bsonType": ["string"],
+        "description": "Address DEGEN sends POAPs too"
         }
       }
     }

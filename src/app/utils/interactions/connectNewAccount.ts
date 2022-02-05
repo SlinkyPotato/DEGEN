@@ -1,6 +1,6 @@
-import { DEGENInteraction } from '../../types/DEGENInteraction';
+import { DEGENButtonInteraction } from '../../types/DEGENButtonInteraction';
 
-export const connectNewAccount: DEGENInteraction = {
+export const connectNewAccount: DEGENButtonInteraction = {
 	prompt: 'No addresses found for your Discord ID. Please connect and ETH or MATIC address to recieve POAPs',
 	buttons: [
 		{

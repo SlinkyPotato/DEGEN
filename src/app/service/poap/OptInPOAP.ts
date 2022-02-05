@@ -12,7 +12,7 @@ import {
 	MessageEmbed,
 	User,
 } from 'discord.js';
-import { sendMessageWithInteractions } from '../../utils/sendMessageWithInteraction';
+import { sendButtonInteraction } from '../../utils/interactionBuilders/sendButtonInteraction';
 import { connectNewAccount } from '../../utils/interactions/connectNewAccount';
 import { updateUserAddresses } from '../../utils/interactions/updateUserAddresses';
 import { createConnectedAddressEmbed } from '../../utils/createConnectedAddressEmbed';
@@ -46,37 +46,38 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 		}
 	}
 
+	if (discordUserDocument) {
 	// User has not connected an address
-	if (!discordUserDocument?.connectedAddresses) {
-		Log.debug('DiscordUser.walletSettings does not exist. Ask user to connect their wallet.');
-		try{
-			await sendMessageWithInteractions(
-				connectNewAccount,
-				dmChannel,
-				user,
-				null);
+		Log.debug(discordUserDocument.connectedAddresses.length > 0);
+		if (!discordUserDocument?.connectedAddresses || discordUserDocument.connectedAddresses.length === 0) {
+			Log.debug('DiscordUser.walletSettings does not exist. Ask user to connect their wallet.');
+			try{
+				await sendButtonInteraction(
+					connectNewAccount,
+					dmChannel,
+					user,
+				);
 			// Do you want to give this account a nickname?
-		} catch (e) {
-			LogUtils.logError('OptInPOAP.ts error after connectNewAccount interaction', e);
-		}
-	}
-
-	// User has connected an address
-	if (discordUserDocument?.connectedAddresses) {
+			} catch (e) {
+				LogUtils.logError('OptInPOAP.ts error after connectNewAccount interaction', e);
+			}
+		} else if (discordUserDocument?.connectedAddresses) {
 		// show user their connected Addresses
-		Log.debug('DiscordUser has a connectedAddress. Ask user to connect new, change live, or delete an address.');
-		try{
-			const embeds: MessageEmbed = createConnectedAddressEmbed(user, discordUserDocument);
-			await dmChannel.send({ embeds: [embeds] });
-			await sendMessageWithInteractions(
-				updateUserAddresses,
-				dmChannel,
-				user,
-				discordUserDocument);
-		} catch (e) {
-			LogUtils.logError('OptInPOAP.ts error after updateUserAddresses interaction', e);
+			Log.debug('DiscordUser has a connectedAddress. Ask user to connect new, change live, or delete an address.');
+			try{
+				const embeds: MessageEmbed = createConnectedAddressEmbed(user, discordUserDocument);
+				await dmChannel.send({ embeds: [embeds] });
+				await sendButtonInteraction(
+					updateUserAddresses,
+					dmChannel,
+					user,
+					discordUserDocument,
+				);
+			} catch (e) {
+				LogUtils.logError('OptInPOAP.ts error after updateUserAddresses interaction', e);
+			}
+			Log.debug('user settings update skipped');
 		}
-		Log.debug('user settings update skipped');
 	} else {
 		Log.debug(`user is opted in to dms, userId: ${user.id}`);
 		await dmChannel.send({ content: 'I will send you POAPs as soon as I get them!' }).catch(e => {

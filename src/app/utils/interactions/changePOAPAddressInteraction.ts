@@ -1,12 +1,12 @@
 import { DMChannel, User } from 'discord.js';
 import { DiscordUserCollection } from '../../types/discord/DiscordUserCollection';
-import { sendMessageWithInteractions } from '../sendMessageWithInteraction';
 import { ConnectedAddress } from '../../types/discord/ConnectedAddress';
 import { MessageSelectOptionData } from 'discord.js';
-import { DEGENInteraction } from '../../types/DEGENInteraction';
+import { DEGENMenuInteraction } from '../../types/DEGENMenuInteraction';
 import Log from '../Log';
+import { sendMenuInteraction } from '../interactionBuilders/sendMenuInteraction';
 
-export const changePOAPAddressInteraction = (user: User, dmChannel:DMChannel, discordUserDocument: DiscordUserCollection, connectedAddresses: ConnectedAddress[]): Promise<DEGENInteraction> => {
+export const changePOAPAddressInteraction = (user: User, dmChannel:DMChannel, discordUserDocument: DiscordUserCollection, connectedAddresses: ConnectedAddress[]): Promise<DEGENMenuInteraction> => {
 
 	Log.debug('changePOAPAddressInteraction started');
 	const menuItems: MessageSelectOptionData[] = connectedAddresses.map((address, i) => {
@@ -18,13 +18,13 @@ export const changePOAPAddressInteraction = (user: User, dmChannel:DMChannel, di
 	});
 
 
-	const dEGENInteraction: DEGENInteraction = {
+	const interaction: DEGENMenuInteraction = {
 		prompt: 'Select the address you want to be live.',
 		menuOptions: menuItems,
 		functionToCall: 'updatePOAPAddress',
 	};
 
-	return sendMessageWithInteractions(dEGENInteraction, dmChannel, user, discordUserDocument);
+	return sendMenuInteraction(interaction, dmChannel, user, discordUserDocument);
 };
 
 // when the user hits changePOAPAddress, send them the menu interaction back

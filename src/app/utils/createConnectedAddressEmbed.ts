@@ -1,14 +1,14 @@
 import { User } from 'discord.js';
 import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
+import { getChain } from 'evm-chains';
 
 export const createConnectedAddressEmbed = (user: User, discordUserDocument: DiscordUserCollection):any => {
     
 	const connectedAddresses: {name: string, value: string, inline: boolean}[] = discordUserDocument.connectedAddresses.map(address => {
 		
-		const nickname = address.nickname ? address.nickname : 'No nickname';
         
 		return {
-			name: nickname,
+			name: `${getChain(parseInt(address.chainId)).name}`,
 			value: `Address: ${address.address} ChainId: ${address.chainId}`,
 			inline: false,
 		};

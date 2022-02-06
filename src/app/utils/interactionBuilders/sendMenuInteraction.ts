@@ -8,13 +8,13 @@ import {
 import Log, { LogUtils } from '../Log';
 import { DiscordUserCollection } from '../../types/discord/DiscordUserCollection';
 import { functionTable } from '../interactions/functionTable';
-import { DEGENMenuInteraction } from '../../types/DEGENMenuInteraction';
+import { DEGENMenuInteraction } from '../../types/interactions/DEGENMenuInteraction';
 
 export const sendMenuInteraction = async (
 	dEGENInteraction: DEGENMenuInteraction,
 	dmChannel:DMChannel,
 	user:User,
-	discordUserDocument: DiscordUserCollection | null): Promise<any> => {
+	discordUserDocument: DiscordUserCollection): Promise<any> => {
 	
 
 	const { prompt, menuOptions, functionToCall } = dEGENInteraction;

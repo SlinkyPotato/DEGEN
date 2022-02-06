@@ -6,14 +6,14 @@ import {
 	User,
 } from 'discord.js';
 import Log, { LogUtils } from '../Log';
-import { DEGENButtonInteraction } from '../../types/DEGENButtonInteraction';
+import { DEGENButtonInteraction } from '../../types/interactions/DEGENButtonInteraction';
 import { functionTable } from '../interactions/functionTable';
 import { DiscordUserCollection } from '../../types/discord/DiscordUserCollection';
 
 export const sendButtonInteraction = async (dEGENInteraction: DEGENButtonInteraction,
 	dmChannel:DMChannel,
 	user:User,
-	discordUserDocument?: DiscordUserCollection,
+	discordUserDocument: DiscordUserCollection,
 ): Promise<any> => {
 	
 

@@ -1,4 +1,4 @@
-import { DiscordButtons } from './discord/DiscordButtons';
+import { DiscordButtons } from './DiscordButtons';
 export interface DEGENButtonInteraction {
     prompt: string,
     buttons: DiscordButtons[],

@@ -1,4 +1,4 @@
-import { DEGENButtonInteraction } from '../../types/DEGENButtonInteraction';
+import { DEGENButtonInteraction } from '../../../types/interactions/DEGENButtonInteraction';
 
 export const updateUserAddresses: DEGENButtonInteraction = {
 	prompt: 'What would you like to do now?',

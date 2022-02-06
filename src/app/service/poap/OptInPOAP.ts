@@ -13,8 +13,8 @@ import {
 	User,
 } from 'discord.js';
 import { sendButtonInteraction } from '../../utils/interactionBuilders/sendButtonInteraction';
-import { connectNewAccount } from '../../utils/interactions/connectNewAccount';
-import { updateUserAddresses } from '../../utils/interactions/updateUserAddresses';
+import { connectNewAccount } from '../../utils/interactions/ButtonInteractions/connectNewAccount';
+import { updateUserAddresses } from '../../utils/interactions/ButtonInteractions/updateUserAddresses';
 import { createConnectedAddressEmbed } from '../../utils/createConnectedAddressEmbed';
 
 const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
@@ -56,7 +56,9 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 					connectNewAccount,
 					dmChannel,
 					user,
+					discordUserDocument,
 				);
+				
 			// Do you want to give this account a nickname?
 			} catch (e) {
 				LogUtils.logError('OptInPOAP.ts error after connectNewAccount interaction', e);

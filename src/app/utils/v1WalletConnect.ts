@@ -59,7 +59,7 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel, connecte
 		Log.debug(payload.params[0]);
 		const chainId = payload.params[0].chainId.toString();
 		const { accounts }: {accounts: string[0]} = payload.params[0];
-		const addressToConnect: ConnectedAddress = { address: accounts[0], chainId, nickname: null };
+		const addressToConnect: ConnectedAddress = { address: accounts[0], chainId };
 
 		try {
 			// if the address is already connected, notify user

@@ -123,10 +123,6 @@ export const askForParticipantsList = async (guildMember: GuildMember, platform:
 		const fileResponse = await axios.get(participantAttachment.url);
 		participantsList = ServiceUtils.parseCSVFile(fileResponse.data);
 		
-		if (!isDmOn) {
-			await message.delete();
-		}
-		
 		if ((participantsList as POAPFileParticipant[])[0].discordUserId == null) {
 			if ((participantsList as TwitterPOAPFileParticipant[])[0].twitterUserId == null) {
 				throw new Error('missing ID');

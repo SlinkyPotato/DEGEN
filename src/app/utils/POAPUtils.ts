@@ -135,10 +135,6 @@ const POAPUtils = {
 			throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
 		}
 		
-		if (!isDmOn) {
-			await message.delete();
-		}
-		
 		Log.info(`obtained poap links attachment in discord: ${poapLinksFile.url}, poapOrganizerId: ${guildMember.id}`);
 		return poapLinksFile;
 	},

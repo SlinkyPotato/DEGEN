@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.2-RELEASE (2022-02-07)
+
+1. Remove deletion of message attachments
+
 ## 2.8.1-RELEASE (2022-01-31)
 
 1. Disable all DMs

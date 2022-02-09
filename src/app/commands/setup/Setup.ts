@@ -7,6 +7,7 @@ import Log, { LogUtils } from '../../utils/Log';
 import { command } from '../../utils/SentryUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 import SetupDEGEN from '../../service/setup/SetupDEGEN';
+import ValidationError from '../../errors/ValidationError';
 
 export default class Setup extends SlashCommand {
 	constructor(creator: SlashCreator) {
@@ -44,7 +45,12 @@ export default class Setup extends SlashCommand {
 			
 			await ctx.send({ content: '#degen-setup created', ephemeral: true }).catch(Log.error);
 		} catch (e) {
+			if (e instanceof ValidationError) {
+				await ServiceUtils.sendOutErrorMessage(ctx, `${e?.message}`);
+				return;
+			}
 			Log.error(e);
+			await ServiceUtils.sendOutErrorMessage(ctx);
 		}
 	}
 }

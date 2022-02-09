@@ -39,4 +39,5 @@ export default Object.freeze({
 	POAP_ADMIN_TYPE_ENUM_ROLE: 'ROLE',
 	
 	FEATURE_REQUEST_CHANNEL_INVITE: 'https://discord.gg/yHTQkERpsD',
+	SETUP_HOW_TO_MOVE_DEGEN_ROLE: 'https://degen-public.s3.amazonaws.com/public/assets/howto_arrange_authorized_degens_role.gif',
 });

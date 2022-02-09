@@ -13,11 +13,12 @@ import {
 	MessageButton,
 	MessageEmbedOptions,
 	MessageOptions,
+	OverwriteResolvable,
 	Permissions,
-	Snowflake,
+	Role,
 	StageChannel,
 	TextChannel,
-	User,
+	ThreadChannel,
 	VoiceChannel,
 } from 'discord.js';
 import client from '../app';
@@ -44,6 +45,9 @@ import MongoDbUtils from './MongoDbUtils';
 import constants from '../service/constants/constants';
 import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 import { DiscordServerCollection } from '../types/discord/DiscordServerCollection';
+import apiKeys from '../service/constants/apiKeys';
+import { ChannelTypes } from 'discord.js/typings/enums';
+import { getRequiredChannelPermissionsForDegenAuthorized } from '../service/setup/SetupDEGEN';
 
 const ServiceUtils = {
 	async getGuildAndMember(guildId: string, userId: string): Promise<{ guild: Guild, guildMember: GuildMember }> {
@@ -53,31 +57,6 @@ const ServiceUtils = {
 			guildMember: await guild.members.fetch(userId),
 		};
 	},
-
-	async getGuildMemberFromUser(user: User, guildID: string): Promise<GuildMember> {
-		const guild = await client.guilds.fetch(guildID);
-		return await guild.members.fetch(user.id);
-	},
-
-	async getMembersWithRoles(guild: Guild, roles: string[]): Promise<Collection<Snowflake, GuildMember>> {
-		const guildMembers = await guild.members.fetch();
-		return guildMembers.filter(member => {
-			return ServiceUtils.hasSomeRole(member, roles);
-		});
-	},
-
-	hasRole(guildMember: GuildMember, role: string): boolean {
-		return guildMember.roles.cache.some(r => r.id === role);
-	},
-
-	hasSomeRole(guildMember: GuildMember, roles: string[]): boolean {
-		for (const role of roles) {
-			if (ServiceUtils.hasRole(guildMember, role)) {
-				return true;
-			}
-		}
-		return false;
-	},
 	
 	isDiscordAdmin(guildMember: GuildMember): boolean {
 		return guildMember.permissions.has(Permissions.FLAGS.ADMINISTRATOR);
@@ -85,16 +64,6 @@ const ServiceUtils = {
 	
 	isDiscordServerManager(guildMember: GuildMember): boolean {
 		return guildMember.permissions.has(Permissions.FLAGS.MANAGE_GUILD);
-	},
-	
-	formatDisplayDate(dateIso: string): string {
-		const options: Intl.DateTimeFormatOptions = {
-			weekday: 'long',
-			day: 'numeric',
-			month: 'long',
-			year: 'numeric',
-		};
-		return (new Date(dateIso)).toLocaleString('en-US', options);
 	},
 	
 	getAllVoiceChannels(guildMember: GuildMember): Collection<string, VoiceChannel | StageChannel> {
@@ -124,6 +93,96 @@ const ServiceUtils = {
 			throw new ValidationError('Could not find message, please try command again');
 		}
 		return message.content;
+	},
+	
+	/**
+	 * Check if the channel is private where @everyone cannot view it
+	 * @param channel
+	 * @param guild
+	 */
+	isChannelPrivate(channel: TextChannel | ThreadChannel, guild: Guild): boolean {
+		return !channel.permissionsFor(guild.roles.everyone).has(Permissions.FLAGS.VIEW_CHANNEL);
+	},
+	
+	isChannelSetupForExecutor(guildMember: GuildMember, channel: TextChannel): boolean {
+		if (!(channel.permissionsFor(guildMember).has(Permissions.FLAGS.VIEW_CHANNEL)
+			&& channel.permissionsFor(guildMember).has(Permissions.FLAGS.SEND_MESSAGES)
+			&& channel.permissionsFor(guildMember).has(Permissions.FLAGS.SEND_MESSAGES_IN_THREADS)
+			&& channel.permissionsFor(guildMember).has(Permissions.FLAGS.ATTACH_FILES)
+			&& channel.permissionsFor(guildMember).has(Permissions.FLAGS.CREATE_PRIVATE_THREADS)
+			&& channel.permissionsFor(guildMember).has(Permissions.FLAGS.MANAGE_MESSAGES)
+			&& channel.permissionsFor(guildMember).has(Permissions.FLAGS.MANAGE_THREADS)
+			&& channel.permissionsFor(guildMember).has(Permissions.FLAGS.USE_PRIVATE_THREADS)
+			&& channel.permissionsFor(guildMember).has(Permissions.FLAGS.USE_APPLICATION_COMMANDS))) {
+			Log.debug('channel does not have permission for degen use');
+			return false;
+		}
+		return this.isChannelPrivate(channel, guildMember.guild);
+	},
+	
+	// async getThreadExecution(channel: TextChannel, guildMember: GuildMember): Promise<ThreadChannel> {
+	//	
+	// 	if (!this.isChannelSetupForExecutor(guildMember, channel)) {
+	// 		Log.debug('channel does not have proper permissions');
+	// 		// return this.createChannelForExecution(channel);
+	// 	}
+	//
+	// 	Log.debug('channel is a private thread');
+	// 	return true;
+	// },
+	
+	async createPrivateThreadForExecution(channel: TextChannel, threadName: string): Promise<ThreadChannel> {
+		const thread: ThreadChannel = await channel.threads.create({
+			name: threadName,
+			reason: 'DEGEN command execution',
+		});
+		Log.debug('degen-commands thread created');
+		return thread;
+	},
+	
+	async createPrivateChannelForExecution(guild: Guild, authorizedRole: Role): Promise<TextChannel> {
+		if (!guild.available) {
+			Log.warn(`guild outage for, guildId: ${guild.id}, guildName: ${guild.name}`);
+			throw new Error('failed to setup on downed discord server');
+		}
+		
+		const permissionOverwritesList: OverwriteResolvable[] = [{
+			id: authorizedRole.id,
+			allow: getRequiredChannelPermissionsForDegenAuthorized(),
+		}, {
+			id: apiKeys.DISCORD_BOT_ID,
+			allow: getRequiredChannelPermissionsForDegenAuthorized(),
+		}, {
+			id: guild.roles.everyone.id,
+			deny: [Permissions.FLAGS.VIEW_CHANNEL],
+		}];
+		
+		const setupChannel: TextChannel | void = await guild.channels.create('degen-commands', {
+			reason: 'Setting up DEGEN',
+			type: ChannelTypes.GUILD_TEXT,
+			permissionOverwrites: permissionOverwritesList,
+		}).catch(Log.error);
+		
+		if (setupChannel == null) {
+			throw new Error('failed to setup private channel');
+		}
+		
+		const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		const discordServerCollectionCollection: MongoCollection<DiscordServerCollection> = dbInstance.collection<DiscordServerCollection>(constants.DB_COLLECTION_DISCORD_SERVERS);
+		const resultUpdate = await discordServerCollectionCollection.updateOne({
+			serverId: guild.id,
+		}, {
+			$set: {
+				privateChannelId: setupChannel.id,
+			},
+		});
+		
+		if (resultUpdate == null || resultUpdate.modifiedCount <= 0) {
+			throw new Error('failed to add channelId to db');
+		}
+		
+		Log.debug('degen-commands channel setup');
+		return setupChannel;
 	},
 	
 	async tryDMUser(_: GuildMember, __: string): Promise<boolean> {
@@ -268,20 +327,20 @@ const ServiceUtils = {
 	},
 
 	addActiveDiscordServer: async (guild: Guild): Promise<void> => {
+		Log.debug('attempting to add discord server to db');
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const discordServerCollection = await db.collection<DiscordServerCollection>(constants.DB_COLLECTION_DISCORD_SERVERS);
-		Log.info(`${constants.APP_NAME} active for: ${guild.id}, ${guild.name}`);
 		await discordServerCollection.updateOne({
 			serverId: guild.id.toString(),
 		}, {
 			$set: {
 				serverId: guild.id.toString(),
 				name: guild.name,
-				isDEGENActive: true,
 			},
 		}, {
 			upsert: true,
 		});
+		Log.info(`${constants.APP_NAME} active for: ${guild.id}, ${guild.name}`);
 	},
 };
 

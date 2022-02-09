@@ -58,7 +58,7 @@ export default (): { embeds: any[] } => {
 					name: '-> Useful Links',
 					value: '[BanklessDAO Product Support Center invite](https://discord.gg/85Kb6Qv6gd)\n' +
 						'[Youtube Tutorials](https://www.youtube.com/playlist?list=PLc6o7Cxn7Uq6DQCptSItO5_IQfegCRImb)\n' +
-						'[Docs](https://docs.bankless.community)\n' +
+						'[Documents](https://docs.bankless.community)\n' +
 						'[Feature Request Feedback](' + constants.FEATURE_REQUEST_CHANNEL_INVITE + ')\n' +
 						'[POAP Website](https://poap.xyz/)',
 					inline: false,

@@ -4,7 +4,6 @@
     "required": [
       "serverId",
       "name",
-      "isDEGENActive"
     ],
     "properties": {
       "serverId": {
@@ -15,9 +14,23 @@
         "bsonType": ["string"],
         "description": "Discord server name"
       },
-      "isDegenActive": {
+      "isDEGENSetup": {
         "bsonType": ["bool"],
-        "description": "Flag that is true if the discord server has DEGEN active"
+        "description": "Flag that is true if the discord server has fully setup DEGEN",
+      },
+      "privateChannelId": {
+        "bsonType": ["string"],
+        "description": "The channel execution id of where private degen commands should be run"
+      },
+      "roles": {
+        "bsonType": ["null", "object"],
+        "description": "List of degen specific roles.",
+        "properties": {
+          "authorizedDegenId": {
+            "bsonType": ["string"],
+            "description": "Role for authorized degen organizers",
+          }
+        }
       }
     }
   }

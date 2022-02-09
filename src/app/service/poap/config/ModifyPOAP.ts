@@ -43,8 +43,10 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles: stri
 		throw new ValidationError('Sorry, only discord admins and managers can configure poap settings.');
 	}
 	
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'I can help you configure authorized users for the POAP commands!');
-	await ctx.defer(true);
+	await ctx.send({ content: 'testing', ephemeral: true });
+	// const channel: TextChannel | ThreadChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
+	
+	const isDmOn = false;
 	
 	if (isDmOn) {
 		await ctx.send({ content: 'I just sent you a DM!', ephemeral: true });

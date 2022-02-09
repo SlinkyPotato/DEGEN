@@ -7,5 +7,9 @@ export interface DiscordServerCollection extends Collection {
 	_id: ObjectId
 	serverId: string,
 	name: string,
-	isDEGENActive: boolean,
+	isDEGENSetup?: boolean,
+	privateChannelId?: string
+	roles?: {
+		authorizedDegenId: string,
+	}
 }

@@ -12,16 +12,6 @@ export default (): { embeds: any[] } => {
 					inline: false,
 				},
 				{
-					name: '-> /poap config modify',
-					value: 'Authorize users and roles who can use poap commands. A malicious user and role can also be removed.',
-					inline: false,
-				},
-				{
-					name: '-> /poap config list',
-					value: 'Display a list of authorized users and roles that can use the POAP commands.',
-					inline: false,
-				},
-				{
 					name: '-> /poap mint',
 					value: 'Mint a POAP for an event, upload the PNG image to be minted, and get the links.txt file over email.',
 					inline: false,

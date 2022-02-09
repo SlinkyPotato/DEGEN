@@ -325,6 +325,23 @@ const ServiceUtils = {
 		//
 		// return result.isDMEnabled;
 	},
+	
+	quickCheckIsDEGENSetup: async (guildId: string): Promise<boolean> => {
+		Log.debug('quickly checking is DEGEN is setup via the DB');
+		const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+		const discordServerCollectionCollection: MongoCollection<DiscordServerCollection> = dbInstance.collection(constants.DB_COLLECTION_DISCORD_SERVERS);
+		const discordServerCollection: DiscordServerCollection | null = await discordServerCollectionCollection.findOne({
+			serverId: guildId,
+		});
+		
+		if (discordServerCollection == null) {
+			return false;
+		}
+		
+		const isDEGENSetup: boolean = discordServerCollection.isDEGENSetup == null ? false : discordServerCollection.isDEGENSetup;
+		Log.debug(`isDEGENSetup: ${isDEGENSetup}`);
+		return isDEGENSetup;
+	},
 
 	addActiveDiscordServer: async (guild: Guild): Promise<void> => {
 		Log.debug('attempting to add discord server to db');

@@ -41,9 +41,11 @@ export default class Setup extends SlashCommand {
 				return;
 			}
 			
+			await ctx.defer(true);
+			
 			await SetupDEGEN(guild);
 			
-			await ctx.send({ content: '#degen-setup created', ephemeral: true }).catch(Log.error);
+			await ctx.send({ content: 'Message sent to #degen-commands channel', ephemeral: true }).catch(Log.error);
 		} catch (e) {
 			if (e instanceof ValidationError) {
 				await ServiceUtils.sendOutErrorMessage(ctx, `${e?.message}`);

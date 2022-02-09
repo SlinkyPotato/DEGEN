@@ -15,8 +15,6 @@ import Log, { LogUtils } from '../../utils/Log';
 import ClaimPOAP from '../../service/poap/ClaimPOAP';
 import constants from '../../service/constants/constants';
 import { GuildMember } from 'discord.js';
-import ModifyPOAP from '../../service/poap/config/ModifyPOAP';
-import ListPOAPConfig from '../../service/poap/config/ListPOAPConfig';
 import { command } from '../../utils/SentryUtils';
 
 export default class POAP extends SlashCommand {
@@ -30,62 +28,6 @@ export default class POAP extends SlashCommand {
 			},
 			defaultPermission: true,
 			options: [
-				{
-					name: 'config',
-					type: CommandOptionType.SUB_COMMAND_GROUP,
-					description: 'Configure users and roles to have access to POAP commands.',
-					options: [
-						{
-							name: 'list',
-							description: 'Display the list of authorized users and roles that can use the POAP commands.',
-							type: CommandOptionType.SUB_COMMAND,
-							options: [],
-						},
-						{
-							name: 'modify',
-							description: 'Add or remove roles and users',
-							type: CommandOptionType.SUB_COMMAND,
-							options: [
-								{
-									name: 'role-1',
-									type: CommandOptionType.ROLE,
-									description: 'The role that should have access to poap commands.',
-									required: false,
-								},
-								{
-									name: 'role-2',
-									type: CommandOptionType.ROLE,
-									description: 'The role that should have access to poap commands.',
-									required: false,
-								},
-								{
-									name: 'role-3',
-									type: CommandOptionType.ROLE,
-									description: 'The role that should have access to poap commands.',
-									required: false,
-								},
-								{
-									name: 'user-1',
-									type: CommandOptionType.USER,
-									description: 'The user that should have access to poap commands.',
-									required: false,
-								},
-								{
-									name: 'user-2',
-									type: CommandOptionType.USER,
-									description: 'The user that should have access to poap commands.',
-									required: false,
-								},
-								{
-									name: 'user-3',
-									type: CommandOptionType.USER,
-									description: 'The user that should have access to poap commands.',
-									required: false,
-								},
-							],
-						},
-					],
-				},
 				{
 					name: 'mint',
 					type: CommandOptionType.SUB_COMMAND,
@@ -222,8 +164,6 @@ export default class POAP extends SlashCommand {
 		
 		let guildMember: GuildMember | undefined;
 		let commandPromise: Promise<any> | null = null;
-		let authorizedRoles: any[];
-		let authorizedUsers: any[];
 		let platform: string;
 		
 		try {
@@ -237,15 +177,6 @@ export default class POAP extends SlashCommand {
 			}
 			
 			switch (subCommand) {
-			case 'config':
-				if (ctx.subcommands[1] == 'list') {
-					commandPromise = ListPOAPConfig(ctx, guildMember as GuildMember);
-				} else if (ctx.subcommands[1] == 'modify') {
-					authorizedRoles = [ctx.options.config.modify['role-1'], ctx.options.config.modify['role-2'], ctx.options.config.modify['role-3']];
-					authorizedUsers = [ctx.options.config.modify['user-1'], ctx.options.config.modify['user-2'], ctx.options.config.modify['user-3']];
-					commandPromise = ModifyPOAP(ctx, guildMember as GuildMember, authorizedRoles, authorizedUsers);
-				}
-				break;
 			case 'mint':
 				commandPromise = SchedulePOAP(ctx, guildMember as GuildMember, ctx.options.mint['mint-copies']);
 				break;

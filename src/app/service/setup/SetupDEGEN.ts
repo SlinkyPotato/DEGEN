@@ -32,21 +32,11 @@ const SetupDEGEN = async (guild: Guild): Promise<any> => {
 	const authorizedDEGENRole: Role = await createAuthorizedDEGENRole(guild);
 	await setupBotToAuthorizedRole(guild, authorizedDEGENRole);
 	const commandChannel: TextChannel = await ServiceUtils.createPrivateChannelForExecution(guild, authorizedDEGENRole);
-	await displayDEGENIntroduction(commandChannel, authorizedDEGENRole);
-	
-	// guild.roles.cache.forEach(role => {
-	// 	Log.debug(`role: ${role.name}, position: ${role.position}`);
-	// });
-	//
-	// return;
-	
-	// if (await checkDoesPOAPAdminsExist(guild.id)) {
-	// 	return;
-	// }
+	await displayDEGENInstructions(commandChannel, authorizedDEGENRole);
 };
 export default SetupDEGEN;
 
-const displayDEGENIntroduction = async (channel: TextChannel, authorizedDegensRole: Role): Promise<void> => {
+const displayDEGENInstructions = async (channel: TextChannel, authorizedDegensRole: Role): Promise<void> => {
 	await channel.send({ content: 'gm!' });
 	await channel.send({
 		content: 'I can help you get DEGEN set up for POAP distribution! This is a 3-step process. ' +
@@ -60,32 +50,16 @@ const displayDEGENIntroduction = async (channel: TextChannel, authorizedDegensRo
 			'was created and it allows users to execute the following commands: \n - `/poap start`\n - `/poap end`\n - `/poap distribute`\n - `/poap mint`\n' +
 			'These are powerful commands that let\'s DEGEN track participation in a specific voice channel to later distribute POAPs. ' +
 			'We need to give DEGEN bit more juice for that to happen. When you are ready, please move the `@' + authorizedDegensRole.name + '` to the highest role position ' +
-			'you feel most comfortable. \n ' +
-			'👉' + constants.SETUP_HOW_TO_MOVE_DEGEN_ROLE,
+			'you feel most comfortable. \n\n' +
+			'👉 ' + constants.SETUP_HOW_TO_MOVE_DEGEN_ROLE + '\n\n',
+	});
+	
+	await channel.send({
+		content: 'Final step 3 - all that is left is to add users to the `@' + authorizedDegensRole.name + '` role. ' +
+			'Feel free to add yourself with that role and anyone else. ' +
+			'These special degens will have access to the POAP commands and can be seen at the top right 👉👆',
 	});
 };
-
-// const checkDoesPOAPAdminsExist = async (guildId: string): Promise<boolean> => {
-// 	const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-// 	const poapAdminDb: MongoCollection<POAPAdmin> = dbInstance.collection(constants.DB_COLLECTION_POAP_ADMINS);
-// 	Log.debug('looking for authorized poap users and roles');
-// 	const authorizedUsersAndRolesCursor: Cursor<POAPAdmin> = poapAdminDb.find({
-// 		serverId: guildId,
-// 	});
-// 	return await authorizedUsersAndRolesCursor.count() > 0;
-// };
-
-// const quickCheckIsDEGENSetup = async (guildId: string): Promise<boolean> => {
-// 	Log.debug('quickly checking if DEGEN is setup via the DB');
-// 	const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-// 	const discordServerCollectionCollection: MongoCollection<DiscordServerCollection> = dbInstance.collection(constants.DB_COLLECTION_DISCORD_SERVERS);
-// 	const discordServerCollection: DiscordServerCollection | null = await discordServerCollectionCollection.findOne({
-// 		serverId: guildId,
-// 	});
-// 	const isDEGENSetup = discordServerCollection ? discordServerCollection.isDEGENSetup : false;
-// 	Log.debug(`isDEGENSetup: ${isDEGENSetup}`);
-// 	return isDEGENSetup;
-// };
 
 const checkIsDEGENSetup = async (guild: Guild): Promise<boolean> => {
 	const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
@@ -94,35 +68,54 @@ const checkIsDEGENSetup = async (guild: Guild): Promise<boolean> => {
 		serverId: guild.id,
 	});
 	
+	Log.debug('checking if discord server collection exists in db');
+	
 	if (discordServerCollection == null) {
 		Log.debug(`discord server collection missing, guildId: ${guild.id}, name: ${guild.name}`);
 		return false;
 	}
+	
+	Log.debug('discord server collection exists in db');
 	
 	if (discordServerCollection.roles == null) {
 		Log.debug(`authorized degen role not found in db, serverId: ${guild.id}, name: ${guild.name}`);
 		return false;
 	}
 	
-	const degenAuthorizedRole: Role | null = await guild.roles.fetch(discordServerCollection.roles.authorizedDegenId);
-	if (degenAuthorizedRole == null) {
+	Log.debug('discord roles found in db, now checking for specific Authorized degen role');
+	
+	const degenAuthorizedRole: Role | null | void | boolean = await guild.roles.fetch(discordServerCollection.roles.authorizedDegenId).catch(e => {
+		Log.warn(e);
+		return false;
+	});
+	
+	if (degenAuthorizedRole == null || degenAuthorizedRole == false) {
 		Log.debug(`authorized degen role not found in guild, guildId: ${guild.id}, name: ${guild.name}`);
 		return false;
 	}
+	
+	Log.debug('found authorized degens role, now checking if role has correct permissions');
 	
 	if (!degenAuthorizedRole.permissions.has(getRequiredChannelPermissionsForDegenAuthorized())) {
 		Log.debug(`degen authorized role is missing required permissions, guildId: ${guild.id}, name: ${guild.name}`);
 		return false;
 	}
-	Log.info('authorized degen role exists and has valid permissions');
+	
+	Log.debug('authorized degens role has valid permissions, now checking if private commands channel exists in db');
 	
 	if (discordServerCollection.privateChannelId == null) {
 		Log.debug(`private channel ID missing from db, guildId: ${guild.id}, name: ${guild.name}`);
 		return false;
 	}
 	
-	const privateChannel: GuildChannel | null = await guild.channels.fetch(discordServerCollection.privateChannelId);
-	if (privateChannel == null) {
+	Log.debug('found private commands channle in db, now checking if it has valid permissions');
+	
+	const privateChannel: GuildChannel | boolean | void | null = await guild.channels.fetch(discordServerCollection.privateChannelId).catch(e => {
+		Log.warn(e);
+		return false;
+	});
+	
+	if (privateChannel == null || privateChannel == false) {
 		Log.debug(`private channel not found in guild, guildId: ${guild.id}, name: ${guild.name}`);
 		return false;
 	}
@@ -140,7 +133,9 @@ const checkIsDEGENSetup = async (guild: Guild): Promise<boolean> => {
 	Log.debug('degen is setup, now updating db');
 	
 	const result = await discordServerCollectionCollection.updateOne(discordServerCollection, {
-		isDEGENSetup: true,
+		$set: {
+			isDEGENSetup: true,
+		},
 	});
 	
 	if (result == null || result.result.n != 1) {
@@ -148,7 +143,7 @@ const checkIsDEGENSetup = async (guild: Guild): Promise<boolean> => {
 	}
 	
 	Log.debug('attempting to send message in private channel');
-	await privateChannel.send({ content: 'DEGEN is already setup! Please run `/poap config modify` to add users to `authorized degen` role.' });
+	await privateChannel.send({ content: 'DEGEN is setup! Users can be added to `@Authorized degens` role.' });
 	
 	Log.info('degen setup update complete in db');
 	return true;
@@ -205,3 +200,4 @@ const setupBotToAuthorizedRole = async (guild: Guild, authorizedDEGENRole: Role)
 	await (await guild.members.fetch(apiKeys.DISCORD_BOT_ID)).roles.add(authorizedDEGENRole);
 	Log.debug('finished setting up bot role');
 };
+

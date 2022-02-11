@@ -16,6 +16,13 @@ export const connectNewAccount = (user: User, dmChannel:DMChannel, discordUserDo
 				function: 'walletConnect',
 				successMessage: 'Great you should be good to go!',
 				failureMessage: 'Looks like there was a problem, please try again. WalletConnect works better with some wallets than others.',
+			},
+			{
+				label: 'Try sending a deeplink',
+				style: 'PRIMARY',
+				function: 'walletConnectDeepLink',
+				successMessage: 'Great you should be good to go!',
+				failureMessage: 'Looks like there was a problem, please try again. WalletConnect works better with some wallets than others.',
 			}, {
 				label: 'Check out our website!',
 				style: 'PRIMARY',

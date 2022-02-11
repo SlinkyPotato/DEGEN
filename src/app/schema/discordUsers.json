@@ -27,7 +27,6 @@
         "bsonType": ["null", "array"],
         "description": "Wallet details.",
         "properties": {
-          "adress": {
             "bsonType": ["null", "string"],
             "description": "Public addresses.",
             "minItems": 0,

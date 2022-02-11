@@ -18,8 +18,9 @@ export const functionTable = async (functionToCall: string, args:{user: User, dm
 	
 	switch (functionToCall) {
 	case 'walletConnect':
-		// const nickname = await chooseANickName(user, dmChannel, connectedAddresses);
-		return await v1WalletConnect(user, dmChannel, discordUserDocument);
+		return await v1WalletConnect(user, dmChannel, discordUserDocument, 'qrCode');
+	case 'walletConnectDeepLink':
+		return await v1WalletConnect(user, dmChannel, discordUserDocument, 'deepLink');
 	case 'changePOAPAddress':
 		await changePOAPAddressInteraction(user, dmChannel, discordUserDocument);
 		break;

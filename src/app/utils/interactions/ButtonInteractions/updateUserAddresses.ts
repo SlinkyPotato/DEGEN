@@ -24,6 +24,13 @@ export const updateUserAddresses = (user: User, dmChannel:DMChannel, discordUser
 				failureMessage: 'Something went wrong. Weird, I thought that would be easy.',
 			},
 			{
+				label: 'Try sending a deeplink',
+				style: 'PRIMARY',
+				function: 'walletConnectDeepLink',
+				successMessage: 'Great you should be good to go!',
+				failureMessage: 'Looks like there was a problem, please try again. WalletConnect works better with some wallets than others.',
+			},
+			{
 				label: 'Delete a public address.',
 				style: 'PRIMARY',
 				function: 'deleteAddressInteraction',

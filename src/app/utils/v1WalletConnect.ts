@@ -11,7 +11,7 @@ import { addUserAddress } from './mongoDbOperations/addUserAddress';
 import { getChain } from 'evm-chains';
 import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 
-export const v1WalletConnect = async (user: User, dmChannel: DMChannel, discordUserDocument: DiscordUserCollection):Promise<any> => {
+export const v1WalletConnect = async (user: User, dmChannel: DMChannel, discordUserDocument: DiscordUserCollection, param: string):Promise<any> => {
 // Create a connector
 	Log.debug('starting v1 WalletConnect');
 	let uri;
@@ -29,15 +29,23 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel, discordU
 	if (!connector.connected) {
 		// create new session
 		await connector.createSession();
-		const canvas = Canvas.createCanvas(244, 244);
-		await QRCode.toCanvas(canvas, connector.uri);
-		const attachment = new MessageAttachment(canvas.toBuffer(), 'qr-code.png');
-		try {
-			if (dmChannel) {
-				await dmChannel.send({ content: 'Scan the QR code with your mobile app connect to DEGEN, and sign the message to verify you own the address to connect to DEGEN.', files: [attachment] });
+		if (param === 'qrCode') {
+			const canvas = Canvas.createCanvas(244, 244);
+			await QRCode.toCanvas(canvas, connector.uri);
+			const attachment = new MessageAttachment(canvas.toBuffer(), 'qr-code.png');
+			try {
+				if (dmChannel) {
+					await dmChannel.send({ content: 'Scan the QR code with your mobile app connect to DEGEN, and sign the message to verify you own the address to connect to DEGEN.', files: [attachment] });
+				}
+		
+			} catch (e) {
+				return e;
 			}
-		} catch (e) {
-			return e;
+		} else if (param === 'deepLink') {
+			// send deepLink
+			Log.debug('sending deepLink');
+			await dmChannel.send({ content: `https://rnbwapp.com/wc?uri=${connector.uri}` });
+			
 		}
 	}
 	

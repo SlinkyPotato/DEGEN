@@ -11,5 +11,4 @@ export interface DiscordUserCollection extends Collection {
 	reportedForPOAP: number,
 	isPremium: boolean,
 	connectedAddresses: ConnectedAddress[]
-	POAPAddress: string,
 }

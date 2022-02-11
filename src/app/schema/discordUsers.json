@@ -38,19 +38,9 @@
             "description": "ChainlistId of the address.",
             "minItems": 0,
             "uniqueItems": true
-          },
-          "nickname": {
-            "bsonType": ["null", "string"],
-            "description": "An addresses nickname.",
-            "minItems": 0,
-            "uniqueItems": true
           }
-      },
-      "POAPAddress": {
-        "bsonType": ["string"],
-        "description": "Address DEGEN sends POAPs too"
-        }
       }
     }
   }
+}
 }

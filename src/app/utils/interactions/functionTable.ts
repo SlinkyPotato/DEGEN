@@ -15,20 +15,17 @@ export const functionTable = async (functionToCall: string, args:{user: User, dm
 
 	selectedItemDescription === undefined ? 'empty' : selectedItemDescription;
 
-	const connectedAddresses = args.discordUserDocument?.connectedAddresses ? args.discordUserDocument.connectedAddresses : null;
 	
 	switch (functionToCall) {
 	case 'walletConnect':
 		// const nickname = await chooseANickName(user, dmChannel, connectedAddresses);
-		return await v1WalletConnect(user, dmChannel, connectedAddresses);
+		return await v1WalletConnect(user, dmChannel, discordUserDocument);
 	case 'changePOAPAddress':
-		if (connectedAddresses) {
-			return await changePOAPAddressInteraction(user, dmChannel, discordUserDocument, connectedAddresses);
-		} break;
+		await changePOAPAddressInteraction(user, dmChannel, discordUserDocument);
+		break;
 	case 'deleteAddressInteraction':
-		if (connectedAddresses) {
-			return await deletUserAddressInteraction(user, dmChannel, discordUserDocument, connectedAddresses);
-		} break;
+		await deletUserAddressInteraction(user, dmChannel, discordUserDocument);
+		break;
 	case 'updatePOAPAddress':
 		if (selectedItemDescription) {
 			return await updatePOAPDAddress(user, selectedItemDescription);

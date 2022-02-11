@@ -42,9 +42,7 @@ export const sendMenuInteraction = async (
 		return;
 	}
         
-	// 5 minute timeout
 	try {
-		// const menuIds = interactions.map(items => items.value);
 		await message.awaitMessageComponent({
 			filter: args => (args.customId === 'select') && args.user.id == user.id.toString(),
 			componentType: 'SELECT_MENU',

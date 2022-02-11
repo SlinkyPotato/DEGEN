@@ -10,13 +10,14 @@ import { DEGENButtonInteraction } from '../../types/interactions/DEGENButtonInte
 import { functionTable } from '../interactions/functionTable';
 import { DiscordUserCollection } from '../../types/discord/DiscordUserCollection';
 
-export const sendButtonInteraction = async (dEGENInteraction: DEGENButtonInteraction,
-	dmChannel:DMChannel,
+export const sendButtonInteraction = async (
+	dEGENInteraction: DEGENButtonInteraction,
 	user:User,
+	dmChannel:DMChannel,
 	discordUserDocument: DiscordUserCollection,
 ): Promise<any> => {
 	
-
+	Log.debug('start sendButtonInteraction');
 	const { prompt, buttons } = dEGENInteraction;
 	const payload = { dmChannel, user, discordUserDocument };
 
@@ -36,14 +37,13 @@ export const sendButtonInteraction = async (dEGENInteraction: DEGENButtonInterac
 	});
         
 	if (message == null) {
-		Log.debug('Did not send opt-in message');
+		Log.debug('Did not send button interaction.');
 		return;
 	}
         
 	// 5 minute timeout
 	try {
 		const buttonIds = messageButtons.map(button => button.customId);
-		Log.debug({ buttonIds });
 		await message.awaitMessageComponent({
 			filter: args => (args.customId in buttonIds) && args.user.id == user.id.toString(),
 			time: 100_000,
@@ -59,11 +59,11 @@ export const sendButtonInteraction = async (dEGENInteraction: DEGENButtonInterac
 				});
 				Log.debug(error?.message);
 			} catch (e) {
-				LogUtils.logError('gm opt-in message edit occurred', e);
+				LogUtils.logError('Error in sendButtonInteraction', e);
 			}
 		});
 	} catch (e) {
-		LogUtils.logError('gm opt-in time/error occurred', e);
+		LogUtils.logError('Error in sendButtonInteraction', e);
 		return;
 	}
 };

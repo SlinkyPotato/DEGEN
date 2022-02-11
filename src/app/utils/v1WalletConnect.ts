@@ -8,9 +8,10 @@ import { convertUtf8ToHex } from '@walletconnect/utils';
 import { ethers } from 'ethers';
 import { ConnectedAddress } from '../types/discord/ConnectedAddress';
 import { addUserAddress } from './mongoDbOperations/addUserAddress';
+import { getChain } from 'evm-chains';
+import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 
-
-export const v1WalletConnect = async (user: User, dmChannel: DMChannel, connectedAddresses: ConnectedAddress[] | null):Promise<any> => {
+export const v1WalletConnect = async (user: User, dmChannel: DMChannel, discordUserDocument: DiscordUserCollection):Promise<any> => {
 // Create a connector
 	Log.debug('starting v1 WalletConnect');
 	let uri;
@@ -28,13 +29,12 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel, connecte
 	if (!connector.connected) {
 		// create new session
 		await connector.createSession();
-		Log.debug(connector.uri);
 		const canvas = Canvas.createCanvas(244, 244);
 		await QRCode.toCanvas(canvas, connector.uri);
 		const attachment = new MessageAttachment(canvas.toBuffer(), 'qr-code.png');
 		try {
 			if (dmChannel) {
-				await dmChannel.send({ content: 'Scan the QR code with your mobile app to connect to DEGEN', files: [attachment] });
+				await dmChannel.send({ content: 'Scan the QR code with your mobile app connect to DEGEN, and sign the message to verify you own the address to connect to DEGEN.', files: [attachment] });
 			}
 		} catch (e) {
 			return e;
@@ -60,29 +60,28 @@ export const v1WalletConnect = async (user: User, dmChannel: DMChannel, connecte
 		const chainId = payload.params[0].chainId.toString();
 		const { accounts }: {accounts: string[0]} = payload.params[0];
 		const addressToConnect: ConnectedAddress = { address: accounts[0], chainId };
-
+		const { connectedAddresses } = discordUserDocument;
 		try {
 			// if the address is already connected, notify user
 			if (connectedAddresses) {
-				const addressAlreaadyConected: boolean = connectedAddresses.some(item => item.address === addressToConnect.address);
+				const addressAlreaadyConected: boolean = connectedAddresses.some(item => item.address === addressToConnect.address && item.chainId === addressToConnect.chainId.toString());
 				if (addressAlreaadyConected) {
+					Log.debug('Address is already connected');
 					return await dmChannel.send(`Address: ${accounts[0]} is already connected`);
 				}
 			}
 			// sign a message from the connected account
-			
+			await dmChannel.send('Please sign the message from your wallet. If the message does not appear in your wallet, please try again with <gm>.');
 			const signedMessage = await signMessage(connector, user, accounts);
 			if (signedMessage) {
-				// add a new address to the DM
+				Log.debug('User sucessfully signed message. Adding connection to DB.');
 				const result = await addUserAddress(user, addressToConnect);
-				Log.debug(result);
+				Log.debug(`Result: ${result}`);
 				if (result) {
-					await dmChannel.send({ content: `Connected ${user.tag} to Eth Public Address: ${accounts}` });
+					await dmChannel.send({ content: `Connected ${user.tag} to ${getChain(parseInt(chainId)).name}: ${accounts}` });
 				}
 			} else {
-				// addressAlreadyConnected
-				Log.debug('Sign Message Failed');
-				// add to additional new chain?
+				Log.debug('signMessage returned false');
 			}
 			
 		} catch (e) {
@@ -121,7 +120,7 @@ const signMessage = async (connector: WalletConnect, user: User, accounts: strin
 	Log.debug(msgParams);
 	// Sign message
 	try {
-		Log.debug('ask user to sign message');
+		Log.debug('Ask user to sign message.');
 		const waitFor = (delay: number) => new Promise(resolve => setTimeout(resolve, delay));
 
 		await waitFor(500);
@@ -134,6 +133,6 @@ const signMessage = async (connector: WalletConnect, user: User, accounts: strin
 		Log.debug(`Signed Message result: ${result}`);
 		return signingAddress.toLowerCase === address.toLowerCase;
 	} catch (e) {
-		Log.error('failed to sign message');
+		Log.error('Failed to sign message');
 	}
 };

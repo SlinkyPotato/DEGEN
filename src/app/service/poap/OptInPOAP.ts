@@ -12,7 +12,6 @@ import {
 	MessageEmbed,
 	User,
 } from 'discord.js';
-import { sendButtonInteraction } from '../../utils/interactionBuilders/sendButtonInteraction';
 import { connectNewAccount } from '../../utils/interactions/ButtonInteractions/connectNewAccount';
 import { updateUserAddresses } from '../../utils/interactions/ButtonInteractions/updateUserAddresses';
 import { createConnectedAddressEmbed } from '../../utils/createConnectedAddressEmbed';
@@ -52,14 +51,11 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 		if (!discordUserDocument?.connectedAddresses || discordUserDocument.connectedAddresses.length === 0) {
 			Log.debug('DiscordUser.walletSettings does not exist. Ask user to connect their wallet.');
 			try{
-				await sendButtonInteraction(
-					connectNewAccount,
-					dmChannel,
+				await connectNewAccount(
 					user,
+					dmChannel,
 					discordUserDocument,
 				);
-				
-			// Do you want to give this account a nickname?
 			} catch (e) {
 				LogUtils.logError('OptInPOAP.ts error after connectNewAccount interaction', e);
 			}
@@ -69,10 +65,9 @@ const OptInPOAP = async (user: User, dmChannel: DMChannel): Promise<void> => {
 			try{
 				const embeds: MessageEmbed = createConnectedAddressEmbed(user, discordUserDocument);
 				await dmChannel.send({ embeds: [embeds] });
-				await sendButtonInteraction(
-					updateUserAddresses,
-					dmChannel,
+				await updateUserAddresses(
 					user,
+					dmChannel,
 					discordUserDocument,
 				);
 			} catch (e) {

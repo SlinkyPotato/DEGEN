@@ -4,39 +4,49 @@ import constants from '../../service/constants/constants';
 import { Db, Collection, UpdateWriteOpResult } from 'mongodb';
 import { User } from 'discord.js';
 import Log, { LogUtils } from '../Log';
+import { ConnectedAddress } from '../../types/discord/ConnectedAddress';
+import { getChain } from 'evm-chains';
 
-// Need validation on whether or not the address is in the DB.
-// Also does not cover multichain
+
 export const updatePOAPDAddress = async (user: User, chainIdAndAddress: string): Promise<string> => {
 	Log.debug('start updatePOAPAddress');
-	Log.debug(chainIdAndAddress);
-	// chainId is first character after the :
-	// address is everything after the second :
 
 	const chainId = chainIdAndAddress.substring(chainIdAndAddress.indexOf(':') + 2, chainIdAndAddress.indexOf(','));
-	Log.debug(`chainID: ${chainId}`);
-	const newPOAPAddress = chainIdAndAddress.substring(chainIdAndAddress.lastIndexOf(':') + 2);
-	Log.debug(`newPOAPAddress: ${newPOAPAddress}`);
+	const addressStr = chainIdAndAddress.substring(chainIdAndAddress.lastIndexOf(':') + 2);
 	
-
-	// 
+	const updateAddress: ConnectedAddress = {
+		address: addressStr,
+		chainId: chainId,
+	};
+	
 	try {
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const discordUserCol: Collection<DiscordUserCollection> = db.collection(constants.DB_COLLECTION_DISCORD_USERS);
-		// find user, if the address doesn't exist add it to their account
-		const result: UpdateWriteOpResult = await discordUserCol.updateOne({
+		const result1: UpdateWriteOpResult = await discordUserCol.updateOne({
 			userId: user.id.toString(),
 		},
 		{
-			$set: { 'POAPAddress':
-            newPOAPAddress },
+			$pull: {
+				'connectedAddresses': updateAddress,
+			},
 		});
-		if (result.modifiedCount === 1) {
-			return `Your new POAP delivery address is ${newPOAPAddress}`;
-		} if (result.modifiedCount === 0 && result.matchedCount === 1) {
-			return `Your POAP address is still ${newPOAPAddress}`;
+		const result2: UpdateWriteOpResult = await discordUserCol.updateOne({
+			userId: user.id.toString(),
+		},
+		{	$push: { 'connectedAddresses': {
+			$each: [updateAddress],
+			$position: 0,
+		},
+		},
+		},
+		);
+		if (result1.modifiedCount === 1 && result2.modifiedCount === 1) {
+			// do the chainId thing here
+			return `Your new POAP delivery address is ${getChain(parseInt(chainId)).name}: ${addressStr}`;
+		} if (result1.modifiedCount === 0 && result1.matchedCount === 1) {
+			return `Your POAP address is still ${getChain(parseInt(chainId)).name}: ${addressStr}`;
 		}else {
-			LogUtils.logError(`Error on updatePOAPAddress ${result}`, result);
+			LogUtils.logError(`Error on updatePOAPAddress ${result1}`, result1);
 			return 'Sorry, we had an issue updating your POAPAddress.';
 		}
 	} catch (e) {

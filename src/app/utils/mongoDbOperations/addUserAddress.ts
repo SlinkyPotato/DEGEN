@@ -19,8 +19,11 @@ export const addUserAddress = async (user: User, addressToConnect: ConnectedAddr
 			userId: user.id.toString(),
 		},
 		{
-			$push: { 'connectedAddresses': addressToConnect },
-			$set:{ 'POAPAddress': addressToConnect.address },
+			$push: { 'connectedAddresses': {
+				$each: [addressToConnect],
+				$position: 0,
+			},
+			},
 		});
 		return !!result.result.ok;
 	} catch (e) {

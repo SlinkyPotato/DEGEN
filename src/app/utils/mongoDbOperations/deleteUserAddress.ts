@@ -7,7 +7,6 @@ import Log, { LogUtils } from '../Log';
 
 export const deleteUserAddress = async (user: User, chainIdAndAddress: string): Promise<string> => {
 	Log.debug('start deleteUserAddress');
-	Log.debug(chainIdAndAddress);
 	const chainId: string = chainIdAndAddress.substring(chainIdAndAddress.indexOf(':') + 2, chainIdAndAddress.indexOf(','));
 	Log.debug(`chainID: /${chainId}/`);
 	const addressStr: string = chainIdAndAddress.substring(chainIdAndAddress.lastIndexOf(':') + 2);

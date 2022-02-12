@@ -23,26 +23,23 @@
         "bsonType": ["boolean"],
         "description": "True if discord member is a premium DEGEN pro subscriber, false otherwise"
       },
-      "ethWalletSettings": {
-        "bsonType": ["null", "object"],
+      "connectedAddresses": {
+        "bsonType": ["null", "array"],
         "description": "Wallet details.",
         "properties": {
-          "publicAddress": {
-            "bsonType": ["array"],
-            "description": "List of Ethereum public wallets.",
+            "bsonType": ["null", "string"],
+            "description": "Public addresses.",
             "minItems": 0,
-            "uniqueItems": true,
-            "items": {
-              "bsonType": ["string"],
-              "description": "Public Ethereum address."
-            }
+            "uniqueItems": true
           },
-          "isPOAPDeliveryEnabled": {
-            "bsonType": ["boolean", "null"],
-            "description": "true if user opted to have POAPs directly delivered."
+          "chainId": {
+            "bsonType": ["null", "string"],
+            "description": "ChainlistId of the address.",
+            "minItems": 0,
+            "uniqueItems": true
           }
-        }
       }
     }
   }
+}
 }

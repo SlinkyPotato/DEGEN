@@ -59,13 +59,10 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	
 	Log.debug('active poap event found');
 	
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! I found a poap event, let me try ending it.');
 	let channelExecution: TextChannel | null = null;
 	
-	if (!isDmOn && ctx) {
+	if (ctx) {
 		await ctx.send({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see the POAP links! ⚠', ephemeral: true });
-	} else if (ctx) {
-		await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
 	} else if (poapSettingsDoc.channelExecutionId != channelIds.DM) {
 		if (poapSettingsDoc.channelExecutionId == null || poapSettingsDoc.channelExecutionId == '') {
 			Log.debug(`channelExecutionId missing for ${guildMember.user.tag}, ${guildMember.user.id}, skipping poap end for expired event`);
@@ -109,9 +106,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 	if (numberOfParticipants <= 0) {
 		Log.debug('no eligible attendees found during event');
 		const eventEndMsg = `POAP event ended. No participants found for \`${channel?.name}\` in \`${channel?.guild.name}\`.`;
-		if (isDmOn) {
-			await guildMember.send({ content: eventEndMsg });
-		} else if (ctx) {
+		if (ctx) {
 			await ctx.sendFollowUp(eventEndMsg);
 		}
 		return;
@@ -137,11 +132,7 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		],
 	};
 	
-	if (isDmOn) {
-		embedOptions = embedOptions as MessageOptions;
-		embedOptions.files = [{ name: fileName, attachment: bufferFile }];
-		await guildMember.send(embedOptions);
-	} else if (ctx) {
+	if (ctx) {
 		embedOptions = embedOptions as MessageOptionsSlash;
 		embedOptions.file = [{ name: fileName, file: bufferFile }];
 		await ctx.send(embedOptions);
@@ -150,18 +141,14 @@ export default async (guildMember: GuildMember, platform: string, ctx?: CommandC
 		embedOptions.files = [{ name: fileName, attachment: bufferFile }];
 		await channelExecution.send(embedOptions);
 	}
-
-	if ((guildMember.id !== guildMember.user.id) && isDmOn) {
-		return guildMember.send({ content: `Previous event ended for <@${guildMember.id}>.` }).catch(Log.error);
-	}
 	
-	const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, isDmOn, numberOfParticipants, ctx, channelExecution);
+	const poapLinksFile: MessageAttachment = await POAPUtils.askForPOAPLinks(guildMember, numberOfParticipants, ctx, channelExecution);
 	const listOfPOAPLinks: string[] = await POAPUtils.getListOfPoapLinks(poapLinksFile);
 	const distributionResults: POAPDistributionResults = await POAPUtils.sendOutPOAPLinks(guildMember, listOfParticipants, poapSettingsDoc.event, listOfPOAPLinks);
 	if (distributionResults.didNotSendList.length > 0) {
 		await POAPUtils.setupFailedAttendeesDelivery(guildMember, distributionResults, poapSettingsDoc.event, constants.PLATFORM_TYPE_DISCORD);
 	}
-	await POAPUtils.handleDistributionResults(isDmOn, guildMember, distributionResults, channelExecution, ctx);
+	await POAPUtils.handleDistributionResults(guildMember, distributionResults, channelExecution, ctx);
 	Log.debug('POAP end complete');
 };
 

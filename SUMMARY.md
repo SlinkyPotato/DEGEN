@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Welcome to DEGEN Product Support Center](README.md)
+* [Welcome to DEGEN Product User Guide](README.md)
 
 ## Product Resources
 

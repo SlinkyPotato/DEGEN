@@ -40,7 +40,7 @@ _We accept any tokens and/or NFTs - your support is highly appreciated!_
 HOW TO SET-UP DEGEN IN YOUR SERVER
 {% endembed %}
 
-__
+#### __
 
 #### _/poap config status_
 
@@ -48,13 +48,13 @@ __
 
 ![](<../.gitbook/assets/poap config status.png>)
 
-<mark style="background-color:blue;">VIDEO (a)</mark>
-
 ### Before we start:
 
 {% hint style="warning" %}
 * The bot has a **10-minute timeout** to receive responses. If this exceeds, users will have to startover the process.
 {% endhint %}
+
+__
 
 #### _/poap mint_
 
@@ -83,8 +83,18 @@ __
 ![](<../.gitbook/assets/poap start.png>)
 
 {% hint style="success" %}
-* Attendees must be in the voice channel for a minimum of **10** minutes to be added to the log and qualify for a POAP from DEGEN.
+* Attendees must be in the voice channel for a minimum of **10** minutes (cumulative) to be added to the log and qualify for a POAP from DEGEN.
 {% endhint %}
+
+{% hint style="warning" %}
+* Attendees who are deafened for more than 1 minute will have their timer reset and might not be eligible for a POAP
+{% endhint %}
+
+{% embed url="https://www.youtube.com/watch?v=3kdIKXdh010" %}
+HOW TO START YOUR EVENT VIA DEGEN
+{% endembed %}
+
+
 
 \
 _/**poap end**_

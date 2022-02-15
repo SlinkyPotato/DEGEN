@@ -23,7 +23,7 @@ export default class WalletConnect extends SlashCommand {
 
 		try {
 			const { guildMember } = await ServiceUtils.getGuildAndMember(ctx.guildID, ctx.user.id);
-			const publicReplyStr = 'Follow this link to verify your address: http://localhost:4200/connect';
+			const publicReplyStr = 'Follow this link to verify your address: https://degen.bankless.community/connect';
 			const dmReplyStr = `${ctx.user.mention} Sent you a DM with information on how to connect your wallet.`;
 			ctx.send({ content: dmReplyStr, ephemeral: true });
 			return guildMember.send(publicReplyStr);

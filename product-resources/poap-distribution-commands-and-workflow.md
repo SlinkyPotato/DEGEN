@@ -25,7 +25,7 @@ _We accept any tokens and/or NFTs - your support is highly appreciated!_
 ### Before we start:
 
 {% hint style="warning" %}
-* Initial _/poap config modify_ **must** be ran by a user with `Administrator` permissions enabled within the roles settings (see video (a) for tutorial)
+* Initial _/poap config modify_ **must** be ran by a user with `Administrator` permissions enabled within the roles settings ([see video (a) for tutorial](poap-distribution-commands-and-workflow.md#video-a))
 {% endhint %}
 
 #### _/poap config modify_
@@ -33,6 +33,14 @@ _We accept any tokens and/or NFTs - your support is highly appreciated!_
 * Command for configuring which roles have access to POAP commands. Use this for assigning access to who can create POAP events on your server.
 
 ![](<../.gitbook/assets/poap config modify.png>)
+
+#### Video (a)
+
+{% embed url="https://www.youtube.com/watch?v=zuWUG3CmeYA" %}
+HOW TO SET-UP DEGEN IN YOUR SERVER
+{% endembed %}
+
+__
 
 #### _/poap config status_
 

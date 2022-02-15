@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.9.0
+
+1. Connect Wallet with `/connect` command.
+2. Read currently connected wallet with `/wallet` command.
+
 ## 2.8.0
 
 1. Remove poap delivery via dm, store poap for user
@@ -185,7 +190,7 @@
    - add workflow env keys
 3. Fix redelivery for failed participants
    - add custom start messages
-   
+
 ## 1.8.4-RELEASE (2021-11-03 - 2021-11-07)
 
 1. Introduce /coordinape form request command for BanklessDAO
@@ -236,7 +241,7 @@
 
 ## 1.7.1-RELEASE (2021-10-12)
 
-1. Update slash-create dependency 
+1. Update slash-create dependency
 
 ## 1.7.0-RELEASE (2021-10-11)
 

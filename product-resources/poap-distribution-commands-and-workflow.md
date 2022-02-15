@@ -75,6 +75,8 @@ __
 * Remember to leave a month out from the event start and end date to give participants ample time to claim their links.
 {% endhint %}
 
+#### __
+
 #### _/poap start_
 
 * Upon running /poap start, DEGEN will ask you which platform you’d like to start the event (Discord/<mark style="background-color:red;">Twitter Spaces\[not available yet at the moment]</mark>), title of the event and in which voice channel the event is going to take place in.
@@ -90,11 +92,13 @@ __
 * Attendees who are deafened for more than 1 minute will have their timer reset and might not be eligible for a POAP
 {% endhint %}
 
+
+
+#### Video (b)
+
 {% embed url="https://www.youtube.com/watch?v=3kdIKXdh010" %}
 HOW TO START YOUR EVENT VIA DEGEN
 {% endembed %}
-
-
 
 \
 _/**poap end**_
@@ -110,7 +114,7 @@ _/**poap end**_
 
 ![](<../.gitbook/assets/poap end.png>)
 
-* If the POAP is not yet ready for distribution, you can let it time out and use the “/poap distribute” command later. Make sure to save the csv file with the list of participants for use with the “/poap distribute” command for later use.
+* If the POAP is not yet ready for distribution, you can let it time out and use the “/poap distribute” command later. **Make sure to save the csv file** with the list of participants for use with the “/poap distribute” command for later use.
 
 {% hint style="warning" %}
 * DEGEN _can both interact_ with users who has/has not DMs enabled for the server. If you want to receive a mint link automatically, please have DMs enabled otherwise type _/poap claim_.
@@ -118,19 +122,35 @@ _/**poap end**_
 * If you aren’t asked for the links.txt file, it’s OK. Just run a _/poap distribute_ command back in the discord text channel and upload the csv you saved, followed by the links.txt you received from POAP when you set up the event.
 {% endhint %}
 
+#### Video (c)
+
+{% embed url="https://www.youtube.com/watch?v=MkHaGRnXN0A" %}
+HOW TO END CALL MONITORING
+{% endembed %}
+
+__
+
 #### _/poap distribute_
 
 * This command is for distributing POAPs after an event has ended. DEGEN will DM you with the POAP Distribution results along with the failed to send poaps csv file.
 
 ![](<../.gitbook/assets/poap distribution.png>)
 
+#### Video (d)
+
+{% embed url="https://www.youtube.com/watch?v=DMdurmQgtmU" %}
+HOW TO DISTRIBUTE CLAIM LINKS LATER
+{% endembed %}
+
 {% hint style="warning" %}
-* If participants have their DMs off, they will not receive their POAPs automatically but can run /poap claim to get their links.
+* If participants have their DMs off, they will not receive their POAPs automatically but can run /poap claim or /claim to get their links.
 {% endhint %}
+
+#### __
 
 #### _/poap claim_
 
-* Claim your missing POAP for an event that you attended but did not receive. To qualify, you must have been in the discussion for 10 minutes and have not been deafened.
+* Claim your missing POAP for an event that you attended but did not receive. To qualify, you must have been in the discussion for 10 minutes (cumulative) and have not been deafened.
 
 ![](https://media.discordapp.net/attachments/867013446586204170/930772308006670376/Screenshot\_from\_2022-01-12\_18-36-23.png?width=361\&height=300)
 

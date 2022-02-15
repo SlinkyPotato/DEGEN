@@ -22,6 +22,13 @@ _We accept any tokens and/or NFTs - your support is highly appreciated!_
 
 ## DEGEN Commands
 
+* [How to configure DEGEN in your server](poap-distribution-commands-and-workflow.md#poap-config-modify)
+* [How to schedule an event via DEGEN](poap-distribution-commands-and-workflow.md#poap-mint)
+* [How to start an event](poap-distribution-commands-and-workflow.md#poap-start)
+* [How to end an event](poap-distribution-commands-and-workflow.md#undefined-2)
+* [How to distribute claim links for later - if you're not ready](poap-distribution-commands-and-workflow.md#poap-distribute)
+* [Here's how to claim your POAPs](poap-distribution-commands-and-workflow.md#poap-claim)
+
 ### Before we start:
 
 {% hint style="warning" %}
@@ -100,8 +107,9 @@ __
 HOW TO START YOUR EVENT VIA DEGEN
 {% endembed %}
 
-\
-_/**poap end**_
+
+
+#### _/poap end_
 
 *   This command will trigger DEGEN to stop logging users. You will receive a DM with:
 

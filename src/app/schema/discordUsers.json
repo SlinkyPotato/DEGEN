@@ -25,21 +25,20 @@
       },
       "connectedAddresses": {
         "bsonType": ["null", "array"],
-        "description": "Wallet details.",
-        "properties": {
+        "description": "Wallet details",
+        "items": {
             "bsonType": ["null", "string"],
-            "description": "Public addresses.",
+            "description": "Public addresses",
             "minItems": 0,
             "uniqueItems": true
           },
           "chainId": {
             "bsonType": ["null", "string"],
-            "description": "ChainlistId of the address.",
+            "description": "ChainlistId of the connected address",
             "minItems": 0,
             "uniqueItems": true
           }
       }
     }
   }
-}
 }

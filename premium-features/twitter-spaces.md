@@ -1,6 +1,6 @@
 # Twitter Spaces
 
-### ![](<../.gitbook/assets/Screenshot from 2022-02-19 21-11-05.png>)If you plan to hold your event in Twitter Spaces, everything else is basically the same but here's what's different:
+### If you plan to hold your event in Twitter Spaces, everything else is basically the same but here's what's different:
 
 
 

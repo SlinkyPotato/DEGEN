@@ -1,6 +1,6 @@
 # Twitter Spaces
 
-### If you plan to hold your event in Twitter Spaces, everything else is basically the same but here's what's different:
+### ![](<../.gitbook/assets/Screenshot from 2022-02-19 21-11-05.png>)If you plan to hold your event in Twitter Spaces, everything else is basically the same but here's what's different:
 
 
 
@@ -34,15 +34,15 @@ Let your participants know that clicking on the link provided ables them to retw
 
 ![](<../.gitbook/assets/Screenshot from 2022-02-16 20-46-05.png>)
 
-Participants should then receive a DM from DEGEN via Twitter DMs instantly!
+**Participants should then receive a DM from DEGEN via Twitter DMs instantly!**
 
 
 
+![](<../.gitbook/assets/Screenshot from 2022-02-19 21-11-05 (2).png>)
 
 
 
-
-
+Hope this guide has been helpful! If you have any more questions, come and drop over at [Product Support Center ](https://discord.gg/7tVcuP54gt)and let's get you squared away! If you have any feedback on how we can improve our guides better, we'd love to hear them too 💛
 
 
 

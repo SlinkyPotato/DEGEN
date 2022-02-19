@@ -7,7 +7,7 @@ import {
 } from 'discord.js';
 import Log, { LogUtils } from '../Log';
 import { DEGENButtonInteraction } from '../../types/interactions/DEGENButtonInteraction';
-import { functionTable } from '../interactions/functionTable';
+import { functionTable } from '../../service/WalletConnect/interactions/functionTable';
 import { DiscordUserCollection } from '../../types/discord/DiscordUserCollection';
 
 export const sendButtonInteraction = async (
@@ -46,11 +46,13 @@ export const sendButtonInteraction = async (
 		const buttonIds = messageButtons.map(button => button.customId);
 		await message.awaitMessageComponent({
 			filter: args => (args.customId in buttonIds) && args.user.id == user.id.toString(),
-			time: 100_000,
+			time: 10000,
 		}).then(async (interaction) => {
 			const buttonFunctionToCall:string = buttons[parseInt(interaction.customId)].function;
 			Log.debug(buttonFunctionToCall);
 			await functionTable(buttonFunctionToCall, payload);
+			return message.edit({ content: 'Nice choice!', components: [] });
+
 		}).catch(error => {
 			try {
 				message.edit({ content: 'Timeout reached, please reach out to us with any questions!', components: [] }).catch(e => {

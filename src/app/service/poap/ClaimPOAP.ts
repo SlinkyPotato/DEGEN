@@ -29,7 +29,6 @@ import {
 import POAPUtils from '../../utils/POAPUtils';
 import apiKeys from '../constants/apiKeys';
 import ValidationError from '../../errors/ValidationError';
-import OptInPOAP from './OptInPOAP';
 import ServiceUtils from '../../utils/ServiceUtils';
 
 const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: GuildMember): Promise<any> => {
@@ -51,10 +50,6 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 			try {
 				await ctx.send({ content: 'DM sent!', ephemeral: true });
 				const dmChannel: DMChannel = await guildMember.createDM();
-				await OptInPOAP(guildMember.user, dmChannel).catch(e => {
-					Log.error(e);
-					ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
-				});
 				await claimForDiscord(ctx.user.id, null, dmChannel);
 				return;
 			} catch (e) {

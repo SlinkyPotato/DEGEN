@@ -1,17 +1,13 @@
-import MongoDbUtils from '../../utils/MongoDbUtils';
-import { DiscordUserCollection } from '../../types/discord/DiscordUserCollection';
-import constants from '../../service/constants/constants';
+import MongoDbUtils from '../../../utils/MongoDbUtils';
+import { DiscordUserCollection } from '../../../types/discord/DiscordUserCollection';
+import constants from '../../constants/constants';
 import { Db, Collection, UpdateWriteOpResult } from 'mongodb';
 import { User } from 'discord.js';
-import Log, { LogUtils } from '../Log';
+import Log, { LogUtils } from '../../../utils/Log';
 
-export const deleteUserAddress = async (user: User, chainIdAndAddress: string): Promise<string> => {
+export const deleteUserAddress = async (user: User, address: string): Promise<string> => {
 	Log.debug('start deleteUserAddress');
-	const chainId: string = chainIdAndAddress.substring(chainIdAndAddress.indexOf(':') + 2, chainIdAndAddress.indexOf(','));
-	Log.debug(`chainID: /${chainId}/`);
-	const addressStr: string = chainIdAndAddress.substring(chainIdAndAddress.lastIndexOf(':') + 2);
-	Log.debug(`addressToDelete: /${addressStr}/`);
-
+	Log.debug(`${address}`);
 	try {
 		const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 		const discordUserCol: Collection<DiscordUserCollection> = db.collection(constants.DB_COLLECTION_DISCORD_USERS);
@@ -20,14 +16,13 @@ export const deleteUserAddress = async (user: User, chainIdAndAddress: string): 
 			userId: user.id.toString(),
 		},
 		{
-			$pull: { 'connectedAddresses': {
-				address: addressStr,
-				chainId: chainId,
+			$pull: { 'connectedAddresses':
+				address,
 			},
-			},
-		});
+		},
+		);
 		if (result.modifiedCount === 1) {
-			return `Address ${addressStr} from ChainId: ${chainId} has been removed from my DB.`;
+			return `Address ${address} has been removed from my DB.`;
 		} else {
 			LogUtils.logError(`Error on deleteUserAddress ${result}`, result);
 			return 'Sorry, we had an issue deleting your address.';

@@ -7,7 +7,7 @@ import {
 } from 'discord.js';
 import Log, { LogUtils } from '../Log';
 import { DiscordUserCollection } from '../../types/discord/DiscordUserCollection';
-import { functionTable } from '../interactions/functionTable';
+import { functionTable } from '../../service/WalletConnect/interactions/functionTable';
 import { DEGENMenuInteraction } from '../../types/interactions/DEGENMenuInteraction';
 
 export const sendMenuInteraction = async (
@@ -16,11 +16,11 @@ export const sendMenuInteraction = async (
 	user:User,
 	discordUserDocument: DiscordUserCollection): Promise<any> => {
 	
+	Log.debug('Menu interaction started');
 
 	const { prompt, menuOptions, functionToCall } = dEGENInteraction;
 	const payload = { dmChannel, user, discordUserDocument };
     
-	Log.debug('Menu interaction started');
 	const row = new MessageActionRow()
 		.addComponents(
 			new MessageSelectMenu()
@@ -28,36 +28,38 @@ export const sendMenuInteraction = async (
 				.setPlaceholder('Please Select an Option')
 				.addOptions(menuOptions),
 		);
-	Log.debug('Made it pst row');
-	const message: Message | void = await dmChannel.send({
-		content: prompt,
-		components: [row],
-	}).catch(e => {
-		LogUtils.logError(`sendMessageWithInteractions failed ${e}`, e);
-		return;
-	});
-		
-	if (message == null) {
-		Log.debug('Did not send opt-in message');
-		return;
-	}
+	
         
 	try {
+
+		Log.debug('Sending menu interaction to user');
+		const message: Message | void = await dmChannel.send({
+			content: prompt,
+			components: [row],
+		}).catch(e => {
+			LogUtils.logError('sendMessageWithInteractions failed', e);
+			return;
+		});
+		
+		if (message == null) {
+			Log.debug('Message does not exist');
+			return;
+		}
+		
 		await message.awaitMessageComponent({
 			filter: args => (args.customId === 'select') && args.user.id == user.id.toString(),
 			componentType: 'SELECT_MENU',
-			time: 100_000,
+			time: 10000,
 		})
 			.then(async (interaction) => {
 				Log.debug(functionToCall);
 				if (interaction.customId === 'select') {
-					Log.debug('interaction');
+					Log.debug('Button Selected');
 					const selectedItemDescription = menuOptions[parseInt(interaction.values[0])].description;
 					const result = await functionTable(functionToCall, payload, selectedItemDescription);
-					Log.debug(result);
 					try {
-						await dmChannel.send({ content: result });
-						return;
+						Log.debug('Sending result to user.');
+						return message.edit({ content: result, components:[] });
 					} catch (e) {
 						LogUtils.logError('Error reply-ing to interaction', e);
 						throw e;

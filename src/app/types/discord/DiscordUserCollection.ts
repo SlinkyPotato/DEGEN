@@ -2,7 +2,6 @@ import {
 	Collection,
 	ObjectId,
 } from 'mongodb';
-import { ConnectedAddress } from './ConnectedAddress';
 
 export interface DiscordUserCollection extends Collection {
 	_id: ObjectId,
@@ -10,5 +9,5 @@ export interface DiscordUserCollection extends Collection {
 	tag: string,
 	reportedForPOAP: number,
 	isPremium: boolean,
-	connectedAddresses: ConnectedAddress[]
+	connectedAddresses: string[]
 }

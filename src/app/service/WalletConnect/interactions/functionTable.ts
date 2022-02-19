@@ -1,12 +1,12 @@
-import { updatePOAPDAddress } from './../mongoDbOperations/updatePOAPDeliveryAddress';
+import { updatePOAPDAddress } from '../mongoDbOperations/updatePOAPDeliveryAddress';
 import { deletUserAddressInteraction } from './MenuInteractions/deleteUserAddressInteraction';
-import { deleteUserAddress } from './../mongoDbOperations/deleteUserAddress';
+import { deleteUserAddress } from '../mongoDbOperations/deleteUserAddress';
 import { v1WalletConnect } from '../v1WalletConnect';
-import { sendLinkToWebsite } from '../sendLinkToWebsite';
+import { sendLinkToWebsite } from '../../../utils/sendLinkToWebsite';
 import { changePOAPAddressInteraction } from './MenuInteractions/changePOAPAddressInteraction';
-import Log, { LogUtils } from '../Log';
+import Log, { LogUtils } from '../../../utils/Log';
 import { DMChannel, User } from 'discord.js';
-import { DiscordUserCollection } from '../../types/discord/DiscordUserCollection';
+import { DiscordUserCollection } from '../../../types/discord/DiscordUserCollection';
 import { error } from 'console';
 
 export const functionTable = async (functionToCall: string, args:{user: User, dmChannel: DMChannel, discordUserDocument: DiscordUserCollection}, selectedItemDescription?:string): Promise<any> => {
@@ -18,9 +18,8 @@ export const functionTable = async (functionToCall: string, args:{user: User, dm
 	
 	switch (functionToCall) {
 	case 'walletConnect':
-		return await v1WalletConnect(user, dmChannel, discordUserDocument, 'qrCode');
-	case 'walletConnectDeepLink':
-		return await v1WalletConnect(user, dmChannel, discordUserDocument, 'deepLink');
+		return await v1WalletConnect(user, dmChannel, discordUserDocument);
+	
 	case 'changePOAPAddress':
 		await changePOAPAddressInteraction(user, dmChannel, discordUserDocument);
 		break;

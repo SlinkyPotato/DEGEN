@@ -6,7 +6,7 @@ import Log, { LogUtils } from '../../utils/Log';
 import { claimForDiscord } from '../../service/poap/ClaimPOAP';
 import ServiceUtils from '../../utils/ServiceUtils';
 import ValidationError from '../../errors/ValidationError';
-import OptInPOAP from '../../service/poap/OptInPOAP';
+import { ConnectAddress } from '../../service/poap/ConnectAddress';
 
 const HandlePOAPGM = async (message: Message): Promise<void> => {
 	const content: string = message.cleanContent;
@@ -25,10 +25,7 @@ const HandlePOAPGM = async (message: Message): Promise<void> => {
 	
 	try {
 		await claimForDiscord(message.author.id.toString(), null, dmChannel);
-		await OptInPOAP(message.author, dmChannel).catch(e => {
-			Log.error(e);
-			ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
-		});
+		await ConnectAddress(message.author, dmChannel);
 		
 	} catch (e) {
 		if (e instanceof ValidationError) {

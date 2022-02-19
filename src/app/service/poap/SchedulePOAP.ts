@@ -49,9 +49,7 @@ const SchedulePOAP = async (ctx: CommandContext, guildMember: GuildMember, numbe
 		],
 	};
 	
-	if (ctx) {
-		await ctx.sendFollowUp(msg1);
-	}
+	await ctx.sendFollowUp(msg1);
 	
 	const contextChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
 	request.name = await ServiceUtils.getFirstUserReply(guildMember, contextChannel);

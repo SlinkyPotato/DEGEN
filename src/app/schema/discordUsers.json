@@ -24,21 +24,9 @@
         "description": "True if discord member is a premium DEGEN pro subscriber, false otherwise"
       },
       "connectedAddresses": {
-        "bsonType": ["null", "array"],
-        "description": "Wallet details",
-        "items": {
-            "bsonType": ["null", "string"],
-            "description": "Public addresses",
-            "minItems": 0,
-            "uniqueItems": true
-          },
-          "chainId": {
-            "bsonType": ["null", "string"],
-            "description": "ChainlistId of the connected address",
-            "minItems": 0,
-            "uniqueItems": true
-          }
-      }
+        "bsonType": ["null", "string"],
+        "description": "Wallet details"
     }
   }
+}
 }

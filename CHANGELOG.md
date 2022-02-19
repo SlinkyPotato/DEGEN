@@ -15,6 +15,8 @@
 4. Update poap expiration only for dates longer than 24 hours
 5. Fix duplicate poap assignment
 6. Enhance poap claim flow
+7. Remove isDMOn from all files
+8. Add logging to DB connection
 
 ## 2.7.0-RELEASE (2022-01-18)
 

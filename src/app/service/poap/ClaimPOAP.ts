@@ -29,8 +29,6 @@ import {
 import POAPUtils from '../../utils/POAPUtils';
 import apiKeys from '../constants/apiKeys';
 import ValidationError from '../../errors/ValidationError';
-import OptInPOAP from './OptInPOAP';
-import ServiceUtils from '../../utils/ServiceUtils';
 
 const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: GuildMember): Promise<any> => {
 	Log.debug(`starting claim for ${ctx.user.username}, with ID: ${ctx.user.id}`);
@@ -42,25 +40,6 @@ const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: Gu
 		}
 		await claimPOAPForTwitter(ctx, guildMember);
 		return;
-	}
-	let isDmOn = false;
-	
-	if (guildMember) {
-		isDmOn = await ServiceUtils.tryDMUser(guildMember, 'gm');
-		if (isDmOn) {
-			try {
-				await ctx.send({ content: 'DM sent!', ephemeral: true });
-				const dmChannel: DMChannel = await guildMember.createDM();
-				await claimForDiscord(ctx.user.id, null, dmChannel);
-				await OptInPOAP(guildMember.user, dmChannel).catch(e => {
-					Log.error(e);
-					ServiceUtils.sendOutErrorMessageForDM(dmChannel).catch(Log.error);
-				});
-				return;
-			} catch (e) {
-				LogUtils.logError('failed to ask for opt-in', e);
-			}
-		}
 	}
 	await claimForDiscord(ctx.user.id, ctx);
 };
@@ -79,7 +58,7 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	Log.debug('checking for POAP from db');
 	if (!await unclaimedParticipants.hasNext()) {
 		Log.debug('POAP not found');
-		const msg = 'There doesn\'t seem to be any POAPs yet.';
+		const msg = 'I can\'t find any POAPs for you.';
 		if (ctx) {
 			await ctx.send({ content: msg, ephemeral: true });
 		} else if (dmChannel) {

@@ -38,11 +38,9 @@ import { ComponentActionRow } from 'slash-create';
 import ValidationError from '../errors/ValidationError';
 import {
 	Db,
-	Collection as MongoCollection,
 } from 'mongodb';
 import MongoDbUtils from './MongoDbUtils';
 import constants from '../service/constants/constants';
-import { DiscordUserCollection } from '../types/discord/DiscordUserCollection';
 import { DiscordServerCollection } from '../types/discord/DiscordServerCollection';
 
 const ServiceUtils = {
@@ -203,14 +201,11 @@ const ServiceUtils = {
 	
 	sendContextMessage: async (
 		msg: MessageOptions | MessageOptionsSlash,
-		isDmOn: boolean,
 		guildMember: GuildMember,
 		ctx?: CommandContext | undefined | null,
 		channelExecution?: TextChannel | null,
 	): Promise<boolean | Message | MessageSlash> => {
-		if (isDmOn) {
-			return await guildMember.send(msg as MessageOptions);
-		} else if (ctx) {
+		if (ctx) {
 			msg = msg as MessageOptionsSlash;
 			msg.ephemeral = true;
 			return await ctx.send(msg);
@@ -221,7 +216,6 @@ const ServiceUtils = {
 	},
 	
 	generateEmbedFieldsMessage: (
-		isDmOn: boolean,
 		embedFieldsList: EmbedField[] | EmbedFieldSlash[],
 		title: string,
 		description: string,
@@ -240,30 +234,10 @@ const ServiceUtils = {
 			});
 		}
 		Log.debug(`finished processing ${embedFieldsList.length} embed fields`);
-		if (isDmOn) {
-			return {
-				embeds: embedsList as MessageEmbedOptions[],
-			} as MessageOptions;
-		}
 		return {
 			embeds: embedsList as MessageEmbedOptionsSlash[],
 			ephemeral: true,
 		} as MessageOptionsSlash;
-	},
-	
-	isDMEnabledForUser: async (_: GuildMember, __: MongoCollection<DiscordUserCollection>): Promise<boolean> => {
-		// TODO: lookup isPOAPDeliveryEnabled in ethWalletSettings
-		return false;
-		// await member.fetch();
-		// const result: DiscordUserCollection | null = await dbUsersCollection.findOne({
-		// 	userId: member.id.toString(),
-		// });
-		//
-		// if (result == null) {
-		// 	return false;
-		// }
-		//
-		// return result.isDMEnabled;
 	},
 
 	addActiveDiscordServer: async (guild: Guild): Promise<void> => {

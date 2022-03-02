@@ -30,25 +30,17 @@ To get setup, please follow these guidelines:
 11. Send the URL via Discord DM to nonsense to have it added to the test
     Discord server
 
-## Create a MongoDB Cluster
-
-1. The DEGEN project makes use of MongoDB Atlas to host its database. MongoDB Atlas offers a free tier to get started.
-2. Head to https://docs.atlas.mongodb.com/getting-started/ to follow steps on how to set up your MongoDB account.
-3. Replace the relevant MongoDB values in the copied .env file with your MongoDB cluster values, making sure to update the file name where it is required in `app.js`
-4. `yarn start` will run the prestart script to get everything installed and running.
-5. Run your bot and test your connections.
-6. Whenever you're ready for a pull request, open a pr with `dev` branch.
-
-
 ## Clone the repo to local
 
 1. Create a new feature branch from the dev branch (`docs/<name>`, `feature/<name>`, `release/<name>`, `hotfix/<name>`).
 2. Copy the `.env.template` file and name it `.env`;
-4. Replace the relevant MongoDB values in the copied .env file with your MongoDB cluster values. For information on setting up MongoDB clusters, head to https://docs.atlas.mongodb.com/getting-started/.
-5. Make sure to update the '.env' file name where it is required in `app.ts`
-6. `yarn start` will run the prestart script to get everything installed and running.
-7. Run your bot and test your connections.
-8. Whenever you're ready for a pull request, open a pr with `dev` branch.
+3. Request the test Notion token and MongoDB URI from one of the repo
+   maintainers, copy your bot's token (found under the bot tab in the
+   developer's portal) and replace the relevant values in your copied .env
+   file, making sure to update the file name where it is required in `app.js`
+4. `yarn start` will run the prestart script to get everything installed and running.
+5. Run your bot and test your connections.
+6. Whenever you're ready for a pull request, open a pr with `dev` branch.
 
 ## Develop!
 

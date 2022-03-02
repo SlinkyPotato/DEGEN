@@ -126,14 +126,15 @@ const ServiceUtils = {
 		return message.content;
 	},
 	
-	async tryDMUser(guildMember: GuildMember, message: string): Promise<boolean> {
-		try {
-			await guildMember.send({ content: message });
-			return true;
-		} catch (e) {
-			Log.warn(`DM is turned off for ${guildMember.user.tag}`);
-			return false;
-		}
+	async tryDMUser(_: GuildMember, __: string): Promise<boolean> {
+		return false;
+		// try {
+		// 	await guildMember.send({ content: message });
+		// 	return true;
+		// } catch (e) {
+		// 	Log.warn(`DM is turned off for ${guildMember.user.tag}`);
+		// 	return false;
+		// }
 	},
 	
 	prepEmbedField: (field: string | null | undefined): string => {

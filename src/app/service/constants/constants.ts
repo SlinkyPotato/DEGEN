@@ -12,6 +12,8 @@ export default Object.freeze({
 	DB_COLLECTION_POAP_ADMINS: 'poapAdmins',
 	DB_COLLECTION_POAP_SETTINGS: 'poapSettings',
 	DB_COLLECTION_POAP_PARTICIPANTS: 'poapParticipants',
+	DB_COLLECTION_ADDITIONAL_POAP_PARTICIPANTS_LIST: 'additionalPoapParticipantsList',
+
 	DB_COLLECTION_POAP_UNCLAIMED_PARTICIPANTS: 'poapUnclaimedParticipants',
 	DB_COLLECTION_POAP_TWITTER_UNCLAIMED_PARTICIPANTS: 'poapTwitterUnclaimedParticipants',
 	DB_COLLECTION_POAP_TWITTER_SETTINGS: 'poapTwitterSettings',

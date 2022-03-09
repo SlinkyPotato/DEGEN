@@ -184,6 +184,12 @@ export default class POAP extends SlashCommand {
 								},
 							],
 						},
+						{
+							name: 'all-users',
+							type: CommandOptionType.BOOLEAN,
+							description: 'Send POAP to all users in this Discord server',
+							required: false,
+						},
 					],
 				},
 				{
@@ -262,7 +268,7 @@ export default class POAP extends SlashCommand {
 			case 'distribute':
 				platform = ctx.options.distribute['platform'] != null && ctx.options.distribute['platform'] != '' ? ctx.options.distribute['platform'] : constants.PLATFORM_TYPE_DISCORD;
 				Log.debug(`platform: ${platform}`);
-				commandPromise = DistributePOAP(ctx, guildMember as GuildMember, ctx.options.distribute['event'], platform);
+				commandPromise = DistributePOAP(ctx, guildMember as GuildMember, ctx.options.distribute['event'], platform, ctx.options.distribute['all-users']);
 				break;
 			case 'claim':
 				platform = ctx.options.claim.platform != null && ctx.options.claim.platform != '' ? ctx.options.claim.platform : constants.PLATFORM_TYPE_DISCORD;

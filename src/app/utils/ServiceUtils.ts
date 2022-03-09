@@ -64,6 +64,16 @@ const ServiceUtils = {
 		});
 	},
 
+	async getAllMembersAsPOAPFilePartcipant(guild: Guild): Promise<POAPFileParticipant[]> {
+		const guildMembers = await guild.members.fetch();
+		return guildMembers.filter(member => !member.user.bot).map(member => {
+			return {
+				discordUserId: member.id,
+				discordUserTag: member.user.tag,
+			} as POAPFileParticipant;
+		});
+	},
+
 	hasRole(guildMember: GuildMember, role: string): boolean {
 		return guildMember.roles.cache.some(r => r.id === role);
 	},

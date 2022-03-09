@@ -17,7 +17,7 @@ import MongoDbUtils from '../../utils/MongoDbUtils';
 import ServiceUtils from '../../utils/ServiceUtils';
 import { POAPDistributionResults } from '../../types/poap/POAPDistributionResults';
 
-export default async (ctx: CommandContext, guildMember: GuildMember, event: string, platform: string): Promise<any> => {
+export default async (ctx: CommandContext, guildMember: GuildMember, event: string, platform: string, allUsers: boolean): Promise<any> => {
 	if (ctx.guildID == undefined) {
 		await ctx.send('Please try poap distribution within discord channel');
 		return;
@@ -31,7 +31,12 @@ export default async (ctx: CommandContext, guildMember: GuildMember, event: stri
 	await ctx.defer(true);
 	await ctx.send({ content: '⚠ Please make sure this is a private channel. I can help you distribute POAPs but anyone who has access to this channel can see private information! ⚠', ephemeral: true });
 	
-	let participantsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[] = await askForParticipantsList(guildMember, platform, ctx);
+	let participantsList: POAPFileParticipant[] | TwitterPOAPFileParticipant[];
+	if (allUsers) {
+		participantsList = await ServiceUtils.getAllMembersAsPOAPFilePartcipant(guildMember.guild);
+	} else {
+		participantsList = await askForParticipantsList(guildMember, platform, ctx);
+	}
 	const numberOfParticipants: number = participantsList.length;
 	
 	if (numberOfParticipants <= 0) {

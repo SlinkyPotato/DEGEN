@@ -4,6 +4,7 @@
 
 1. Connect Wallet with `/connect` command.
 2. Read currently connected wallet with `/wallet` command.
+3. Add option to distribute poap to all users
 
 ## 2.8.0
 

@@ -20,6 +20,7 @@ import {
 } from 'mongodb';
 import { MessageEmbedOptions as MessageEmbedOptionsSlash } from 'slash-create';
 import ValidationError from '../../../errors/ValidationError';
+import { Message } from 'slash-create/lib/structures/message';
 const StartChannelFlow = async (
 	ctx: CommandContext, guildMember: GuildMember, db: Db, event: string, duration: number,
 	poapSettingsDB: CollectionMongo<POAPSettings>,
@@ -28,7 +29,7 @@ const StartChannelFlow = async (
 	const voiceChannels: Collection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
 	
 	const embedsVoiceChannels = generateVoiceChannelEmbedMessage(voiceChannels) as MessageEmbedOptionsSlash[];
-	const message = await ctx.sendFollowUp({ embeds: embedsVoiceChannels });
+	const message = await ctx.send({ embeds: embedsVoiceChannels, ephemeral: true }) as Message;
 	
 	const channel: TextChannel = await guildMember.guild.channels.fetch(message.channelID) as TextChannel;
 	
@@ -44,7 +45,7 @@ const StartChannelFlow = async (
 	
 	if (poapSettingsDoc !== null && poapSettingsDoc.isActive) {
 		Log.warn('unable to start due to active event');
-		await ctx.send({ content: `\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`, ephemeral: true });
+		await ctx.send({ content: `\`${channelChoice.name}\` is already active. Please reach out to support to end event.`, ephemeral: true });
 		return;
 	}
 	

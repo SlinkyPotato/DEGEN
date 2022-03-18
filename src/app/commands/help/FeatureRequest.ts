@@ -22,6 +22,6 @@ export default class FeatureRequest extends SlashCommand {
 		if (ctx.user.bot) return;
 
 		const form = 'https://degen.canny.io/';
-		await ctx.send(`Here you are ${ctx.user.mention}, the DEGEN feature request form: ${form}`);
+		await ctx.send(`The DEGEN feature request form: ${form}`);
 	}
 }

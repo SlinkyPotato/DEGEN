@@ -10,9 +10,11 @@ export interface POAPParticipant extends Collection {
 	voiceChannelId: string,
 	discordServerId: string,
 	durationInMinutes: number,
-	minutesDeafened: number,
+	minutesDeafenedInMeeting: number,
 	timeDeafened: string,
-	minutesAttended: number,
+	minutesAbsent: number,
 	timeLeft: string,
+	timeJoined: string,
 	minutesListened: number,
+	minutesAttended: number,
 }

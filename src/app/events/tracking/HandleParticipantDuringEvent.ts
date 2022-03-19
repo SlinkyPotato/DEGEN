@@ -147,6 +147,7 @@ export const startTrackingUndeafenedUserParticipation = async (user: BasicUser, 
 	const updateResult: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
 		$set: {
 			minutesDeafenedInMeeting: deafenedDuration,
+			startTime: dayjs().toISOString(),
 		},
 		$unset: {
 			timeDeafened: '',

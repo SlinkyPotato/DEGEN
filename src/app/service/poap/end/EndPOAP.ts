@@ -27,7 +27,7 @@ import EndTwitterFlow from './EndTwitterFlow';
 import { POAPDistributionResults } from '../../../types/poap/POAPDistributionResults';
 import channelIds from '../../constants/channelIds';
 import { POAPParticipant } from '../../../types/poap/POAPParticipant';
-import { stopTrackingUserParticipation, calculateFinalDurations } from '../../../events/tracking/HandleParticipantDuringEvent';
+import { stopTrackingUserParticipation, calculateFinalInactivityDurations } from '../../../events/tracking/HandleParticipantDuringEvent';
 
 export default async (guildMember: GuildMember, platform: string, ctx?: CommandContext): Promise<any> => {
 	Log.debug('attempting to end poap event');
@@ -176,7 +176,7 @@ const handleEventEndForPresentParticipants = async (
 	Log.debug('starting to handle present members for end of poap event');
 	const participantsCursor: Cursor<POAPParticipant> = await getPoapParticipantsFromDB(poapSettingsDoc.voiceChannelId, poapSettingsDoc.discordServerId);
 	for await (const participant of participantsCursor) {
-		await calculateFinalDurations({ id: participant.discordUserId, tag: participant.discordUserTag }, participant.discordServerId, participant.voiceChannelId, participant);
+		await calculateFinalInactivityDurations({ id: participant.discordUserId, tag: participant.discordUserTag }, participant.discordServerId, participant.voiceChannelId, participant);
 		if (participant.endTime == null || participant.endTime == '') {
 			await stopTrackingUserParticipation({ id: participant.discordUserId, tag: participant.discordUserTag }, participant.discordServerId, participant.voiceChannelId, participant);
 		}

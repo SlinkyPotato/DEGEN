@@ -236,7 +236,7 @@ export const stopTrackingUserParticipation = async (user: BasicUser, guildId: st
 	}
 	Log.debug(`${user.tag} | left, channelId: ${channelId}, guildId: ${guildId}, userId: ${user.id}`);
 };
-export const calculateFinalDurations = async (user: BasicUser, guildId: string, channelId: string | null, participant: POAPParticipant | null): Promise<void> => {
+export const calculateFinalInactivityDurations = async (user: BasicUser, guildId: string, channelId: string | null, participant: POAPParticipant | null): Promise<void> => {
 	if (!participant) {
 		participant = await retrieveActiveParticipant(user, channelId, guildId);
 	}

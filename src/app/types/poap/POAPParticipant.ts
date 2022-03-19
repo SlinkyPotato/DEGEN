@@ -14,7 +14,4 @@ export interface POAPParticipant extends Collection {
 	timeDeafened: string,
 	minutesAbsent: number,
 	timeLeft: string,
-	timeJoined: string,
-	minutesListened: number,
-	minutesAttended: number,
 }

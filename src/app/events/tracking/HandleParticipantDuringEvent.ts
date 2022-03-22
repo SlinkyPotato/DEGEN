@@ -11,7 +11,7 @@ import {
 import constants from '../../service/constants/constants';
 import { POAPParticipant } from '../../types/poap/POAPParticipant';
 import Log from '../../utils/Log';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 
@@ -218,7 +218,7 @@ export const stopTrackingUserParticipation = async (user: BasicUser, guildId: st
 	channelId = channelId as string;
 	guildId = guildId as string;
 	
-	const durationInMinutes: number = calculateDuration(participant.startTime, participant.durationInMinutes);
+	const durationInMinutes: number = dayjs().diff(participant.startTime, 'm', true) + participant.durationInMinutes;
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const poapParticipantsDb: Collection<POAPParticipant> = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
 	const minutesAbsent = dayjs().diff(participant?.timeLeft, 'm', true);
@@ -236,16 +236,7 @@ export const stopTrackingUserParticipation = async (user: BasicUser, guildId: st
 	}
 	Log.debug(`${user.tag} | left, channelId: ${channelId}, guildId: ${guildId}, userId: ${user.id}`);
 };
-export const calculateFinalInactivityDurations = async (user: BasicUser, guildId: string, channelId: string | null, participant: POAPParticipant | null): Promise<void> => {
-	if (!participant) {
-		participant = await retrieveActiveParticipant(user, channelId, guildId);
-	}
-	
-	if (participant == null) {
-		throw new MongoError('could not find participant in db when trying to calculate duration');
-	}
-	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
-	const poapParticipantsDb: Collection<POAPParticipant> = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
+export const updateInactivityDurations = async (participant: POAPParticipant, poapParticipantsDb: Collection<POAPParticipant>): Promise<void> => {
 	if(participant.timeLeft != '' && participant.timeLeft != null) {
 		let minutesAbsent = dayjs().diff(participant?.timeLeft, 'm', true);
 		if (participant.minutesAbsent) {
@@ -277,16 +268,6 @@ export const calculateFinalInactivityDurations = async (user: BasicUser, guildId
 			Log.error('failed to update participant in db');
 		}
 	}
-};
-
-const calculateDuration = (startTime: string, currentDuration: number): number => {
-	const currentDate: Dayjs = dayjs();
-	const startTimeDate: Dayjs = dayjs(startTime);
-	let durationInMinutes: number = currentDuration;
-	if ((currentDate.unix() - startTimeDate.unix() > 0)) {
-		durationInMinutes += ((currentDate.unix() - startTimeDate.unix()) / 60);
-	}
-	return durationInMinutes;
 };
 
 const retrieveActiveParticipant = async (

@@ -147,7 +147,6 @@ export const startTrackingUndeafenedUserParticipation = async (user: BasicUser, 
 	const updateResult: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
 		$set: {
 			minutesDeafenedInMeeting: deafenedDuration,
-			startTime: dayjs().toISOString(),
 		},
 		$unset: {
 			timeDeafened: '',
@@ -189,7 +188,6 @@ export const startTrackingUserParticipation = async (user: BasicUser, guildId: s
 		}
 		const updateResult: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
 			$set: {
-				startTime: dayjs().toISOString(),
 				timeJoined: dayjs().toISOString(),
 				minutesAbsent: minutesAbsent,
 			},
@@ -218,14 +216,12 @@ export const stopTrackingUserParticipation = async (user: BasicUser, guildId: st
 	channelId = channelId as string;
 	guildId = guildId as string;
 	
-	const durationInMinutes: number = dayjs().diff(participant.startTime, 'm', true) + participant.durationInMinutes;
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const poapParticipantsDb: Collection<POAPParticipant> = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
 	const minutesAbsent = dayjs().diff(participant?.timeLeft, 'm', true);
 	const result: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
 		$set: {
 			endTime: dayjs().toISOString(),
-			durationInMinutes: durationInMinutes,
 			timeLeft: dayjs().toISOString(),
 			minutesAbsent: minutesAbsent,
 		},
@@ -236,9 +232,11 @@ export const stopTrackingUserParticipation = async (user: BasicUser, guildId: st
 	}
 	Log.debug(`${user.tag} | left, channelId: ${channelId}, guildId: ${guildId}, userId: ${user.id}`);
 };
-export const updateInactivityDurations = async (participant: POAPParticipant, poapParticipantsDb: Collection<POAPParticipant>): Promise<void> => {
+export const updateDurations = async (participant: POAPParticipant, poapParticipantsDb: Collection<POAPParticipant>): Promise<void> => {
+	let minutesDeafened = 0;
+	let minutesAbsent = 0;
 	if(participant.timeLeft != '' && participant.timeLeft != null) {
-		let minutesAbsent = dayjs().diff(participant?.timeLeft, 'm', true);
+		minutesAbsent = dayjs().diff(participant?.timeLeft, 'm', true);
 		if (participant.minutesAbsent) {
 			minutesAbsent += participant.minutesAbsent;
 		}
@@ -254,10 +252,11 @@ export const updateInactivityDurations = async (participant: POAPParticipant, po
 	}
 
 	if(participant.timeDeafened != '' && participant.timeDeafened != null) {
-		let minutesDeafened = dayjs().diff(participant?.timeDeafened, 'm', true);
+		minutesDeafened = dayjs().diff(participant?.timeDeafened, 'm', true);
 		if (participant.minutesDeafenedInMeeting) {
 			minutesDeafened += participant.minutesDeafenedInMeeting;
 		}
+		
 		const updateResult: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
 			$set: {
 				minutesDeafenedInMeeting: minutesDeafened,
@@ -267,6 +266,19 @@ export const updateInactivityDurations = async (participant: POAPParticipant, po
 		if (updateResult == null || updateResult.result.ok != 1) {
 			Log.error('failed to update participant in db');
 		}
+	}
+
+	// update the amount of time the user spent active
+	let durationInMinutes = dayjs().diff(participant.startTime, 'm', true);
+	durationInMinutes = durationInMinutes - minutesDeafened - minutesAbsent;
+	const updateResult: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
+		$set: {
+			durationInMinutes: durationInMinutes,
+			endTime: dayjs().toISOString(),
+		},
+	}).catch(Log.error);
+	if (updateResult == null || updateResult.result.ok != 1) {
+		Log.error('failed to update participant in db');
 	}
 };
 

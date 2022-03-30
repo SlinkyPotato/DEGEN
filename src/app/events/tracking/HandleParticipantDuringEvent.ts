@@ -4,7 +4,6 @@ import {
 import {
 	Collection,
 	Db,
-	DeleteWriteOpResultObject,
 	InsertOneWriteOpResult,
 	MongoError,
 	UpdateWriteOpResult,
@@ -12,7 +11,7 @@ import {
 import constants from '../../service/constants/constants';
 import { POAPParticipant } from '../../types/poap/POAPParticipant';
 import Log from '../../utils/Log';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import MongoDbUtils from '../../utils/MongoDbUtils';
 import { POAPSettings } from '../../types/poap/POAPSettings';
 
@@ -25,11 +24,11 @@ const HandleParticipantDuringEvent = async (oldState: VoiceState, newState: Voic
 	if (hasUserBeenDeafened(oldState, newState)) {
 		if (await isChannelActivePOAPEvent(oldState.channelId, oldState.guild.id)) {
 			Log.log(`user has deafened for previous channel, userId: ${newState.id}`);
-			await removeDeafenedUser(oldState.channelId, oldState.guild.id, oldState.id);
+			await updateDeafenedUser({ id: oldState.id, tag: oldState.member?.user.tag }, oldState.channelId, oldState.guild.id, oldState.id);
 		}
 		if (newState.channelId != oldState.channelId && await isChannelActivePOAPEvent(newState.channelId, newState.guild.id)) {
 			Log.log(`user has deafened for new channel, userId: ${newState.id}`);
-			await removeDeafenedUser(newState.channelId, newState.guild.id, newState.id);
+			await updateDeafenedUser({ id: newState.id, tag: newState.member?.user.tag }, newState.channelId, newState.guild.id, newState.id);
 		}
 		return;
 	}
@@ -37,7 +36,7 @@ const HandleParticipantDuringEvent = async (oldState: VoiceState, newState: Voic
 	if (hasUserBeenUnDeafened(oldState, newState)) {
 		if (await isChannelActivePOAPEvent(newState.channelId, newState.guild.id)) {
 			Log.log(`user has undeafened for new channel, userId: ${newState.id}`);
-			await startTrackingUserParticipation({ id: newState.id, tag: newState.member?.user.tag }, newState.guild.id, newState.channelId);
+			await startTrackingUndeafenedUserParticipation({ id: newState.id, tag: newState.member?.user.tag }, newState.guild.id, newState.channelId);
 		}
 	}
 	
@@ -96,7 +95,7 @@ const isChannelActivePOAPEvent = async (
 	return false;
 };
 
-const removeDeafenedUser = async (channelId: string | null, guildId: string | null, userId: string | null) => {
+const updateDeafenedUser = async (user:BasicUser, channelId: string | null, guildId: string | null, userId: string | null) => {
 	if (channelId == null || guildId == null || userId == null) {
 		return;
 	}
@@ -104,18 +103,60 @@ const removeDeafenedUser = async (channelId: string | null, guildId: string | nu
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const poapParticipantsCol: Collection<POAPParticipant> = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
 	
-	const result: DeleteWriteOpResultObject | void = await poapParticipantsCol.deleteOne({
-		voiceChannelId: channelId,
-		discordServerId: guildId,
-		discordUserId: userId,
-	}).catch(Log.warn);
-	if (result != null && result.deletedCount == 1) {
-		Log.debug(`user deafened themselves and removed from db, userId: ${userId}, channelId: ${channelId}, discordServerId: ${guildId}`);
+	const participant = retrieveActiveParticipant(user, channelId, guildId);
+	const result: UpdateWriteOpResult | void = await poapParticipantsCol.updateOne(participant, {
+		$set: {
+			timeDeafened: dayjs().toISOString(),
+		},
+	}).catch(Log.error);
+	if (result != null) {
+		Log.debug(`user deafened themselves and updated db, userId: ${userId}, channelId: ${channelId}, discordServerId: ${guildId}`);
 		return;
 	}
 	Log.debug('deafened user not removed/found in any active channels');
 };
+export const startTrackingUndeafenedUserParticipation = async (user: BasicUser, guildId: string, channelId: string | null): Promise<void> => {
 
+	const participant = await retrieveActiveParticipant(user, channelId, guildId);
+	
+	channelId = channelId as string;
+	guildId = guildId as string;
+	
+	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
+	const poapParticipantsDb: Collection<POAPParticipant> = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
+	if (participant == null) {
+		const userTag: string = user.tag ? user.tag : '';
+		const resultInsert: InsertOneWriteOpResult<POAPParticipant> | void = await poapParticipantsDb.insertOne({
+			discordUserId: user.id,
+			discordUserTag: userTag,
+			voiceChannelId: channelId,
+			startTime: dayjs().toISOString(),
+			discordServerId: guildId,
+			durationInMinutes: 0,
+		} as POAPParticipant).catch(Log.error);
+		if (resultInsert == null || resultInsert.insertedCount !== 1) {
+			throw new MongoError('failed to insert poapParticipant');
+		}
+		Log.debug(`${user.tag} | joined, channelId: ${channelId}, guildId: ${guildId}, userId: ${user.id}`);
+		return;
+	}
+	let deafenedDuration = dayjs().diff(participant?.timeDeafened, 'm', true);
+	if (participant.minutesDeafenedInMeeting) {
+		deafenedDuration += participant.minutesDeafenedInMeeting;
+	}
+	const updateResult: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
+		$set: {
+			minutesDeafenedInMeeting: deafenedDuration,
+		},
+		$unset: {
+			timeDeafened: '',
+		},
+	}).catch(Log.error);
+	if (!updateResult) {
+		Log.debug('user not updated in db');
+	}
+
+};
 export const startTrackingUserParticipation = async (user: BasicUser, guildId: string, channelId: string | null): Promise<void> => {
 	const participant = await retrieveActiveParticipant(user, channelId, guildId);
 	
@@ -140,13 +181,19 @@ export const startTrackingUserParticipation = async (user: BasicUser, guildId: s
 		Log.debug(`${user.tag} | joined, channelId: ${channelId}, guildId: ${guildId}, userId: ${user.id}`);
 		return;
 	}
-	if (participant.endTime != null) {
+	if (participant.endTime != null && participant.timeLeft != null) {
+		let minutesAbsent = dayjs().diff(participant.timeLeft, 'm', true);
+		if (participant.minutesAbsent) {
+			minutesAbsent += participant.minutesAbsent;
+		}
 		const updateResult: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
 			$set: {
-				startTime: dayjs().toISOString(),
+				timeJoined: dayjs().toISOString(),
+				minutesAbsent: minutesAbsent,
 			},
 			$unset: {
 				endTime: '',
+				timeLeft: '',
 			},
 		}).catch(Log.error);
 		
@@ -169,13 +216,14 @@ export const stopTrackingUserParticipation = async (user: BasicUser, guildId: st
 	channelId = channelId as string;
 	guildId = guildId as string;
 	
-	const durationInMinutes: number = calculateDuration(participant.startTime, participant.durationInMinutes);
 	const db: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const poapParticipantsDb: Collection<POAPParticipant> = db.collection(constants.DB_COLLECTION_POAP_PARTICIPANTS);
+	const minutesAbsent = dayjs().diff(participant?.timeLeft, 'm', true);
 	const result: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
 		$set: {
 			endTime: dayjs().toISOString(),
-			durationInMinutes: durationInMinutes,
+			timeLeft: dayjs().toISOString(),
+			minutesAbsent: minutesAbsent,
 		},
 	}).catch(Log.error);
 	
@@ -184,15 +232,54 @@ export const stopTrackingUserParticipation = async (user: BasicUser, guildId: st
 	}
 	Log.debug(`${user.tag} | left, channelId: ${channelId}, guildId: ${guildId}, userId: ${user.id}`);
 };
-
-const calculateDuration = (startTime: string, currentDuration: number): number => {
-	const currentDate: Dayjs = dayjs();
-	const startTimeDate: Dayjs = dayjs(startTime);
-	let durationInMinutes: number = currentDuration;
-	if ((currentDate.unix() - startTimeDate.unix() > 0)) {
-		durationInMinutes += ((currentDate.unix() - startTimeDate.unix()) / 60);
+export const updateDurations = async (participant: POAPParticipant, poapParticipantsDb: Collection<POAPParticipant>): Promise<void> => {
+	let minutesDeafened = 0;
+	let minutesAbsent = 0;
+	if(participant.timeLeft != '' && participant.timeLeft != null) {
+		minutesAbsent = dayjs().diff(participant?.timeLeft, 'm', true);
+		if (participant.minutesAbsent) {
+			minutesAbsent += participant.minutesAbsent;
+		}
+		const updateResult: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
+			$set: {
+				minutesAbsent: minutesAbsent,
+			},
+		}).catch(Log.error);
+		
+		if (updateResult == null || updateResult.result.ok != 1) {
+			Log.error('failed to update participant in db');
+		}
 	}
-	return durationInMinutes;
+
+	if(participant.timeDeafened != '' && participant.timeDeafened != null) {
+		minutesDeafened = dayjs().diff(participant?.timeDeafened, 'm', true);
+		if (participant.minutesDeafenedInMeeting) {
+			minutesDeafened += participant.minutesDeafenedInMeeting;
+		}
+		
+		const updateResult: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
+			$set: {
+				minutesDeafenedInMeeting: minutesDeafened,
+			},
+		}).catch(Log.error);
+		
+		if (updateResult == null || updateResult.result.ok != 1) {
+			Log.error('failed to update participant in db');
+		}
+	}
+
+	// update the amount of time the user spent active
+	let durationInMinutes = dayjs().diff(participant.startTime, 'm', true);
+	durationInMinutes = durationInMinutes - minutesDeafened - minutesAbsent;
+	const updateResult: UpdateWriteOpResult | void = await poapParticipantsDb.updateOne(participant, {
+		$set: {
+			durationInMinutes: durationInMinutes,
+			endTime: dayjs().toISOString(),
+		},
+	}).catch(Log.error);
+	if (updateResult == null || updateResult.result.ok != 1) {
+		Log.error('failed to update participant in db');
+	}
 };
 
 const retrieveActiveParticipant = async (

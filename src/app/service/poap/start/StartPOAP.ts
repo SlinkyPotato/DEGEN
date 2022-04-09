@@ -272,3 +272,4 @@ export const setActiveEventInDb = async (guildMember: GuildMember, db: Db, chann
 	await storePresentMembers(db, channelChoice);
 	POAPService.setupAutoEndForEvent(guildMember.client, activeEventResult.value as POAPSettings, constants.PLATFORM_TYPE_DISCORD);
 };
+

@@ -27,11 +27,12 @@ import {
 	MessageEmbedOptions as MessageEmbedOptionsSlash,
 } from 'slash-create';
 import POAPUtils from '../../utils/POAPUtils';
-import apiKeys from '../constants/apiKeys';
 import ValidationError from '../../errors/ValidationError';
 
 const ClaimPOAP = async (ctx: CommandContext, platform: string, guildMember?: GuildMember): Promise<any> => {
 	Log.debug(`starting claim for ${ctx.user.username}, with ID: ${ctx.user.id}`);
+	
+	await ctx.defer(true);
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
 		if (!guildMember) {
@@ -79,7 +80,7 @@ export const claimForDiscord = async (userId: string, ctx?: CommandContext | nul
 	let result: Message | MessageSlash | boolean | void;
 	if (ctx) {
 		Log.debug('sending message in channel');
-		await ctx.send({ content: `POAP claimed! Consider sending \`gm\` to <@${apiKeys.DISCORD_BOT_ID}> to get POAPs directly in your wallet.`, ephemeral: false });
+		await ctx.send({ content: 'POAP claimed! Consider sending `gm` to DEGEN to get POAPs directly in your wallet.', ephemeral: false });
 		const embeds: MessageEmbedOptionsSlash[] = await generatePOAPClaimEmbedMessages(numberOfPOAPs, unclaimedParticipants) as MessageEmbedOptionsSlash[];
 		result = await ctx.send({
 			embeds: embeds,

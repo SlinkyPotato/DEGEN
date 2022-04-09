@@ -1,11 +1,17 @@
 # Changelog
 
-## 2.9.0
+## 2.8.2-RELEASE (2022-02-07)
 
-1. Connect Wallet with `/connect` command.
-2. Read currently connected wallet with `/wallet` command.
+1. Remove deletion of message attachments
 
-## 2.8.0
+## 2.8.1-RELEASE (2022-01-31)
+
+1. Disable all DMs
+2. Enhance poap url logging
+3. Remove all mentions (except for self reference of the discord bot)
+4. Add eol-last rule to eslint
+
+## 2.8.0-RELEASE (2022-01-28)
 
 1. Remove poap delivery via dm, store poap for user
 2. Add platform to `/claim`

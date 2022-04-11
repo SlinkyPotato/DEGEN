@@ -1,8 +1,6 @@
 import {
 	GuildMember,
 	Message,
-	MessageActionRow,
-	MessageButton,
 	MessageEmbedOptions,
 	MessageOptions,
 	Role,
@@ -43,14 +41,9 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles: stri
 		throw new ValidationError('Sorry, only discord admins and managers can configure poap settings.');
 	}
 	
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'I can help you configure authorized users for the POAP commands!');
 	await ctx.defer(true);
 	
-	if (isDmOn) {
-		await ctx.send({ content: 'I just sent you a DM!', ephemeral: true });
-	} else {
-		await ctx.send({ content: '⚠ **Please make sure this is a private channel.** I can help you configure authorized users for the POAP commands!', ephemeral: true });
-	}
+	await ctx.send({ content: '⚠ **Please make sure this is a private channel.** I can help you configure authorized users for the POAP commands!', ephemeral: true });
 	
 	const authorizedRoles: Role[] = await retrieveRoles(guildMember, roles);
 	const authorizedUsers: GuildMember[] = await retrieveUsers(guildMember, users);
@@ -71,7 +64,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles: stri
 	};
 	Log.debug(`${guildMember.user.tag} is authorized to use poap modify`);
 	
-	const isApproval: boolean = await askForGrantOrRemoval(ctx, guildMember, authorizedRoles, authorizedUsers, isDmOn, intro);
+	const isApproval: boolean = await askForGrantOrRemoval(ctx, guildMember, authorizedRoles, authorizedUsers, intro);
 	const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	let confirmationMsg;
 	if (isApproval) {
@@ -92,13 +85,12 @@ export default async (ctx: CommandContext, guildMember: GuildMember, roles: stri
 		embeds: [confirmationMsg],
 		ephemeral: true,
 	};
-	await ServiceUtils.sendContextMessage(endConfigMsg, isDmOn, guildMember, ctx);
+	await ServiceUtils.sendContextMessage(endConfigMsg, guildMember, ctx);
 	return;
 };
 
 export const askForGrantOrRemoval = async (
-	ctx: CommandContext, guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[],
-	isDmOn: boolean, intro?: MessageEmbedOptions | MessageEmbedOptionsSlash,
+	ctx: CommandContext, guildMember: GuildMember, authorizedRoles: Role[], authorizedUsers: GuildMember[], intro?: MessageEmbedOptions | MessageEmbedOptionsSlash,
 ): Promise<boolean> => {
 	const fields = [];
 	for (const role of authorizedRoles) {
@@ -124,58 +116,36 @@ export const askForGrantOrRemoval = async (
 		description: 'Should the given list of users and roles be given access or should they get removed?',
 		fields: fields,
 	};
-	
-	let msg1: MessageOptions | MessageOptionsSlash;
-	if (isDmOn) {
-		whichRolesAreAllowedQuestion = whichRolesAreAllowedQuestion as MessageEmbedOptions;
-		whichRolesAreAllowedQuestion.timestamp = new Date().getTime();
-		msg1 = {
-			embeds: [intro, whichRolesAreAllowedQuestion],
-			components: [
-				new MessageActionRow().addComponents(
-					new MessageButton()
-						.setCustomId(buttonIds.POAP_CONFIG_APPROVE)
-						.setLabel('Approve')
-						.setStyle('SUCCESS'),
-					new MessageButton()
-						.setCustomId(buttonIds.POAP_CONFIG_REMOVE)
-						.setLabel('Remove')
-						.setStyle('DANGER'),
-				),
-			],
-		} as MessageOptions;
-	} else {
-		whichRolesAreAllowedQuestion = whichRolesAreAllowedQuestion as MessageEmbedOptionsSlash;
-		whichRolesAreAllowedQuestion.timestamp = dayjs().toDate();
-		msg1 = {
-			embeds: [intro, whichRolesAreAllowedQuestion],
+		
+	whichRolesAreAllowedQuestion = whichRolesAreAllowedQuestion as MessageEmbedOptionsSlash;
+	whichRolesAreAllowedQuestion.timestamp = dayjs().toDate();
+	const msg1 = {
+		embeds: [intro, whichRolesAreAllowedQuestion],
+		components: [{
+			type: ComponentType.ACTION_ROW,
 			components: [{
-				type: ComponentType.ACTION_ROW,
-				components: [{
-					type: ComponentType.BUTTON,
-					style: ButtonStyle.SUCCESS,
-					label: 'Approve',
-					custom_id: buttonIds.POAP_CONFIG_APPROVE,
-				}, {
-					type: ComponentType.BUTTON,
-					style: ButtonStyle.DESTRUCTIVE,
-					label: 'Reject',
-					custom_id: buttonIds.POAP_CONFIG_REMOVE,
-				}],
+				type: ComponentType.BUTTON,
+				style: ButtonStyle.SUCCESS,
+				label: 'Approve',
+				custom_id: buttonIds.POAP_CONFIG_APPROVE,
+			}, {
+				type: ComponentType.BUTTON,
+				style: ButtonStyle.DESTRUCTIVE,
+				label: 'Reject',
+				custom_id: buttonIds.POAP_CONFIG_REMOVE,
 			}],
-			ephemeral: true,
-		} as MessageOptionsSlash;
-	}
+		}],
+		ephemeral: true,
+	} as MessageOptionsSlash;
 	
-	let message = await ServiceUtils.sendContextMessage(msg1, isDmOn, guildMember, ctx);
 	
-	if (isDmOn) {
-		message = message as Message;
-	} else {
-		message = message as MessageSlash;
-		const textChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
-		message = await textChannel.messages.fetch(message.id) as Message;
-	}
+	let message = await ServiceUtils.sendContextMessage(msg1, guildMember, ctx);
+	
+	
+	message = message as MessageSlash;
+	const textChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
+	message = await textChannel.messages.fetch(message.id) as Message;
+	
 	let configConsent = false;
 	await message.awaitMessageComponent({
 		time: 600_000,

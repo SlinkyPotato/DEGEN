@@ -1,4 +1,8 @@
-# Mad Hatter
+# DEGEN POAP Distribution Bot
+
+This  archived repository, please see [degen-workgroup](https://github.com/degen-workgroup) for the official github repositories.
+
+We can also be found on our official [DEGEN Product Support Discord](https://discord.gg/TPEr4hy32x).
 
 ## What We Need
 
@@ -15,9 +19,6 @@ in [CONTRIBUTING.md](docs/CONTRIBUTING.md). This consists of setting up your own
 to the test server, and acquiring the tokens to connect with the test Notion
 and database.
 
-## Official Links
+## Links
 
-- [DEGEN Workgroup Github](https://github.com/degen-workgroup)
-- [Guild Sign Up Form](https://docs.google.com/forms/d/e/1FAIpQLScpV0-OTbcRj-fH8zv7y9EYom-J-PtKxJSgGjBTUmKQ1pHv1g/viewform)
-- [Meeting Notes](https://www.notion.so/Developers-Guild-7dbde19a264d43debf75ecb27a9d406c)
-- [DEV Guild Projects](https://www.notion.so/Dev-Guild-Projects-2d36ac50c02640bda22fbbf72069afe3)
+- [DEGEN Product Support Discord](https://discord.gg/TPEr4hy32x)

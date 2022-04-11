@@ -1,6 +1,5 @@
 import {
 	GuildMember,
-	MessageEmbedOptions,
 	MessageOptions,
 } from 'discord.js';
 import apiKeys from '../constants/apiKeys';
@@ -13,7 +12,6 @@ import {
 import { NextAuthAccountCollection } from '../../types/nextauth/NextAuthAccountCollection';
 import Log from '../../utils/Log';
 import { TwitterApi, UserV1 } from 'twitter-api-v2';
-import ServiceUtils from '../../utils/ServiceUtils';
 import {
 	CommandContext,
 	MessageOptions as MessageOptionsSlash,
@@ -30,33 +28,23 @@ export type VerifiedTwitter = {
 
 const VerifyTwitter = async (ctx: CommandContext, guildMember: GuildMember, sendConfirmationMsg: boolean): Promise<VerifiedTwitter | undefined> => {
 	Log.debug('starting to verify twitter account link');
-	
-	const isDmOn: boolean = (sendConfirmationMsg) ? await ServiceUtils.tryDMUser(guildMember, 'Hi! Let me check your twitter info.') : false;
-	
+		
 	// important
 	await ctx.defer(true);
-	
-	if (isDmOn) {
-		await ctx.send({ content: 'DM sent!', ephemeral: true });
-	}
 	
 	const verifiedTwitter: VerifiedTwitter | null = await retrieveVerifiedTwitter(guildMember);
 	
 	if (verifiedTwitter == null) {
-		await sendTwitterAuthenticationMessage(guildMember, ctx, isDmOn);
+		await sendTwitterAuthenticationMessage(guildMember, ctx);
 		return;
 	}
 	
 	Log.debug(`${guildMember.user.tag} has linked their twitter account, twitterId: ${verifiedTwitter.twitterUser.id_str}, sending message`);
 	
 	if (sendConfirmationMsg) {
-		if (isDmOn) {
-			const embedMsg: MessageEmbedOptions = generateTwitterEmbedItem(verifiedTwitter) as MessageEmbedOptions;
-			await guildMember.send({ embeds: [embedMsg] });
-		} else {
-			const embedMsg: MessageEmbedOptionsSlash = generateTwitterEmbedItem(verifiedTwitter) as MessageEmbedOptionsSlash;
-			await ctx.send({ embeds: [embedMsg], ephemeral: true });
-		}
+		const embedMsg: MessageEmbedOptionsSlash = generateTwitterEmbedItem(verifiedTwitter) as MessageEmbedOptionsSlash;
+		await ctx.send({ embeds: [embedMsg], ephemeral: true });
+	
 	}
 	
 	Log.debug('done verifying twitter account');
@@ -127,7 +115,7 @@ export const retrieveVerifiedTwitter = async (guildMember: GuildMember): Promise
 	};
 };
 
-const sendTwitterAuthenticationMessage = async (guildMember: GuildMember, ctx: CommandContext, isDmOn: boolean): Promise<void> => {
+const sendTwitterAuthenticationMessage = async (guildMember: GuildMember, ctx: CommandContext): Promise<void> => {
 	Log.info(`${guildMember.user.tag} is not twitter authorized, sending request to link`);
 	let msg: MessageOptions | MessageOptionsSlash = {
 		embeds: [
@@ -140,14 +128,9 @@ const sendTwitterAuthenticationMessage = async (guildMember: GuildMember, ctx: C
 			},
 		],
 	};
-	if (isDmOn) {
-		msg = msg as MessageOptions;
-		await guildMember.send(msg).catch(Log.error);
-	} else {
-		msg = msg as MessageOptionsSlash;
-		msg.ephemeral = true;
-		await ctx.send(msg).catch(Log.error);
-	}
+	msg = msg as MessageOptionsSlash;
+	msg.ephemeral = true;
+	await ctx.send(msg).catch(Log.error);
 };
 
 export default VerifyTwitter;

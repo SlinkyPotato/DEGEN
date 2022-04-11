@@ -31,7 +31,6 @@ export default class implements DiscordEvent {
 			POAPService.runAutoEndSetup(client, constants.PLATFORM_TYPE_TWITTER).catch(Log.error);
 			await POAPService.clearExpiredPOAPs().catch(Log.error);
 			POAPService.setupPOAPCleanupCronJob();
-			
 			Log.info(`${constants.APP_NAME} is ready!`);
 		} catch (e) {
 			LogUtils.logError('Error processing event ready', e);
@@ -40,6 +39,7 @@ export default class implements DiscordEvent {
 }
 
 const updateActiveDiscordServers = async (client: Client, db: Db) => {
+	Log.debug(' Starting UpdateActiveDiscordServers');
 	const guilds: Collection<Snowflake, OAuth2Guild> = await client.guilds.fetch();
 	const discordServerCollection = await db.collection<DiscordServerCollection>(constants.DB_COLLECTION_DISCORD_SERVERS);
 	await discordServerCollection.updateMany({}, {

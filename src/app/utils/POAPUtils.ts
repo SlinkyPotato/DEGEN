@@ -1,6 +1,5 @@
 import {
 	AwaitMessagesOptions,
-	DMChannel,
 	GuildMember,
 	Message,
 	MessageAttachment,
@@ -93,7 +92,7 @@ const POAPUtils = {
 	},
 	
 	async askForPOAPLinks(
-		guildMember: GuildMember, isDmOn: boolean, numberOfParticipants: number, ctx?: CommandContext,
+		guildMember: GuildMember, numberOfParticipants: number, ctx?: CommandContext,
 		adminChannel?: TextChannel | null,
 	): Promise<MessageAttachment> {
 		Log.debug('asking poap organizer for poap links attachment');
@@ -106,13 +105,7 @@ const POAPUtils = {
 		};
 		
 		let message: Message | undefined;
-		if (isDmOn) {
-			const promptMsg: Message = await guildMember.send({ content: uploadLinksMsg });
-			const dmChannel: DMChannel = await promptMsg.channel.fetch() as DMChannel;
-			message = (await dmChannel.awaitMessages(replyOptions).catch(() => {
-				throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
-			})).first();
-		} else if (ctx) {
+		if (ctx) {
 			await ctx.send({ content: uploadLinksMsg, ephemeral: true });
 			const guildChannel: TextChannel = await guildMember.guild.channels.fetch(ctx.channelID) as TextChannel;
 			message = (await guildChannel.awaitMessages(replyOptions).catch(() => {
@@ -135,7 +128,7 @@ const POAPUtils = {
 			throw new ValidationError('Invalid attachment. Session ended, please try the command again.');
 		}
 		
-		Log.info(`obtained poap links attachment in discord: ${poapLinksFile.url}, poapOrganizerId: ${guildMember.id}`);
+		Log.debug(`obtained poap links attachment in discord: ${poapLinksFile.url}`);
 		return poapLinksFile;
 	},
 	
@@ -493,7 +486,7 @@ const POAPUtils = {
 	},
 	
 	async handleDistributionResults(
-		isDmOn: boolean, guildMember: GuildMember, distributionResults: POAPDistributionResults,
+		guildMember: GuildMember, distributionResults: POAPDistributionResults,
 		channelExecution?: TextChannel | null, ctx?: CommandContext,
 	): Promise<void> {
 		const failedPOAPsBuffer: Buffer = ServiceUtils.generateCSVStringBuffer(distributionResults.didNotSendList);
@@ -513,11 +506,7 @@ const POAPUtils = {
 			],
 		};
 		
-		if (isDmOn) {
-			distributionEmbedMsg = distributionEmbedMsg as MessageOptions;
-			distributionEmbedMsg.files = [{ name: 'failed_to_send_poaps.csv', attachment: failedPOAPsBuffer }];
-			await guildMember.send(distributionEmbedMsg).catch(Log.error);
-		} else if (ctx) {
+		if (ctx) {
 			distributionEmbedMsg = distributionEmbedMsg as MessageOptionsSlash;
 			distributionEmbedMsg.ephemeral = true;
 			distributionEmbedMsg.file = [{ name: 'failed_to_send_poaps.csv', file: failedPOAPsBuffer }];
@@ -538,7 +527,7 @@ const POAPUtils = {
 		const resultsMsg: MessageOptions | MessageOptionsSlash = {
 			content: 'Distribution complete! Some degens have not connected their wallets, they can claim their POAPs with `/claim` command.',
 		};
-		await ServiceUtils.sendContextMessage(resultsMsg, isDmOn, guildMember, ctx, channelExecution);
+		await ServiceUtils.sendContextMessage(resultsMsg, guildMember, ctx, channelExecution);
 		// if (distributionResults.successfullySent == distributionResults.totalParticipants) {
 		// 	Log.debug('all POAPs successfully delivered');
 		// 	const deliveryMsg = 'All POAPs delivered!';
@@ -548,7 +537,7 @@ const POAPUtils = {
 		// 		await ctx.send({ content: deliveryMsg, ephemeral: true });
 		// 	}
 		// } else {
-		// 	const failedDeliveryMsg = `Looks like some degens have DMs off or they haven't opted in for delivery. They can claim their POAPs by sending \`gm\` to DEGEN or executing slash command  \`/poap claim\``;
+		// 	const failedDeliveryMsg = `Looks like some degens have DMs off or they haven't opted in for delivery. They can claim their POAPs by sending \`gm\` to <@${ApiKeys.DISCORD_BOT_ID}> or executing slash command  \`/poap claim\``;
 		// 	if (isDmOn) {
 		// 		await guildMember.send({ content: failedDeliveryMsg });
 		// 	} else if (ctx) {

@@ -19,13 +19,9 @@ const StatusPOAP = async (ctx: CommandContext, guildMember: GuildMember): Promis
 	}
 	
 	Log.debug(`${guildMember.user.tag} is authorized to use poap status`);
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'I can show you the list of authorized roles and users for POAP commands!');
 	
-	if (isDmOn) {
-		await ctx.send({ content: 'I just send you a DM!', ephemeral: true });
-	} else {
-		await ctx.send({ content: '⚠ **Please make sure this is a private channel.** I can show you the list of authorized roles and users for POAP commands!', ephemeral: true });
-	}
+	await ctx.send({ content: '⚠ **Please make sure this is a private channel.** I can show you the list of authorized roles and users for POAP commands!', ephemeral: true });
+	
 	
 	const dbInstance: Db = await MongoDbUtils.connect(constants.DB_NAME_DEGEN);
 	const poapAdminDb: MongoCollection<POAPAdmin> = dbInstance.collection(constants.DB_COLLECTION_POAP_ADMINS);
@@ -61,11 +57,7 @@ const StatusPOAP = async (ctx: CommandContext, guildMember: GuildMember): Promis
 	
 	if (authorizedUsers.length <= 0 && authorizedRoles.length <= 0) {
 		const notConfiguredMsg = 'POAP command access not yet configured!';
-		if (isDmOn) {
-			await guildMember.send({ content: notConfiguredMsg }).catch(Log.error);
-		} else {
-			await ctx.send({ content: notConfiguredMsg, ephemeral: true }).catch(Log.error);
-		}
+		await ctx.send({ content: notConfiguredMsg, ephemeral: true }).catch(Log.error);
 		Log.debug('Discord server not yet configured');
 		return;
 	}
@@ -73,23 +65,15 @@ const StatusPOAP = async (ctx: CommandContext, guildMember: GuildMember): Promis
 	if (authorizedUsers.length > 0) {
 		const userTitle = 'Authorized POAP Users';
 		const userDescription = 'List of authorized users that can use the POAP commands.';
-		const authorizedUsersMsg: MessageOptionsSlash | MessageOptions = ServiceUtils.generateEmbedFieldsMessage(isDmOn, authorizedUsers, userTitle, userDescription);
-		if (isDmOn) {
-			await guildMember.send(authorizedUsersMsg as MessageOptions).catch(Log.error);
-		} else {
-			await ctx.sendFollowUp(authorizedUsersMsg as MessageOptionsSlash).catch(Log.error);
-		}
+		const authorizedUsersMsg: MessageOptionsSlash | MessageOptions = ServiceUtils.generateEmbedFieldsMessage(authorizedUsers, userTitle, userDescription);
+		await ctx.sendFollowUp(authorizedUsersMsg as MessageOptionsSlash).catch(Log.error);
 	}
 	
 	if (authorizedRoles.length > 0) {
 		const roleTitle = 'Authorized POAP Roles';
 		const roleDescription = 'List of authorized roles that can use the POAP commands.';
-		const authorizedRolesMsg: MessageOptionsSlash | MessageOptions = ServiceUtils.generateEmbedFieldsMessage(isDmOn, authorizedRoles, roleTitle, roleDescription);
-		if (isDmOn) {
-			await guildMember.send(authorizedRolesMsg as MessageOptions).catch(Log.error);
-		} else {
-			await ctx.sendFollowUp(authorizedRolesMsg as MessageOptionsSlash).catch(Log.error);
-		}
+		const authorizedRolesMsg: MessageOptionsSlash | MessageOptions = ServiceUtils.generateEmbedFieldsMessage(authorizedRoles, roleTitle, roleDescription);
+		await ctx.sendFollowUp(authorizedRolesMsg as MessageOptionsSlash).catch(Log.error);
 	}
 	
 	Log.debug('list of authorized users and roles sent');

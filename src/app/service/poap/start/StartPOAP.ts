@@ -52,7 +52,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	
 	Log.debug('poap start validated');
 	
-	await ctx.defer(true);
+	await ctx.defer();
 	
 	if (platform == constants.PLATFORM_TYPE_TWITTER) {
 		await StartTwitterFlow(ctx, guildMember, db, event, duration);
@@ -71,18 +71,16 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 		throw new ValidationError(`Please end \`${activeSettings.voiceChannelName}\` event before starting a new event.`);
 	}
 	
-	const isDmOn: boolean = await ServiceUtils.tryDMUser(guildMember, 'Hello! In which voice channel should the POAP event start?');
 	const voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel> = ServiceUtils.getAllVoiceChannels(guildMember);
 	
-	if (!isDmOn) {
-		await StartChannelFlow(ctx, guildMember, db, event, duration, poapSettingsDB);
-		return;
-	}
+	
+	await StartChannelFlow(ctx, guildMember, db, event, duration, poapSettingsDB);
+		
 	
 	const message: Message = await guildMember.send({ embeds: generateVoiceChannelEmbedMessage(voiceChannels) as MessageEmbedOptions[] });
 	await ctx.send({ content: 'Please check your DMs!', ephemeral: true });
 	const channel: DMChannel = await message.channel.fetch() as DMChannel;
-	const channelChoice: GuildChannel | undefined = await askUserForChannel(guildMember, channel, voiceChannels, true, ctx);
+	const channelChoice: GuildChannel | undefined = await askUserForChannel(guildMember, channel, voiceChannels, ctx);
 	if (!channelChoice) {
 		throw new ValidationError('Missing channel');
 	}
@@ -95,7 +93,7 @@ export default async (ctx: CommandContext, guildMember: GuildMember, platform: s
 	if (poapSettingsDoc != null && poapSettingsDoc.isActive) {
 		Log.info('unable to start due to active event');
 		await guildMember.send({ content: 'Event is already active.' });
-		throw new ValidationError(`\`${channelChoice.name}\` is already active. Please reach out to support to end event.`);
+		throw new ValidationError(`\`${channelChoice.name}\` is already active. Please reach out to <@${poapSettingsDoc.discordUserId}> to end event.`);
 	}
 	
 	await setActiveEventInDb(guildMember, db, channelChoice, event, duration, channelIds.DM);
@@ -190,7 +188,6 @@ export const askUserForChannel = async (
 	guildMember: GuildMember,
 	channel: TextChannel | DMChannel,
 	voiceChannels: DiscordCollection<string, VoiceChannel | StageChannel>,
-	isDmOn: boolean,
 	ctx?: CommandContext,
 ): Promise<GuildChannel | undefined> => {
 	Log.debug('asking poap organizer for channel');
@@ -214,19 +211,14 @@ export const askUserForChannel = async (
 			throw new ValidationError('Please enable view channel and send messages permission for this channel.');
 		}
 		if (channelChoice === 'no') {
-			if (isDmOn) {
-				await guildMember.send({ content: '👍' });
-			}
 			throw new EarlyTermination('Command terminated early.');
 		}
 		channelNumber = Number(channelChoice);
 		if (isNaN(channelNumber) || channelNumber <= 0 || channelNumber > voiceChannels.size) {
 			Log.warn('sent invalid channel number');
 			const enterValidNumberMsg = 'Please enter a valid channel number or `no` to exit.';
-			if (isDmOn) {
-				await guildMember.send({ content: enterValidNumberMsg }).catch(Log.error);
-			} else if (ctx) {
-				await ctx.send(enterValidNumberMsg).catch(Log.error);
+			if (ctx) {
+				await ctx.sendFollowUp(enterValidNumberMsg).catch(Log.error);
 			}
 		} else {
 			break;
@@ -280,3 +272,4 @@ export const setActiveEventInDb = async (guildMember: GuildMember, db: Db, chann
 	await storePresentMembers(db, channelChoice);
 	POAPService.setupAutoEndForEvent(guildMember.client, activeEventResult.value as POAPSettings, constants.PLATFORM_TYPE_DISCORD);
 };
+

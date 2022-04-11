@@ -33,7 +33,7 @@ const StartChannelFlow = async (
 	
 	const channel: TextChannel = await guildMember.guild.channels.fetch(message.channelID) as TextChannel;
 	
-	const channelChoice: GuildChannel | undefined = await askUserForChannel(guildMember, channel, voiceChannels, false, ctx);
+	const channelChoice: GuildChannel | undefined = await askUserForChannel(guildMember, channel, voiceChannels, ctx);
 	if (!channelChoice) {
 		throw new ValidationError('Missing channel');
 	}

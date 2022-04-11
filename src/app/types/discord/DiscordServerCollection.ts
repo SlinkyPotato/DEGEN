@@ -4,7 +4,7 @@ import {
 } from 'mongodb';
 
 export interface DiscordServerCollection extends Collection {
-	_id: ObjectId
+	_id: ObjectId,
 	serverId: string,
 	name: string,
 	isDEGENActive: boolean,

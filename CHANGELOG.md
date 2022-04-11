@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.3-Release (2022-04-11)
+
+1. Update readme and deps
+
 ## 2.8.2-RELEASE (2022-02-07)
 
 1. Remove deletion of message attachments

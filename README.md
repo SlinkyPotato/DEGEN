@@ -1,6 +1,4 @@
-# BanklessBot
-Bankless Discord Bot development<br>
-Multisig Wallet: 0x735FF6F197B0dc18eBEE127DD918d2111Eaf8220 (https://etherscan.io/address/0x735ff6f197b0dc18ebee127dd918d2111eaf8220)
+# Mad Hatter
 
 ## What We Need
 
@@ -17,12 +15,9 @@ in [CONTRIBUTING.md](docs/CONTRIBUTING.md). This consists of setting up your own
 to the test server, and acquiring the tokens to connect with the test Notion
 and database.
 
-## Notion Links
+## Official Links
 
--   [Guild Sign Up Form](https://docs.google.com/forms/d/e/1FAIpQLScpV0-OTbcRj-fH8zv7y9EYom-J-PtKxJSgGjBTUmKQ1pHv1g/viewform)
--   [Meeting Notes](https://www.notion.so/Developers-Guild-7dbde19a264d43debf75ecb27a9d406c)
--   [Bot Suggestion Form](https://docs.google.com/forms/d/e/1FAIpQLSffkvYdOeW5k3DAXeMl82wGlpuz8oZVIEOuf6mHFpYCriHqbw/viewform)
--   [DEV Guild Projects](https://www.notion.so/Dev-Guild-Projects-2d36ac50c02640bda22fbbf72069afe3)
-
-## RUNNING MONGODB
-https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
+- [DEGEN Workgroup Github](https://github.com/degen-workgroup)
+- [Guild Sign Up Form](https://docs.google.com/forms/d/e/1FAIpQLScpV0-OTbcRj-fH8zv7y9EYom-J-PtKxJSgGjBTUmKQ1pHv1g/viewform)
+- [Meeting Notes](https://www.notion.so/Developers-Guild-7dbde19a264d43debf75ecb27a9d406c)
+- [DEV Guild Projects](https://www.notion.so/Dev-Guild-Projects-2d36ac50c02640bda22fbbf72069afe3)

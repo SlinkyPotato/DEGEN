@@ -1,16 +1,6 @@
 # DEGEN POAP Distribution Bot
 
-This  archived repository, please see [degen-workgroup](https://github.com/degen-workgroup) for the official github repositories.
-
-We can also be found on our official [DEGEN Product Support Discord](https://discord.gg/TPEr4hy32x).
-
-## What We Need
-
-Devs, testers, reviewers. If you are interested in developing features for
-the bot, please see the Getting Started heading below. If you want to be
-involved as a tester, please connect with a developer; paired programming
-will be a big win here. If you are interested in helping as a reviewer,
-please connect with any package maintainer for details on workflow.
+This an archived repository, the latest changes can be seen in the [DEGEN Support Discord](https://discord.com/channels/960929573825028107/1006942975051440199).
 
 ## Getting Started
 
@@ -21,4 +11,7 @@ and database.
 
 ## Links
 
-- [DEGEN Product Support Discord](https://discord.gg/TPEr4hy32x)
+- [DEGEN Support Discord](https://discord.gg/TPEr4hy32x)
+- [Docs](https://docs.degenapp.com/)
+- [Twitter](https://twitter.com/DEGEN_POAP)
+- [Patreon](https://www.patreon.com/degenapp)
